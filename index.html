@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<!--
+    ════════════════════════════════════════════════════════════════════
+    Barman PRO · Calcolatore Eventi
+    ════════════════════════════════════════════════════════════════════
+    Copyright (c) 2026 Samuele Racca
+    Rilasciato con licenza MIT — vedi file LICENSE per il testo completo.
+
+    Strumento per il calcolo della lista della spesa di eventi di
+    miscelazione, basato sulle 102 ricette ufficiali IBA 2024 e sulle
+    matrici volumetriche per il servizio ad alto volume.
+    ════════════════════════════════════════════════════════════════════
+-->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barman PRO &middot; Calcolatore Eventi</title>
+    <meta name="description" content="Calcolatore eventi per barman: ricette IBA, lista della spesa, party drink ad alto volume.">
+    <meta name="author" content="Samuele Racca">
+    <meta name="theme-color" content="#722F37">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --oro: #B8924B;
+            --oro-chiaro: #D4B271;
+            --oro-scuro: #8E6F35;
+            --bordeaux: #722F37;
+            --bordeaux-scuro: #4F1E24;
+            --sepia: #1F1A17;
+            --avorio: #F5EEDC;
+            --avorio-chiaro: #FAF6E9;
+            --crema: #FFFBF0;
+            --bordo-tenue: #D4C5A0;
+            --testo-tenue: #6B5D4A;
+            --verde-bottiglia: #3D5A3D;
+            --viola-scuro: #4A2C4F;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'EB Garamond', 'Garamond', 'Times New Roman', serif;
+            background-color: var(--avorio);
+            background-image:
+                radial-gradient(ellipse at top, rgba(184, 146, 75, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at bottom, rgba(114, 47, 55, 0.05) 0%, transparent 60%);
+            color: var(--sepia);
+            padding: 30px 20px;
+            max-width: 1100px;
+            margin: auto;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        /* ─── INTESTAZIONE ─── */
+        .header {
+            text-align: center;
+            padding: 30px 20px 20px;
+            border-bottom: 1px solid var(--bordo-tenue);
+            margin-bottom: 35px;
+        }
+        .ornament-row {
+            color: var(--oro);
+            font-size: 18px;
+            letter-spacing: 12px;
+            margin: 8px 0;
+        }
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            font-style: italic;
+            color: var(--sepia);
+            font-size: 52px;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+        .header .subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: var(--bordeaux);
+            font-size: 20px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 8px 0 4px;
+        }
+        .header .edition {
+            color: var(--testo-tenue);
+            font-size: 13px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--bordeaux);
+            text-align: center;
+            font-size: 32px;
+            font-weight: 600;
+            margin: 0 0 6px;
+            letter-spacing: 1px;
+        }
+        h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--sepia);
+            margin: 0 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--oro);
+            letter-spacing: 0.5px;
+        }
+
+        .section-divider {
+            text-align: center;
+            color: var(--oro);
+            margin: 8px 0 20px;
+            font-size: 14px;
+            letter-spacing: 8px;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '─────';
+            color: var(--bordo-tenue);
+            margin: 0 14px;
+            letter-spacing: 0;
+        }
+
+        /* ─── CARD ─── */
+        .card {
+            background-color: var(--crema);
+            padding: 30px 35px;
+            border: 1px solid var(--bordo-tenue);
+            border-top: 3px double var(--oro);
+            border-bottom: 3px double var(--oro);
+            margin-bottom: 30px;
+            box-shadow: 0 2px 6px rgba(31, 26, 23, 0.06);
+        }
+        .card .descrizione {
+            text-align: center;
+            color: var(--testo-tenue);
+            font-style: italic;
+            font-size: 15px;
+            margin: 0 0 18px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        /* Riga parametri evento — sempre 4 colonne in linea */
+        .parametri-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        /* ─── SEZIONE RICETTARIO PDF ─── */
+        .ricettario-card {
+            background: linear-gradient(135deg, var(--crema) 0%, var(--avorio-chiaro) 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .ricettario-card:hover {
+            box-shadow: 0 6px 20px rgba(114, 47, 55, 0.18);
+            transform: translateY(-2px);
+        }
+        .ricettario-card .ricettario-inner {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 24px;
+            align-items: center;
+            padding: 6px 4px;
+        }
+        .ricettario-icon {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px;
+            color: var(--oro);
+            line-height: 1;
+            text-align: center;
+            border: 2px solid var(--oro);
+            padding: 14px 20px;
+            background: var(--avorio-chiaro);
+        }
+        .ricettario-text h3 {
+            border: none;
+            padding: 0;
+            margin: 0 0 6px;
+            font-size: 26px;
+            color: var(--bordeaux);
+        }
+        .ricettario-text .ricettario-sub {
+            font-style: italic;
+            color: var(--testo-tenue);
+            font-size: 16px;
+            margin: 0 0 4px;
+        }
+        .ricettario-text .ricettario-meta {
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: var(--oro-scuro);
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+        .ricettario-action {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 160px;
+        }
+        .ricettario-action button {
+            margin: 0;
+            padding: 10px 14px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+        }
+        .btn-pdf-leggi {
+            background: var(--bordeaux);
+            color: var(--avorio);
+        }
+        .btn-pdf-download,
+        .btn-link-download {
+            background: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordeaux);
+        }
+        .btn-pdf-download:hover,
+        .btn-link-download:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+        }
+        .btn-link-download {
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 10px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        /* Modal PDF */
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(31, 26, 23, 0.85);
+            z-index: 2000;
+            padding: 20px;
+        }
+        .pdf-modal.show { display: flex; flex-direction: column; }
+        .pdf-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--sepia);
+            color: var(--avorio);
+            padding: 14px 22px;
+            border: 1px solid var(--oro);
+            border-bottom: none;
+        }
+        .pdf-modal-header h3 {
+            border: none;
+            padding: 0;
+            margin: 0;
+            color: var(--oro-chiaro);
+            font-size: 22px;
+        }
+        .pdf-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .pdf-modal-actions button, .pdf-modal-actions a {
+            margin: 0;
+            padding: 8px 18px;
+            font-size: 13px;
+            letter-spacing: 1.5px;
+            background: transparent;
+            color: var(--oro-chiaro);
+            border: 1px solid var(--oro);
+            text-decoration: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.25s ease;
+        }
+        .pdf-modal-actions button:hover, .pdf-modal-actions a:hover {
+            background: var(--oro);
+            color: var(--sepia);
+        }
+        .pdf-modal-frame {
+            flex: 1;
+            background: white;
+            border: 1px solid var(--oro);
+            border-top: none;
+        }
+        .pdf-modal-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ─── INPUT & LABEL ─── */
+        label {
+            display: block;
+            margin-top: 10px;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            color: var(--bordeaux);
+            font-size: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border-radius: 0;
+            border: 1px solid var(--bordo-tenue);
+            border-bottom: 2px solid var(--oro);
+            background-color: var(--avorio-chiaro);
+            color: var(--sepia);
+            font-family: 'EB Garamond', serif;
+            font-size: 16px;
+            transition: border-color 0.25s, background-color 0.25s;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--bordeaux);
+            background-color: var(--crema);
+        }
+
+        /* ─── BARRA DI RICERCA ─── */
+        .search-add-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            align-items: stretch;
+        }
+        .search-add-row input {
+            flex-grow: 1;
+            border: 1px solid var(--oro);
+            border-bottom: 2px solid var(--oro);
+            font-size: 17px;
+            background-color: var(--avorio-chiaro);
+            margin-top: 0;
+            font-style: italic;
+        }
+        .search-add-row button {
+            margin-top: 0;
+            width: auto;
+            padding: 10px 26px;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        /* ─── ELEMENTO MENU CON SLIDER ─── */
+        .menu-item {
+            background: var(--avorio-chiaro);
+            padding: 16px 18px;
+            border: 1px solid var(--bordo-tenue);
+            border-left: 4px solid var(--oro);
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--sepia);
+            margin-bottom: 12px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .slider-container .lbl {
+            font-size: 13px;
+            color: var(--testo-tenue);
+            font-style: italic;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--bordeaux);
+        }
+        .slider-value {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            padding: 4px 12px;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 28px;
+            text-align: center;
+            border: 1px solid var(--oro);
+        }
+
+        /* ─── BOTTONI ─── */
+        button {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: var(--bordeaux);
+            color: var(--avorio);
+            border: 1px solid var(--oro);
+            border-radius: 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        button:hover {
+            background-color: var(--bordeaux-scuro);
+            color: var(--oro-chiaro);
+            letter-spacing: 3px;
+        }
+        .btn-primary-gold {
+            background-color: var(--oro);
+            color: var(--sepia);
+            border: 1px solid var(--bordeaux);
+        }
+        .btn-primary-gold:hover {
+            background-color: var(--oro-scuro);
+            color: var(--avorio);
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordeaux);
+            margin-top: 18px;
+        }
+        .btn-secondary:hover {
+            background-color: var(--bordeaux);
+            color: var(--avorio);
+        }
+        .btn-rimuovi {
+            background-color: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordeaux);
+            padding: 4px 12px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            width: auto;
+            margin: 0;
+        }
+        .btn-rimuovi:hover {
+            background-color: var(--bordeaux);
+            color: var(--avorio);
+            letter-spacing: 1.5px;
+        }
+
+        .btn-grande {
+            font-size: 22px;
+            padding: 22px;
+            margin-top: 30px;
+            letter-spacing: 5px;
+        }
+
+        /* ─── CREATOR ─── */
+        .creator-box {
+            background: var(--avorio-chiaro);
+            padding: 22px;
+            border: 1px solid var(--bordo-tenue);
+            border-left: 4px solid var(--bordeaux);
+        }
+        .creator-row {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 0.8fr auto;
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .creator-row input, .creator-row select {
+            margin-top: 0;
+        }
+        .btn-rimuovi-ing {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 0;
+            background: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordo-tenue);
+        }
+        .btn-rimuovi-ing:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            letter-spacing: 0;
+        }
+        .btn-aggiungi-ing {
+            background: transparent;
+            color: var(--oro-scuro);
+            border: 1px dashed var(--oro);
+            padding: 8px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+        .btn-aggiungi-ing:hover {
+            background: var(--oro);
+            color: var(--avorio);
+            letter-spacing: 2px;
+        }
+
+        /* ─── RISULTATI ─── */
+        #risultati { display: none; margin-top: 40px; }
+        .risultati-header {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 3px double var(--oro);
+            border-bottom: 3px double var(--oro);
+            margin-bottom: 30px;
+        }
+        .total-drinks {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-style: italic;
+            color: var(--sepia);
+            margin: 0;
+        }
+        .total-drinks strong {
+            color: var(--bordeaux);
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        .result-section {
+            padding: 25px 30px;
+            margin-top: 22px;
+            border: 1px solid var(--bordo-tenue);
+            background-color: var(--crema);
+        }
+        .result-section.bg-alcol { border-left: 5px solid var(--bordeaux); }
+        .result-section.bg-analcol { border-left: 5px solid var(--verde-bottiglia); }
+        .result-section.bg-extra { border-left: 5px solid var(--viola-scuro); }
+
+        .result-section h3 {
+            color: var(--bordeaux);
+            border-bottom-color: var(--oro);
+        }
+        .result-section.bg-analcol h3 { color: var(--verde-bottiglia); }
+        .result-section.bg-extra h3 { color: var(--viola-scuro); }
+
+        ul { list-style-type: none; padding: 0; margin: 0; }
+        li {
+            padding: 10px 4px;
+            border-bottom: 1px dotted var(--bordo-tenue);
+            font-size: 17px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        li:last-child { border-bottom: none; }
+        li span:first-child {
+            color: var(--sepia);
+        }
+        li strong {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--bordeaux);
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        /* ─── INTESTAZIONI SEZIONE INTERNA ─── */
+        .section-title {
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .section-title .ornament {
+            color: var(--oro);
+            font-size: 18px;
+            margin-bottom: 6px;
+            letter-spacing: 6px;
+        }
+
+        /* ─── RIPRISTINO / NOTIFICHE ─── */
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: var(--testo-tenue);
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+        .btn-reset {
+            background: transparent;
+            color: var(--testo-tenue);
+            border: 1px solid var(--bordo-tenue);
+            font-size: 12px;
+            padding: 6px 14px;
+            margin: 0;
+            width: auto;
+            letter-spacing: 2px;
+        }
+        .btn-reset:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            border-color: var(--bordeaux);
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--sepia);
+            color: var(--avorio);
+            border: 1px solid var(--oro);
+            padding: 14px 30px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px;
+            font-style: italic;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 700px) {
+            .parametri-row { grid-template-columns: repeat(2, 1fr); }
+            .ricettario-card .ricettario-inner { grid-template-columns: 1fr; text-align: center; gap: 14px; }
+            .ricettario-action { min-width: 100%; }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 15px 10px; font-size: 16px; }
+            .header h1 { font-size: 38px; }
+            .header .subtitle { font-size: 16px; }
+            .card { padding: 20px 18px; }
+            .creator-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .creator-row .btn-rimuovi-ing { grid-column: span 2; width: 100%; }
+            .action-buttons { flex-direction: column; gap: 10px; }
+            h2 { font-size: 26px; }
+        }
+
+        /* ─── MODALE PASSWORD ─── */
+        .pw-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(31, 26, 23, 0.94);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+        }
+        .pw-overlay.show { display: flex; }
+        .pw-box {
+            background: var(--crema);
+            border: 1px solid var(--bordo-tenue);
+            border-top: 3px double var(--oro);
+            border-bottom: 3px double var(--oro);
+            padding: 44px 52px;
+            max-width: 420px;
+            width: 92%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(31, 26, 23, 0.55);
+        }
+        .pw-ornament { color: var(--oro); font-size: 20px; letter-spacing: 10px; margin-bottom: 14px; }
+        .pw-box h2 { margin-bottom: 8px; }
+        .pw-box p { color: var(--testo-tenue); font-style: italic; font-size: 15px; margin-bottom: 26px; }
+        .pw-box input[type="password"] {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--bordo-tenue);
+            border-bottom: 2px solid var(--oro);
+            background: var(--avorio-chiaro);
+            font-family: 'EB Garamond', serif;
+            font-size: 22px;
+            text-align: center;
+            letter-spacing: 8px;
+            color: var(--sepia);
+            margin-bottom: 8px;
+            border-radius: 0;
+        }
+        .pw-box input[type="password"]:focus { outline: none; border-color: var(--bordeaux); background: var(--crema); }
+        .pw-error { color: var(--bordeaux); font-style: italic; font-size: 14px; min-height: 22px; margin-bottom: 12px; }
+
+        /* ─── STAMPA / PDF ─── */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                font-size: 12pt;
+                padding: 0;
+                margin: 0;
+                background-image: none;
+            }
+            .header, .card, button, .meta-row, .action-buttons { display: none !important; }
+            #risultati { display: block !important; margin: 0; padding: 20px; }
+            .risultati-header { display: block !important; }
+            .result-section {
+                background-color: white !important;
+                color: black !important;
+                border: 1px solid #999;
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 18px;
+            }
+            h2, h3 { color: black !important; border-color: #999 !important; }
+            li { border-bottom: 1px dotted #ccc; color: black !important; }
+            li strong, .total-drinks strong { color: #4F1E24 !important; }
+            .total-drinks { color: black !important; }
+            .print-title { display: block !important; text-align: center; }
+        }
+        .print-title { display: none; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="ornament-row">&#10086; &#10086; &#10086;</div>
+        <div class="subtitle">Barman PRO</div>
+        <h1>Calcolatore d'Eventi</h1>
+        <div class="ornament-row" style="font-size: 14px; letter-spacing: 8px;">───── &#10022; ─────</div>
+    </header>
+
+    <div class="meta-row">
+        <span id="storage-status">&#10022; Stato salvato automaticamente</span>
+        <button class="btn-reset" onclick="resetCompleto()">Azzera tutto</button>
+    </div>
+
+    <!-- ─── RICETTARIO PDF ─── -->
+    <section class="card ricettario-card" onclick="apriPDF(event)">
+        <div class="ricettario-inner">
+            <div class="ricettario-icon">&#10086;</div>
+            <div class="ricettario-text">
+                <h3>Ricettario IBA &middot; Adattamento per Feste</h3>
+                <p class="ricettario-sub">Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume</p>
+                <div class="ricettario-meta">Documento PDF &middot; clicca per leggere</div>
+            </div>
+            <div class="ricettario-action">
+                <button class="btn-pdf-leggi" onclick="apriPDF(event)">&#10022; Leggi</button>
+                <a href="Cocktail_IBA_adattamento_a_feste.pdf" download
+                   class="btn-link-download"
+                   onclick="event.stopPropagation()">&#8615; Scarica</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal lettura PDF -->
+    <div class="pdf-modal" id="pdf-modal">
+        <div class="pdf-modal-header">
+            <h3>&#10086; Cocktail IBA &middot; Adattamento per Feste</h3>
+            <div class="pdf-modal-actions">
+                <a href="Cocktail_IBA_adattamento_a_feste.pdf" download>&#8615; Scarica</a>
+                <button onclick="chiudiPDF()">&times; Chiudi</button>
+            </div>
+        </div>
+        <div class="pdf-modal-frame">
+            <iframe id="pdf-iframe" src="" title="Ricettario IBA"></iframe>
+        </div>
+    </div>
+
+    <!-- ─── PARAMETRI EVENTO ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10086;</div>
+            <h2>Parametri dell'Evento</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="parametri-row">
+            <div><label>Ospiti previsti</label><input type="number" id="ospiti" value="50" min="1" oninput="salvaStato()"></div>
+            <div><label>Cocktail a persona</label><input type="number" id="drink_testa" value="3" min="0" step="0.5" oninput="salvaStato()"></div>
+            <div><label>Shot a persona</label><input type="number" id="shot_testa" value="1" min="0" step="0.5" oninput="salvaStato()"></div>
+            <div><label>Margine sicurezza (%)</label><input type="number" id="scarto" value="15" min="0" oninput="salvaStato()"></div>
+        </div>
+    </section>
+
+    <!-- ─── COCKTAIL DELLA SERATA ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10086;</div>
+            <h2>Cocktail della Serata</h2>
+            <div class="section-divider"></div>
+        </div>
+        <p class="descrizione">Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5</p>
+
+        <div class="search-add-row">
+            <input list="lista-database-drink" id="search-drink-input" placeholder="Cerca dal ricettario (es. Negroni, Spritz, Margarita)...">
+            <datalist id="lista-database-drink"></datalist>
+            <button onclick="aggiungiDrinkSerata()">&#10010; Aggiungi</button>
+        </div>
+        <br>
+        <div id="drink-serata-container" class="grid"></div>
+    </section>
+
+    <!-- ─── SHOT / AMARI ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10022;</div>
+            <h2>Shot &amp; Amari</h2>
+            <div class="section-divider"></div>
+        </div>
+        <p class="descrizione">Dose standard 40 ml &middot; cerca tra gli alcolici disponibili</p>
+
+        <div class="search-add-row">
+            <input list="lista-database-shot" id="search-shot-input" placeholder="Cerca shot, amaro o liquore...">
+            <datalist id="lista-database-shot"></datalist>
+            <button onclick="aggiungiShotSerata()">&#10010; Aggiungi</button>
+        </div>
+        <br>
+        <div id="shot-serata-container" class="grid"></div>
+    </section>
+
+    <!-- ─── CREATOR ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10086;</div>
+            <h2>Creazioni Personalizzate</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 22px;">
+
+            <div class="creator-box">
+                <h3>&#10022; Nuovo Cocktail</h3>
+                <input type="text" id="new_cocktail_name" placeholder="Nome del cocktail">
+                <datalist id="lista-ingredienti"></datalist>
+
+                <div style="margin-top: 14px;">
+                    <label style="margin-bottom: 6px;">Ingredienti</label>
+                    <div id="ingredienti-container"></div>
+                    <button class="btn-aggiungi-ing" onclick="aggiungiRigaIngrediente()">&#10010; Aggiungi ingrediente</button>
+                </div>
+
+                <button class="btn-secondary" onclick="creaCocktail()">&#10022; Crea e aggiungi alla serata</button>
+            </div>
+
+            <div class="creator-box">
+                <h3>&#10022; Bottiglia Shot</h3>
+                <p class="descrizione" style="text-align: left; margin-bottom: 12px;">Aggiungi un alcolico extra non presente nel ricettario</p>
+                <input type="text" id="new_shot_name" placeholder="Nome (es. Limoncello)">
+                <button class="btn-secondary" onclick="creaShot()">&#10022; Crea e aggiungi</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── BOTTONE GENERA ─── -->
+    <button class="btn-primary-gold btn-grande" onclick="calcolaSpesa()">&#10086;&nbsp;&nbsp;Genera lista della spesa&nbsp;&nbsp;&#10086;</button>
+
+    <!-- ─── RISULTATI ─── -->
+    <div id="risultati">
+        <h2 class="print-title">Lista della Spesa &middot; Barman PRO</h2>
+
+        <div class="risultati-header">
+            <div class="total-drinks" id="drink-totali-text"></div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <div class="result-section bg-alcol">
+                <h3>&#10022; Alcolici (Litri)</h3>
+                <ul id="lista_alcolici"></ul>
+            </div>
+            <div class="result-section bg-analcol">
+                <h3>&#10022; Analcolici &amp; Filler (Litri)</h3>
+                <ul id="lista_analcolici"></ul>
+            </div>
+        </div>
+        <div class="result-section bg-extra">
+            <h3>&#10022; Attrezzatura</h3>
+            <ul id="lista_extra"></ul>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="copiaListaTesto()">&#10022; Copia testo (per WhatsApp)</button>
+            <button onclick="window.print()">&#10022; Stampa o salva in PDF</button>
+        </div>
+    </div>
+
+    <!-- ─── MODALE PASSWORD ─── -->
+    <div class="pw-overlay" id="pw-overlay">
+        <div class="pw-box">
+            <div class="pw-ornament">&#10086; &#10086; &#10086;</div>
+            <h2>Accesso Riservato</h2>
+            <p>Inserisci la password per accedere a Barman PRO</p>
+            <input type="password" id="pw-input" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+                   onkeydown="if(event.key==='Enter')confermaPassword()">
+            <div class="pw-error" id="pw-error"></div>
+            <button onclick="confermaPassword()">&#10022;&nbsp;&nbsp;Accedi&nbsp;&nbsp;&#10022;</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+<script>
+        /* ════════════════════════════════════════════════════════════
+           DATABASE COCKTAIL
+           ════════════════════════════════════════════════════════════ */
+        /* ─── MAPPA ALIAS — fonde voci equivalenti scritte in lingue diverse ───
+           Aggiungi qui qualsiasi nuovo alias se l'utente scrive un ingrediente in modo diverso.
+           Tutto viene normalizzato in italiano coerente nella lista finale. */
+        const aliasIngredienti = {
+            // Rum
+            "white rum": "Rum Bianco",
+            "rum bianco": "Rum Bianco",
+            "dark rum": "Rum Scuro",
+            "rum scuro": "Rum Scuro",
+            "gold rum": "Rum Dorato",
+            "rum dorato": "Rum Dorato",
+            "demerara rum": "Rum Demerara",
+            "rum demerara": "Rum Demerara",
+            "jamaican rum": "Rum Giamaicano",
+            "rum giamaicano": "Rum Giamaicano",
+            "martinique rum": "Rum Martinicano",
+            "rum martinicano": "Rum Martinicano",
+            // Gin
+            "gin": "Gin",
+            "dry gin": "Gin",
+            "london dry gin": "Gin",
+            // Vodka
+            "vodka": "Vodka Liscia",
+            "vodka liscia": "Vodka Liscia",
+            "vodka citron": "Vodka al Limone",
+            "vodka al limone": "Vodka al Limone",
+            "vanilla vodka": "Vodka alla Vaniglia",
+            "vodka alla vaniglia": "Vodka alla Vaniglia",
+            // Vermouth
+            "sweet vermouth": "Vermouth Rosso",
+            "vermouth rosso": "Vermouth Rosso",
+            "vermouth dolce": "Vermouth Rosso",
+            "dry vermouth": "Vermouth Secco",
+            "vermouth secco": "Vermouth Secco",
+            "vermouth dry": "Vermouth Secco",
+            // Whiskey
+            "rye whiskey": "Whiskey Rye",
+            "whiskey rye": "Whiskey Rye",
+            "irish whiskey": "Whiskey Irlandese",
+            "whiskey irlandese": "Whiskey Irlandese",
+            "scotch whisky": "Whisky Scozzese",
+            "whisky scozzese": "Whisky Scozzese",
+            // Liquori
+            "creme de cacao scura": "Crema di Cacao Scura",
+            "crema di cacao scura": "Crema di Cacao Scura",
+            "creme de violette": "Crema di Violetta",
+            "crema di violetta": "Crema di Violetta",
+            "orange curacao": "Curaçao all'Arancia",
+            "curacao all'arancia": "Curaçao all'Arancia",
+            "curaçao all'arancia": "Curaçao all'Arancia",
+            "liquore al caffe": "Liquore al Caffè",
+            "liquore al caffè": "Liquore al Caffè",
+            "liqueur passion fruit": "Liquore Passion Fruit",
+            "liquore passion fruit": "Liquore Passion Fruit",
+            "peach schnapps": "Schnapps alla Pesca",
+            "schnapps alla pesca": "Schnapps alla Pesca",
+            "jagermeister": "Jägermeister",
+            "jägermeister": "Jägermeister",
+            "cachaca": "Cachaça",
+            "cachaça": "Cachaça",
+            // Succhi
+            "succo ananas": "Succo di Ananas",
+            "succo di ananas": "Succo di Ananas",
+            "succo arancia": "Succo di Arancia",
+            "succo di arancia": "Succo di Arancia",
+            "succo limone": "Succo di Limone",
+            "succo di limone": "Succo di Limone",
+            "succo lime": "Succo di Lime",
+            "succo di lime": "Succo di Lime",
+            "succo canna zucchero": "Succo di Canna da Zucchero",
+            "succo di canna da zucchero": "Succo di Canna da Zucchero",
+            "cranberry": "Succo di Cranberry",
+            "succo di cranberry": "Succo di Cranberry",
+            "succo cranberry": "Succo di Cranberry",
+            // Sciroppi
+            "sciroppo": "Sciroppo di Zucchero",
+            "sciroppo zucchero": "Sciroppo di Zucchero",
+            "sciroppo di zucchero": "Sciroppo di Zucchero",
+            "simple syrup": "Sciroppo di Zucchero",
+            "sciroppo lamponi": "Sciroppo di Lamponi",
+            "sciroppo di lamponi": "Sciroppo di Lamponi",
+            // Altri analcolici
+            "panna fresca": "Panna Fresca",
+            "purea di pesca": "Purea di Pesca",
+            "purea passion fruit": "Purea di Passion Fruit",
+            "purea di passion fruit": "Purea di Passion Fruit",
+            "caffe": "Caffè",
+            "caffè": "Caffè"
+        };
+
+        function normalizzaIngrediente(nome) {
+            if(!nome) return nome;
+            const chiave = nome.trim().toLowerCase();
+            if(aliasIngredienti[chiave]) return aliasIngredienti[chiave];
+            return nome.trim();
+        }
+
+        function escHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        let databaseDrink = {
+            "Vodka Redbull (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Lemon (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Menta Redbull (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Pesca Redbull (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Fragola Redbull (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Melone Redbull (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Menta Lemon (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Pesca Lemon (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Fragola Lemon (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Melone Lemon (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Gin Tonic (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Acqua Tonica", tipo: "analcolico", ml: 140}],
+            "Gin Lemon (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Rum & Coca (HV)": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Monte & Coca (HV)": [{nome: "Amaro Montenegro", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Jager & Redbull (HV)": [{nome: "Jägermeister", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Malibu & Ananas (HV)": [{nome: "Malibu", tipo: "alcolico", ml: 60}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 140}],
+            "Midori Lemon (HV)": [{nome: "Midori", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Garibaldi (HV)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 60}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 140}],
+            "Fernandito (HV)": [{nome: "Fernet Branca", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Dark N Stormy (HV)": [{nome: "Rum Scuro", tipo: "alcolico", ml: 60}, {nome: "Ginger Beer", tipo: "analcolico", ml: 140}],
+            "Horses Neck (HV)": [{nome: "Cognac", tipo: "alcolico", ml: 60}, {nome: "Ginger Ale", tipo: "analcolico", ml: 140}],
+            "Alexander": [{nome: "Cognac", tipo: "alcolico", ml: 30}, {nome: "Crema di Cacao Scura", tipo: "alcolico", ml: 30}, {nome: "Panna Fresca", tipo: "analcolico", ml: 30}],
+            "Americano": [{nome: "Bitter Campari", tipo: "alcolico", ml: 30}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}, {nome: "Soda", tipo: "analcolico", ml: 30}],
+            "Angel Face": [{nome: "Gin", tipo: "alcolico", ml: 30}, {nome: "Apricot Brandy", tipo: "alcolico", ml: 30}, {nome: "Calvados", tipo: "alcolico", ml: 30}],
+            "Aviation": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Maraschino", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 15}, {nome: "Crema di Violetta", tipo: "alcolico", ml: 5}],
+            "Between the Sheets": [{nome: "Rum Bianco", tipo: "alcolico", ml: 30}, {nome: "Cognac", tipo: "alcolico", ml: 30}, {nome: "Triple Sec", tipo: "alcolico", ml: 30}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
+            "Boulevardier": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}, {nome: "Bitter Campari", tipo: "alcolico", ml: 30}],
+            "Clover Club": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Sciroppo di Lamponi", tipo: "analcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 15}, {nome: "Albume", tipo: "analcolico", ml: 30}],
+            "Daiquiri": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
+            "Dry Martini": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Vermouth Secco", tipo: "alcolico", ml: 10}],
+            "Gin Fizz": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Succo di Limone", tipo: "analcolico", ml: 30}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}, {nome: "Soda", tipo: "analcolico", ml: 60}],
+            "Hanky Panky": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 45}, {nome: "Fernet Branca", tipo: "alcolico", ml: 7.5}],
+            "Manhattan": [{nome: "Whiskey Rye", tipo: "alcolico", ml: 50}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 20}],
+            "Negroni": [{nome: "Gin", tipo: "alcolico", ml: 30}, {nome: "Bitter Campari", tipo: "alcolico", ml: 30}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}],
+            "Old Fashioned": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
+            "Planters Punch": [{nome: "Rum Giamaicano", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Canna da Zucchero", tipo: "analcolico", ml: 30}],
+            "Rusty Nail": [{nome: "Whisky Scozzese", tipo: "alcolico", ml: 45}, {nome: "Drambuie", tipo: "alcolico", ml: 25}],
+            "Sazerac": [{nome: "Cognac", tipo: "alcolico", ml: 50}, {nome: "Assenzio", tipo: "alcolico", ml: 10}],
+            "Sidecar": [{nome: "Cognac", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
+            "Whiskey Sour": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 20}, {nome: "Albume", tipo: "analcolico", ml: 20}],
+            "White Lady": [{nome: "Gin", tipo: "alcolico", ml: 40}, {nome: "Triple Sec", tipo: "alcolico", ml: 30}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
+            "Bellini": [{nome: "Prosecco", tipo: "alcolico", ml: 100}, {nome: "Purea di Pesca", tipo: "analcolico", ml: 50}],
+            "Black Russian": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 50}, {nome: "Liquore al Caffè", tipo: "alcolico", ml: 20}],
+            "Caipirinha": [{nome: "Cachaça", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
+            "Cosmopolitan": [{nome: "Vodka al Limone", tipo: "alcolico", ml: 40}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 30}],
+            "Cuba Libre": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Cola", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+            "Garibaldi (IBA)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 120}],
+            "Irish Coffee": [{nome: "Whiskey Irlandese", tipo: "alcolico", ml: 50}, {nome: "Caffè", tipo: "analcolico", ml: 120}, {nome: "Panna Fresca", tipo: "analcolico", ml: 50}],
+            "Long Island": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 15}, {nome: "Tequila", tipo: "alcolico", ml: 15}, {nome: "Rum Bianco", tipo: "alcolico", ml: 15}, {nome: "Gin", tipo: "alcolico", ml: 15}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Cola", tipo: "analcolico", ml: 60}],
+            "Mai-Tai": [{nome: "Rum Giamaicano", tipo: "alcolico", ml: 30}, {nome: "Rum Martinicano", tipo: "alcolico", ml: 30}, {nome: "Curaçao all'Arancia", tipo: "alcolico", ml: 15}, {nome: "Orgeat", tipo: "analcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
+            "Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}],
+            "Mojito": [{nome: "Rum Bianco", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Soda", tipo: "analcolico", ml: 40}],
+            "Moscow Mule (IBA)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Ginger Beer", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+            "Pina Colada": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Crema di Cocco", tipo: "analcolico", ml: 30}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 50}],
+            "Pisco Sour": [{nome: "Pisco", tipo: "alcolico", ml: 60}, {nome: "Succo di Limone", tipo: "analcolico", ml: 30}, {nome: "Albume", tipo: "analcolico", ml: 20}],
+            "Sex on the Beach": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 40}, {nome: "Schnapps alla Pesca", tipo: "alcolico", ml: 20}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 40}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 40}],
+            "Tequila Sunrise": [{nome: "Tequila", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 90}, {nome: "Granatina", tipo: "analcolico", ml: 15}],
+            "Zombie": [{nome: "Rum Scuro", tipo: "alcolico", ml: 45}, {nome: "Rum Dorato", tipo: "alcolico", ml: 45}, {nome: "Rum Demerara", tipo: "alcolico", ml: 30}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}],
+            "Bees Knees": [{nome: "Gin", tipo: "alcolico", ml: 52.5}, {nome: "Succo di Limone", tipo: "analcolico", ml: 22.5}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 22.5}],
+            "Espresso Martini": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 50}, {nome: "Liquore al Caffè", tipo: "alcolico", ml: 30}, {nome: "Espresso", tipo: "analcolico", ml: 30}],
+            "Paloma": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Soda Pompelmo Rosa", tipo: "analcolico", ml: 100}],
+            "Porn Star Martini": [{nome: "Vodka alla Vaniglia", tipo: "alcolico", ml: 50}, {nome: "Liquore Passion Fruit", tipo: "alcolico", ml: 20}, {nome: "Purea di Passion Fruit", tipo: "analcolico", ml: 50}, {nome: "Champagne", tipo: "alcolico", ml: 50}],
+            "Spritz": [{nome: "Prosecco", tipo: "alcolico", ml: 90}, {nome: "Aperol", tipo: "alcolico", ml: 60}, {nome: "Soda", tipo: "analcolico", ml: 30}],
+            "Tommys Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}]
+        };
+
+        let menuSerataDrink = {};
+        let menuSerataShot = {};
+        let customShots = [];
+        let customDrinks = {};
+        let ingredientCounter = 0;
+
+        const STORAGE_KEY = 'barmanProState_v7';
+
+        /* ════════════════════════════════════════════════════════════
+           PERSISTENZA  (localStorage)
+           ════════════════════════════════════════════════════════════ */
+        function salvaStato() {
+            try {
+                const state = {
+                    menuSerataDrink: menuSerataDrink,
+                    menuSerataShot: menuSerataShot,
+                    customShots: customShots,
+                    customDrinks: customDrinks,
+                    config: {
+                        ospiti: document.getElementById('ospiti').value,
+                        drink_testa: document.getElementById('drink_testa').value,
+                        shot_testa: document.getElementById('shot_testa').value,
+                        scarto: document.getElementById('scarto').value
+                    }
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch(e) { console.warn('Salvataggio fallito:', e); }
+        }
+
+        function caricaStato() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if(!raw) return;
+                const s = JSON.parse(raw);
+                menuSerataDrink = s.menuSerataDrink || {};
+                menuSerataShot = s.menuSerataShot || {};
+                customShots = s.customShots || [];
+                customDrinks = s.customDrinks || {};
+                Object.assign(databaseDrink, customDrinks);
+                if(s.config) {
+                    if(s.config.ospiti) document.getElementById('ospiti').value = s.config.ospiti;
+                    if(s.config.drink_testa) document.getElementById('drink_testa').value = s.config.drink_testa;
+                    if(s.config.shot_testa) document.getElementById('shot_testa').value = s.config.shot_testa;
+                    if(s.config.scarto) document.getElementById('scarto').value = s.config.scarto;
+                }
+            } catch(e) { console.warn('Caricamento fallito:', e); }
+        }
+
+        function resetCompleto() {
+            if(!confirm("Vuoi davvero azzerare tutto? Questa azione non può essere annullata.")) return;
+            menuSerataDrink = {};
+            menuSerataShot = {};
+            customShots = [];
+            customDrinks = {};
+            // ricostruisco databaseDrink rimuovendo i custom
+            for(const k in databaseDrink) {
+                if(k in (customDrinks || {})) delete databaseDrink[k];
+            }
+            localStorage.removeItem(STORAGE_KEY);
+            document.getElementById('ospiti').value = 50;
+            document.getElementById('drink_testa').value = 3;
+            document.getElementById('shot_testa').value = 1;
+            document.getElementById('scarto').value = 15;
+            document.getElementById('risultati').style.display = 'none';
+            document.getElementById('ingredienti-container').innerHTML = '';
+            aggiungiRigaIngrediente();
+            aggiungiRigaIngrediente();
+            inizializzaApp();
+            renderizzaMenu();
+            mostraToast('Tutto azzerato');
+        }
+
+        function mostraToast(testo) {
+            const t = document.getElementById('toast');
+            t.textContent = '❖  ' + testo;
+            t.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           INIZIALIZZAZIONE
+           ════════════════════════════════════════════════════════════ */
+        function inizializzaApp() {
+            function aggiungiOption(datalist, valore) {
+                const opt = document.createElement('option');
+                opt.value = valore;
+                datalist.appendChild(opt);
+            }
+
+            const datalistDrink = document.getElementById('lista-database-drink');
+            datalistDrink.innerHTML = '';
+            Object.keys(databaseDrink).sort().forEach(nome => aggiungiOption(datalistDrink, nome));
+
+            let setTuttiIngredienti = new Set();
+            let setSoloAlcolici = new Set();
+
+            for (const d in databaseDrink) {
+                databaseDrink[d].forEach(ing => {
+                    setTuttiIngredienti.add(ing.nome);
+                    if (ing.tipo === 'alcolico') setSoloAlcolici.add(ing.nome);
+                });
+            }
+            customShots.forEach(s => {
+                setSoloAlcolici.add(s);
+                setTuttiIngredienti.add(s);
+            });
+
+            const datalistIngredienti = document.getElementById('lista-ingredienti');
+            datalistIngredienti.innerHTML = '';
+            Array.from(setTuttiIngredienti).sort().forEach(nome => aggiungiOption(datalistIngredienti, nome));
+
+            const datalistShot = document.getElementById('lista-database-shot');
+            datalistShot.innerHTML = '';
+            Array.from(setSoloAlcolici).sort().forEach(nome => aggiungiOption(datalistShot, nome));
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           AGGIUNTA E RIMOZIONE
+           ════════════════════════════════════════════════════════════ */
+        function aggiungiDrinkSerata() {
+            let inputField = document.getElementById('search-drink-input');
+            let nome = inputField.value.trim();
+            if(!nome) return;
+            if(!databaseDrink[nome]) return alert("Cocktail non trovato. Selezionalo dalla tendina o crealo nel pannello qui sotto.");
+
+            if (!(nome in menuSerataDrink)) menuSerataDrink[nome] = 1;
+            inputField.value = '';
+            renderizzaMenu();
+            salvaStato();
+        }
+
+        function aggiungiShotSerata() {
+            let inputField = document.getElementById('search-shot-input');
+            let nome = inputField.value.trim();
+            if(!nome) return;
+
+            if (!(nome in menuSerataShot)) menuSerataShot[nome] = 1;
+            inputField.value = '';
+            renderizzaMenu();
+            salvaStato();
+        }
+
+        function aggiornaFrequenza(nome, tipo, valore) {
+            if (tipo === 'drink') menuSerataDrink[nome] = parseInt(valore);
+            if (tipo === 'shot') menuSerataShot[nome] = parseInt(valore);
+            salvaStato();
+        }
+
+        function rimuovi(nome, tipo) {
+            if(tipo === 'drink') delete menuSerataDrink[nome];
+            if(tipo === 'shot') delete menuSerataShot[nome];
+            renderizzaMenu();
+            salvaStato();
+        }
+
+        function renderizzaMenu() {
+            const containerDrink = document.getElementById('drink-serata-container');
+            containerDrink.innerHTML = '';
+            Object.keys(menuSerataDrink).sort().forEach(nome => {
+                containerDrink.appendChild(creaSliderElement(nome, 'drink', menuSerataDrink[nome]));
+            });
+
+            const containerShot = document.getElementById('shot-serata-container');
+            containerShot.innerHTML = '';
+            Object.keys(menuSerataShot).sort().forEach(nome => {
+                containerShot.appendChild(creaSliderElement(nome, 'shot', menuSerataShot[nome]));
+            });
+        }
+
+        function creaSliderElement(nome, tipo, valoreAttuale) {
+            const wrap = document.createElement('div');
+            wrap.className = 'menu-item';
+
+            const header = document.createElement('div');
+            header.className = 'menu-header';
+
+            const span = document.createElement('span');
+            span.textContent = nome;
+
+            const btnRimuovi = document.createElement('button');
+            btnRimuovi.className = 'btn-rimuovi';
+            btnRimuovi.textContent = '× Rimuovi';
+            btnRimuovi.addEventListener('click', () => rimuovi(nome, tipo));
+
+            header.appendChild(span);
+            header.appendChild(btnRimuovi);
+
+            const sliderWrap = document.createElement('div');
+            sliderWrap.className = 'slider-container';
+
+            const lbl = document.createElement('span');
+            lbl.className = 'lbl';
+            lbl.textContent = 'Freq.';
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = 1;
+            slider.max = 5;
+            slider.value = valoreAttuale;
+
+            const sliderVal = document.createElement('span');
+            sliderVal.className = 'slider-value';
+            sliderVal.textContent = valoreAttuale;
+
+            slider.addEventListener('input', function() {
+                sliderVal.textContent = this.value;
+                aggiornaFrequenza(nome, tipo, this.value);
+            });
+
+            sliderWrap.appendChild(lbl);
+            sliderWrap.appendChild(slider);
+            sliderWrap.appendChild(sliderVal);
+
+            wrap.appendChild(header);
+            wrap.appendChild(sliderWrap);
+            return wrap;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           CREATOR — Cocktail con N ingredienti dinamici
+           ════════════════════════════════════════════════════════════ */
+        function aggiungiRigaIngrediente(preset) {
+            const c = document.getElementById('ingredienti-container');
+            const id = ++ingredientCounter;
+            const nome = preset && preset.nome ? preset.nome : '';
+            const ml = preset && preset.ml ? preset.ml : '';
+            const tipo = preset && preset.tipo ? preset.tipo : 'alcolico';
+            const div = document.createElement('div');
+            div.className = 'creator-row';
+            div.id = 'row-' + id;
+            div.innerHTML = `
+                <input type="text" class="ing-nome" placeholder="Ingrediente" list="lista-ingredienti">
+                <select class="ing-tipo">
+                    <option value="alcolico">Alcolico</option>
+                    <option value="analcolico">Analcolico</option>
+                </select>
+                <input type="number" class="ing-ml" placeholder="ml" min="0" step="0.5">
+                <button class="btn-rimuovi-ing" title="Rimuovi">&times;</button>
+            `;
+            div.querySelector('.ing-nome').value = nome;
+            div.querySelector('.ing-ml').value = ml;
+            div.querySelector('.ing-tipo').value = tipo;
+            div.querySelector('.btn-rimuovi-ing').addEventListener('click', () => div.remove());
+            c.appendChild(div);
+        }
+
+        function creaCocktail() {
+            let nome = document.getElementById('new_cocktail_name').value.trim();
+            if(!nome) return alert("Inserisci il nome del cocktail.");
+
+            let ingredienti = [];
+            document.querySelectorAll('#ingredienti-container .creator-row').forEach(row => {
+                let n = row.querySelector('.ing-nome').value.trim();
+                let mlRaw = row.querySelector('.ing-ml').value;
+                let ml = parseFloat(mlRaw);
+                let tipo = row.querySelector('.ing-tipo').value;
+                if(n && !isNaN(ml) && ml > 0) ingredienti.push({nome: n, tipo: tipo, ml: ml});
+            });
+
+            if(ingredienti.length === 0) return alert("Inserisci almeno un ingrediente con il valore in ml.");
+
+            databaseDrink[nome] = ingredienti;
+            customDrinks[nome] = ingredienti;
+            menuSerataDrink[nome] = 1;
+
+            document.getElementById('new_cocktail_name').value = '';
+            document.getElementById('ingredienti-container').innerHTML = '';
+            aggiungiRigaIngrediente();
+            aggiungiRigaIngrediente();
+
+            inizializzaApp();
+            renderizzaMenu();
+            salvaStato();
+            mostraToast('Cocktail "' + nome + '" creato');
+        }
+
+        function creaShot() {
+            let nome = document.getElementById('new_shot_name').value.trim();
+            if(!nome) return alert("Inserisci il nome dell'alcolico.");
+
+            if(!customShots.includes(nome)) customShots.push(nome);
+            menuSerataShot[nome] = 1;
+
+            document.getElementById('new_shot_name').value = '';
+            inizializzaApp();
+            renderizzaMenu();
+            salvaStato();
+            mostraToast('"' + nome + '" aggiunto agli shot');
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           CALCOLO
+           ════════════════════════════════════════════════════════════ */
+        function calcolaSpesa() {
+            if (!sessionStorage.getItem('_bpOk')) {
+                document.getElementById('pw-overlay').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => document.getElementById('pw-input').focus(), 80);
+                return;
+            }
+            let ospiti = parseFloat(document.getElementById('ospiti').value) || 0;
+            let drinkTesta = parseFloat(document.getElementById('drink_testa').value) || 0;
+            let shotTesta = parseFloat(document.getElementById('shot_testa').value) || 0;
+            let scarto = parseFloat(document.getElementById('scarto').value) || 0;
+
+            let moltiplicatore = 1 + (scarto / 100);
+            let drinkTotali = Math.ceil((ospiti * drinkTesta) * moltiplicatore);
+            let shotTotali = Math.ceil((ospiti * shotTesta) * moltiplicatore);
+
+            let pesoTotDrink = 0; let drinkSelezionati = [];
+            Object.keys(menuSerataDrink).forEach(nome => {
+                let p = menuSerataDrink[nome];
+                pesoTotDrink += p;
+                drinkSelezionati.push({nome: nome, peso: p});
+            });
+
+            let pesoTotShot = 0; let shotSelezionati = [];
+            Object.keys(menuSerataShot).forEach(nome => {
+                let p = menuSerataShot[nome];
+                pesoTotShot += p;
+                shotSelezionati.push({nome: nome, peso: p});
+            });
+
+            // Validazione: serve almeno una sezione popolata se i totali la richiedono
+            const drinkRichiesti = drinkTotali > 0 && pesoTotDrink === 0;
+            const shotRichiesti = shotTotali > 0 && pesoTotShot === 0;
+
+            if (drinkRichiesti && shotRichiesti) {
+                return alert("Hai impostato cocktail e shot per gli ospiti, ma non hai aggiunto nulla al menu della serata. Aggiungi almeno un cocktail o uno shot.");
+            }
+            if (drinkRichiesti && shotTotali === 0) {
+                return alert("Hai impostato cocktail per gli ospiti, ma non hai aggiunto nessun cocktail al menu della serata.");
+            }
+            // Se ci sono solo shot impostati e nessun cocktail nel menu, OK procedo
+            // Se ci sono solo cocktail impostati e nessuno shot nel menu, OK procedo
+            if (drinkTotali === 0 && shotTotali === 0) {
+                return alert("Imposta almeno un cocktail o uno shot a persona.");
+            }
+
+            let spesaAlcolici = {}; let spesaAnalcolici = {};
+
+            // Drink — applica normalizzazione per fondere alias (Rum Bianco / White Rum, ecc.)
+            if (pesoTotDrink > 0 && drinkTotali > 0) {
+                drinkSelezionati.forEach(item => {
+                    let qty = Math.ceil(drinkTotali * (item.peso / pesoTotDrink));
+                    databaseDrink[item.nome].forEach(ing => {
+                        const nomeNorm = normalizzaIngrediente(ing.nome);
+                        if(ing.tipo === 'alcolico') spesaAlcolici[nomeNorm] = (spesaAlcolici[nomeNorm] || 0) + (ing.ml * qty);
+                        else spesaAnalcolici[nomeNorm] = (spesaAnalcolici[nomeNorm] || 0) + (ing.ml * qty);
+                    });
+                });
+            }
+
+            // Shot — anche qui normalizzazione
+            if (pesoTotShot > 0 && shotTotali > 0) {
+                shotSelezionati.forEach(item => {
+                    let qty = Math.ceil(shotTotali * (item.peso / pesoTotShot));
+                    const nomeNorm = normalizzaIngrediente(item.nome);
+                    spesaAlcolici[nomeNorm] = (spesaAlcolici[nomeNorm] || 0) + (40 * qty);
+                });
+            }
+
+            // Reset shot/drink mostrati a zero se non ne sono stati richiesti
+            const drinkMostrati = pesoTotDrink > 0 ? drinkTotali : 0;
+            const shotMostrati = pesoTotShot > 0 ? shotTotali : 0;
+
+            // ─── OUTPUT ───
+            document.getElementById('drink-totali-text').innerHTML =
+                `Da preparare: <strong>${drinkMostrati}</strong> cocktail &middot; <strong>${shotMostrati}</strong> shot`;
+
+            function arrotondaLitri(ml) {
+                const v = Math.ceil((ml / 1000) * 2) / 2;
+                return v % 1 === 0 ? v.toString() : v.toFixed(1);
+            }
+
+            function appendVoce(ul, nomeIng, litri) {
+                const li = document.createElement('li');
+                const s = document.createElement('span');
+                s.textContent = nomeIng;
+                const strong = document.createElement('strong');
+                strong.textContent = litri + ' L';
+                li.appendChild(s);
+                li.appendChild(strong);
+                ul.appendChild(li);
+            }
+
+            const ulAlcol = document.getElementById('lista_alcolici');
+            ulAlcol.innerHTML = '';
+            const keysAlcol = Object.keys(spesaAlcolici).sort();
+            if (keysAlcol.length === 0) ulAlcol.innerHTML = '<li><span>Nessun alcolico</span></li>';
+            else keysAlcol.forEach(ing => appendVoce(ulAlcol, ing, arrotondaLitri(spesaAlcolici[ing])));
+
+            const ulAnalcol = document.getElementById('lista_analcolici');
+            ulAnalcol.innerHTML = '';
+            const keysAnalcol = Object.keys(spesaAnalcolici).sort();
+            if (keysAnalcol.length === 0) ulAnalcol.innerHTML = '<li><span>Nessun analcolico</span></li>';
+            else keysAnalcol.forEach(ing => appendVoce(ulAnalcol, ing, arrotondaLitri(spesaAnalcolici[ing])));
+
+            let kgGhiaccio = Math.ceil((drinkMostrati * 100) / 1000);
+            document.getElementById('lista_extra').innerHTML = `
+                <li><span>Ghiaccio a cubi</span> <strong>${kgGhiaccio} kg</strong></li>
+                <li><span>Bicchieri da cocktail</span> <strong>${drinkMostrati} pz</strong></li>
+                <li><span>Bicchierini da shot</span> <strong>${shotMostrati} pz</strong></li>
+                <li><span>Cannucce</span> <strong>${drinkMostrati} pz</strong></li>
+            `;
+
+            document.getElementById('risultati').style.display = 'block';
+            document.getElementById('risultati').scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           ESPORTAZIONE TESTO
+           ════════════════════════════════════════════════════════════ */
+        function copiaListaTesto() {
+            let testo = "❦  LISTA DELLA SPESA — EVENTO\n\n";
+            testo += document.getElementById('drink-totali-text').innerText + "\n\n";
+
+            testo += "ALCOLICI (Litri)\n";
+            document.querySelectorAll('#lista_alcolici li').forEach(li => {
+                testo += "  • " + li.innerText + "\n";
+            });
+
+            testo += "\nANALCOLICI & FILLER (Litri)\n";
+            document.querySelectorAll('#lista_analcolici li').forEach(li => {
+                testo += "  • " + li.innerText + "\n";
+            });
+
+            testo += "\nATTREZZATURA\n";
+            document.querySelectorAll('#lista_extra li').forEach(li => {
+                testo += "  • " + li.innerText + "\n";
+            });
+
+            navigator.clipboard.writeText(testo).then(() => {
+                mostraToast('Lista copiata negli appunti');
+            }).catch(err => {
+                alert("Errore nella copia: " + err);
+            });
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           RICETTARIO PDF
+           ════════════════════════════════════════════════════════════ */
+        function apriPDF(e) {
+            if(e) e.stopPropagation();
+            const modal = document.getElementById('pdf-modal');
+            const iframe = document.getElementById('pdf-iframe');
+            iframe.src = 'Cocktail_IBA_adattamento_a_feste.pdf';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        function chiudiPDF() {
+            const modal = document.getElementById('pdf-modal');
+            const iframe = document.getElementById('pdf-iframe');
+            modal.classList.remove('show');
+            iframe.src = '';
+            document.body.style.overflow = '';
+        }
+        // ESC per chiudere
+        document.addEventListener('keydown', e => {
+            if(e.key === 'Escape') chiudiPDF();
+        });
+
+        /* ════════════════════════════════════════════════════════════
+           AUTENTICAZIONE PASSWORD
+           ════════════════════════════════════════════════════════════ */
+        /*
+         * COME IMPOSTARE LA TUA PASSWORD
+         * ─────────────────────────────────────────────────────────────
+         * 1. Apri questo file nel browser
+         * 2. Apri la console del browser (tasto F12 → scheda "Console")
+         * 3. Digita il comando qui sotto, sostituendo TUA_PASSWORD:
+         *
+         *    crypto.subtle.digest('SHA-256', new TextEncoder().encode('TUA_PASSWORD'))
+         *      .then(b => console.log(Array.from(new Uint8Array(b))
+         *        .map(x => x.toString(16).padStart(2,'0')).join('')))
+         *
+         * 4. Copia l'hash che appare (stringa di 64 caratteri)
+         * 5. Incollalo come valore di _ph qui sotto, tra i singoli apici
+         * ─────────────────────────────────────────────────────────────
+         */
+        const _ph = '63f947f6468a8ea4034d93c638cb006cd2500a848bcea0b7f7fd32095858364e';
+
+        async function confermaPassword() {
+            const v = document.getElementById('pw-input').value;
+            if (!v) return;
+            try {
+                const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
+                const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+                if (hex === _ph) {
+                    sessionStorage.setItem('_bpOk', '1');
+                    document.getElementById('pw-overlay').classList.remove('show');
+                    document.body.style.overflow = '';
+                } else {
+                    document.getElementById('pw-error').textContent = 'Password errata. Riprova.';
+                    document.getElementById('pw-input').value = '';
+                    document.getElementById('pw-input').focus();
+                }
+            } catch(e) {
+                document.getElementById('pw-error').textContent = 'Errore. Ricarica la pagina.';
+            }
+        }
+
+        function mostraModalePassword(callbackDopoAuth) {
+            if (sessionStorage.getItem('_bpOk')) { callbackDopoAuth(); return; }
+            document.getElementById('pw-overlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => document.getElementById('pw-input').focus(), 80);
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           AVVIO
+           ════════════════════════════════════════════════════════════ */
+        window.onload = function() {
+            caricaStato();
+            inizializzaApp();
+            renderizzaMenu();
+            aggiungiRigaIngrediente();
+            aggiungiRigaIngrediente();
+            // Chiede la password all'avvio (saltata se già autenticato in questa sessione)
+            if (!sessionStorage.getItem('_bpOk')) {
+                document.getElementById('pw-overlay').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => document.getElementById('pw-input').focus(), 120);
+            }
+        };
+    </script>
+</body>
+</html>
