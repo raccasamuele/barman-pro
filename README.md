@@ -1,12 +1,20 @@
 # Barman PRO &middot; Calcolatore Eventi
 
+[![Live demo](https://img.shields.io/badge/LIVE%20DEMO-online-722F37?style=for-the-badge&labelColor=B8924B&logoColor=F5EEDC)](https://raccasamuele.github.io/barman-pro/)
+[![License](https://img.shields.io/badge/license-MIT-1F1A17?style=for-the-badge&labelColor=B8924B)](LICENSE)
+[![HTML5](https://img.shields.io/badge/HTML5-vanilla-722F37?style=for-the-badge&labelColor=B8924B)](#stack-tecnologico)
+
+> **[Apri il calcolatore in browser &rarr;](https://raccasamuele.github.io/barman-pro/)**
+
 Strumento web per il calcolo della lista della spesa di eventi di miscelazione, basato sulle 102 ricette ufficiali IBA 2024 e sulle matrici volumetriche per il servizio ad alto volume (party drink 60/140/100).
+
+---
 
 ## Cosa fa
 
 Inserendo numero di ospiti, cocktail e shot a persona, l'app calcola automaticamente:
 
-- la quantità di ogni alcolico e di ogni filler analcolico in litri,
+- la quantita di ogni alcolico e di ogni filler analcolico in litri,
 - il ghiaccio in chilogrammi,
 - il fabbisogno di bicchieri, bicchierini da shot e cannucce.
 
@@ -58,6 +66,7 @@ L'estetica si ispira a un volume editoriale di mixologia classica.
 - Bordo laterale colorato per categorizzare le sezioni
 - Separatori `&mdash;&mdash;&mdash;&mdash;&mdash; &#10022; &mdash;&mdash;&mdash;&mdash;&mdash;`
 - Maiuscoletto a lettere spaziate per le label e i bottoni
+- Spigoli vivi (mai arrotondati)
 
 ### Componenti chiave
 
@@ -83,11 +92,40 @@ L'estetica si ispira a un volume editoriale di mixologia classica.
 
 ## File del progetto
 
-- `index.html` &mdash; applicazione completa
-- `Cocktail_IBA_adattamento_a_feste.pdf` &mdash; ricettario di riferimento, consultabile dall'app
-- `LICENSE` &mdash; licenza MIT
-- `README.md` &mdash; questo file
+```
+barman-pro/
+├── index.html                              applicazione completa
+├── Cocktail_IBA_adattamento_a_feste.pdf    ricettario di riferimento
+├── favicon.svg                             icona vettoriale
+├── apple-touch-icon.png                    icona iOS / homescreen (512x512)
+├── og-image.png                            preview per social media (1200x630)
+├── LICENSE                                 licenza MIT
+└── README.md                               questo file
+```
+
+## Esecuzione locale
+
+```bash
+# Clona il repo
+git clone https://github.com/raccasamuele/barman-pro.git
+cd barman-pro
+
+# Apri index.html in qualsiasi browser
+# Su macOS:    open index.html
+# Su Linux:    xdg-open index.html
+# Su Windows:  start index.html
+```
+
+Non serve nessun server. Tutte le dipendenze (font, stili) sono caricate via CDN o inline.
+
+## Deploy
+
+Il sito e pubblicato gratuitamente tramite **GitHub Pages** all'indirizzo:
+
+**[https://raccasamuele.github.io/barman-pro/](https://raccasamuele.github.io/barman-pro/)**
+
+Ogni commit sul branch `main` rideploya automaticamente in 1-2 minuti.
 
 ## Licenza
 
-MIT &mdash; copyright (c) 2026 Samuele Racca. Vedi `LICENSE`.
+MIT &mdash; copyright (c) 2026 Samuele Racca. Vedi [`LICENSE`](LICENSE).
