@@ -99,7 +99,8 @@ barman-pro/
 ├── favicon.svg                             icona vettoriale
 ├── apple-touch-icon.png                    icona iOS / homescreen (512x512)
 ├── og-image.png                            preview per social media (1200x630)
-├── LICENSE                                 licenza MIT
+├── LICENSE                                 licenza MIT (codice)
+├── LICENSE-PDF                             licenza CC BY-NC-ND 4.0 (documento)
 └── README.md                               questo file
 ```
 
@@ -126,6 +127,20 @@ Il sito e pubblicato gratuitamente tramite **GitHub Pages** all'indirizzo:
 
 Ogni commit sul branch `main` rideploya automaticamente in 1-2 minuti.
 
-## Licenza
+## Licenze
 
-MIT &mdash; copyright (c) 2026 Samuele Racca. Vedi [`LICENSE`](LICENSE).
+Il progetto adotta una **doppia licenza**, distinguendo il codice software dal documento editoriale.
+
+| Componente | Licenza | File |
+| --- | --- | --- |
+| Codice del sito (`index.html`, asset, foglio di stile) | MIT | [`LICENSE`](LICENSE) |
+| Documento PDF (`Cocktail_IBA_adattamento_a_feste.pdf`) | CC BY-NC-ND 4.0 | [`LICENSE-PDF`](LICENSE-PDF) |
+
+In sintesi:
+
+- **Il codice** può essere usato, modificato e ridistribuito liberamente, anche commercialmente, purché si mantenga la nota di copyright.
+- **Il documento PDF** può essere letto, scaricato e condiviso citando l'autore, ma non può essere modificato né usato per scopi commerciali senza autorizzazione separata.
+
+Le 102 ricette IBA 2024 analizzate nel documento appartengono all'International Bartenders Association.
+
+Copyright (c) 2026 Samuele Racca.
