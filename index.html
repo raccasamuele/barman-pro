@@ -22,7 +22,16 @@
 
     <!-- ─── Favicon e icone ─── -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <!-- ─── PWA / installabile ─── -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="application-name" content="Barman PRO">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Barman PRO">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <!-- ─── Open Graph (WhatsApp / Facebook / LinkedIn) ─── -->
     <meta property="og:type" content="website">
@@ -654,6 +663,30 @@
             color: var(--avorio);
             border-color: var(--bordeaux);
         }
+        .meta-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-installa {
+            background: var(--oro);
+            color: var(--sepia);
+            border: 1px solid var(--bordeaux);
+            font-size: 12px;
+            padding: 6px 14px;
+            margin: 0;
+            width: auto;
+            letter-spacing: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-installa:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            border-color: var(--oro);
+            letter-spacing: 2px;
+        }
         .toast {
             position: fixed;
             bottom: 30px;
@@ -677,21 +710,92 @@
             opacity: 1;
         }
 
-        @media (max-width: 700px) {
-            .parametri-row { grid-template-columns: repeat(2, 1fr); }
-            .ricettario-card .ricettario-inner { grid-template-columns: 1fr; text-align: center; gap: 14px; }
-            .ricettario-action { min-width: 100%; }
+        /* Creator grid — 2 colonne desktop, 1 colonna mobile */
+        .creator-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 22px;
         }
 
+        /* ─── BREAKPOINT TABLET ─── */
+        @media (max-width: 820px) {
+            .creator-grid { grid-template-columns: 1fr; gap: 18px; }
+            .parametri-row { grid-template-columns: repeat(2, 1fr); }
+            .ricettario-card .ricettario-inner { grid-template-columns: 1fr; text-align: center; gap: 14px; }
+            .ricettario-action { min-width: 100%; flex-direction: row; justify-content: center; }
+            .ricettario-action button, .ricettario-action .btn-link-download { flex: 1; max-width: 200px; }
+        }
+
+        /* ─── BREAKPOINT MOBILE ─── */
         @media (max-width: 600px) {
-            body { padding: 15px 10px; font-size: 16px; }
-            .header h1 { font-size: 38px; }
-            .header .subtitle { font-size: 16px; }
-            .card { padding: 20px 18px; }
-            .creator-row { grid-template-columns: 1fr 1fr; gap: 6px; }
-            .creator-row .btn-rimuovi-ing { grid-column: span 2; width: 100%; }
-            .action-buttons { flex-direction: column; gap: 10px; }
+            body { padding: 14px 10px; font-size: 16px; }
+            .header { padding: 20px 10px 16px; }
+            .header h1 { font-size: 36px; }
+            .header .subtitle { font-size: 15px; letter-spacing: 3px; }
+            .ornament-row { letter-spacing: 8px; font-size: 14px; }
             h2 { font-size: 26px; }
+            h3 { font-size: 19px; }
+
+            .card { padding: 20px 16px; }
+
+            /* Search bar: input sopra, bottone sotto su mobile */
+            .search-add-row { flex-direction: column; gap: 10px; }
+            .search-add-row button { width: 100%; padding: 12px; }
+
+            /* Parametri serata: 2 colonne (resta più ordinato di 1) */
+            .parametri-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+            /* Creator riga: input sopra, select+ml+rimuovi sotto */
+            .creator-row {
+                grid-template-columns: 1fr 1fr 60px;
+                gap: 8px;
+                grid-template-areas:
+                    "nome   nome   nome"
+                    "tipo   ml     rim";
+            }
+            .creator-row .ing-nome { grid-area: nome; }
+            .creator-row .ing-tipo { grid-area: tipo; }
+            .creator-row .ing-ml   { grid-area: ml; }
+            .creator-row .btn-rimuovi-ing { grid-area: rim; width: 100%; height: auto; }
+
+            /* Slider menu item più compatto */
+            .menu-item { padding: 14px 14px; }
+            .menu-header { font-size: 17px; flex-wrap: wrap; gap: 6px; }
+            .btn-rimuovi { font-size: 12px; letter-spacing: 1px; }
+
+            /* Bottoni grandi: meno spaziatura per stare in una riga */
+            .btn-grande { font-size: 16px; padding: 18px 12px; letter-spacing: 2px; line-height: 1.3; }
+            button { letter-spacing: 1.5px; }
+            button:hover { letter-spacing: 1.5px; }
+
+            /* Risultati a una colonna sotto */
+            .action-buttons { flex-direction: column; gap: 10px; }
+
+            /* Ricettario PDF: bottoni in colonna su mobile stretto */
+            .ricettario-action { flex-direction: column; gap: 8px; }
+            .ricettario-action button, .ricettario-action .btn-link-download { max-width: 100%; }
+
+            /* Modal PDF: header pulsanti più piccoli */
+            .pdf-modal { padding: 8px; }
+            .pdf-modal-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+            .pdf-modal-header h3 { font-size: 16px; }
+            .pdf-modal-actions a, .pdf-modal-actions button { padding: 6px 10px; font-size: 11px; }
+
+            /* Meta-row reset stack */
+            .meta-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .btn-reset { width: 100%; text-align: center; }
+
+            /* Sezione divider più stretto */
+            .section-divider::before, .section-divider::after { margin: 0 6px; }
+        }
+
+        /* ─── BREAKPOINT MOBILE STRETTO (iPhone SE / Galaxy mini) ─── */
+        @media (max-width: 380px) {
+            .header h1 { font-size: 30px; }
+            h2 { font-size: 22px; }
+            .parametri-row { grid-template-columns: 1fr; }
+            .btn-grande { font-size: 14px; letter-spacing: 1.5px; }
+            label { font-size: 13px; }
         }
 
         /* ─── MODALE PASSWORD ─── */
@@ -777,7 +881,10 @@
 
     <div class="meta-row">
         <span id="storage-status">&#10022; Stato salvato automaticamente</span>
-        <button class="btn-reset" onclick="resetCompleto()">Azzera tutto</button>
+        <div class="meta-actions">
+            <button id="btn-installa-app" class="btn-installa" onclick="installaApp()" style="display:none">&#11015; Installa app</button>
+            <button class="btn-reset" onclick="resetCompleto()">Azzera tutto</button>
+        </div>
     </div>
 
     <!-- ─── RICETTARIO PDF ─── -->
@@ -870,7 +977,7 @@
             <h2>Creazioni Personalizzate</h2>
             <div class="section-divider"></div>
         </div>
-        <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 22px;">
+        <div class="creator-grid">
 
             <div class="creator-box">
                 <h3>&#10022; Nuovo Cocktail</h3>
@@ -1564,6 +1671,13 @@
            ════════════════════════════════════════════════════════════ */
         function apriPDF(e) {
             if(e) e.stopPropagation();
+            // Su mobile l'iframe del PDF è inutilizzabile (iOS Safari non lo renderizza)
+            // → apriamo direttamente in nuova scheda
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
+            if(isMobile) {
+                window.open('Cocktail_IBA_adattamento_a_feste.pdf', '_blank', 'noopener');
+                return;
+            }
             const modal = document.getElementById('pdf-modal');
             const iframe = document.getElementById('pdf-iframe');
             iframe.src = 'Cocktail_IBA_adattamento_a_feste.pdf';
@@ -1644,7 +1758,65 @@
                 document.body.style.overflow = 'hidden';
                 setTimeout(() => document.getElementById('pw-input').focus(), 120);
             }
+            // Registrazione PWA + bottone "Installa app"
+            registraServiceWorker();
+            if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches) {
+                mostraBottoneInstalla();
+            }
         };
+
+        /* ════════════════════════════════════════════════════════════
+           PWA — Service Worker e bottone "Installa app"
+           ════════════════════════════════════════════════════════════ */
+        let installPromptEvent = null;
+
+        function registraServiceWorker() {
+            if(!('serviceWorker' in navigator)) return;
+            if(location.protocol !== 'https:' && location.protocol !== 'http:') return;
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('[PWA] Service worker registrato:', reg.scope))
+                .catch(err => console.warn('[PWA] Registrazione fallita:', err));
+        }
+
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            installPromptEvent = e;
+            mostraBottoneInstalla();
+        });
+
+        function mostraBottoneInstalla() {
+            const btn = document.getElementById('btn-installa-app');
+            if(btn) btn.style.display = 'inline-flex';
+        }
+
+        function nascondiBottoneInstalla() {
+            const btn = document.getElementById('btn-installa-app');
+            if(btn) btn.style.display = 'none';
+        }
+
+        async function installaApp() {
+            if(!installPromptEvent) {
+                const ua = navigator.userAgent;
+                if(/iPhone|iPad|iPod/i.test(ua)) {
+                    alert('Per installare Barman PRO sul tuo iPhone:\n\n1. Tocca il pulsante Condividi (in basso al centro)\n2. Scorri e tocca "Aggiungi alla schermata Home"\n3. Conferma con "Aggiungi"');
+                } else {
+                    alert('Per installare Barman PRO:\n\nApri il menu del browser (i tre puntini) e cerca "Installa app" o "Aggiungi alla schermata Home".');
+                }
+                return;
+            }
+            installPromptEvent.prompt();
+            const result = await installPromptEvent.userChoice;
+            if(result.outcome === 'accepted') {
+                mostraToast('App installata');
+                nascondiBottoneInstalla();
+            }
+            installPromptEvent = null;
+        }
+
+        window.addEventListener('appinstalled', () => {
+            nascondiBottoneInstalla();
+            installPromptEvent = null;
+        });
     </script>
 </body>
 </html>
