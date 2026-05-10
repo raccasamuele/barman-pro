@@ -1,0 +1,5 @@
+# Demo pubblica di Barman PRO — libera indicizzazione
+User-agent: *
+Allow: /
+
+Sitemap: https://raccasamuele.github.io/barman-pro/sitemap.xml
