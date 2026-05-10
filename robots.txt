@@ -1,0 +1,8 @@
+# Versione completa: contenuto a pagamento, non deve essere indicizzato.
+User-agent: *
+Disallow: /
+Disallow: /index.html
+Disallow: /Cocktail_IBA_adattamento_a_feste.pdf
+
+# La demo è invece libera di essere indicizzata (resta su GitHub Pages, qui no)
+# Allow: /demo/
