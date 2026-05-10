@@ -2198,16 +2198,11 @@
         }
 
         /* ════════════════════════════════════════════════════════════
-           PWA — Service Worker
+           PWA — Service Worker (disabilitato nella versione demo standalone)
            ════════════════════════════════════════════════════════════ */
         function registraServiceWorker() {
-            if(!('serviceWorker' in navigator)) return;
-            if(location.protocol !== 'https:' && location.protocol !== 'http:') return;
-            // La demo usa il service worker della cartella padre se esiste, altrimenti niente
-            // Service worker non disponibile in versione demo standalone
-            return
-                .then(reg => console.log('[Demo] SW registrato:', reg.scope))
-                .catch(() => { /* SW non disponibile, niente di grave */ });
+            // La demo non registra alcun service worker (nessun file sw.js nella sua cartella)
+            return;
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -2224,4 +2219,11 @@
             aggiungiRigaIngrediente();
 
             // Applica traduzioni a tutti gli elementi
-        
+            applicaTraduzioni();
+
+            // Service worker opzionale (non bloccante)
+            registraServiceWorker();
+        };
+    </script>
+</body>
+</html>
