@@ -16,40 +16,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barman PRO &middot; Calcolatore Eventi</title>
-    <meta name="description" content="Calcolatore eventi per barman: ricette IBA, lista della spesa, party drink ad alto volume.">
+    <title>Barman PRO Demo &middot; Free Event Calculator</title>
+    <meta name="description" content="Free demo of Barman PRO: cocktail event calculator with shopping list, IBA recipes and high-volume party drinks. Try it free, get the full version for €15.">
     <meta name="author" content="Samuele Racca">
     <meta name="theme-color" content="#722F37">
+    <meta name="robots" content="index, follow">
 
-    <!-- ─── Favicon e icone ─── -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
-    <!-- ─── PWA / installabile ─── -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="application-name" content="Barman PRO">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Barman PRO">
-    <meta name="mobile-web-app-capable" content="yes">
+    <!-- ─── Favicon e icone (condivisi con la versione full) ─── -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+    <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 
     <!-- ─── Open Graph (WhatsApp / Facebook / LinkedIn) ─── -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Barman PRO · Calcolatore Eventi">
-    <meta property="og:description" content="Lista della spesa per eventi di mixology — 102 ricette IBA, party drink, calcolo automatico di alcolici, analcolici e attrezzatura.">
+    <meta property="og:title" content="Barman PRO Demo · Free Event Calculator">
+    <meta property="og:description" content="Free demo of the cocktail event calculator. 20 famous recipes, shopping list, multi-language. Full version available for €15.">
     <meta property="og:image" content="https://raccasamuele.github.io/barman-pro/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Barman PRO — Calcolatore d'Eventi">
-    <meta property="og:url" content="https://raccasamuele.github.io/barman-pro/">
+    <meta property="og:image:alt" content="Barman PRO — Event Calculator Demo">
+    <meta property="og:url" content="https://raccasamuele.github.io/barman-pro/demo/">
     <meta property="og:site_name" content="Barman PRO">
-    <meta property="og:locale" content="it_IT">
 
     <!-- ─── Twitter / X Card ─── -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Barman PRO · Calcolatore Eventi">
-    <meta name="twitter:description" content="Lista della spesa per eventi di mixology — 102 ricette IBA, party drink, calcolo automatico.">
+    <meta name="twitter:title" content="Barman PRO Demo · Free Event Calculator">
+    <meta name="twitter:description" content="Free demo of the cocktail event calculator. Try it now.">
     <meta name="twitter:image" content="https://raccasamuele.github.io/barman-pro/og-image.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -799,49 +791,139 @@
             label { font-size: 13px; }
         }
 
-        /* ─── MODALE PASSWORD ─── */
-        .pw-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(31, 26, 23, 0.94);
-            z-index: 4000;
-            align-items: center;
-            justify-content: center;
-        }
-        .pw-overlay.show { display: flex; }
-        .pw-box {
-            background: var(--crema);
-            border: 1px solid var(--bordo-tenue);
+        /* ─── BANNER DEMO ─── */
+        .demo-banner {
+            background: linear-gradient(135deg, var(--bordeaux) 0%, var(--bordeaux-scuro) 100%);
+            color: var(--avorio);
             border-top: 3px double var(--oro);
             border-bottom: 3px double var(--oro);
-            padding: 44px 52px;
-            max-width: 420px;
-            width: 92%;
+            padding: 18px 24px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(31, 26, 23, 0.55);
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 18px;
+            align-items: center;
         }
-        .pw-ornament { color: var(--oro); font-size: 20px; letter-spacing: 10px; margin-bottom: 14px; }
-        .pw-box h2 { margin-bottom: 8px; }
-        .pw-box p { color: var(--testo-tenue); font-style: italic; font-size: 15px; margin-bottom: 26px; }
-        .pw-box input[type="password"] {
-            width: 100%;
-            padding: 13px 14px;
-            border: 1px solid var(--bordo-tenue);
-            border-bottom: 2px solid var(--oro);
-            background: var(--avorio-chiaro);
-            font-family: 'EB Garamond', serif;
-            font-size: 22px;
-            text-align: center;
-            letter-spacing: 8px;
+        .demo-banner-text {
+            text-align: left;
+        }
+        .demo-banner .demo-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 12px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--oro-chiaro);
+            margin-bottom: 4px;
+        }
+        .demo-banner .demo-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--avorio);
+        }
+        .demo-banner .demo-price {
+            color: var(--oro-chiaro);
+            font-style: italic;
+        }
+        .demo-banner .btn-acquista {
+            background: var(--oro);
             color: var(--sepia);
-            margin-bottom: 8px;
-            border-radius: 0;
+            border: 1px solid var(--oro-chiaro);
+            padding: 12px 26px;
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: 2.5px;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
         }
-        .pw-box input[type="password"]:focus { outline: none; border-color: var(--bordeaux); background: var(--crema); }
-        .pw-error { color: var(--bordeaux); font-style: italic; font-size: 14px; min-height: 22px; margin-bottom: 12px; }
+        .demo-banner .btn-acquista:hover {
+            background: var(--avorio);
+            color: var(--bordeaux);
+            border-color: var(--avorio);
+        }
+        @media (max-width: 600px) {
+            .demo-banner { grid-template-columns: 1fr; gap: 14px; padding: 16px; }
+            .demo-banner-text { text-align: center; }
+            .demo-banner .btn-acquista { width: 100%; justify-content: center; }
+        }
 
-        /* ─── STAMPA / PDF ─── */
+        /* ─── BLOCCO FUNZIONALITÀ PRO ─── */
+        .pro-locked {
+            position: relative;
+            opacity: 0.55;
+            pointer-events: none;
+            user-select: none;
+        }
+        .pro-badge {
+            display: inline-block;
+            background: var(--oro);
+            color: var(--sepia);
+            padding: 2px 10px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-left: 10px;
+            vertical-align: middle;
+            border: 1px solid var(--bordeaux);
+        }
+        .pro-overlay-msg {
+            position: absolute;
+            inset: 0;
+            background: rgba(245, 238, 220, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: var(--bordeaux);
+            font-size: 16px;
+            padding: 20px;
+            pointer-events: auto;
+            cursor: pointer;
+            z-index: 5;
+        }
+        .pro-overlay-msg:hover {
+            background: rgba(245, 238, 220, 0.95);
+            color: var(--bordeaux-scuro);
+        }
+
+        /* ─── SELETTORE LINGUA ─── */
+        .lang-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid var(--bordo-tenue);
+            padding: 4px 10px;
+            font-family: 'EB Garamond', serif;
+            color: var(--sepia);
+            cursor: pointer;
+        }
+        .lang-selector select {
+            background: transparent;
+            border: none;
+            font-family: 'EB Garamond', serif;
+            font-size: 13px;
+            color: var(--sepia);
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+        }
+        .lang-selector select:focus { outline: none; }
+
+        /* ─── STAMPA / PDF — con WATERMARK DEMO ─── */
         @media print {
             body {
                 background: white;
@@ -850,9 +932,10 @@
                 padding: 0;
                 margin: 0;
                 background-image: none;
+                position: relative;
             }
-            .header, .card, button, .meta-row, .action-buttons { display: none !important; }
-            #risultati { display: block !important; margin: 0; padding: 20px; }
+            .header, .card, button, .meta-row, .action-buttons, .demo-banner { display: none !important; }
+            #risultati { display: block !important; margin: 0; padding: 20px; position: relative; }
             .risultati-header { display: block !important; }
             .result-section {
                 background-color: white !important;
@@ -867,6 +950,35 @@
             li strong, .total-drinks strong { color: #4F1E24 !important; }
             .total-drinks { color: black !important; }
             .print-title { display: block !important; text-align: center; }
+
+            /* Watermark "DEMO" attraversa la pagina */
+            #risultati::before {
+                content: "DEMO";
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-30deg);
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 220px;
+                font-weight: 700;
+                color: rgba(114, 47, 55, 0.10);
+                letter-spacing: 30px;
+                pointer-events: none;
+                z-index: 0;
+            }
+            /* Disclaimer in fondo a ogni pagina stampata */
+            #risultati::after {
+                content: "Lista generata con la versione DEMO di Barman PRO · barman-pro.demo · per la versione completa scrivi a raccasamuele2004@gmail.com";
+                position: fixed;
+                bottom: 8mm;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-family: 'EB Garamond', serif;
+                font-style: italic;
+                font-size: 9pt;
+                color: #666;
+            }
         }
         .print-title { display: none; }
     </style>
@@ -875,63 +987,81 @@
 
     <header class="header">
         <div class="ornament-row">&#10086; &#10086; &#10086;</div>
-        <div class="subtitle">Barman PRO</div>
-        <h1>Calcolatore d'Eventi</h1>
+        <div class="subtitle" data-i18n="brand">Barman PRO</div>
+        <h1 data-i18n="hero">Calcolatore d'Eventi</h1>
         <div class="ornament-row" style="font-size: 14px; letter-spacing: 8px;">───── &#10022; ─────</div>
     </header>
 
+    <!-- ─── BANNER DEMO ─── -->
+    <div class="demo-banner">
+        <div class="demo-banner-text">
+            <div class="demo-eyebrow" data-i18n="demoEyebrow">Versione Demo Gratuita</div>
+            <div class="demo-title">
+                <span data-i18n="demoTitle">Sblocca la versione completa di Barman PRO</span>
+                <span class="demo-price"> &middot; <span data-i18n="demoPrice">15 € una tantum</span></span>
+            </div>
+        </div>
+        <a class="btn-acquista" id="btn-acquista" href="#" onclick="apriCheckout(event)">
+            <span data-i18n="demoCta">Acquista versione completa</span> &rarr;
+        </a>
+    </div>
+
     <div class="meta-row">
-        <span id="storage-status">&#10022; Stato salvato automaticamente</span>
+        <span id="storage-status" data-i18n="autosave">&#10022; Stato salvato automaticamente</span>
         <div class="meta-actions">
-            <button id="btn-installa-app" class="btn-installa" onclick="installaApp()" style="display:none">&#11015; Installa app</button>
-            <button class="btn-reset" onclick="resetCompleto()">Azzera tutto</button>
+            <div class="lang-selector">
+                <span>&#127760;</span>
+                <select id="lang-select" onchange="cambiaLingua(this.value)">
+                    <option value="it">Italiano</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="pt">Português</option>
+                    <option value="nl">Nederlands</option>
+                </select>
+            </div>
+            <button class="btn-reset" onclick="resetCompleto()" data-i18n="reset">Azzera tutto</button>
         </div>
     </div>
 
-    <!-- ─── RICETTARIO PDF ─── -->
-    <section class="card ricettario-card" onclick="apriPDF(event)">
+    <!-- ─── RICETTARIO PDF (disabilitato in demo) ─── -->
+    <section class="card ricettario-card pro-locked" style="position: relative;">
         <div class="ricettario-inner">
             <div class="ricettario-icon">&#10086;</div>
             <div class="ricettario-text">
-                <h3>Ricettario IBA &middot; Adattamento per Feste</h3>
-                <p class="ricettario-sub">Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume</p>
-                <div class="ricettario-meta">Documento PDF &middot; clicca per leggere</div>
+                <h3 data-i18n="pdfTitle">Ricettario IBA &middot; Adattamento per Feste</h3>
+                <p class="ricettario-sub" data-i18n="pdfSub">Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume</p>
+                <div class="ricettario-meta">
+                    <span class="pro-badge">PRO</span>
+                    <span data-i18n="pdfMeta">36 pagine &middot; analisi completa</span>
+                </div>
             </div>
             <div class="ricettario-action">
-                <button class="btn-pdf-leggi" onclick="apriPDF(event)">&#10022; Leggi</button>
-                <a href="Cocktail_IBA_adattamento_a_feste.pdf" download
-                   class="btn-link-download"
-                   onclick="event.stopPropagation()">&#8615; Scarica</a>
+                <button class="btn-pdf-leggi">&#10022; <span data-i18n="pdfRead">Leggi</span></button>
+                <span class="btn-link-download">&#8615; <span data-i18n="pdfDownload">Scarica</span></span>
+            </div>
+        </div>
+        <div class="pro-overlay-msg" onclick="apriCheckout(event)">
+            <div>
+                <div style="font-size: 24px; margin-bottom: 8px;">&#128274;</div>
+                <div data-i18n="proLockPdf">Disponibile nella versione completa &mdash; clicca per sbloccare</div>
             </div>
         </div>
     </section>
-
-    <!-- Modal lettura PDF -->
-    <div class="pdf-modal" id="pdf-modal">
-        <div class="pdf-modal-header">
-            <h3>&#10086; Cocktail IBA &middot; Adattamento per Feste</h3>
-            <div class="pdf-modal-actions">
-                <a href="Cocktail_IBA_adattamento_a_feste.pdf" download>&#8615; Scarica</a>
-                <button onclick="chiudiPDF()">&times; Chiudi</button>
-            </div>
-        </div>
-        <div class="pdf-modal-frame">
-            <iframe id="pdf-iframe" src="" title="Ricettario IBA"></iframe>
-        </div>
-    </div>
 
     <!-- ─── PARAMETRI EVENTO ─── -->
     <section class="card">
         <div class="section-title">
             <div class="ornament">&#10086;</div>
-            <h2>Parametri dell'Evento</h2>
+            <h2 data-i18n="paramsTitle">Parametri dell'Evento</h2>
             <div class="section-divider"></div>
         </div>
         <div class="parametri-row">
-            <div><label>Ospiti previsti</label><input type="number" id="ospiti" value="50" min="1" oninput="salvaStato()"></div>
-            <div><label>Cocktail a persona</label><input type="number" id="drink_testa" value="3" min="0" step="0.5" oninput="salvaStato()"></div>
-            <div><label>Shot a persona</label><input type="number" id="shot_testa" value="1" min="0" step="0.5" oninput="salvaStato()"></div>
-            <div><label>Margine sicurezza (%)</label><input type="number" id="scarto" value="15" min="0" oninput="salvaStato()"></div>
+            <div><label data-i18n="paramGuests">Ospiti previsti</label><input type="number" id="ospiti" value="50" min="1" oninput="salvaStato()"></div>
+            <div><label data-i18n="paramDrinkPP">Cocktail a persona</label><input type="number" id="drink_testa" value="3" min="0" step="0.5" oninput="salvaStato()"></div>
+            <div><label data-i18n="paramShotPP">Shot a persona</label><input type="number" id="shot_testa" value="1" min="0" step="0.5" oninput="salvaStato()"></div>
+            <div><label data-i18n="paramSafety">Margine sicurezza (%)</label><input type="number" id="scarto" value="15" min="0" oninput="salvaStato()"></div>
         </div>
     </section>
 
@@ -939,15 +1069,15 @@
     <section class="card">
         <div class="section-title">
             <div class="ornament">&#10086;</div>
-            <h2>Cocktail della Serata</h2>
+            <h2 data-i18n="drinksTitle">Cocktail della Serata</h2>
             <div class="section-divider"></div>
         </div>
-        <p class="descrizione">Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5</p>
+        <p class="descrizione" data-i18n="drinksDesc">Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5</p>
 
         <div class="search-add-row">
-            <input list="lista-database-drink" id="search-drink-input" placeholder="Cerca dal ricettario (es. Negroni, Spritz, Margarita)...">
+            <input list="lista-database-drink" id="search-drink-input" data-i18n-ph="drinksPlaceholder" placeholder="Cerca dal ricettario (es. Negroni, Spritz, Margarita)...">
             <datalist id="lista-database-drink"></datalist>
-            <button onclick="aggiungiDrinkSerata()">&#10010; Aggiungi</button>
+            <button onclick="aggiungiDrinkSerata()">&#10010; <span data-i18n="add">Aggiungi</span></button>
         </div>
         <br>
         <div id="drink-serata-container" class="grid"></div>
@@ -957,58 +1087,67 @@
     <section class="card">
         <div class="section-title">
             <div class="ornament">&#10022;</div>
-            <h2>Shot &amp; Amari</h2>
+            <h2 data-i18n="shotsTitle">Shot &amp; Amari</h2>
             <div class="section-divider"></div>
         </div>
-        <p class="descrizione">Dose standard 40 ml &middot; cerca tra gli alcolici disponibili</p>
+        <p class="descrizione" data-i18n="shotsDesc">Dose standard 40 ml &middot; cerca tra gli alcolici disponibili</p>
 
         <div class="search-add-row">
-            <input list="lista-database-shot" id="search-shot-input" placeholder="Cerca shot, amaro o liquore...">
+            <input list="lista-database-shot" id="search-shot-input" data-i18n-ph="shotsPlaceholder" placeholder="Cerca shot, amaro o liquore...">
             <datalist id="lista-database-shot"></datalist>
-            <button onclick="aggiungiShotSerata()">&#10010; Aggiungi</button>
+            <button onclick="aggiungiShotSerata()">&#10010; <span data-i18n="add">Aggiungi</span></button>
         </div>
         <br>
         <div id="shot-serata-container" class="grid"></div>
     </section>
 
-    <!-- ─── CREATOR ─── -->
-    <section class="card">
+    <!-- ─── CREATOR (disabilitato in demo, interfaccia mostrata) ─── -->
+    <section class="card" style="position: relative;">
         <div class="section-title">
             <div class="ornament">&#10086;</div>
-            <h2>Creazioni Personalizzate</h2>
+            <h2>
+                <span data-i18n="creatorTitle">Creazioni Personalizzate</span>
+                <span class="pro-badge">PRO</span>
+            </h2>
             <div class="section-divider"></div>
         </div>
-        <div class="creator-grid">
+        <div class="creator-grid pro-locked">
 
             <div class="creator-box">
-                <h3>&#10022; Nuovo Cocktail</h3>
-                <input type="text" id="new_cocktail_name" placeholder="Nome del cocktail">
+                <h3>&#10022; <span data-i18n="creatorNew">Nuovo Cocktail</span></h3>
+                <input type="text" id="new_cocktail_name" placeholder="Nome del cocktail" disabled>
                 <datalist id="lista-ingredienti"></datalist>
 
                 <div style="margin-top: 14px;">
-                    <label style="margin-bottom: 6px;">Ingredienti</label>
+                    <label style="margin-bottom: 6px;" data-i18n="creatorIng">Ingredienti</label>
                     <div id="ingredienti-container"></div>
-                    <button class="btn-aggiungi-ing" onclick="aggiungiRigaIngrediente()">&#10010; Aggiungi ingrediente</button>
+                    <button class="btn-aggiungi-ing" disabled>&#10010; <span data-i18n="creatorAddIng">Aggiungi ingrediente</span></button>
                 </div>
 
-                <button class="btn-secondary" onclick="creaCocktail()">&#10022; Crea e aggiungi alla serata</button>
+                <button class="btn-secondary" disabled>&#10022; <span data-i18n="creatorCreate">Crea e aggiungi alla serata</span></button>
             </div>
 
             <div class="creator-box">
-                <h3>&#10022; Bottiglia Shot</h3>
-                <p class="descrizione" style="text-align: left; margin-bottom: 12px;">Aggiungi un alcolico extra non presente nel ricettario</p>
-                <input type="text" id="new_shot_name" placeholder="Nome (es. Limoncello)">
-                <button class="btn-secondary" onclick="creaShot()">&#10022; Crea e aggiungi</button>
+                <h3>&#10022; <span data-i18n="creatorShot">Bottiglia Shot</span></h3>
+                <p class="descrizione" style="text-align: left; margin-bottom: 12px;" data-i18n="creatorShotDesc">Aggiungi un alcolico extra non presente nel ricettario</p>
+                <input type="text" id="new_shot_name" placeholder="Nome (es. Limoncello)" disabled>
+                <button class="btn-secondary" disabled>&#10022; <span data-i18n="creatorCreate">Crea e aggiungi</span></button>
+            </div>
+        </div>
+        <div class="pro-overlay-msg" onclick="apriCheckout(event)" style="cursor: pointer;">
+            <div>
+                <div style="font-size: 24px; margin-bottom: 8px;">&#128274;</div>
+                <div data-i18n="proLockCreator">Creazione di drink personalizzati &mdash; disponibile nella versione completa</div>
             </div>
         </div>
     </section>
 
     <!-- ─── BOTTONE GENERA ─── -->
-    <button class="btn-primary-gold btn-grande" onclick="calcolaSpesa()">&#10086;&nbsp;&nbsp;Genera lista della spesa&nbsp;&nbsp;&#10086;</button>
+    <button class="btn-primary-gold btn-grande" onclick="calcolaSpesa()">&#10086;&nbsp;&nbsp;<span data-i18n="generate">Genera lista della spesa</span>&nbsp;&nbsp;&#10086;</button>
 
     <!-- ─── RISULTATI ─── -->
     <div id="risultati">
-        <h2 class="print-title">Lista della Spesa &middot; Barman PRO</h2>
+        <h2 class="print-title" data-i18n="shopHeading">Lista della Spesa &middot; Barman PRO</h2>
 
         <div class="risultati-header">
             <div class="total-drinks" id="drink-totali-text"></div>
@@ -1016,37 +1155,26 @@
 
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
             <div class="result-section bg-alcol">
-                <h3>&#10022; Alcolici (Litri)</h3>
+                <h3>&#10022; <span data-i18n="alcoholic">Alcolici</span> (<span data-i18n="liters">Litri</span>)</h3>
                 <ul id="lista_alcolici"></ul>
             </div>
             <div class="result-section bg-analcol">
-                <h3>&#10022; Analcolici &amp; Filler (Litri)</h3>
+                <h3>&#10022; <span data-i18n="nonalcoholic">Analcolici &amp; Filler</span> (<span data-i18n="liters">Litri</span>)</h3>
                 <ul id="lista_analcolici"></ul>
             </div>
         </div>
         <div class="result-section bg-extra">
-            <h3>&#10022; Attrezzatura</h3>
+            <h3>&#10022; <span data-i18n="equipment">Attrezzatura</span></h3>
             <ul id="lista_extra"></ul>
         </div>
 
         <div class="action-buttons">
-            <button onclick="copiaListaTesto()">&#10022; Copia testo (per WhatsApp)</button>
-            <button onclick="window.print()">&#10022; Stampa o salva in PDF</button>
+            <button onclick="copiaListaTesto()">&#10022; <span data-i18n="copyText">Copia testo (per WhatsApp)</span></button>
+            <button onclick="window.print()">&#10022; <span data-i18n="printPdf">Stampa o salva in PDF</span></button>
         </div>
     </div>
 
-    <!-- ─── MODALE PASSWORD ─── -->
-    <div class="pw-overlay" id="pw-overlay">
-        <div class="pw-box">
-            <div class="pw-ornament">&#10086; &#10086; &#10086;</div>
-            <h2>Accesso Riservato</h2>
-            <p>Inserisci la password per accedere a Barman PRO</p>
-            <input type="password" id="pw-input" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                   onkeydown="if(event.key==='Enter')confermaPassword()">
-            <div class="pw-error" id="pw-error"></div>
-            <button onclick="confermaPassword()">&#10022;&nbsp;&nbsp;Accedi&nbsp;&nbsp;&#10022;</button>
-        </div>
-    </div>
+    <!-- (Modale password rimossa: la demo è ad accesso libero) -->
 
     <div class="toast" id="toast"></div>
 
@@ -1160,72 +1288,34 @@
                 .replace(/'/g, '&#39;');
         }
 
+        // ─── DEMO: solo 20 cocktail (i più riconoscibili) ───
+        // La versione completa contiene 65+ cocktail tra IBA classici e party drink HV
         let databaseDrink = {
-            "Vodka Redbull (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Lemon (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Menta Redbull (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Pesca Redbull (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Fragola Redbull (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Melone Redbull (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Menta Lemon (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Pesca Lemon (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Fragola Lemon (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Melone Lemon (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Gin Tonic (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Acqua Tonica", tipo: "analcolico", ml: 140}],
-            "Gin Lemon (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Rum & Coca (HV)": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
-            "Monte & Coca (HV)": [{nome: "Amaro Montenegro", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
-            "Jager & Redbull (HV)": [{nome: "Jägermeister", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Malibu & Ananas (HV)": [{nome: "Malibu", tipo: "alcolico", ml: 60}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 140}],
-            "Midori Lemon (HV)": [{nome: "Midori", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Garibaldi (HV)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 60}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 140}],
-            "Fernandito (HV)": [{nome: "Fernet Branca", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
-            "Dark N Stormy (HV)": [{nome: "Rum Scuro", tipo: "alcolico", ml: 60}, {nome: "Ginger Beer", tipo: "analcolico", ml: 140}],
-            "Horses Neck (HV)": [{nome: "Cognac", tipo: "alcolico", ml: 60}, {nome: "Ginger Ale", tipo: "analcolico", ml: 140}],
-            "Alexander": [{nome: "Cognac", tipo: "alcolico", ml: 30}, {nome: "Crema di Cacao Scura", tipo: "alcolico", ml: 30}, {nome: "Panna Fresca", tipo: "analcolico", ml: 30}],
-            "Americano": [{nome: "Bitter Campari", tipo: "alcolico", ml: 30}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}, {nome: "Soda", tipo: "analcolico", ml: 30}],
-            "Angel Face": [{nome: "Gin", tipo: "alcolico", ml: 30}, {nome: "Apricot Brandy", tipo: "alcolico", ml: 30}, {nome: "Calvados", tipo: "alcolico", ml: 30}],
-            "Aviation": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Maraschino", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 15}, {nome: "Crema di Violetta", tipo: "alcolico", ml: 5}],
-            "Between the Sheets": [{nome: "Rum Bianco", tipo: "alcolico", ml: 30}, {nome: "Cognac", tipo: "alcolico", ml: 30}, {nome: "Triple Sec", tipo: "alcolico", ml: 30}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
-            "Boulevardier": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}, {nome: "Bitter Campari", tipo: "alcolico", ml: 30}],
-            "Clover Club": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Sciroppo di Lamponi", tipo: "analcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 15}, {nome: "Albume", tipo: "analcolico", ml: 30}],
-            "Daiquiri": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
-            "Dry Martini": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Vermouth Secco", tipo: "alcolico", ml: 10}],
-            "Gin Fizz": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Succo di Limone", tipo: "analcolico", ml: 30}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}, {nome: "Soda", tipo: "analcolico", ml: 60}],
-            "Hanky Panky": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 45}, {nome: "Fernet Branca", tipo: "alcolico", ml: 7.5}],
-            "Manhattan": [{nome: "Whiskey Rye", tipo: "alcolico", ml: 50}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 20}],
             "Negroni": [{nome: "Gin", tipo: "alcolico", ml: 30}, {nome: "Bitter Campari", tipo: "alcolico", ml: 30}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}],
-            "Old Fashioned": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
-            "Planters Punch": [{nome: "Rum Giamaicano", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Canna da Zucchero", tipo: "analcolico", ml: 30}],
-            "Rusty Nail": [{nome: "Whisky Scozzese", tipo: "alcolico", ml: 45}, {nome: "Drambuie", tipo: "alcolico", ml: 25}],
-            "Sazerac": [{nome: "Cognac", tipo: "alcolico", ml: 50}, {nome: "Assenzio", tipo: "alcolico", ml: 10}],
-            "Sidecar": [{nome: "Cognac", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
-            "Whiskey Sour": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 20}, {nome: "Albume", tipo: "analcolico", ml: 20}],
-            "White Lady": [{nome: "Gin", tipo: "alcolico", ml: 40}, {nome: "Triple Sec", tipo: "alcolico", ml: 30}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
-            "Bellini": [{nome: "Prosecco", tipo: "alcolico", ml: 100}, {nome: "Purea di Pesca", tipo: "analcolico", ml: 50}],
-            "Black Russian": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 50}, {nome: "Liquore al Caffè", tipo: "alcolico", ml: 20}],
-            "Caipirinha": [{nome: "Cachaça", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
-            "Cosmopolitan": [{nome: "Vodka al Limone", tipo: "alcolico", ml: 40}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 30}],
-            "Cuba Libre": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Cola", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
-            "Garibaldi (IBA)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 120}],
-            "Irish Coffee": [{nome: "Whiskey Irlandese", tipo: "alcolico", ml: 50}, {nome: "Caffè", tipo: "analcolico", ml: 120}, {nome: "Panna Fresca", tipo: "analcolico", ml: 50}],
-            "Long Island": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 15}, {nome: "Tequila", tipo: "alcolico", ml: 15}, {nome: "Rum Bianco", tipo: "alcolico", ml: 15}, {nome: "Gin", tipo: "alcolico", ml: 15}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Cola", tipo: "analcolico", ml: 60}],
-            "Mai-Tai": [{nome: "Rum Giamaicano", tipo: "alcolico", ml: 30}, {nome: "Rum Martinicano", tipo: "alcolico", ml: 30}, {nome: "Curaçao all'Arancia", tipo: "alcolico", ml: 15}, {nome: "Orgeat", tipo: "analcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
-            "Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}],
+            "Spritz": [{nome: "Prosecco", tipo: "alcolico", ml: 90}, {nome: "Aperol", tipo: "alcolico", ml: 60}, {nome: "Soda", tipo: "analcolico", ml: 30}],
             "Mojito": [{nome: "Rum Bianco", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Soda", tipo: "analcolico", ml: 40}],
-            "Moscow Mule (IBA)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Ginger Beer", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+            "Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}],
+            "Cosmopolitan": [{nome: "Vodka al Limone", tipo: "alcolico", ml: 40}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 30}],
+            "Daiquiri": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
+            "Old Fashioned": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
+            "Manhattan": [{nome: "Whiskey Rye", tipo: "alcolico", ml: 50}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 20}],
+            "Espresso Martini": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 50}, {nome: "Liquore al Caffè", tipo: "alcolico", ml: 30}, {nome: "Espresso", tipo: "analcolico", ml: 30}],
+            "Bellini": [{nome: "Prosecco", tipo: "alcolico", ml: 100}, {nome: "Purea di Pesca", tipo: "analcolico", ml: 50}],
+            "Long Island": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 15}, {nome: "Tequila", tipo: "alcolico", ml: 15}, {nome: "Rum Bianco", tipo: "alcolico", ml: 15}, {nome: "Gin", tipo: "alcolico", ml: 15}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Cola", tipo: "analcolico", ml: 60}],
             "Pina Colada": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Crema di Cocco", tipo: "analcolico", ml: 30}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 50}],
-            "Pisco Sour": [{nome: "Pisco", tipo: "alcolico", ml: 60}, {nome: "Succo di Limone", tipo: "analcolico", ml: 30}, {nome: "Albume", tipo: "analcolico", ml: 20}],
             "Sex on the Beach": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 40}, {nome: "Schnapps alla Pesca", tipo: "alcolico", ml: 20}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 40}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 40}],
             "Tequila Sunrise": [{nome: "Tequila", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 90}, {nome: "Granatina", tipo: "analcolico", ml: 15}],
-            "Zombie": [{nome: "Rum Scuro", tipo: "alcolico", ml: 45}, {nome: "Rum Dorato", tipo: "alcolico", ml: 45}, {nome: "Rum Demerara", tipo: "alcolico", ml: 30}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}],
-            "Bees Knees": [{nome: "Gin", tipo: "alcolico", ml: 52.5}, {nome: "Succo di Limone", tipo: "analcolico", ml: 22.5}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 22.5}],
-            "Espresso Martini": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 50}, {nome: "Liquore al Caffè", tipo: "alcolico", ml: 30}, {nome: "Espresso", tipo: "analcolico", ml: 30}],
-            "Paloma": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Soda Pompelmo Rosa", tipo: "analcolico", ml: 100}],
-            "Porn Star Martini": [{nome: "Vodka alla Vaniglia", tipo: "alcolico", ml: 50}, {nome: "Liquore Passion Fruit", tipo: "alcolico", ml: 20}, {nome: "Purea di Passion Fruit", tipo: "analcolico", ml: 50}, {nome: "Champagne", tipo: "alcolico", ml: 50}],
-            "Spritz": [{nome: "Prosecco", tipo: "alcolico", ml: 90}, {nome: "Aperol", tipo: "alcolico", ml: 60}, {nome: "Soda", tipo: "analcolico", ml: 30}],
-            "Tommys Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}]
+            "Moscow Mule": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Ginger Beer", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+            "Caipirinha": [{nome: "Cachaça", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
+            "Whiskey Sour": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 20}, {nome: "Albume", tipo: "analcolico", ml: 20}],
+            "Vodka Redbull (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Gin Tonic (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Acqua Tonica", tipo: "analcolico", ml: 140}],
+            "Rum & Coca (HV)": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}]
         };
+
+        // Limiti versione DEMO
+        const DEMO_LIMITE_DRINK = 3;
+        const DEMO_LIMITE_SHOT = 2;
 
         let menuSerataDrink = {};
         let menuSerataShot = {};
@@ -1351,8 +1441,13 @@
             let inputField = document.getElementById('search-drink-input');
             let nome = inputField.value.trim();
             if(!nome) return;
-            if(!databaseDrink[nome]) return alert("Cocktail non trovato. Selezionalo dalla tendina o crealo nel pannello qui sotto.");
+            if(!databaseDrink[nome]) return alert(t('errDrinkNotFound'));
 
+            // Limite versione demo
+            if(!(nome in menuSerataDrink) && Object.keys(menuSerataDrink).length >= DEMO_LIMITE_DRINK) {
+                mostraLimitePopup('drink');
+                return;
+            }
             if (!(nome in menuSerataDrink)) menuSerataDrink[nome] = 1;
             inputField.value = '';
             renderizzaMenu();
@@ -1364,10 +1459,23 @@
             let nome = inputField.value.trim();
             if(!nome) return;
 
+            // Limite versione demo
+            if(!(nome in menuSerataShot) && Object.keys(menuSerataShot).length >= DEMO_LIMITE_SHOT) {
+                mostraLimitePopup('shot');
+                return;
+            }
             if (!(nome in menuSerataShot)) menuSerataShot[nome] = 1;
             inputField.value = '';
             renderizzaMenu();
             salvaStato();
+        }
+
+        function mostraLimitePopup(tipo) {
+            const limite = tipo === 'drink' ? DEMO_LIMITE_DRINK : DEMO_LIMITE_SHOT;
+            const msg = t(tipo === 'drink' ? 'limitDrink' : 'limitShot').replace('{n}', limite);
+            if(confirm(msg + '\n\n' + t('limitCta'))) {
+                apriCheckout();
+            }
         }
 
         function aggiornaFrequenza(nome, tipo, valore) {
@@ -1475,6 +1583,10 @@
         }
 
         function creaCocktail() {
+            // Funzione disponibile solo nella versione PRO
+            apriCheckout();
+            return;
+            // Codice PRO sotto (irraggiungibile in demo)
             let nome = document.getElementById('new_cocktail_name').value.trim();
             if(!nome) return alert("Inserisci il nome del cocktail.");
 
@@ -1505,6 +1617,10 @@
         }
 
         function creaShot() {
+            // Funzione disponibile solo nella versione PRO
+            apriCheckout();
+            return;
+            // Codice PRO sotto (irraggiungibile in demo)
             let nome = document.getElementById('new_shot_name').value.trim();
             if(!nome) return alert("Inserisci il nome dell'alcolico.");
 
@@ -1522,12 +1638,7 @@
            CALCOLO
            ════════════════════════════════════════════════════════════ */
         function calcolaSpesa() {
-            if (!sessionStorage.getItem('_bpOk')) {
-                document.getElementById('pw-overlay').classList.add('show');
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => document.getElementById('pw-input').focus(), 80);
-                return;
-            }
+            // Demo: nessun check password, accesso libero
             let ospiti = parseFloat(document.getElementById('ospiti').value) || 0;
             let drinkTesta = parseFloat(document.getElementById('drink_testa').value) || 0;
             let shotTesta = parseFloat(document.getElementById('shot_testa').value) || 0;
@@ -1642,196 +1753,479 @@
            ESPORTAZIONE TESTO
            ════════════════════════════════════════════════════════════ */
         function copiaListaTesto() {
-            let testo = "❦  LISTA DELLA SPESA — EVENTO\n\n";
+            let testo = "❦  " + t('shopHeading') + "\n\n";
             testo += document.getElementById('drink-totali-text').innerText + "\n\n";
 
-            testo += "ALCOLICI (Litri)\n";
+            testo += t('alcoholic').toUpperCase() + " (" + t('liters') + ")\n";
             document.querySelectorAll('#lista_alcolici li').forEach(li => {
                 testo += "  • " + li.innerText + "\n";
             });
 
-            testo += "\nANALCOLICI & FILLER (Litri)\n";
+            testo += "\n" + t('nonalcoholic').toUpperCase() + " (" + t('liters') + ")\n";
             document.querySelectorAll('#lista_analcolici li').forEach(li => {
                 testo += "  • " + li.innerText + "\n";
             });
 
-            testo += "\nATTREZZATURA\n";
+            testo += "\n" + t('equipment').toUpperCase() + "\n";
             document.querySelectorAll('#lista_extra li').forEach(li => {
                 testo += "  • " + li.innerText + "\n";
             });
 
+            testo += "\n— " + t('demoFooter') + " —\n";
+
             navigator.clipboard.writeText(testo).then(() => {
-                mostraToast('Lista copiata negli appunti');
+                mostraToast(t('toastCopied'));
             }).catch(err => {
                 alert("Errore nella copia: " + err);
             });
         }
 
         /* ════════════════════════════════════════════════════════════
-           RICETTARIO PDF
+           CHECKOUT (mailto temporaneo, sostituire con link Lemon Squeezy)
            ════════════════════════════════════════════════════════════ */
-        function apriPDF(e) {
-            if(e) e.stopPropagation();
-            // Su mobile l'iframe del PDF è inutilizzabile (iOS Safari non lo renderizza)
-            // → apriamo direttamente in nuova scheda
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
-            if(isMobile) {
-                window.open('Cocktail_IBA_adattamento_a_feste.pdf', '_blank', 'noopener');
-                return;
-            }
-            const modal = document.getElementById('pdf-modal');
-            const iframe = document.getElementById('pdf-iframe');
-            iframe.src = 'Cocktail_IBA_adattamento_a_feste.pdf';
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
+        function apriCheckout(e) {
+            if(e && e.stopPropagation) e.stopPropagation();
+            if(e && e.preventDefault) e.preventDefault();
+            const subject = encodeURIComponent("Richiesta versione completa Barman PRO");
+            const body = encodeURIComponent(
+                "Ciao Samuele,\n\n" +
+                "ho provato la demo di Barman PRO e vorrei acquistare la versione completa (15 €).\n\n" +
+                "Lingua interfaccia: " + linguaCorrente + "\n" +
+                "Pagina: " + location.href + "\n\n" +
+                "Grazie."
+            );
+            location.href = "mailto:raccasamuele2004@gmail.com?subject=" + subject + "&body=" + body;
         }
-        function chiudiPDF() {
-            const modal = document.getElementById('pdf-modal');
-            const iframe = document.getElementById('pdf-iframe');
-            modal.classList.remove('show');
-            iframe.src = '';
-            document.body.style.overflow = '';
-        }
-        // ESC per chiudere
-        document.addEventListener('keydown', e => {
-            if(e.key === 'Escape') chiudiPDF();
-        });
 
         /* ════════════════════════════════════════════════════════════
-           AUTENTICAZIONE PASSWORD
+           I18N — 7 lingue (IT, EN, ES, FR, DE, PT, NL)
            ════════════════════════════════════════════════════════════ */
-        /*
-         * COME IMPOSTARE LA TUA PASSWORD
-         * ─────────────────────────────────────────────────────────────
-         * 1. Apri questo file nel browser
-         * 2. Apri la console del browser (tasto F12 → scheda "Console")
-         * 3. Digita il comando qui sotto, sostituendo TUA_PASSWORD:
-         *
-         *    crypto.subtle.digest('SHA-256', new TextEncoder().encode('TUA_PASSWORD'))
-         *      .then(b => console.log(Array.from(new Uint8Array(b))
-         *        .map(x => x.toString(16).padStart(2,'0')).join('')))
-         *
-         * 4. Copia l'hash che appare (stringa di 64 caratteri)
-         * 5. Incollalo come valore di _ph qui sotto, tra i singoli apici
-         * ─────────────────────────────────────────────────────────────
-         */
-        const _ph = '63f947f6468a8ea4034d93c638cb006cd2500a848bcea0b7f7fd32095858364e';
+        let linguaCorrente = 'it';
 
-        async function confermaPassword() {
-            const v = document.getElementById('pw-input').value;
-            if (!v) return;
-            try {
-                const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
-                const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-                if (hex === _ph) {
-                    sessionStorage.setItem('_bpOk', '1');
-                    document.getElementById('pw-overlay').classList.remove('show');
-                    document.body.style.overflow = '';
-                } else {
-                    document.getElementById('pw-error').textContent = 'Password errata. Riprova.';
-                    document.getElementById('pw-input').value = '';
-                    document.getElementById('pw-input').focus();
-                }
-            } catch(e) {
-                document.getElementById('pw-error').textContent = 'Errore. Ricarica la pagina.';
+        const translations = {
+            it: {
+                brand: "Barman PRO",
+                hero: "Calcolatore d'Eventi",
+                demoEyebrow: "Versione Demo Gratuita",
+                demoTitle: "Sblocca la versione completa di Barman PRO",
+                demoPrice: "15 € una tantum",
+                demoCta: "Acquista versione completa",
+                autosave: "❖ Stato salvato automaticamente",
+                reset: "Azzera tutto",
+                paramsTitle: "Parametri dell'Evento",
+                paramGuests: "Ospiti previsti",
+                paramDrinkPP: "Cocktail a persona",
+                paramShotPP: "Shot a persona",
+                paramSafety: "Margine sicurezza (%)",
+                drinksTitle: "Cocktail della Serata",
+                drinksDesc: "Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5",
+                drinksPlaceholder: "Cerca dal ricettario (es. Negroni, Spritz, Margarita)...",
+                shotsTitle: "Shot & Amari",
+                shotsDesc: "Dose standard 40 ml · cerca tra gli alcolici disponibili",
+                shotsPlaceholder: "Cerca shot, amaro o liquore...",
+                add: "Aggiungi",
+                creatorTitle: "Creazioni Personalizzate",
+                creatorNew: "Nuovo Cocktail",
+                creatorIng: "Ingredienti",
+                creatorAddIng: "Aggiungi ingrediente",
+                creatorCreate: "Crea e aggiungi",
+                creatorShot: "Bottiglia Shot",
+                creatorShotDesc: "Aggiungi un alcolico extra non presente nel ricettario",
+                pdfTitle: "Ricettario IBA · Adattamento per Feste",
+                pdfSub: "Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume",
+                pdfMeta: "36 pagine · analisi completa",
+                pdfRead: "Leggi",
+                pdfDownload: "Scarica",
+                proLockPdf: "Disponibile nella versione completa — clicca per sbloccare",
+                proLockCreator: "Creazione di drink personalizzati — disponibile nella versione completa",
+                generate: "Genera lista della spesa",
+                shopHeading: "Lista della Spesa Evento",
+                alcoholic: "Alcolici",
+                nonalcoholic: "Analcolici & Filler",
+                equipment: "Attrezzatura",
+                liters: "Litri",
+                copyText: "Copia testo (per WhatsApp)",
+                printPdf: "Stampa o salva in PDF",
+                limitDrink: "Limite versione demo: massimo {n} cocktail nel menu della serata.",
+                limitShot: "Limite versione demo: massimo {n} shot nel menu della serata.",
+                limitCta: "Vuoi sbloccare la versione completa senza limiti?",
+                errDrinkNotFound: "Cocktail non trovato. Selezionalo dalla tendina.",
+                toastCopied: "Lista copiata negli appunti",
+                demoFooter: "Generato con la versione DEMO di Barman PRO"
+            },
+            en: {
+                brand: "Barman PRO",
+                hero: "Event Calculator",
+                demoEyebrow: "Free Demo Version",
+                demoTitle: "Unlock the full version of Barman PRO",
+                demoPrice: "€15 one-time",
+                demoCta: "Buy full version",
+                autosave: "❖ Auto-saved",
+                reset: "Reset all",
+                paramsTitle: "Event Parameters",
+                paramGuests: "Expected guests",
+                paramDrinkPP: "Cocktails per person",
+                paramShotPP: "Shots per person",
+                paramSafety: "Safety margin (%)",
+                drinksTitle: "Cocktails for the Night",
+                drinksDesc: "Search the cocktail book and set frequency with the 1-to-5 slider",
+                drinksPlaceholder: "Search the cocktail book (e.g. Negroni, Spritz, Margarita)...",
+                shotsTitle: "Shots & Bitters",
+                shotsDesc: "Standard 40 ml shot · search through available spirits",
+                shotsPlaceholder: "Search shot, bitter or liqueur...",
+                add: "Add",
+                creatorTitle: "Custom Creations",
+                creatorNew: "New Cocktail",
+                creatorIng: "Ingredients",
+                creatorAddIng: "Add ingredient",
+                creatorCreate: "Create and add",
+                creatorShot: "Shot Bottle",
+                creatorShotDesc: "Add an extra spirit not in the cocktail book",
+                pdfTitle: "IBA Cocktail Book · Party Adaptation",
+                pdfSub: "The 102 official recipes recalibrated for high-volume service",
+                pdfMeta: "36 pages · full analysis · currently in Italian",
+                pdfRead: "Read",
+                pdfDownload: "Download",
+                proLockPdf: "Available in the full version — click to unlock",
+                proLockCreator: "Custom drink creation — available in the full version",
+                generate: "Generate shopping list",
+                shopHeading: "Event Shopping List",
+                alcoholic: "Alcoholic",
+                nonalcoholic: "Non-alcoholic & Mixers",
+                equipment: "Equipment",
+                liters: "Liters",
+                copyText: "Copy text (for WhatsApp)",
+                printPdf: "Print or save as PDF",
+                limitDrink: "Demo limit: max {n} cocktails in the night menu.",
+                limitShot: "Demo limit: max {n} shots in the night menu.",
+                limitCta: "Want to unlock the full version with no limits?",
+                errDrinkNotFound: "Cocktail not found. Pick one from the dropdown.",
+                toastCopied: "List copied to clipboard",
+                demoFooter: "Generated with the DEMO version of Barman PRO"
+            },
+            es: {
+                brand: "Barman PRO",
+                hero: "Calculadora de Eventos",
+                demoEyebrow: "Versión Demo Gratuita",
+                demoTitle: "Desbloquea la versión completa de Barman PRO",
+                demoPrice: "15 € pago único",
+                demoCta: "Comprar versión completa",
+                autosave: "❖ Guardado automático",
+                reset: "Borrar todo",
+                paramsTitle: "Parámetros del Evento",
+                paramGuests: "Invitados previstos",
+                paramDrinkPP: "Cócteles por persona",
+                paramShotPP: "Chupitos por persona",
+                paramSafety: "Margen de seguridad (%)",
+                drinksTitle: "Cócteles de la Noche",
+                drinksDesc: "Busca en el recetario y ajusta la frecuencia con el control de 1 a 5",
+                drinksPlaceholder: "Busca en el recetario (ej. Negroni, Spritz, Margarita)...",
+                shotsTitle: "Chupitos & Amargos",
+                shotsDesc: "Dosis estándar 40 ml · busca entre los licores disponibles",
+                shotsPlaceholder: "Busca chupito, amargo o licor...",
+                add: "Añadir",
+                creatorTitle: "Creaciones Personalizadas",
+                creatorNew: "Nuevo Cóctel",
+                creatorIng: "Ingredientes",
+                creatorAddIng: "Añadir ingrediente",
+                creatorCreate: "Crear y añadir",
+                creatorShot: "Botella de Chupito",
+                creatorShotDesc: "Añade un licor extra que no esté en el recetario",
+                pdfTitle: "Recetario IBA · Adaptación para Fiestas",
+                pdfSub: "Las 102 recetas oficiales recalibradas para servicio de gran volumen",
+                pdfMeta: "36 páginas · análisis completo · actualmente en italiano",
+                pdfRead: "Leer",
+                pdfDownload: "Descargar",
+                proLockPdf: "Disponible en la versión completa — haz clic para desbloquear",
+                proLockCreator: "Creación de bebidas personalizadas — disponible en la versión completa",
+                generate: "Generar lista de la compra",
+                shopHeading: "Lista de la Compra del Evento",
+                alcoholic: "Alcohólicos",
+                nonalcoholic: "Sin alcohol & Mezcladores",
+                equipment: "Equipo",
+                liters: "Litros",
+                copyText: "Copiar texto (para WhatsApp)",
+                printPdf: "Imprimir o guardar en PDF",
+                limitDrink: "Límite demo: máximo {n} cócteles en el menú de la noche.",
+                limitShot: "Límite demo: máximo {n} chupitos en el menú de la noche.",
+                limitCta: "¿Quieres desbloquear la versión completa sin límites?",
+                errDrinkNotFound: "Cóctel no encontrado. Elige uno de la lista.",
+                toastCopied: "Lista copiada al portapapeles",
+                demoFooter: "Generado con la versión DEMO de Barman PRO"
+            },
+            fr: {
+                brand: "Barman PRO",
+                hero: "Calculateur d'Événements",
+                demoEyebrow: "Version Démo Gratuite",
+                demoTitle: "Débloquez la version complète de Barman PRO",
+                demoPrice: "15 € paiement unique",
+                demoCta: "Acheter la version complète",
+                autosave: "❖ Sauvegarde automatique",
+                reset: "Tout effacer",
+                paramsTitle: "Paramètres de l'Événement",
+                paramGuests: "Invités prévus",
+                paramDrinkPP: "Cocktails par personne",
+                paramShotPP: "Shots par personne",
+                paramSafety: "Marge de sécurité (%)",
+                drinksTitle: "Cocktails de la Soirée",
+                drinksDesc: "Cherchez dans le livre de recettes et réglez la fréquence de 1 à 5",
+                drinksPlaceholder: "Cherchez dans le livre (ex. Negroni, Spritz, Margarita)...",
+                shotsTitle: "Shots & Amers",
+                shotsDesc: "Dose standard 40 ml · cherchez parmi les spiritueux disponibles",
+                shotsPlaceholder: "Cherchez shot, amer ou liqueur...",
+                add: "Ajouter",
+                creatorTitle: "Créations Personnalisées",
+                creatorNew: "Nouveau Cocktail",
+                creatorIng: "Ingrédients",
+                creatorAddIng: "Ajouter un ingrédient",
+                creatorCreate: "Créer et ajouter",
+                creatorShot: "Bouteille Shot",
+                creatorShotDesc: "Ajoutez un alcool absent du livre de recettes",
+                pdfTitle: "Livre IBA · Adaptation Soirées",
+                pdfSub: "Les 102 recettes officielles recalibrées pour le service haut volume",
+                pdfMeta: "36 pages · analyse complète · actuellement en italien",
+                pdfRead: "Lire",
+                pdfDownload: "Télécharger",
+                proLockPdf: "Disponible dans la version complète — cliquez pour débloquer",
+                proLockCreator: "Création de boissons personnalisées — disponible dans la version complète",
+                generate: "Générer la liste de courses",
+                shopHeading: "Liste de courses Événement",
+                alcoholic: "Alcools",
+                nonalcoholic: "Sans alcool & Mixers",
+                equipment: "Équipement",
+                liters: "Litres",
+                copyText: "Copier le texte (pour WhatsApp)",
+                printPdf: "Imprimer ou enregistrer en PDF",
+                limitDrink: "Limite démo : max {n} cocktails dans le menu de la soirée.",
+                limitShot: "Limite démo : max {n} shots dans le menu de la soirée.",
+                limitCta: "Voulez-vous débloquer la version complète sans limites ?",
+                errDrinkNotFound: "Cocktail introuvable. Choisissez-en un dans la liste.",
+                toastCopied: "Liste copiée dans le presse-papiers",
+                demoFooter: "Généré avec la version DÉMO de Barman PRO"
+            },
+            de: {
+                brand: "Barman PRO",
+                hero: "Veranstaltungsrechner",
+                demoEyebrow: "Kostenlose Demo-Version",
+                demoTitle: "Schalte die Vollversion von Barman PRO frei",
+                demoPrice: "15 € einmalig",
+                demoCta: "Vollversion kaufen",
+                autosave: "❖ Automatisch gespeichert",
+                reset: "Alles zurücksetzen",
+                paramsTitle: "Veranstaltungsparameter",
+                paramGuests: "Erwartete Gäste",
+                paramDrinkPP: "Cocktails pro Person",
+                paramShotPP: "Shots pro Person",
+                paramSafety: "Sicherheitsmarge (%)",
+                drinksTitle: "Cocktails des Abends",
+                drinksDesc: "Suche im Rezeptbuch und stelle die Häufigkeit mit dem Regler von 1 bis 5 ein",
+                drinksPlaceholder: "Suche im Rezeptbuch (z.B. Negroni, Spritz, Margarita)...",
+                shotsTitle: "Shots & Bitter",
+                shotsDesc: "Standardmenge 40 ml · suche unter verfügbaren Spirituosen",
+                shotsPlaceholder: "Shot, Bitter oder Likör suchen...",
+                add: "Hinzufügen",
+                creatorTitle: "Eigene Kreationen",
+                creatorNew: "Neuer Cocktail",
+                creatorIng: "Zutaten",
+                creatorAddIng: "Zutat hinzufügen",
+                creatorCreate: "Erstellen und hinzufügen",
+                creatorShot: "Shot-Flasche",
+                creatorShotDesc: "Füge ein zusätzliches Spirituose hinzu, das nicht im Rezeptbuch steht",
+                pdfTitle: "IBA-Rezeptbuch · Party-Anpassung",
+                pdfSub: "Die 102 offiziellen Rezepte für High-Volume-Service neu kalibriert",
+                pdfMeta: "36 Seiten · vollständige Analyse · derzeit auf Italienisch",
+                pdfRead: "Lesen",
+                pdfDownload: "Herunterladen",
+                proLockPdf: "In der Vollversion verfügbar — zum Freischalten klicken",
+                proLockCreator: "Erstellung benutzerdefinierter Drinks — in der Vollversion verfügbar",
+                generate: "Einkaufsliste erstellen",
+                shopHeading: "Einkaufsliste Veranstaltung",
+                alcoholic: "Alkoholisch",
+                nonalcoholic: "Alkoholfrei & Mixer",
+                equipment: "Ausrüstung",
+                liters: "Liter",
+                copyText: "Text kopieren (für WhatsApp)",
+                printPdf: "Drucken oder als PDF speichern",
+                limitDrink: "Demo-Limit: maximal {n} Cocktails im Abendmenü.",
+                limitShot: "Demo-Limit: maximal {n} Shots im Abendmenü.",
+                limitCta: "Möchtest du die Vollversion ohne Limits freischalten?",
+                errDrinkNotFound: "Cocktail nicht gefunden. Wähle einen aus der Liste.",
+                toastCopied: "Liste in die Zwischenablage kopiert",
+                demoFooter: "Erstellt mit der DEMO-Version von Barman PRO"
+            },
+            pt: {
+                brand: "Barman PRO",
+                hero: "Calculadora de Eventos",
+                demoEyebrow: "Versão Demo Grátis",
+                demoTitle: "Desbloqueie a versão completa do Barman PRO",
+                demoPrice: "15 € pagamento único",
+                demoCta: "Comprar versão completa",
+                autosave: "❖ Salvamento automático",
+                reset: "Limpar tudo",
+                paramsTitle: "Parâmetros do Evento",
+                paramGuests: "Convidados previstos",
+                paramDrinkPP: "Coquetéis por pessoa",
+                paramShotPP: "Shots por pessoa",
+                paramSafety: "Margem de segurança (%)",
+                drinksTitle: "Coquetéis da Noite",
+                drinksDesc: "Busque no livro de receitas e ajuste a frequência com o controle de 1 a 5",
+                drinksPlaceholder: "Busque no livro (ex. Negroni, Spritz, Margarita)...",
+                shotsTitle: "Shots & Amargos",
+                shotsDesc: "Dose padrão 40 ml · busque entre os destilados disponíveis",
+                shotsPlaceholder: "Busque shot, amargo ou licor...",
+                add: "Adicionar",
+                creatorTitle: "Criações Personalizadas",
+                creatorNew: "Novo Coquetel",
+                creatorIng: "Ingredientes",
+                creatorAddIng: "Adicionar ingrediente",
+                creatorCreate: "Criar e adicionar",
+                creatorShot: "Garrafa Shot",
+                creatorShotDesc: "Adicione um destilado extra que não está no livro",
+                pdfTitle: "Livro IBA · Adaptação para Festas",
+                pdfSub: "As 102 receitas oficiais recalibradas para serviço de alto volume",
+                pdfMeta: "36 páginas · análise completa · atualmente em italiano",
+                pdfRead: "Ler",
+                pdfDownload: "Baixar",
+                proLockPdf: "Disponível na versão completa — clique para desbloquear",
+                proLockCreator: "Criação de bebidas personalizadas — disponível na versão completa",
+                generate: "Gerar lista de compras",
+                shopHeading: "Lista de Compras do Evento",
+                alcoholic: "Alcoólicos",
+                nonalcoholic: "Sem álcool & Mixers",
+                equipment: "Equipamento",
+                liters: "Litros",
+                copyText: "Copiar texto (para WhatsApp)",
+                printPdf: "Imprimir ou salvar em PDF",
+                limitDrink: "Limite demo: máximo {n} coquetéis no menu da noite.",
+                limitShot: "Limite demo: máximo {n} shots no menu da noite.",
+                limitCta: "Quer desbloquear a versão completa sem limites?",
+                errDrinkNotFound: "Coquetel não encontrado. Escolha um da lista.",
+                toastCopied: "Lista copiada para a área de transferência",
+                demoFooter: "Gerado com a versão DEMO do Barman PRO"
+            },
+            nl: {
+                brand: "Barman PRO",
+                hero: "Evenementen Calculator",
+                demoEyebrow: "Gratis Demo Versie",
+                demoTitle: "Ontgrendel de volledige versie van Barman PRO",
+                demoPrice: "€15 eenmalig",
+                demoCta: "Volledige versie kopen",
+                autosave: "❖ Automatisch opgeslagen",
+                reset: "Alles wissen",
+                paramsTitle: "Evenement Parameters",
+                paramGuests: "Verwachte gasten",
+                paramDrinkPP: "Cocktails per persoon",
+                paramShotPP: "Shots per persoon",
+                paramSafety: "Veiligheidsmarge (%)",
+                drinksTitle: "Cocktails van de Avond",
+                drinksDesc: "Zoek in het receptenboek en stel de frequentie in van 1 tot 5",
+                drinksPlaceholder: "Zoek in het receptenboek (bv. Negroni, Spritz, Margarita)...",
+                shotsTitle: "Shots & Bitters",
+                shotsDesc: "Standaard 40 ml shot · zoek tussen beschikbare gedistilleerd",
+                shotsPlaceholder: "Zoek shot, bitter of likeur...",
+                add: "Toevoegen",
+                creatorTitle: "Eigen Creaties",
+                creatorNew: "Nieuwe Cocktail",
+                creatorIng: "Ingrediënten",
+                creatorAddIng: "Ingrediënt toevoegen",
+                creatorCreate: "Maken en toevoegen",
+                creatorShot: "Shot Fles",
+                creatorShotDesc: "Voeg een extra gedistilleerd toe dat niet in het receptenboek staat",
+                pdfTitle: "IBA Receptenboek · Feestaanpassing",
+                pdfSub: "De 102 officiële recepten herzien voor high-volume service",
+                pdfMeta: "36 pagina's · volledige analyse · momenteel in het Italiaans",
+                pdfRead: "Lezen",
+                pdfDownload: "Downloaden",
+                proLockPdf: "Beschikbaar in de volledige versie — klik om te ontgrendelen",
+                proLockCreator: "Aangepaste drankjes maken — beschikbaar in de volledige versie",
+                generate: "Boodschappenlijst genereren",
+                shopHeading: "Boodschappenlijst Evenement",
+                alcoholic: "Alcoholisch",
+                nonalcoholic: "Alcoholvrij & Mixers",
+                equipment: "Uitrusting",
+                liters: "Liters",
+                copyText: "Tekst kopiëren (voor WhatsApp)",
+                printPdf: "Afdrukken of opslaan als PDF",
+                limitDrink: "Demo limiet: maximaal {n} cocktails in het avondmenu.",
+                limitShot: "Demo limiet: maximaal {n} shots in het avondmenu.",
+                limitCta: "Wil je de volledige versie zonder limieten ontgrendelen?",
+                errDrinkNotFound: "Cocktail niet gevonden. Kies er een uit de lijst.",
+                toastCopied: "Lijst gekopieerd naar klembord",
+                demoFooter: "Gegenereerd met de DEMO versie van Barman PRO"
             }
+        };
+
+        function t(key) {
+            const dict = translations[linguaCorrente] || translations.it;
+            return dict[key] || translations.it[key] || key;
         }
 
-        function mostraModalePassword(callbackDopoAuth) {
-            if (sessionStorage.getItem('_bpOk')) { callbackDopoAuth(); return; }
-            document.getElementById('pw-overlay').classList.add('show');
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => document.getElementById('pw-input').focus(), 80);
+        function cambiaLingua(lang) {
+            if(!translations[lang]) return;
+            linguaCorrente = lang;
+            localStorage.setItem('barmanProLang', lang);
+            applicaTraduzioni();
+        }
+
+        function applicaTraduzioni() {
+            // Tutti gli elementi con data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const txt = t(key);
+                if(txt) el.textContent = txt;
+            });
+            // Placeholder con data-i18n-ph
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                const txt = t(key);
+                if(txt) el.placeholder = txt;
+            });
+            // Lang attribute sul tag <html>
+            document.documentElement.lang = linguaCorrente;
+            // Aggiorna selettore
+            const sel = document.getElementById('lang-select');
+            if(sel) sel.value = linguaCorrente;
+        }
+
+        function rilevaLinguaIniziale() {
+            const salvata = localStorage.getItem('barmanProLang');
+            if(salvata && translations[salvata]) return salvata;
+            const browser = (navigator.language || 'it').slice(0, 2).toLowerCase();
+            if(translations[browser]) return browser;
+            return 'it';
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           PWA — Service Worker
+           ════════════════════════════════════════════════════════════ */
+        function registraServiceWorker() {
+            if(!('serviceWorker' in navigator)) return;
+            if(location.protocol !== 'https:' && location.protocol !== 'http:') return;
+            // La demo usa il service worker della cartella padre se esiste, altrimenti niente
+            navigator.serviceWorker.register('../sw.js', { scope: './' })
+                .then(reg => console.log('[Demo] SW registrato:', reg.scope))
+                .catch(() => { /* SW non disponibile, niente di grave */ });
         }
 
         /* ════════════════════════════════════════════════════════════
            AVVIO
            ════════════════════════════════════════════════════════════ */
-        // Rileva se l'app è in esecuzione come PWA installata (non come tab del browser)
-        function isPwaInstallata() {
-            return window.matchMedia('(display-mode: standalone)').matches
-                || window.matchMedia('(display-mode: fullscreen)').matches
-                || window.matchMedia('(display-mode: minimal-ui)').matches
-                || window.navigator.standalone === true
-                || document.referrer.startsWith('android-app://');
-        }
-
         window.onload = function() {
+            // Carica lingua salvata o quella del browser
+            linguaCorrente = rilevaLinguaIniziale();
+
             caricaStato();
             inizializzaApp();
             renderizzaMenu();
             aggiungiRigaIngrediente();
             aggiungiRigaIngrediente();
-            // Se l'utente ha già installato l'app come PWA, considera l'autenticazione fatta
-            if (isPwaInstallata()) {
-                sessionStorage.setItem('_bpOk', '1');
-                localStorage.setItem('_bpInstallata', '1');
-            }
-            // Chiede la password all'avvio (saltata se già autenticato o se in PWA installata)
-            if (!sessionStorage.getItem('_bpOk')) {
-                document.getElementById('pw-overlay').classList.add('show');
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => document.getElementById('pw-input').focus(), 120);
-            }
-            // Registrazione PWA + bottone "Installa app"
+
+            // Applica traduzioni a tutti gli elementi
+            applicaTraduzioni();
+
+            // Service worker per cache (opzionale, non bloccante)
             registraServiceWorker();
-            if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches) {
-                mostraBottoneInstalla();
-            }
         };
-
-        /* ════════════════════════════════════════════════════════════
-           PWA — Service Worker e bottone "Installa app"
-           ════════════════════════════════════════════════════════════ */
-        let installPromptEvent = null;
-
-        function registraServiceWorker() {
-            if(!('serviceWorker' in navigator)) return;
-            if(location.protocol !== 'https:' && location.protocol !== 'http:') return;
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('[PWA] Service worker registrato:', reg.scope))
-                .catch(err => console.warn('[PWA] Registrazione fallita:', err));
-        }
-
-        window.addEventListener('beforeinstallprompt', e => {
-            e.preventDefault();
-            installPromptEvent = e;
-            mostraBottoneInstalla();
-        });
-
-        function mostraBottoneInstalla() {
-            const btn = document.getElementById('btn-installa-app');
-            if(btn) btn.style.display = 'inline-flex';
-        }
-
-        function nascondiBottoneInstalla() {
-            const btn = document.getElementById('btn-installa-app');
-            if(btn) btn.style.display = 'none';
-        }
-
-        async function installaApp() {
-            if(!installPromptEvent) {
-                const ua = navigator.userAgent;
-                if(/iPhone|iPad|iPod/i.test(ua)) {
-                    alert('Per installare Barman PRO sul tuo iPhone:\n\n1. Tocca il pulsante Condividi (in basso al centro)\n2. Scorri e tocca "Aggiungi alla schermata Home"\n3. Conferma con "Aggiungi"');
-                } else {
-                    alert('Per installare Barman PRO:\n\nApri il menu del browser (i tre puntini) e cerca "Installa app" o "Aggiungi alla schermata Home".');
-                }
-                return;
-            }
-            installPromptEvent.prompt();
-            const result = await installPromptEvent.userChoice;
-            if(result.outcome === 'accepted') {
-                mostraToast('App installata');
-                nascondiBottoneInstalla();
-            }
-            installPromptEvent = null;
-        }
-
-        window.addEventListener('appinstalled', () => {
-            nascondiBottoneInstalla();
-            installPromptEvent = null;
-        });
     </script>
 </body>
 </html>

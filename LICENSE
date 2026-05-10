@@ -1,21 +1,81 @@
-MIT License
+═══════════════════════════════════════════════════════════════════════
+  LICENZA D'USO — Barman PRO
+═══════════════════════════════════════════════════════════════════════
 
 Copyright (c) 2026 Samuele Racca
+Tutti i diritti riservati.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+─── DEMO PUBBLICA ───────────────────────────────────────────────────
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+La cartella "demo/" e i suoi contenuti sono resi disponibili gratuitamente
+a scopo dimostrativo. È consentito:
+
+  ✓ Visualizzare e utilizzare la demo per valutare il prodotto.
+  ✓ Condividerne pubblicamente l'URL.
+
+Non è consentito:
+
+  ✗ Copiare, modificare, ridistribuire o rivendere il codice della demo
+    o dell'opera completa.
+  ✗ Utilizzare il codice come base per opere derivate destinate
+    a distribuzione, pubblica o commerciale.
+  ✗ Rimuovere, alterare od occultare le note di copyright.
+
+
+─── VERSIONE COMPLETA ───────────────────────────────────────────────
+
+Il codice sorgente, gli asset e i database della versione completa di
+"Barman PRO" (compresi, ma non limitati a: index.html nella radice del
+repository, ricettario PDF, database delle ricette IBA, modello
+volumetrico 60/140/100, sistema di calcolo della lista della spesa)
+sono opera intellettuale dell'autore e sono protetti da copyright.
+
+Nessun diritto di utilizzo, copia, modifica, ridistribuzione, vendita
+o concessione in licenza è automaticamente trasferito a chi entri in
+possesso del codice tramite qualsiasi canale.
+
+L'utilizzo della versione completa è subordinato all'acquisto di una
+licenza d'uso personale presso i canali ufficiali indicati dall'autore.
+
+La licenza d'uso personale, quando concessa, autorizza:
+
+  ✓ L'uso del software per la gestione dei propri eventi personali o
+    professionali da parte dell'acquirente.
+  ✓ L'installazione su dispositivi personali dell'acquirente.
+
+E vieta esplicitamente:
+
+  ✗ La condivisione, redistribuzione, rivendita o pubblicazione del
+    codice o degli asset a terzi.
+  ✗ La condivisione delle credenziali d'accesso (password, link
+    privati) con soggetti diversi dall'acquirente.
+  ✗ L'uso del software in ambienti commerciali estranei all'attività
+    diretta dell'acquirente (es. rivendita white-label).
+  ✗ Qualsiasi forma di reverse engineering finalizzata alla
+    riproduzione del prodotto.
+
+
+─── ECCEZIONE: DOCUMENTO PDF ─────────────────────────────────────────
+
+Il documento "Cocktail_IBA_adattamento_a_feste.pdf" è soggetto a
+licenza separata, descritta nel file "LICENSE-PDF" (Creative Commons
+BY-NC-ND 4.0).
+
+Le 102 ricette ufficiali IBA citate sono di proprietà
+dell'International Bartenders Association.
+
+
+─── DISCLAIMER ───────────────────────────────────────────────────────
+
+IL SOFTWARE È FORNITO "COSÌ COM'È", SENZA GARANZIE DI ALCUN TIPO,
+ESPRESSE O IMPLICITE, INCLUSE — A TITOLO ESEMPLIFICATIVO E NON
+ESAUSTIVO — LE GARANZIE DI COMMERCIABILITÀ, IDONEITÀ PER UNO SCOPO
+PARTICOLARE E NON VIOLAZIONE. IN NESSUN CASO L'AUTORE POTRÀ ESSERE
+RITENUTO RESPONSABILE PER QUALSIASI RECLAMO, DANNO O ALTRA
+RESPONSABILITÀ DERIVANTE DALL'USO DEL SOFTWARE.
+
+═══════════════════════════════════════════════════════════════════════
+  © 2026 Samuele Racca · Tutti i diritti riservati
+  Per richieste di licenza commerciale: [contatto da inserire]
+═══════════════════════════════════════════════════════════════════════

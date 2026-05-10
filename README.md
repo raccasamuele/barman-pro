@@ -1,10 +1,11 @@
 # Barman PRO &middot; Calcolatore Eventi
 
-[![Live demo](https://img.shields.io/badge/LIVE%20DEMO-online-722F37?style=for-the-badge&labelColor=B8924B&logoColor=F5EEDC)](https://raccasamuele.github.io/barman-pro/)
-[![License](https://img.shields.io/badge/license-MIT-1F1A17?style=for-the-badge&labelColor=B8924B)](LICENSE)
-[![HTML5](https://img.shields.io/badge/HTML5-vanilla-722F37?style=for-the-badge&labelColor=B8924B)](#stack-tecnologico)
+[![Try Demo](https://img.shields.io/badge/TRY%20DEMO-free-722F37?style=for-the-badge&labelColor=B8924B&logoColor=F5EEDC)](https://raccasamuele.github.io/barman-pro/demo/)
+[![Full Version](https://img.shields.io/badge/FULL%20VERSION-15%E2%82%AC-1F1A17?style=for-the-badge&labelColor=B8924B)](mailto:raccasamuele2004@gmail.com?subject=Richiesta%20versione%20completa%20Barman%20PRO)
+[![License](https://img.shields.io/badge/license-proprietary-722F37?style=for-the-badge&labelColor=B8924B)](LICENSE)
+[![Languages](https://img.shields.io/badge/languages-7-1F1A17?style=for-the-badge&labelColor=B8924B)](#multilingua)
 
-> **[Apri il calcolatore in browser &rarr;](https://raccasamuele.github.io/barman-pro/)**
+> **[Prova la demo gratuita &rarr;](https://raccasamuele.github.io/barman-pro/demo/)** &middot; 7 lingue, 20 ricette, nessuna registrazione richiesta.
 
 Strumento web per il calcolo della lista della spesa di eventi di miscelazione, basato sulle 102 ricette ufficiali IBA 2024 e sulle matrici volumetriche per il servizio ad alto volume (party drink 60/140/100).
 
@@ -90,24 +91,45 @@ L'estetica si ispira a un volume editoriale di mixologia classica.
 8. Risultati &mdash; alcolici, analcolici, attrezzatura
 9. Esportazione &mdash; copia testo, stampa o salva PDF
 
-## File del progetto
+## Struttura del progetto
 
 ```
 barman-pro/
-├── index.html                              applicazione completa
-├── manifest.json                           PWA manifest (installazione come app)
+├── demo/
+│   └── index.html                          DEMO pubblica gratuita (20 cocktail, 7 lingue)
+├── index.html                              VERSIONE COMPLETA (con password / a pagamento)
+├── manifest.json                           PWA manifest
 ├── sw.js                                   service worker (offline + cache)
-├── Cocktail_IBA_adattamento_a_feste.pdf    ricettario di riferimento
+├── Cocktail_IBA_adattamento_a_feste.pdf    ricettario (versione completa, 36 pagine)
 ├── favicon.svg                             icona vettoriale
 ├── icon-192.png                            icona PWA (192x192)
 ├── icon-512.png                            icona PWA (512x512)
 ├── icon-maskable-512.png                   icona PWA maskable (Android)
 ├── apple-touch-icon.png                    icona iOS / homescreen (512x512)
 ├── og-image.png                            preview per social media (1200x630)
-├── LICENSE                                 licenza MIT (codice)
-├── LICENSE-PDF                             licenza CC BY-NC-ND 4.0 (documento)
+├── LICENSE                                 licenza proprietaria (codice)
+├── LICENSE-PDF                             licenza CC BY-NC-ND 4.0 (documento PDF)
 └── README.md                               questo file
 ```
+
+## Multilingua
+
+La demo è disponibile in 7 lingue: **Italiano** (default), **English**, **Español**, **Français**, **Deutsch**, **Português**, **Nederlands**. La lingua viene rilevata automaticamente dal browser e può essere cambiata dal selettore in alto. La preferenza è salvata localmente.
+
+## Versione DEMO vs Versione COMPLETA
+
+| Funzionalità | Demo (gratis) | Completa (15 €) |
+| --- | --- | --- |
+| Numero cocktail nel database | 20 più famosi | 65+ (IBA + party drink HV) |
+| Cocktail nel menu serata | Max 3 | Illimitati |
+| Shot nel menu serata | Max 2 | Illimitati |
+| Creazione cocktail e shot personalizzati | &mdash; | ✓ |
+| Ricettario PDF (36 pagine) | &mdash; | ✓ |
+| Esportazione lista | Con watermark "DEMO" | Pulita |
+| Multilingua | 7 lingue | 7 lingue |
+| Installazione come PWA | &mdash; | ✓ |
+
+La versione completa è acquistabile contattando l'autore. È in lavorazione l'integrazione con Lemon Squeezy per il checkout automatico e la gestione fiscale globale.
 
 ## Installazione come app (PWA)
 
@@ -156,20 +178,23 @@ Il sito e pubblicato gratuitamente tramite **GitHub Pages** all'indirizzo:
 
 Ogni commit sul branch `main` rideploya automaticamente in 1-2 minuti.
 
-## Licenze
+## Modello e licenze
 
-Il progetto adotta una **doppia licenza**, distinguendo il codice software dal documento editoriale.
+Barman PRO è distribuito in due modalità, con licenze distinte.
 
-| Componente | Licenza | File |
-| --- | --- | --- |
-| Codice del sito (`index.html`, asset, foglio di stile) | MIT | [`LICENSE`](LICENSE) |
-| Documento PDF (`Cocktail_IBA_adattamento_a_feste.pdf`) | CC BY-NC-ND 4.0 | [`LICENSE-PDF`](LICENSE-PDF) |
+| Componente | Modalità | Licenza | File |
+| --- | --- | --- | --- |
+| Demo pubblica (`demo/`) | Gratuita, valutativa | Proprietaria | [`LICENSE`](LICENSE) |
+| Versione completa | A pagamento, licenza personale | Proprietaria | [`LICENSE`](LICENSE) |
+| Documento PDF (`Cocktail_IBA_adattamento_a_feste.pdf`) | Lettura libera, condivisione consentita | CC BY-NC-ND 4.0 | [`LICENSE-PDF`](LICENSE-PDF) |
 
 In sintesi:
 
-- **Il codice** può essere usato, modificato e ridistribuito liberamente, anche commercialmente, purché si mantenga la nota di copyright.
-- **Il documento PDF** può essere letto, scaricato e condiviso citando l'autore, ma non può essere modificato né usato per scopi commerciali senza autorizzazione separata.
+- **Il codice del software** è coperto da copyright e non può essere copiato, modificato, ridistribuito o rivenduto senza autorizzazione scritta.
+- **La demo** è offerta gratuitamente a scopo dimostrativo. Si può usarla e condividerne l'URL, ma non riprodurne il codice.
+- **La versione completa** è acquistabile tramite i canali ufficiali; la licenza concessa è personale e non trasferibile.
+- **Il documento PDF** può essere letto, scaricato e condiviso citando l'autore, ma non modificato né usato a fini commerciali.
 
 Le 102 ricette IBA 2024 analizzate nel documento appartengono all'International Bartenders Association.
 
-Copyright (c) 2026 Samuele Racca.
+Copyright © 2026 Samuele Racca · Tutti i diritti riservati.
