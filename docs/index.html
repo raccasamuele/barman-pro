@@ -1178,6 +1178,18 @@
 
     <!-- (Modale password rimossa: la demo è ad accesso libero) -->
 
+    <!-- ─── FOOTER LEGALE ─── -->
+    <footer style="text-align:center; padding: 40px 20px 20px; margin-top: 30px; border-top: 1px solid var(--bordo-tenue); color: var(--testo-tenue); font-style: italic; font-size: 14px;">
+        <div style="margin-bottom: 8px;">
+            <a href="eula.html" style="color: var(--bordeaux); margin: 0 10px; text-decoration: none;">EULA</a>
+            &middot;
+            <a href="privacy.html" style="color: var(--bordeaux); margin: 0 10px; text-decoration: none;">Privacy Policy</a>
+            &middot;
+            <a href="mailto:raccasamuele2004@gmail.com" style="color: var(--bordeaux); margin: 0 10px; text-decoration: none;">Contatti</a>
+        </div>
+        <div style="font-size: 12px; letter-spacing: 2px;">&copy; 2026 Samuele Racca &middot; Tutti i diritti riservati</div>
+    </footer>
+
     <div class="toast" id="toast"></div>
 
 <script>
@@ -2205,23 +2217,15 @@
             return;
         }
 
-        /* ════════════════════════════════════════════════════════════
-           AVVIO
-           ════════════════════════════════════════════════════════════ */
+        /* AVVIO */
         window.onload = function() {
-            // Carica lingua salvata o quella del browser
             linguaCorrente = rilevaLinguaIniziale();
-
             caricaStato();
             inizializzaApp();
             renderizzaMenu();
             aggiungiRigaIngrediente();
             aggiungiRigaIngrediente();
-
-            // Applica traduzioni a tutti gli elementi
             applicaTraduzioni();
-
-            // Service worker opzionale (non bloccante)
             registraServiceWorker();
         };
     </script>
