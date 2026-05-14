@@ -1,0 +1,2876 @@
+<!DOCTYPE html>
+<!--
+    ════════════════════════════════════════════════════════════════════
+    Barman PRO · Calcolatore Eventi
+    ════════════════════════════════════════════════════════════════════
+    Copyright (c) 2026 Samuele Racca · Tutti i diritti riservati.
+
+    Software protetto da copyright. La copia, modifica, ridistribuzione
+    o rivendita, anche parziale, è vietata senza autorizzazione scritta
+    dell'autore. Vedi il file LICENSE per i termini completi.
+
+    Per richieste di licenza commerciale: [contatto da inserire]
+    ════════════════════════════════════════════════════════════════════
+-->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barman PRO &middot; Calcolatore Eventi</title>
+    <meta name="description" content="Calcolatore eventi per barman: ricette IBA, lista della spesa, party drink ad alto volume.">
+    <meta name="author" content="Samuele Racca">
+    <meta name="theme-color" content="#722F37">
+    <!-- Versione completa: NON deve essere indicizzata da motori di ricerca -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="googlebot" content="noindex, nofollow">
+
+    <!-- ─── Favicon e icone ─── -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <!-- ─── PWA / installabile ─── -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="application-name" content="Barman PRO">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Barman PRO">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- ─── Open Graph (WhatsApp / Facebook / LinkedIn) ─── -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Barman PRO · Calcolatore Eventi">
+    <meta property="og:description" content="Lista della spesa per eventi di mixology — 102 ricette IBA, party drink, calcolo automatico di alcolici, analcolici e attrezzatura.">
+    <meta property="og:image" content="https://raccasamuele.github.io/barman-pro/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Barman PRO — Calcolatore d'Eventi">
+    <meta property="og:url" content="https://raccasamuele.github.io/barman-pro/">
+    <meta property="og:site_name" content="Barman PRO">
+    <meta property="og:locale" content="it_IT">
+
+    <!-- ─── Twitter / X Card ─── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Barman PRO · Calcolatore Eventi">
+    <meta name="twitter:description" content="Lista della spesa per eventi di mixology — 102 ricette IBA, party drink, calcolo automatico.">
+    <meta name="twitter:image" content="https://raccasamuele.github.io/barman-pro/og-image.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --oro: #B8924B;
+            --oro-chiaro: #D4B271;
+            --oro-scuro: #8E6F35;
+            --bordeaux: #722F37;
+            --bordeaux-scuro: #4F1E24;
+            --sepia: #1F1A17;
+            --avorio: #F5EEDC;
+            --avorio-chiaro: #FAF6E9;
+            --crema: #FFFBF0;
+            --bordo-tenue: #D4C5A0;
+            --testo-tenue: #6B5D4A;
+            --verde-bottiglia: #3D5A3D;
+            --viola-scuro: #4A2C4F;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'EB Garamond', 'Garamond', 'Times New Roman', serif;
+            background-color: var(--avorio);
+            background-image:
+                radial-gradient(ellipse at top, rgba(184, 146, 75, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at bottom, rgba(114, 47, 55, 0.05) 0%, transparent 60%);
+            color: var(--sepia);
+            padding: 30px 20px;
+            max-width: 1100px;
+            margin: auto;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        /* ─── INTESTAZIONE ─── */
+        .header {
+            text-align: center;
+            padding: 30px 20px 20px;
+            border-bottom: 1px solid var(--bordo-tenue);
+            margin-bottom: 35px;
+        }
+        .ornament-row {
+            color: var(--oro);
+            font-size: 18px;
+            letter-spacing: 12px;
+            margin: 8px 0;
+        }
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            font-style: italic;
+            color: var(--sepia);
+            font-size: 52px;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+        .header .subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: var(--bordeaux);
+            font-size: 20px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 8px 0 4px;
+        }
+        .header .edition {
+            color: var(--testo-tenue);
+            font-size: 13px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--bordeaux);
+            text-align: center;
+            font-size: 32px;
+            font-weight: 600;
+            margin: 0 0 6px;
+            letter-spacing: 1px;
+        }
+        h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--sepia);
+            margin: 0 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--oro);
+            letter-spacing: 0.5px;
+        }
+
+        .section-divider {
+            text-align: center;
+            color: var(--oro);
+            margin: 8px 0 20px;
+            font-size: 14px;
+            letter-spacing: 8px;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '─────';
+            color: var(--bordo-tenue);
+            margin: 0 14px;
+            letter-spacing: 0;
+        }
+
+        /* ─── CARD ─── */
+        .card {
+            background-color: var(--crema);
+            padding: 30px 35px;
+            border: 1px solid var(--bordo-tenue);
+            border-top: 3px double var(--oro);
+            border-bottom: 3px double var(--oro);
+            margin-bottom: 30px;
+            box-shadow: 0 2px 6px rgba(31, 26, 23, 0.06);
+        }
+        .card .descrizione {
+            text-align: center;
+            color: var(--testo-tenue);
+            font-style: italic;
+            font-size: 15px;
+            margin: 0 0 18px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        /* Riga parametri evento — sempre 4 colonne in linea */
+        .parametri-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        /* ─── SEZIONE RICETTARIO PDF ─── */
+        .ricettario-card {
+            background: linear-gradient(135deg, var(--crema) 0%, var(--avorio-chiaro) 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .ricettario-card:hover {
+            box-shadow: 0 6px 20px rgba(114, 47, 55, 0.18);
+            transform: translateY(-2px);
+        }
+        .ricettario-card .ricettario-inner {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 24px;
+            align-items: center;
+            padding: 6px 4px;
+        }
+        .ricettario-icon {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px;
+            color: var(--oro);
+            line-height: 1;
+            text-align: center;
+            border: 2px solid var(--oro);
+            padding: 14px 20px;
+            background: var(--avorio-chiaro);
+        }
+        .ricettario-text h3 {
+            border: none;
+            padding: 0;
+            margin: 0 0 6px;
+            font-size: 26px;
+            color: var(--bordeaux);
+        }
+        .ricettario-text .ricettario-sub {
+            font-style: italic;
+            color: var(--testo-tenue);
+            font-size: 16px;
+            margin: 0 0 4px;
+        }
+        .ricettario-text .ricettario-meta {
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: var(--oro-scuro);
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+        .ricettario-action {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            min-width: 320px;
+            align-items: stretch;
+        }
+        .ricettario-lang-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+        .ricettario-lang-group + .ricettario-lang-group {
+            border-left: 1px solid var(--bordo-tenue);
+            padding-left: 12px;
+        }
+        .ricettario-action button {
+            margin: 0;
+            padding: 10px 14px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+        }
+        .btn-pdf-leggi, .btn-pdf-read {
+            background: var(--bordeaux);
+            color: var(--avorio);
+        }
+        .btn-pdf-download,
+        .btn-link-download {
+            background: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordeaux);
+        }
+        .btn-pdf-download:hover,
+        .btn-link-download:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+        }
+        .btn-link-download {
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 10px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        /* Modal PDF */
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(31, 26, 23, 0.85);
+            z-index: 2000;
+            padding: 20px;
+        }
+        .pdf-modal.show { display: flex; flex-direction: column; }
+        .pdf-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--sepia);
+            color: var(--avorio);
+            padding: 14px 22px;
+            border: 1px solid var(--oro);
+            border-bottom: none;
+        }
+        .pdf-modal-header h3 {
+            border: none;
+            padding: 0;
+            margin: 0;
+            color: var(--oro-chiaro);
+            font-size: 22px;
+        }
+        .pdf-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .pdf-modal-actions button, .pdf-modal-actions a {
+            margin: 0;
+            padding: 8px 18px;
+            font-size: 13px;
+            letter-spacing: 1.5px;
+            background: transparent;
+            color: var(--oro-chiaro);
+            border: 1px solid var(--oro);
+            text-decoration: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.25s ease;
+        }
+        .pdf-modal-actions button:hover, .pdf-modal-actions a:hover {
+            background: var(--oro);
+            color: var(--sepia);
+        }
+        .pdf-modal-frame {
+            flex: 1;
+            background: white;
+            border: 1px solid var(--oro);
+            border-top: none;
+        }
+        .pdf-modal-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ─── INPUT & LABEL ─── */
+        label {
+            display: block;
+            margin-top: 10px;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            color: var(--bordeaux);
+            font-size: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border-radius: 0;
+            border: 1px solid var(--bordo-tenue);
+            border-bottom: 2px solid var(--oro);
+            background-color: var(--avorio-chiaro);
+            color: var(--sepia);
+            font-family: 'EB Garamond', serif;
+            font-size: 16px;
+            transition: border-color 0.25s, background-color 0.25s;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--bordeaux);
+            background-color: var(--crema);
+        }
+
+        /* ─── BARRA DI RICERCA ─── */
+        .search-add-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            align-items: stretch;
+        }
+        .search-add-row input {
+            flex-grow: 1;
+            border: 1px solid var(--oro);
+            border-bottom: 2px solid var(--oro);
+            font-size: 17px;
+            background-color: var(--avorio-chiaro);
+            margin-top: 0;
+            font-style: italic;
+        }
+        .search-add-row button {
+            margin-top: 0;
+            width: auto;
+            padding: 10px 26px;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        /* ─── ELEMENTO MENU CON SLIDER ─── */
+        .menu-item {
+            background: var(--avorio-chiaro);
+            padding: 16px 18px;
+            border: 1px solid var(--bordo-tenue);
+            border-left: 4px solid var(--oro);
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--sepia);
+            margin-bottom: 12px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .slider-container .lbl {
+            font-size: 13px;
+            color: var(--testo-tenue);
+            font-style: italic;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--bordeaux);
+        }
+        .slider-value {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            padding: 4px 12px;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 28px;
+            text-align: center;
+            border: 1px solid var(--oro);
+        }
+
+        /* ─── BOTTONI ─── */
+        button {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: var(--bordeaux);
+            color: var(--avorio);
+            border: 1px solid var(--oro);
+            border-radius: 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        button:hover {
+            background-color: var(--bordeaux-scuro);
+            color: var(--oro-chiaro);
+            letter-spacing: 3px;
+        }
+        .btn-primary-gold {
+            background-color: var(--oro);
+            color: var(--sepia);
+            border: 1px solid var(--bordeaux);
+        }
+        .btn-primary-gold:hover {
+            background-color: var(--oro-scuro);
+            color: var(--avorio);
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordeaux);
+            margin-top: 18px;
+        }
+        .btn-secondary:hover {
+            background-color: var(--bordeaux);
+            color: var(--avorio);
+        }
+        .btn-rimuovi {
+            background-color: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordeaux);
+            padding: 4px 12px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            width: auto;
+            margin: 0;
+        }
+        .btn-rimuovi:hover {
+            background-color: var(--bordeaux);
+            color: var(--avorio);
+            letter-spacing: 1.5px;
+        }
+
+        .btn-grande {
+            font-size: 22px;
+            padding: 22px;
+            margin-top: 30px;
+            letter-spacing: 5px;
+        }
+
+        /* ─── CREATOR ─── */
+        .creator-box {
+            background: var(--avorio-chiaro);
+            padding: 22px;
+            border: 1px solid var(--bordo-tenue);
+            border-left: 4px solid var(--bordeaux);
+        }
+        .creator-row {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 0.8fr auto;
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .creator-row input, .creator-row select {
+            margin-top: 0;
+        }
+        .btn-rimuovi-ing {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 0;
+            background: transparent;
+            color: var(--bordeaux);
+            border: 1px solid var(--bordo-tenue);
+        }
+        .btn-rimuovi-ing:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            letter-spacing: 0;
+        }
+        .btn-aggiungi-ing {
+            background: transparent;
+            color: var(--oro-scuro);
+            border: 1px dashed var(--oro);
+            padding: 8px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+        .btn-aggiungi-ing:hover {
+            background: var(--oro);
+            color: var(--avorio);
+            letter-spacing: 2px;
+        }
+
+        /* ─── RISULTATI ─── */
+        #risultati { display: none; margin-top: 40px; }
+        .risultati-header {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 3px double var(--oro);
+            border-bottom: 3px double var(--oro);
+            margin-bottom: 30px;
+        }
+        .total-drinks {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-style: italic;
+            color: var(--sepia);
+            margin: 0;
+        }
+        .total-drinks strong {
+            color: var(--bordeaux);
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        .result-section {
+            padding: 25px 30px;
+            margin-top: 22px;
+            border: 1px solid var(--bordo-tenue);
+            background-color: var(--crema);
+        }
+        .result-section.bg-alcol { border-left: 5px solid var(--bordeaux); }
+        .result-section.bg-analcol { border-left: 5px solid var(--verde-bottiglia); }
+        .result-section.bg-extra { border-left: 5px solid var(--viola-scuro); }
+
+        .result-section h3 {
+            color: var(--bordeaux);
+            border-bottom-color: var(--oro);
+        }
+        .result-section.bg-analcol h3 { color: var(--verde-bottiglia); }
+        .result-section.bg-extra h3 { color: var(--viola-scuro); }
+
+        ul { list-style-type: none; padding: 0; margin: 0; }
+        li {
+            padding: 10px 4px;
+            border-bottom: 1px dotted var(--bordo-tenue);
+            font-size: 17px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        li:last-child { border-bottom: none; }
+        li span:first-child {
+            color: var(--sepia);
+        }
+        li strong {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--bordeaux);
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        /* ─── INTESTAZIONI SEZIONE INTERNA ─── */
+        .section-title {
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .section-title .ornament {
+            color: var(--oro);
+            font-size: 18px;
+            margin-bottom: 6px;
+            letter-spacing: 6px;
+        }
+
+        /* ─── RIPRISTINO / NOTIFICHE ─── */
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: var(--testo-tenue);
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+        .btn-reset {
+            background: transparent;
+            color: var(--testo-tenue);
+            border: 1px solid var(--bordo-tenue);
+            font-size: 12px;
+            padding: 6px 14px;
+            margin: 0;
+            width: auto;
+            letter-spacing: 2px;
+        }
+        .btn-reset:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            border-color: var(--bordeaux);
+        }
+        .meta-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-installa {
+            background: var(--oro);
+            color: var(--sepia);
+            border: 1px solid var(--bordeaux);
+            font-size: 12px;
+            padding: 6px 14px;
+            margin: 0;
+            width: auto;
+            letter-spacing: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-installa:hover {
+            background: var(--bordeaux);
+            color: var(--avorio);
+            border-color: var(--oro);
+            letter-spacing: 2px;
+        }
+        /* ─── SELETTORE LINGUA ─── */
+        .lang-selector {
+            width: auto !important;
+            padding: 5px 10px;
+            margin: 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            border: 1px solid var(--bordo-tenue);
+            border-bottom: 2px solid var(--oro);
+            background: var(--avorio-chiaro);
+            color: var(--sepia);
+            cursor: pointer;
+            min-width: 76px;
+        }
+        .lang-selector:focus { outline: none; border-color: var(--bordeaux); background: var(--crema); }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--sepia);
+            color: var(--avorio);
+            border: 1px solid var(--oro);
+            padding: 14px 30px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px;
+            font-style: italic;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Creator grid — 2 colonne desktop, 1 colonna mobile */
+        .creator-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 22px;
+        }
+
+        /* ─── BREAKPOINT TABLET ─── */
+        @media (max-width: 820px) {
+            .creator-grid { grid-template-columns: 1fr; gap: 18px; }
+            .parametri-row { grid-template-columns: repeat(2, 1fr); }
+            .ricettario-card .ricettario-inner { grid-template-columns: 1fr; text-align: center; gap: 14px; }
+            .ricettario-action { min-width: 100%; justify-content: center; }
+            .ricettario-lang-group button, .ricettario-lang-group .btn-link-download { flex: 1; max-width: 200px; }
+        }
+
+        /* ─── BREAKPOINT MOBILE ─── */
+        @media (max-width: 600px) {
+            body { padding: 14px 10px; font-size: 16px; }
+            .header { padding: 20px 10px 16px; }
+            .header h1 { font-size: 36px; }
+            .header .subtitle { font-size: 15px; letter-spacing: 3px; }
+            .ornament-row { letter-spacing: 8px; font-size: 14px; }
+            h2 { font-size: 26px; }
+            h3 { font-size: 19px; }
+
+            .card { padding: 20px 16px; }
+
+            /* Search bar: input sopra, bottone sotto su mobile */
+            .search-add-row { flex-direction: column; gap: 10px; }
+            .search-add-row button { width: 100%; padding: 12px; }
+
+            /* Parametri serata: 2 colonne (resta più ordinato di 1) */
+            .parametri-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+            /* Creator riga: input sopra, select+ml+rimuovi sotto */
+            .creator-row {
+                grid-template-columns: 1fr 1fr 60px;
+                gap: 8px;
+                grid-template-areas:
+                    "nome   nome   nome"
+                    "tipo   ml     rim";
+            }
+            .creator-row .ing-nome { grid-area: nome; }
+            .creator-row .ing-tipo { grid-area: tipo; }
+            .creator-row .ing-ml   { grid-area: ml; }
+            .creator-row .btn-rimuovi-ing { grid-area: rim; width: 100%; height: auto; }
+
+            /* Slider menu item più compatto */
+            .menu-item { padding: 14px 14px; }
+            .menu-header { font-size: 17px; flex-wrap: wrap; gap: 6px; }
+            .btn-rimuovi { font-size: 12px; letter-spacing: 1px; }
+
+            /* Bottoni grandi: meno spaziatura per stare in una riga */
+            .btn-grande { font-size: 16px; padding: 18px 12px; letter-spacing: 2px; line-height: 1.3; }
+            button { letter-spacing: 1.5px; }
+            button:hover { letter-spacing: 1.5px; }
+
+            /* Risultati a una colonna sotto */
+            .action-buttons { flex-direction: column; gap: 10px; }
+
+            /* Ricettario PDF: gruppi lingua in colonna su mobile stretto */
+            .ricettario-action { flex-direction: column; gap: 8px; }
+            .ricettario-lang-group + .ricettario-lang-group { border-left: none; border-top: 1px solid var(--bordo-tenue); padding-left: 0; padding-top: 8px; }
+            .ricettario-action button, .ricettario-action .btn-link-download { max-width: 100%; }
+
+            /* Modal PDF: header pulsanti più piccoli */
+            .pdf-modal { padding: 8px; }
+            .pdf-modal-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+            .pdf-modal-header h3 { font-size: 16px; }
+            .pdf-modal-actions a, .pdf-modal-actions button { padding: 6px 10px; font-size: 11px; }
+
+            /* Meta-row reset stack */
+            .meta-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .btn-reset { width: 100%; text-align: center; }
+
+            /* Sezione divider più stretto */
+            .section-divider::before, .section-divider::after { margin: 0 6px; }
+        }
+
+        /* ─── BREAKPOINT MOBILE STRETTO (iPhone SE / Galaxy mini) ─── */
+        @media (max-width: 380px) {
+            .header h1 { font-size: 30px; }
+            h2 { font-size: 22px; }
+            .parametri-row { grid-template-columns: 1fr; }
+            .btn-grande { font-size: 14px; letter-spacing: 1.5px; }
+            label { font-size: 13px; }
+        }
+
+        /* ─── MODALE LICENSE KEY ─── */
+        .license-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(31, 26, 23, 0.94);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+        }
+        .license-overlay.show { display: flex; }
+        .license-box {
+            background: var(--crema);
+            border: 1px solid var(--bordo-tenue);
+            border-top: 3px double var(--oro);
+            border-bottom: 3px double var(--oro);
+            padding: 44px 52px;
+            max-width: 420px;
+            width: 92%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(31, 26, 23, 0.55);
+        }
+        .license-ornament { color: var(--oro); font-size: 20px; letter-spacing: 10px; margin-bottom: 14px; }
+        .license-box h2 { margin-bottom: 8px; }
+        .license-box p { color: var(--testo-tenue); font-style: italic; font-size: 15px; margin-bottom: 22px; }
+        .license-box input[type="text"] {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--bordo-tenue);
+            border-bottom: 2px solid var(--oro);
+            background: var(--avorio-chiaro);
+            font-family: 'EB Garamond', serif;
+            font-size: 22px;
+            text-align: center;
+            letter-spacing: 8px;
+            color: var(--sepia);
+            margin-bottom: 8px;
+            border-radius: 0;
+        }
+        .license-box input[type="text"]:focus { outline: none; border-color: var(--bordeaux); background: var(--crema); }
+        .license-error { color: var(--bordeaux); font-style: italic; font-size: 14px; min-height: 22px; margin-bottom: 12px; }
+        .license-hint { margin-top: 18px !important; margin-bottom: 0 !important; font-size: 13px !important; }
+        .license-hint a { color: var(--bordeaux); text-decoration: none; border-bottom: 1px solid var(--oro); }
+
+        /* ─── STAMPA / PDF ─── */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                font-size: 12pt;
+                padding: 0;
+                margin: 0;
+                background-image: none;
+            }
+            .header, .card, button, .meta-row, .action-buttons { display: none !important; }
+            #risultati { display: block !important; margin: 0; padding: 20px; }
+            .risultati-header { display: block !important; }
+            .result-section {
+                background-color: white !important;
+                color: black !important;
+                border: 1px solid #999;
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 18px;
+            }
+            h2, h3 { color: black !important; border-color: #999 !important; }
+            li { border-bottom: 1px dotted #ccc; color: black !important; }
+            li strong, .total-drinks strong { color: #4F1E24 !important; }
+            .total-drinks { color: black !important; }
+            .print-title { display: block !important; text-align: center; }
+        }
+        .print-title { display: none; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="ornament-row">&#10086; &#10086; &#10086;</div>
+        <div class="subtitle">Barman PRO</div>
+        <h1>Calcolatore d'Eventi</h1>
+        <div class="ornament-row" style="font-size: 14px; letter-spacing: 8px;">───── &#10022; ─────</div>
+    </header>
+
+    <div class="meta-row">
+        <span id="storage-status">&#10022; Stato salvato automaticamente</span>
+        <div class="meta-actions">
+            <select id="lang-selector" class="lang-selector" onchange="cambiaLingua(this.value)" title="Language / Lingua">
+                <option value="it">🇮🇹 IT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="es">🇪🇸 ES</option>
+                <option value="fr">🇫🇷 FR</option>
+                <option value="de">🇩🇪 DE</option>
+                <option value="pt">🇵🇹 PT</option>
+                <option value="nl">🇳🇱 NL</option>
+            </select>
+            <button id="btn-installa-app" class="btn-installa" onclick="installaApp()" style="display:none">&#11015; Installa app</button>
+            <button class="btn-reset" onclick="resetCompleto()" data-i18n="btnReset">Azzera tutto</button>
+        </div>
+    </div>
+
+    <!-- ─── RICETTARIO PDF ─── -->
+    <section class="card ricettario-card">
+        <div class="ricettario-inner">
+            <div class="ricettario-icon">&#10086;</div>
+            <div class="ricettario-text">
+                <h3>Ricettario IBA &middot; Adattamento per Feste</h3>
+                <p class="ricettario-sub" data-i18n="ricettarioSub">Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume</p>
+                <div class="ricettario-meta" data-i18n="ricettarioMeta">Documento PDF &middot; clicca per leggere</div>
+            </div>
+            <div class="ricettario-action">
+                <div class="ricettario-lang-group">
+                    <button class="btn-pdf-leggi" onclick="apriPDF(event,'it')">&#10022; Leggi (IT)</button>
+                    <a href="Cocktail_IBA_adattamento_a_feste.pdf" download
+                       class="btn-link-download"
+                       onclick="event.stopPropagation()">&#8615; Scarica (IT)</a>
+                </div>
+                <div class="ricettario-lang-group">
+                    <button class="btn-pdf-read" onclick="apriPDF(event,'en')">&#10022; Read (EN)</button>
+                    <a href="Cocktail_IBA_party_adaptation.pdf" download
+                       data-i18n-skip="true"
+                       class="btn-link-download"
+                       onclick="event.stopPropagation()">&#8615; Download (EN)</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal lettura PDF -->
+    <div class="pdf-modal" id="pdf-modal">
+        <div class="pdf-modal-header">
+            <h3 id="pdf-modal-title">&#10086; Cocktail IBA &middot; Adattamento per Feste</h3>
+            <div class="pdf-modal-actions">
+                <a id="pdf-modal-download" href="Cocktail_IBA_adattamento_a_feste.pdf" download data-i18n-skip="true">&#8615; Scarica (IT)</a>
+                <button onclick="chiudiPDF()">&times; Chiudi</button>
+            </div>
+        </div>
+        <div class="pdf-modal-frame">
+            <iframe id="pdf-iframe" src="" title="Ricettario IBA"></iframe>
+        </div>
+    </div>
+
+    <!-- ─── PARAMETRI EVENTO ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10086;</div>
+            <h2 data-i18n="h2Parametri">Parametri dell'Evento</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="parametri-row">
+            <div><label data-i18n="labelOspiti">Ospiti previsti</label><input type="number" id="ospiti" value="50" min="1" oninput="salvaStato()"></div>
+            <div><label data-i18n="labelDrink">Cocktail a persona</label><input type="number" id="drink_testa" value="3" min="0" step="0.5" oninput="salvaStato()"></div>
+            <div><label data-i18n="labelShot">Shot a persona</label><input type="number" id="shot_testa" value="1" min="0" step="0.5" oninput="salvaStato()"></div>
+            <div><label data-i18n="labelScarto">Margine sicurezza (%)</label><input type="number" id="scarto" value="15" min="0" oninput="salvaStato()"></div>
+        </div>
+    </section>
+
+    <!-- ─── COCKTAIL DELLA SERATA ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10086;</div>
+            <h2 data-i18n="h2Cocktail">Cocktail della Serata</h2>
+            <div class="section-divider"></div>
+        </div>
+        <p class="descrizione" data-i18n="descCocktail">Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5</p>
+
+        <div class="search-add-row">
+            <input list="lista-database-drink" id="search-drink-input" data-i18n-ph="phSearchDrink" placeholder="Cerca dal ricettario (es. Negroni, Spritz, Margarita)...">
+            <datalist id="lista-database-drink"></datalist>
+            <button onclick="aggiungiDrinkSerata()">&#10010; Aggiungi</button>
+        </div>
+        <br>
+        <div id="drink-serata-container" class="grid"></div>
+    </section>
+
+    <!-- ─── SHOT / AMARI ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10022;</div>
+            <h2 data-i18n="h2Shot">Shot &amp; Amari</h2>
+            <div class="section-divider"></div>
+        </div>
+        <p class="descrizione" data-i18n="descShot">Dose standard 40 ml &middot; cerca tra gli alcolici disponibili</p>
+
+        <div class="search-add-row">
+            <input list="lista-database-shot" id="search-shot-input" data-i18n-ph="phSearchShot" placeholder="Cerca shot, amaro o liquore...">
+            <datalist id="lista-database-shot"></datalist>
+            <button onclick="aggiungiShotSerata()">&#10010; Aggiungi</button>
+        </div>
+        <br>
+        <div id="shot-serata-container" class="grid"></div>
+    </section>
+
+    <!-- ─── CREATOR ─── -->
+    <section class="card">
+        <div class="section-title">
+            <div class="ornament">&#10086;</div>
+            <h2 data-i18n="h2Creazioni">Creazioni Personalizzate</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="creator-grid">
+
+            <div class="creator-box">
+                <h3 id="h3-nuovo-cocktail">&#10022; Nuovo Cocktail</h3>
+                <input type="text" id="new_cocktail_name" data-i18n-ph="phNewCocktail" placeholder="Nome del cocktail">
+                <datalist id="lista-ingredienti"></datalist>
+
+                <div style="margin-top: 14px;">
+                    <label style="margin-bottom: 6px;" data-i18n="labelIngredienti">Ingredienti</label>
+                    <div id="ingredienti-container"></div>
+                    <button class="btn-aggiungi-ing" onclick="aggiungiRigaIngrediente()">&#10010; Aggiungi ingrediente</button>
+                </div>
+
+                <button class="btn-secondary" onclick="creaCocktail()">&#10022; Crea e aggiungi alla serata</button>
+            </div>
+
+            <div class="creator-box">
+                <h3 id="h3-bottiglia-shot">&#10022; Bottiglia Shot</h3>
+                <p class="descrizione" style="text-align: left; margin-bottom: 12px;" data-i18n="descBottShot">Aggiungi un alcolico extra non presente nel ricettario</p>
+                <input type="text" id="new_shot_name" data-i18n-ph="phNewShot" placeholder="Nome (es. Limoncello)">
+                <button class="btn-secondary" onclick="creaShot()">&#10022; Crea e aggiungi</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── BOTTONE GENERA ─── -->
+    <button class="btn-primary-gold btn-grande" onclick="calcolaSpesa()">&#10086;&nbsp;&nbsp;Genera lista della spesa&nbsp;&nbsp;&#10086;</button>
+
+    <!-- ─── RISULTATI ─── -->
+    <div id="risultati">
+        <h2 class="print-title" data-i18n="printTitle">Lista della Spesa &middot; Barman PRO</h2>
+
+        <div class="risultati-header">
+            <div class="total-drinks" id="drink-totali-text"></div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <div class="result-section bg-alcol">
+                <h3>&#10022; Alcolici (Litri)</h3>
+                <ul id="lista_alcolici"></ul>
+            </div>
+            <div class="result-section bg-analcol">
+                <h3>&#10022; Analcolici &amp; Filler (Litri)</h3>
+                <ul id="lista_analcolici"></ul>
+            </div>
+        </div>
+        <div class="result-section bg-extra">
+            <h3>&#10022; Attrezzatura</h3>
+            <ul id="lista_extra"></ul>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="copiaListaTesto()">&#10022; Copia testo (per WhatsApp)</button>
+            <button onclick="window.print()">&#10022; Stampa o salva in PDF</button>
+        </div>
+    </div>
+
+    <!-- ─── MODALE LICENSE KEY ─── -->
+    <div class="license-overlay" id="license-overlay">
+        <div class="license-box">
+            <div class="license-ornament">&#10086; &#10086; &#10086;</div>
+            <h2 data-i18n="licenseH2">Attivazione</h2>
+            <p data-i18n="licenseP">Inserisci la License Key ricevuta via email dopo l'acquisto.</p>
+            <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX"
+                   autocomplete="off"
+                   onkeydown="if(event.key==='Enter')bpLicenseSubmit()">
+            <div class="license-error" id="license-error"></div>
+            <button onclick="bpLicenseSubmit()">&#10022;&nbsp;&nbsp;Attiva&nbsp;&nbsp;&#10022;</button>
+            <p class="license-hint">
+                Non hai una License Key?
+                <a href="https://barman-pro.lemonsqueezy.com" target="_blank" rel="noopener">Acquista Barman PRO</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- ─── FOOTER LEGALE ─── -->
+    <footer style="text-align:center; padding: 40px 20px 20px; margin-top: 30px; border-top: 1px solid var(--bordo-tenue); color: var(--testo-tenue); font-style: italic; font-size: 14px;">
+        <div style="margin-bottom: 8px;">
+            <a href="eula.html" style="color: var(--bordeaux); margin: 0 10px; text-decoration: none;">EULA</a>
+            &middot;
+            <a href="privacy.html" style="color: var(--bordeaux); margin: 0 10px; text-decoration: none;">Privacy Policy</a>
+            &middot;
+            <a href="mailto:raccasamuele2004@gmail.com" style="color: var(--bordeaux); margin: 0 10px; text-decoration: none;">Contatti</a>
+        </div>
+        <div style="font-size: 12px; letter-spacing: 2px;">&copy; 2026 Samuele Racca &middot; Tutti i diritti riservati</div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+<script>
+        /* ════════════════════════════════════════════════════════════
+           INTERNAZIONALIZZAZIONE (i18n)
+           ════════════════════════════════════════════════════════════ */
+        let linguaCorrente = 'it';
+
+        const translations = {
+            it: {
+                // Meta
+                storageStatus: 'Stato salvato automaticamente',
+                btnInstalla: 'Installa app',
+                btnReset: 'Azzera tutto',
+                // Ricettario
+                ricettarioTitolo: 'Ricettario IBA · Adattamento per Feste',
+                ricettarioSub: 'Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume',
+                ricettarioMeta: 'Documento PDF · clicca per leggere',
+                btnLeggi: 'Leggi',
+                btnScarica: 'Scarica',
+                btnChiudi: 'Chiudi',
+                pdfModalTitolo: 'Cocktail IBA · Adattamento per Feste',
+                // Parametri
+                h2Parametri: "Parametri dell'Evento",
+                labelOspiti: 'Ospiti previsti',
+                labelDrink: 'Cocktail a persona',
+                labelShot: 'Shot a persona',
+                labelScarto: 'Margine sicurezza (%)',
+                // Cocktail serata
+                h2Cocktail: 'Cocktail della Serata',
+                descCocktail: 'Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5',
+                phSearchDrink: 'Cerca dal ricettario (es. Negroni, Spritz, Margarita)...',
+                btnAggiungi: 'Aggiungi',
+                // Shot
+                h2Shot: 'Shot & Amari',
+                descShot: 'Dose standard 40 ml · cerca tra gli alcolici disponibili',
+                phSearchShot: 'Cerca shot, amaro o liquore...',
+                // Creator
+                h2Creazioni: 'Creazioni Personalizzate',
+                newCocktailH3: 'Nuovo Cocktail',
+                phNewCocktail: 'Nome del cocktail',
+                labelIngredienti: 'Ingredienti',
+                labelAlcolico: 'Alcolico',
+                labelAnalcolico: 'Analcolico',
+                btnAggiungiIng: 'Aggiungi ingrediente',
+                btnCrea: 'Crea e aggiungi alla serata',
+                bottShotH3: 'Bottiglia Shot',
+                descBottShot: 'Aggiungi un alcolico extra non presente nel ricettario',
+                phNewShot: 'Nome (es. Limoncello)',
+                btnCreaShot: 'Crea e aggiungi',
+                // Risultati
+                btnGenera: 'Genera lista della spesa',
+                printTitle: 'Lista della Spesa · Barman PRO',
+                risultatiAlcolici: 'Alcolici (Litri)',
+                risultatiAnalcolici: 'Analcolici & Filler (Litri)',
+                risultatiAttrezzatura: 'Attrezzatura',
+                btnCopia: 'Copia testo (per WhatsApp)',
+                btnStampa: 'Stampa o salva in PDF',
+                sliderRimuovi: '× Rimuovi',
+                sliderFreq: 'Freq.',
+                // License
+                licenseH2: 'Attivazione',
+                licenseP: "Inserisci la License Key ricevuta via email dopo l'acquisto.",
+                licenseBtnTxt: 'Attiva',
+                // JS strings
+                alertCocktailNonTrovato: 'Cocktail non trovato. Selezionalo dalla tendina o crealo nel pannello qui sotto.',
+                confirmReset: 'Vuoi davvero azzerare tutto? Questa azione non può essere annullata.',
+                toastReset: 'Tutto azzerato',
+                alertNomeCocktailVuoto: 'Inserisci il nome del cocktail.',
+                alertIngVuoti: 'Inserisci almeno un ingrediente con il valore in ml.',
+                toastCocktailCreato: 'Cocktail "{nome}" creato',
+                alertNomeShotVuoto: "Inserisci il nome dell'alcolico.",
+                toastShotCreato: '"{nome}" aggiunto agli shot',
+                alertNienteMenu: 'Hai impostato cocktail e shot per gli ospiti, ma non hai aggiunto nulla al menu della serata. Aggiungi almeno un cocktail o uno shot.',
+                alertNessunCocktailMenu: 'Hai impostato cocktail per gli ospiti, ma non hai aggiunto nessun cocktail al menu della serata.',
+                alertNessunDrinkImpostato: 'Imposta almeno un cocktail o uno shot a persona.',
+                risultatiTotali: 'Da preparare: {drink} cocktail · {shot} shot',
+                nessunAlcolico: 'Nessun alcolico',
+                nessunAnalcolico: 'Nessun analcolico',
+                ghiaccio: 'Ghiaccio a cubi',
+                bicchieriCocktail: 'Bicchieri da cocktail',
+                bicchieriniShot: 'Bicchierini da shot',
+                cannucce: 'Cannucce',
+                toastCopiaOk: 'Lista copiata negli appunti',
+                errCopia: 'Errore nella copia: ',
+                toastInstallata: 'App installata',
+                licenseVerifica: 'Verifica in corso...',
+                toastAttivato: 'Barman PRO attivato',
+                // Esportazione testo
+                copyHeader: '❦  LISTA DELLA SPESA — EVENTO',
+                copyAlcolici: 'ALCOLICI (Litri)',
+                copyAnalcolici: 'ANALCOLICI & FILLER (Litri)',
+                copyAttrezzatura: 'ATTREZZATURA',
+                // Nomi ingredienti
+                ing: {
+                    'Rum Bianco': 'Rum Bianco', 'Rum Scuro': 'Rum Scuro', 'Rum Dorato': 'Rum Dorato',
+                    'Rum Demerara': 'Rum Demerara', 'Rum Giamaicano': 'Rum Giamaicano', 'Rum Martinicano': 'Rum Martinicano',
+                    'Gin': 'Gin', 'Vodka Liscia': 'Vodka Liscia', 'Vodka al Limone': 'Vodka al Limone',
+                    'Vodka alla Vaniglia': 'Vodka alla Vaniglia', 'Vodka Menta': 'Vodka Menta', 'Vodka Pesca': 'Vodka Pesca',
+                    'Vodka Fragola': 'Vodka Fragola', 'Vodka Melone': 'Vodka Melone',
+                    'Vermouth Rosso': 'Vermouth Rosso', 'Vermouth Secco': 'Vermouth Secco',
+                    'Whiskey Rye': 'Whiskey Rye', 'Whiskey Irlandese': 'Whiskey Irlandese', 'Whisky Scozzese': 'Whisky Scozzese',
+                    'Cognac': 'Cognac', 'Bourbon': 'Bourbon', 'Tequila': 'Tequila', 'Pisco': 'Pisco', 'Cachaça': 'Cachaça',
+                    'Bitter Campari': 'Bitter Campari', 'Aperol': 'Aperol', 'Triple Sec': 'Triple Sec',
+                    'Cointreau': 'Cointreau', 'Maraschino': 'Maraschino', "Curaçao all'Arancia": "Curaçao all'Arancia",
+                    'Crema di Cacao Scura': 'Crema di Cacao Scura', 'Crema di Violetta': 'Crema di Violetta',
+                    'Drambuie': 'Drambuie', 'Malibu': 'Malibu', 'Midori': 'Midori',
+                    'Amaro Montenegro': 'Amaro Montenegro', 'Fernet Branca': 'Fernet Branca', 'Jägermeister': 'Jägermeister',
+                    'Liquore al Caffè': 'Liquore al Caffè', 'Liquore Passion Fruit': 'Liquore Passion Fruit',
+                    'Schnapps alla Pesca': 'Schnapps alla Pesca', 'Apricot Brandy': 'Apricot Brandy',
+                    'Calvados': 'Calvados', 'Assenzio': 'Assenzio', 'Prosecco': 'Prosecco', 'Champagne': 'Champagne',
+                    'Orgeat': 'Orgeat', 'Granatina': 'Granatina',
+                    'Succo di Limone': 'Succo di Limone', 'Succo di Lime': 'Succo di Lime',
+                    'Succo di Arancia': 'Succo di Arancia', 'Succo di Ananas': 'Succo di Ananas',
+                    'Succo di Cranberry': 'Succo di Cranberry', 'Succo di Canna da Zucchero': 'Succo di Canna da Zucchero',
+                    'Sciroppo di Zucchero': 'Sciroppo di Zucchero', 'Sciroppo di Lamponi': 'Sciroppo di Lamponi',
+                    'Panna Fresca': 'Panna Fresca', 'Albume': 'Albume',
+                    'Purea di Pesca': 'Purea di Pesca', 'Purea di Passion Fruit': 'Purea di Passion Fruit',
+                    'Crema di Cocco': 'Crema di Cocco', 'Caffè': 'Caffè', 'Espresso': 'Espresso',
+                    'Soda': 'Soda', 'Cola': 'Cola', 'Acqua Tonica': 'Acqua Tonica',
+                    'Lemon Soda': 'Lemon Soda', 'Energy Drink': 'Energy Drink',
+                    'Ginger Beer': 'Ginger Beer', 'Ginger Ale': 'Ginger Ale',
+                    'Soda Pompelmo Rosa': 'Soda Pompelmo Rosa'
+                }
+            },
+            en: {
+                storageStatus: 'State saved automatically',
+                btnInstalla: 'Install app',
+                btnReset: 'Reset all',
+                ricettarioTitolo: 'IBA Recipes · Party Edition',
+                ricettarioSub: 'The 102 official recipes recalibrated for high-volume service',
+                ricettarioMeta: 'PDF Document · click to read',
+                btnLeggi: 'Read',
+                btnScarica: 'Download',
+                btnChiudi: 'Close',
+                pdfModalTitolo: 'IBA Cocktails · Party Edition',
+                h2Parametri: 'Event Parameters',
+                labelOspiti: 'Expected guests',
+                labelDrink: 'Cocktails per person',
+                labelShot: 'Shots per person',
+                labelScarto: 'Safety margin (%)',
+                h2Cocktail: "Evening's Cocktails",
+                descCocktail: 'Search the recipe book and adjust the frequency slider from 1 to 5',
+                phSearchDrink: 'Search recipes (e.g. Negroni, Spritz, Margarita)...',
+                btnAggiungi: 'Add',
+                h2Shot: 'Shots & Spirits',
+                descShot: 'Standard 40 ml dose · search available spirits',
+                phSearchShot: 'Search shots, bitters or liqueurs...',
+                h2Creazioni: 'Custom Creations',
+                newCocktailH3: 'New Cocktail',
+                phNewCocktail: 'Cocktail name',
+                labelIngredienti: 'Ingredients',
+                labelAlcolico: 'Alcoholic',
+                labelAnalcolico: 'Non-alcoholic',
+                btnAggiungiIng: 'Add ingredient',
+                btnCrea: 'Create & add to evening',
+                bottShotH3: 'Shot Bottle',
+                descBottShot: 'Add an extra spirit not in the recipe book',
+                phNewShot: 'Name (e.g. Limoncello)',
+                btnCreaShot: 'Create & add',
+                btnGenera: 'Generate shopping list',
+                printTitle: 'Shopping List · Barman PRO',
+                risultatiAlcolici: 'Spirits (Litres)',
+                risultatiAnalcolici: 'Mixers & Fillers (Litres)',
+                risultatiAttrezzatura: 'Equipment',
+                btnCopia: 'Copy text (for WhatsApp)',
+                btnStampa: 'Print or save as PDF',
+                sliderRimuovi: '× Remove',
+                sliderFreq: 'Freq.',
+                licenseH2: 'Activation',
+                licenseP: 'Enter the License Key received by email after purchase.',
+                licenseBtnTxt: 'Activate',
+                alertCocktailNonTrovato: 'Cocktail not found. Select it from the dropdown or create it in the panel below.',
+                confirmReset: 'Are you sure you want to reset everything? This action cannot be undone.',
+                toastReset: 'Everything reset',
+                alertNomeCocktailVuoto: 'Please enter the cocktail name.',
+                alertIngVuoti: 'Please add at least one ingredient with an ml value.',
+                toastCocktailCreato: 'Cocktail "{nome}" created',
+                alertNomeShotVuoto: 'Please enter the spirit name.',
+                toastShotCreato: '"{nome}" added to shots',
+                alertNienteMenu: "You've set cocktails and shots per guest but haven't added anything to the evening menu. Add at least one cocktail or shot.",
+                alertNessunCocktailMenu: "You've set cocktails per guest but haven't added any cocktails to the evening menu.",
+                alertNessunDrinkImpostato: 'Please set at least one cocktail or shot per person.',
+                risultatiTotali: 'To prepare: {drink} cocktails · {shot} shots',
+                nessunAlcolico: 'No spirits',
+                nessunAnalcolico: 'No mixers',
+                ghiaccio: 'Ice cubes',
+                bicchieriCocktail: 'Cocktail glasses',
+                bicchieriniShot: 'Shot glasses',
+                cannucce: 'Straws',
+                toastCopiaOk: 'List copied to clipboard',
+                errCopia: 'Copy error: ',
+                toastInstallata: 'App installed',
+                licenseVerifica: 'Verifying...',
+                toastAttivato: 'Barman PRO activated',
+                copyHeader: '❦  SHOPPING LIST — EVENT',
+                copyAlcolici: 'SPIRITS (Litres)',
+                copyAnalcolici: 'MIXERS & FILLERS (Litres)',
+                copyAttrezzatura: 'EQUIPMENT',
+                ing: {
+                    'Rum Bianco': 'White Rum', 'Rum Scuro': 'Dark Rum', 'Rum Dorato': 'Golden Rum',
+                    'Rum Demerara': 'Demerara Rum', 'Rum Giamaicano': 'Jamaican Rum', 'Rum Martinicano': 'Martinique Rum',
+                    'Gin': 'Gin', 'Vodka Liscia': 'Vodka', 'Vodka al Limone': 'Lemon Vodka',
+                    'Vodka alla Vaniglia': 'Vanilla Vodka', 'Vodka Menta': 'Mint Vodka', 'Vodka Pesca': 'Peach Vodka',
+                    'Vodka Fragola': 'Strawberry Vodka', 'Vodka Melone': 'Melon Vodka',
+                    'Vermouth Rosso': 'Sweet Vermouth', 'Vermouth Secco': 'Dry Vermouth',
+                    'Whiskey Rye': 'Rye Whiskey', 'Whiskey Irlandese': 'Irish Whiskey', 'Whisky Scozzese': 'Scotch Whisky',
+                    'Cognac': 'Cognac', 'Bourbon': 'Bourbon', 'Tequila': 'Tequila', 'Pisco': 'Pisco', 'Cachaça': 'Cachaça',
+                    'Bitter Campari': 'Campari', 'Aperol': 'Aperol', 'Triple Sec': 'Triple Sec',
+                    'Cointreau': 'Cointreau', 'Maraschino': 'Maraschino', "Curaçao all'Arancia": 'Orange Curaçao',
+                    'Crema di Cacao Scura': 'Dark Crème de Cacao', 'Crema di Violetta': 'Crème de Violette',
+                    'Drambuie': 'Drambuie', 'Malibu': 'Malibu', 'Midori': 'Midori',
+                    'Amaro Montenegro': 'Amaro Montenegro', 'Fernet Branca': 'Fernet-Branca', 'Jägermeister': 'Jägermeister',
+                    'Liquore al Caffè': 'Coffee Liqueur', 'Liquore Passion Fruit': 'Passion Fruit Liqueur',
+                    'Schnapps alla Pesca': 'Peach Schnapps', 'Apricot Brandy': 'Apricot Brandy',
+                    'Calvados': 'Calvados', 'Assenzio': 'Absinthe', 'Prosecco': 'Prosecco', 'Champagne': 'Champagne',
+                    'Orgeat': 'Orgeat', 'Granatina': 'Grenadine',
+                    'Succo di Limone': 'Lemon Juice', 'Succo di Lime': 'Lime Juice',
+                    'Succo di Arancia': 'Orange Juice', 'Succo di Ananas': 'Pineapple Juice',
+                    'Succo di Cranberry': 'Cranberry Juice', 'Succo di Canna da Zucchero': 'Sugarcane Juice',
+                    'Sciroppo di Zucchero': 'Simple Syrup', 'Sciroppo di Lamponi': 'Raspberry Syrup',
+                    'Panna Fresca': 'Fresh Cream', 'Albume': 'Egg White',
+                    'Purea di Pesca': 'Peach Purée', 'Purea di Passion Fruit': 'Passion Fruit Purée',
+                    'Crema di Cocco': 'Coconut Cream', 'Caffè': 'Coffee', 'Espresso': 'Espresso',
+                    'Soda': 'Soda Water', 'Cola': 'Cola', 'Acqua Tonica': 'Tonic Water',
+                    'Lemon Soda': 'Lemon Soda', 'Energy Drink': 'Energy Drink',
+                    'Ginger Beer': 'Ginger Beer', 'Ginger Ale': 'Ginger Ale',
+                    'Soda Pompelmo Rosa': 'Pink Grapefruit Soda'
+                }
+            },
+            es: {
+                storageStatus: 'Estado guardado automáticamente',
+                btnInstalla: 'Instalar app',
+                btnReset: 'Resetear todo',
+                ricettarioTitolo: 'Recetario IBA · Edición para Fiestas',
+                ricettarioSub: 'Las 102 recetas oficiales recalibradas para servicio de alto volumen',
+                ricettarioMeta: 'Documento PDF · haz clic para leer',
+                btnLeggi: 'Leer',
+                btnScarica: 'Descargar',
+                btnChiudi: 'Cerrar',
+                pdfModalTitolo: 'Cócteles IBA · Edición para Fiestas',
+                h2Parametri: 'Parámetros del Evento',
+                labelOspiti: 'Invitados previstos',
+                labelDrink: 'Cócteles por persona',
+                labelShot: 'Shots por persona',
+                labelScarto: 'Margen de seguridad (%)',
+                h2Cocktail: 'Cócteles de la Noche',
+                descCocktail: 'Busca en el recetario y ajusta la frecuencia con el deslizador de 1 a 5',
+                phSearchDrink: 'Buscar en el recetario (p. ej. Negroni, Spritz, Margarita)...',
+                btnAggiungi: 'Añadir',
+                h2Shot: 'Shots y Amargos',
+                descShot: 'Dosis estándar 40 ml · busca entre los destilados disponibles',
+                phSearchShot: 'Buscar shots, amargo o licor...',
+                h2Creazioni: 'Creaciones Personalizadas',
+                newCocktailH3: 'Nuevo Cóctel',
+                phNewCocktail: 'Nombre del cóctel',
+                labelIngredienti: 'Ingredientes',
+                labelAlcolico: 'Alcohólico',
+                labelAnalcolico: 'Sin alcohol',
+                btnAggiungiIng: 'Añadir ingrediente',
+                btnCrea: 'Crear y añadir a la noche',
+                bottShotH3: 'Botella de Shot',
+                descBottShot: 'Añade un destilado extra que no esté en el recetario',
+                phNewShot: 'Nombre (p. ej. Limoncello)',
+                btnCreaShot: 'Crear y añadir',
+                btnGenera: 'Generar lista de compra',
+                printTitle: 'Lista de Compra · Barman PRO',
+                risultatiAlcolici: 'Destilados (Litros)',
+                risultatiAnalcolici: 'Mixers y Rellenos (Litros)',
+                risultatiAttrezzatura: 'Equipamiento',
+                btnCopia: 'Copiar texto (para WhatsApp)',
+                btnStampa: 'Imprimir o guardar PDF',
+                sliderRimuovi: '× Quitar',
+                sliderFreq: 'Frec.',
+                licenseH2: 'Activación',
+                licenseP: 'Introduce la License Key recibida por email tras la compra.',
+                licenseBtnTxt: 'Activar',
+                alertCocktailNonTrovato: 'Cóctel no encontrado. Selecciónalo del desplegable o créalo en el panel de abajo.',
+                confirmReset: '¿Seguro que quieres resetear todo? Esta acción no se puede deshacer.',
+                toastReset: 'Todo reseteado',
+                alertNomeCocktailVuoto: 'Introduce el nombre del cóctel.',
+                alertIngVuoti: 'Añade al menos un ingrediente con su valor en ml.',
+                toastCocktailCreato: 'Cóctel "{nome}" creado',
+                alertNomeShotVuoto: 'Introduce el nombre del destilado.',
+                toastShotCreato: '"{nome}" añadido a los shots',
+                alertNienteMenu: 'Has configurado cócteles y shots por invitado pero no has añadido nada al menú de la noche.',
+                alertNessunCocktailMenu: 'Has configurado cócteles por invitado pero no has añadido ningún cóctel al menú.',
+                alertNessunDrinkImpostato: 'Configura al menos un cóctel o shot por persona.',
+                risultatiTotali: 'A preparar: {drink} cócteles · {shot} shots',
+                nessunAlcolico: 'Sin destilados',
+                nessunAnalcolico: 'Sin mixers',
+                ghiaccio: 'Hielo en cubitos',
+                bicchieriCocktail: 'Vasos de cóctel',
+                bicchieriniShot: 'Vasitos de shot',
+                cannucce: 'Pajitas',
+                toastCopiaOk: 'Lista copiada al portapapeles',
+                errCopia: 'Error al copiar: ',
+                toastInstallata: 'App instalada',
+                licenseVerifica: 'Verificando...',
+                toastAttivato: 'Barman PRO activado',
+                copyHeader: '❦  LISTA DE COMPRA — EVENTO',
+                copyAlcolici: 'DESTILADOS (Litros)',
+                copyAnalcolici: 'MIXERS Y RELLENOS (Litros)',
+                copyAttrezzatura: 'EQUIPAMIENTO',
+                ing: {
+                    'Rum Bianco': 'Ron Blanco', 'Rum Scuro': 'Ron Oscuro', 'Rum Dorato': 'Ron Dorado',
+                    'Rum Demerara': 'Ron Demerara', 'Rum Giamaicano': 'Ron Jamaicano', 'Rum Martinicano': 'Ron Martiniqués',
+                    'Gin': 'Gin', 'Vodka Liscia': 'Vodka', 'Vodka al Limone': 'Vodka de Limón',
+                    'Vodka alla Vaniglia': 'Vodka de Vainilla', 'Vodka Menta': 'Vodka de Menta', 'Vodka Pesca': 'Vodka de Melocotón',
+                    'Vodka Fragola': 'Vodka de Fresa', 'Vodka Melone': 'Vodka de Melón',
+                    'Vermouth Rosso': 'Vermut Rojo', 'Vermouth Secco': 'Vermut Seco',
+                    'Whiskey Rye': 'Whiskey de Centeno', 'Whiskey Irlandese': 'Whiskey Irlandés', 'Whisky Scozzese': 'Whisky Escocés',
+                    'Cognac': 'Coñac', 'Bourbon': 'Bourbon', 'Tequila': 'Tequila', 'Pisco': 'Pisco', 'Cachaça': 'Cachaça',
+                    'Bitter Campari': 'Campari', 'Aperol': 'Aperol', 'Triple Sec': 'Triple Sec',
+                    'Cointreau': 'Cointreau', 'Maraschino': 'Maraschino', "Curaçao all'Arancia": 'Curaçao de Naranja',
+                    'Crema di Cacao Scura': 'Crema de Cacao Oscura', 'Crema di Violetta': 'Crema de Violeta',
+                    'Drambuie': 'Drambuie', 'Malibu': 'Malibu', 'Midori': 'Midori',
+                    'Amaro Montenegro': 'Amaro Montenegro', 'Fernet Branca': 'Fernet-Branca', 'Jägermeister': 'Jägermeister',
+                    'Liquore al Caffè': 'Licor de Café', 'Liquore Passion Fruit': 'Licor de Maracuyá',
+                    'Schnapps alla Pesca': 'Schnapps de Melocotón', 'Apricot Brandy': 'Brandy de Albaricoque',
+                    'Calvados': 'Calvados', 'Assenzio': 'Absenta', 'Prosecco': 'Prosecco', 'Champagne': 'Champán',
+                    'Orgeat': 'Orgeat', 'Granatina': 'Granadina',
+                    'Succo di Limone': 'Zumo de Limón', 'Succo di Lime': 'Zumo de Lima',
+                    'Succo di Arancia': 'Zumo de Naranja', 'Succo di Ananas': 'Zumo de Piña',
+                    'Succo di Cranberry': 'Zumo de Arándano Rojo', 'Succo di Canna da Zucchero': 'Jugo de Caña de Azúcar',
+                    'Sciroppo di Zucchero': 'Jarabe de Azúcar', 'Sciroppo di Lamponi': 'Jarabe de Frambuesa',
+                    'Panna Fresca': 'Nata Fresca', 'Albume': 'Clara de Huevo',
+                    'Purea di Pesca': 'Puré de Melocotón', 'Purea di Passion Fruit': 'Puré de Maracuyá',
+                    'Crema di Cocco': 'Crema de Coco', 'Caffè': 'Café', 'Espresso': 'Espresso',
+                    'Soda': 'Soda', 'Cola': 'Cola', 'Acqua Tonica': 'Agua Tónica',
+                    'Lemon Soda': 'Soda de Limón', 'Energy Drink': 'Bebida Energética',
+                    'Ginger Beer': 'Cerveza de Jengibre', 'Ginger Ale': 'Ginger Ale',
+                    'Soda Pompelmo Rosa': 'Soda de Pomelo Rosa'
+                }
+            },
+            fr: {
+                storageStatus: 'État sauvegardé automatiquement',
+                btnInstalla: "Installer l'app",
+                btnReset: 'Tout réinitialiser',
+                ricettarioTitolo: 'Recettes IBA · Édition Soirée',
+                ricettarioSub: 'Les 102 recettes officielles recalibrées pour le service en grand volume',
+                ricettarioMeta: 'Document PDF · cliquez pour lire',
+                btnLeggi: 'Lire',
+                btnScarica: 'Télécharger',
+                btnChiudi: 'Fermer',
+                pdfModalTitolo: 'Cocktails IBA · Édition Soirée',
+                h2Parametri: "Paramètres de l'Événement",
+                labelOspiti: 'Invités prévus',
+                labelDrink: 'Cocktails par personne',
+                labelShot: 'Shots par personne',
+                labelScarto: 'Marge de sécurité (%)',
+                h2Cocktail: 'Cocktails de la Soirée',
+                descCocktail: 'Cherchez dans le recueil et ajustez la fréquence avec le curseur de 1 à 5',
+                phSearchDrink: 'Chercher dans le recueil (ex. Negroni, Spritz, Margarita)...',
+                btnAggiungi: 'Ajouter',
+                h2Shot: 'Shots & Digestifs',
+                descShot: 'Dose standard 40 ml · cherchez parmi les alcools disponibles',
+                phSearchShot: 'Chercher shot, digestif ou liqueur...',
+                h2Creazioni: 'Créations Personnalisées',
+                newCocktailH3: 'Nouveau Cocktail',
+                phNewCocktail: 'Nom du cocktail',
+                labelIngredienti: 'Ingrédients',
+                labelAlcolico: 'Alcoolisé',
+                labelAnalcolico: 'Sans alcool',
+                btnAggiungiIng: 'Ajouter un ingrédient',
+                btnCrea: 'Créer et ajouter à la soirée',
+                bottShotH3: 'Bouteille de Shot',
+                descBottShot: "Ajoutez un alcool supplémentaire absent du recueil",
+                phNewShot: 'Nom (ex. Limoncello)',
+                btnCreaShot: 'Créer et ajouter',
+                btnGenera: 'Générer la liste de courses',
+                printTitle: 'Liste de Courses · Barman PRO',
+                risultatiAlcolici: 'Alcools (Litres)',
+                risultatiAnalcolici: 'Softs & Remplisseurs (Litres)',
+                risultatiAttrezzatura: 'Équipement',
+                btnCopia: 'Copier le texte (pour WhatsApp)',
+                btnStampa: 'Imprimer ou enregistrer en PDF',
+                sliderRimuovi: '× Supprimer',
+                sliderFreq: 'Fréq.',
+                licenseH2: 'Activation',
+                licenseP: "Saisissez la License Key reçue par email après l'achat.",
+                licenseBtnTxt: 'Activer',
+                alertCocktailNonTrovato: "Cocktail introuvable. Sélectionnez-le dans la liste ou créez-le dans le panneau ci-dessous.",
+                confirmReset: 'Voulez-vous vraiment tout réinitialiser ? Cette action est irréversible.',
+                toastReset: 'Tout réinitialisé',
+                alertNomeCocktailVuoto: 'Veuillez saisir le nom du cocktail.',
+                alertIngVuoti: 'Ajoutez au moins un ingrédient avec sa valeur en ml.',
+                toastCocktailCreato: 'Cocktail « {nome} » créé',
+                alertNomeShotVuoto: "Veuillez saisir le nom de l'alcool.",
+                toastShotCreato: '« {nome} » ajouté aux shots',
+                alertNienteMenu: "Vous avez configuré cocktails et shots par invité mais n'avez rien ajouté au menu de la soirée.",
+                alertNessunCocktailMenu: "Vous avez configuré des cocktails par invité mais n'en avez ajouté aucun au menu.",
+                alertNessunDrinkImpostato: 'Configurez au moins un cocktail ou un shot par personne.',
+                risultatiTotali: 'À préparer : {drink} cocktails · {shot} shots',
+                nessunAlcolico: 'Aucun alcool',
+                nessunAnalcolico: 'Aucun soft',
+                ghiaccio: 'Glaçons',
+                bicchieriCocktail: 'Verres à cocktail',
+                bicchieriniShot: 'Verres à shot',
+                cannucce: 'Pailles',
+                toastCopiaOk: 'Liste copiée dans le presse-papiers',
+                errCopia: 'Erreur de copie : ',
+                toastInstallata: 'App installée',
+                licenseVerifica: 'Vérification en cours...',
+                toastAttivato: 'Barman PRO activé',
+                copyHeader: '❦  LISTE DE COURSES — ÉVÉNEMENT',
+                copyAlcolici: 'ALCOOLS (Litres)',
+                copyAnalcolici: 'SOFTS & REMPLISSEURS (Litres)',
+                copyAttrezzatura: 'ÉQUIPEMENT',
+                ing: {
+                    'Rum Bianco': 'Rhum Blanc', 'Rum Scuro': 'Rhum Brun', 'Rum Dorato': 'Rhum Doré',
+                    'Rum Demerara': 'Rhum Demerara', 'Rum Giamaicano': 'Rhum Jamaïcain', 'Rum Martinicano': 'Rhum Martiniquais',
+                    'Gin': 'Gin', 'Vodka Liscia': 'Vodka', 'Vodka al Limone': 'Vodka Citron',
+                    'Vodka alla Vaniglia': 'Vodka Vanille', 'Vodka Menta': 'Vodka Menthe', 'Vodka Pesca': 'Vodka Pêche',
+                    'Vodka Fragola': 'Vodka Fraise', 'Vodka Melone': 'Vodka Melon',
+                    'Vermouth Rosso': 'Vermouth Rouge', 'Vermouth Secco': 'Vermouth Sec',
+                    'Whiskey Rye': 'Whisky de Seigle', 'Whiskey Irlandese': 'Whiskey Irlandais', 'Whisky Scozzese': 'Scotch Whisky',
+                    'Cognac': 'Cognac', 'Bourbon': 'Bourbon', 'Tequila': 'Tequila', 'Pisco': 'Pisco', 'Cachaça': 'Cachaça',
+                    'Bitter Campari': 'Campari', 'Aperol': 'Aperol', 'Triple Sec': 'Triple Sec',
+                    'Cointreau': 'Cointreau', 'Maraschino': 'Marasquin', "Curaçao all'Arancia": "Curaçao Orange",
+                    'Crema di Cacao Scura': 'Crème de Cacao Sombre', 'Crema di Violetta': 'Crème de Violette',
+                    'Drambuie': 'Drambuie', 'Malibu': 'Malibu', 'Midori': 'Midori',
+                    'Amaro Montenegro': 'Amaro Montenegro', 'Fernet Branca': 'Fernet-Branca', 'Jägermeister': 'Jägermeister',
+                    'Liquore al Caffè': 'Liqueur de Café', 'Liquore Passion Fruit': 'Liqueur Fruit de la Passion',
+                    'Schnapps alla Pesca': 'Schnaps Pêche', 'Apricot Brandy': 'Brandy Abricot',
+                    'Calvados': 'Calvados', 'Assenzio': 'Absinthe', 'Prosecco': 'Prosecco', 'Champagne': 'Champagne',
+                    'Orgeat': 'Orgeat', 'Granatina': 'Grenadine',
+                    'Succo di Limone': 'Jus de Citron', 'Succo di Lime': 'Jus de Citron Vert',
+                    'Succo di Arancia': "Jus d'Orange", 'Succo di Ananas': "Jus d'Ananas",
+                    'Succo di Cranberry': 'Jus de Canneberge', 'Succo di Canna da Zucchero': 'Jus de Canne à Sucre',
+                    'Sciroppo di Zucchero': 'Sirop de Sucre', 'Sciroppo di Lamponi': 'Sirop de Framboise',
+                    'Panna Fresca': 'Crème Fraîche', 'Albume': "Blanc d'Œuf",
+                    'Purea di Pesca': 'Purée de Pêche', 'Purea di Passion Fruit': 'Purée de Fruit de la Passion',
+                    'Crema di Cocco': 'Crème de Coco', 'Caffè': 'Café', 'Espresso': 'Espresso',
+                    'Soda': 'Eau Gazeuse', 'Cola': 'Cola', 'Acqua Tonica': 'Eau Tonique',
+                    'Lemon Soda': 'Limonade', 'Energy Drink': 'Boisson Énergisante',
+                    'Ginger Beer': 'Bière de Gingembre', 'Ginger Ale': 'Ginger Ale',
+                    'Soda Pompelmo Rosa': 'Soda Pamplemousse Rose'
+                }
+            },
+            de: {
+                storageStatus: 'Zustand automatisch gespeichert',
+                btnInstalla: 'App installieren',
+                btnReset: 'Alles zurücksetzen',
+                ricettarioTitolo: 'IBA-Rezeptbuch · Party-Edition',
+                ricettarioSub: 'Die 102 offiziellen Rezepte für den Hochvolumen-Service kalibriert',
+                ricettarioMeta: 'PDF-Dokument · zum Lesen klicken',
+                btnLeggi: 'Lesen',
+                btnScarica: 'Herunterladen',
+                btnChiudi: 'Schließen',
+                pdfModalTitolo: 'IBA-Cocktails · Party-Edition',
+                h2Parametri: 'Veranstaltungsparameter',
+                labelOspiti: 'Erwartete Gäste',
+                labelDrink: 'Cocktails pro Person',
+                labelShot: 'Shots pro Person',
+                labelScarto: 'Sicherheitsmarge (%)',
+                h2Cocktail: 'Cocktails des Abends',
+                descCocktail: 'Im Rezeptbuch suchen und die Häufigkeit mit dem Regler von 1 bis 5 einstellen',
+                phSearchDrink: 'Im Rezeptbuch suchen (z. B. Negroni, Spritz, Margarita)...',
+                btnAggiungi: 'Hinzufügen',
+                h2Shot: 'Shots & Digestifs',
+                descShot: 'Standarddosis 40 ml · unter verfügbaren Spirituosen suchen',
+                phSearchShot: 'Shots, Bitterlikör oder Likör suchen...',
+                h2Creazioni: 'Eigene Kreationen',
+                newCocktailH3: 'Neuer Cocktail',
+                phNewCocktail: 'Cocktailname',
+                labelIngredienti: 'Zutaten',
+                labelAlcolico: 'Alkoholisch',
+                labelAnalcolico: 'Alkoholfrei',
+                btnAggiungiIng: 'Zutat hinzufügen',
+                btnCrea: 'Erstellen & zum Abend hinzufügen',
+                bottShotH3: 'Shot-Flasche',
+                descBottShot: 'Füge eine Spirituose hinzu, die nicht im Rezeptbuch steht',
+                phNewShot: 'Name (z. B. Limoncello)',
+                btnCreaShot: 'Erstellen & hinzufügen',
+                btnGenera: 'Einkaufsliste generieren',
+                printTitle: 'Einkaufsliste · Barman PRO',
+                risultatiAlcolici: 'Spirituosen (Liter)',
+                risultatiAnalcolici: 'Mischgetränke & Füller (Liter)',
+                risultatiAttrezzatura: 'Ausrüstung',
+                btnCopia: 'Text kopieren (für WhatsApp)',
+                btnStampa: 'Drucken oder als PDF speichern',
+                sliderRimuovi: '× Entfernen',
+                sliderFreq: 'Freq.',
+                licenseH2: 'Aktivierung',
+                licenseP: 'Gib den nach dem Kauf per E-Mail erhaltenen Lizenzschlüssel ein.',
+                licenseBtnTxt: 'Aktivieren',
+                alertCocktailNonTrovato: 'Cocktail nicht gefunden. Wähle ihn aus der Liste oder erstelle ihn im Bereich unten.',
+                confirmReset: 'Möchtest du wirklich alles zurücksetzen? Diese Aktion kann nicht rückgängig gemacht werden.',
+                toastReset: 'Alles zurückgesetzt',
+                alertNomeCocktailVuoto: 'Bitte gib den Cocktailnamen ein.',
+                alertIngVuoti: 'Füge mindestens eine Zutat mit ml-Wert hinzu.',
+                toastCocktailCreato: 'Cocktail „{nome}" erstellt',
+                alertNomeShotVuoto: 'Bitte gib den Namen der Spirituose ein.',
+                toastShotCreato: '„{nome}" zu Shots hinzugefügt',
+                alertNienteMenu: 'Du hast Cocktails und Shots pro Gast konfiguriert, aber nichts zum Abendmenü hinzugefügt.',
+                alertNessunCocktailMenu: 'Du hast Cocktails pro Gast konfiguriert, aber keine Cocktails zum Menü hinzugefügt.',
+                alertNessunDrinkImpostato: 'Lege mindestens einen Cocktail oder Shot pro Person fest.',
+                risultatiTotali: 'Zuzubereiten: {drink} Cocktails · {shot} Shots',
+                nessunAlcolico: 'Keine Spirituosen',
+                nessunAnalcolico: 'Keine Mischgetränke',
+                ghiaccio: 'Eiswürfel',
+                bicchieriCocktail: 'Cocktailgläser',
+                bicchieriniShot: 'Shotgläser',
+                cannucce: 'Strohhalme',
+                toastCopiaOk: 'Liste in Zwischenablage kopiert',
+                errCopia: 'Kopierfehler: ',
+                toastInstallata: 'App installiert',
+                licenseVerifica: 'Wird überprüft...',
+                toastAttivato: 'Barman PRO aktiviert',
+                copyHeader: '❦  EINKAUFSLISTE — VERANSTALTUNG',
+                copyAlcolici: 'SPIRITUOSEN (Liter)',
+                copyAnalcolici: 'MISCHGETRÄNKE & FÜLLER (Liter)',
+                copyAttrezzatura: 'AUSRÜSTUNG',
+                ing: {
+                    'Rum Bianco': 'Weißer Rum', 'Rum Scuro': 'Dunkler Rum', 'Rum Dorato': 'Goldener Rum',
+                    'Rum Demerara': 'Demerara-Rum', 'Rum Giamaicano': 'Jamaikanischer Rum', 'Rum Martinicano': 'Martinique-Rum',
+                    'Gin': 'Gin', 'Vodka Liscia': 'Wodka', 'Vodka al Limone': 'Zitronen-Wodka',
+                    'Vodka alla Vaniglia': 'Vanille-Wodka', 'Vodka Menta': 'Minz-Wodka', 'Vodka Pesca': 'Pfirsich-Wodka',
+                    'Vodka Fragola': 'Erdbeer-Wodka', 'Vodka Melone': 'Melonen-Wodka',
+                    'Vermouth Rosso': 'Roter Wermut', 'Vermouth Secco': 'Trockener Wermut',
+                    'Whiskey Rye': 'Roggen-Whiskey', 'Whiskey Irlandese': 'Irischer Whiskey', 'Whisky Scozzese': 'Scotch Whisky',
+                    'Cognac': 'Kognak', 'Bourbon': 'Bourbon', 'Tequila': 'Tequila', 'Pisco': 'Pisco', 'Cachaça': 'Cachaça',
+                    'Bitter Campari': 'Campari', 'Aperol': 'Aperol', 'Triple Sec': 'Triple Sec',
+                    'Cointreau': 'Cointreau', 'Maraschino': 'Maraschino', "Curaçao all'Arancia": 'Orangen-Curaçao',
+                    'Crema di Cacao Scura': 'Dunkle Crème de Cacao', 'Crema di Violetta': 'Veilchenlikör',
+                    'Drambuie': 'Drambuie', 'Malibu': 'Malibu', 'Midori': 'Midori',
+                    'Amaro Montenegro': 'Amaro Montenegro', 'Fernet Branca': 'Fernet-Branca', 'Jägermeister': 'Jägermeister',
+                    'Liquore al Caffè': 'Kaffeelikör', 'Liquore Passion Fruit': 'Maracujalikör',
+                    'Schnapps alla Pesca': 'Pfirsichschnaps', 'Apricot Brandy': 'Aprikosenlikör',
+                    'Calvados': 'Calvados', 'Assenzio': 'Absinth', 'Prosecco': 'Prosecco', 'Champagne': 'Champagner',
+                    'Orgeat': 'Mandelsirup', 'Granatina': 'Grenadine',
+                    'Succo di Limone': 'Zitronensaft', 'Succo di Lime': 'Limettensaft',
+                    'Succo di Arancia': 'Orangensaft', 'Succo di Ananas': 'Ananassaft',
+                    'Succo di Cranberry': 'Cranberrysaft', 'Succo di Canna da Zucchero': 'Zuckerrohrsaft',
+                    'Sciroppo di Zucchero': 'Zuckersirup', 'Sciroppo di Lamponi': 'Himbeersirup',
+                    'Panna Fresca': 'Sahne', 'Albume': 'Eiweiß',
+                    'Purea di Pesca': 'Pfirsichpüree', 'Purea di Passion Fruit': 'Maracujapüree',
+                    'Crema di Cocco': 'Kokosnusscreme', 'Caffè': 'Kaffee', 'Espresso': 'Espresso',
+                    'Soda': 'Sodawasser', 'Cola': 'Cola', 'Acqua Tonica': 'Tonicwater',
+                    'Lemon Soda': 'Zitronenlimonade', 'Energy Drink': 'Energy-Drink',
+                    'Ginger Beer': 'Ingwerbier', 'Ginger Ale': 'Ginger Ale',
+                    'Soda Pompelmo Rosa': 'Grapefruitlimonade'
+                }
+            },
+            pt: {
+                storageStatus: 'Estado salvo automaticamente',
+                btnInstalla: 'Instalar app',
+                btnReset: 'Reiniciar tudo',
+                ricettarioTitolo: 'Receituário IBA · Edição para Festas',
+                ricettarioSub: 'As 102 receitas oficiais recalibradas para serviço de alto volume',
+                ricettarioMeta: 'Documento PDF · clique para ler',
+                btnLeggi: 'Ler',
+                btnScarica: 'Baixar',
+                btnChiudi: 'Fechar',
+                pdfModalTitolo: 'Cocktails IBA · Edição para Festas',
+                h2Parametri: 'Parâmetros do Evento',
+                labelOspiti: 'Convidados previstos',
+                labelDrink: 'Cocktails por pessoa',
+                labelShot: 'Shots por pessoa',
+                labelScarto: 'Margem de segurança (%)',
+                h2Cocktail: 'Cocktails da Noite',
+                descCocktail: 'Pesquise no receituário e ajuste a frequência com o cursor de 1 a 5',
+                phSearchDrink: 'Pesquisar no receituário (ex. Negroni, Spritz, Margarita)...',
+                btnAggiungi: 'Adicionar',
+                h2Shot: 'Shots & Amargos',
+                descShot: 'Dose padrão 40 ml · pesquise entre as bebidas disponíveis',
+                phSearchShot: 'Pesquisar shots, amargo ou licor...',
+                h2Creazioni: 'Criações Personalizadas',
+                newCocktailH3: 'Novo Cocktail',
+                phNewCocktail: 'Nome do cocktail',
+                labelIngredienti: 'Ingredientes',
+                labelAlcolico: 'Alcoólico',
+                labelAnalcolico: 'Sem álcool',
+                btnAggiungiIng: 'Adicionar ingrediente',
+                btnCrea: 'Criar e adicionar à noite',
+                bottShotH3: 'Garrafa de Shot',
+                descBottShot: 'Adicione uma bebida extra não presente no receituário',
+                phNewShot: 'Nome (ex. Limoncello)',
+                btnCreaShot: 'Criar e adicionar',
+                btnGenera: 'Gerar lista de compras',
+                printTitle: 'Lista de Compras · Barman PRO',
+                risultatiAlcolici: 'Bebidas Alcoólicas (Litros)',
+                risultatiAnalcolici: 'Mixers & Complementos (Litros)',
+                risultatiAttrezzatura: 'Equipamento',
+                btnCopia: 'Copiar texto (para WhatsApp)',
+                btnStampa: 'Imprimir ou salvar em PDF',
+                sliderRimuovi: '× Remover',
+                sliderFreq: 'Freq.',
+                licenseH2: 'Ativação',
+                licenseP: 'Insira a License Key recebida por e-mail após a compra.',
+                licenseBtnTxt: 'Ativar',
+                alertCocktailNonTrovato: 'Cocktail não encontrado. Selecione-o na lista ou crie-o no painel abaixo.',
+                confirmReset: 'Tem certeza que deseja reiniciar tudo? Esta ação não pode ser desfeita.',
+                toastReset: 'Tudo reiniciado',
+                alertNomeCocktailVuoto: 'Insira o nome do cocktail.',
+                alertIngVuoti: 'Adicione pelo menos um ingrediente com valor em ml.',
+                toastCocktailCreato: 'Cocktail "{nome}" criado',
+                alertNomeShotVuoto: 'Insira o nome da bebida.',
+                toastShotCreato: '"{nome}" adicionado aos shots',
+                alertNienteMenu: 'Você configurou cocktails e shots por convidado mas não adicionou nada ao menu da noite.',
+                alertNessunCocktailMenu: 'Você configurou cocktails por convidado mas não adicionou nenhum cocktail ao menu.',
+                alertNessunDrinkImpostato: 'Configure pelo menos um cocktail ou shot por pessoa.',
+                risultatiTotali: 'A preparar: {drink} cocktails · {shot} shots',
+                nessunAlcolico: 'Sem bebidas alcoólicas',
+                nessunAnalcolico: 'Sem mixers',
+                ghiaccio: 'Gelo em cubos',
+                bicchieriCocktail: 'Copos de cocktail',
+                bicchieriniShot: 'Copo de shot',
+                cannucce: 'Canudos',
+                toastCopiaOk: 'Lista copiada para a área de transferência',
+                errCopia: 'Erro ao copiar: ',
+                toastInstallata: 'App instalado',
+                licenseVerifica: 'A verificar...',
+                toastAttivato: 'Barman PRO ativado',
+                copyHeader: '❦  LISTA DE COMPRAS — EVENTO',
+                copyAlcolici: 'BEBIDAS ALCOÓLICAS (Litros)',
+                copyAnalcolici: 'MIXERS & COMPLEMENTOS (Litros)',
+                copyAttrezzatura: 'EQUIPAMENTO',
+                ing: {
+                    'Rum Bianco': 'Rum Branco', 'Rum Scuro': 'Rum Escuro', 'Rum Dorato': 'Rum Dourado',
+                    'Rum Demerara': 'Rum Demerara', 'Rum Giamaicano': 'Rum Jamaicano', 'Rum Martinicano': 'Rum Martinicano',
+                    'Gin': 'Gin', 'Vodka Liscia': 'Vodka', 'Vodka al Limone': 'Vodka de Limão',
+                    'Vodka alla Vaniglia': 'Vodka de Baunilha', 'Vodka Menta': 'Vodka de Hortelã', 'Vodka Pesca': 'Vodka de Pêssego',
+                    'Vodka Fragola': 'Vodka de Morango', 'Vodka Melone': 'Vodka de Melão',
+                    'Vermouth Rosso': 'Vermute Tinto', 'Vermouth Secco': 'Vermute Seco',
+                    'Whiskey Rye': 'Whiskey de Centeio', 'Whiskey Irlandese': 'Whiskey Irlandês', 'Whisky Scozzese': 'Scotch Whisky',
+                    'Cognac': 'Conhaque', 'Bourbon': 'Bourbon', 'Tequila': 'Tequila', 'Pisco': 'Pisco', 'Cachaça': 'Cachaça',
+                    'Bitter Campari': 'Campari', 'Aperol': 'Aperol', 'Triple Sec': 'Triple Sec',
+                    'Cointreau': 'Cointreau', 'Maraschino': 'Maraschino', "Curaçao all'Arancia": 'Curaçao de Laranja',
+                    'Crema di Cacao Scura': 'Creme de Cacau Escuro', 'Crema di Violetta': 'Licor de Violeta',
+                    'Drambuie': 'Drambuie', 'Malibu': 'Malibu', 'Midori': 'Midori',
+                    'Amaro Montenegro': 'Amaro Montenegro', 'Fernet Branca': 'Fernet-Branca', 'Jägermeister': 'Jägermeister',
+                    'Liquore al Caffè': 'Licor de Café', 'Liquore Passion Fruit': 'Licor de Maracujá',
+                    'Schnapps alla Pesca': 'Schnapps de Pêssego', 'Apricot Brandy': 'Brandy de Damasco',
+                    'Calvados': 'Calvados', 'Assenzio': 'Absinto', 'Prosecco': 'Prosecco', 'Champagne': 'Champanhe',
+                    'Orgeat': 'Xarope de Amêndoa', 'Granatina': 'Granadina',
+                    'Succo di Limone': 'Sumo de Limão', 'Succo di Lime': 'Sumo de Lima',
+                    'Succo di Arancia': 'Sumo de Laranja', 'Succo di Ananas': 'Sumo de Ananás',
+                    'Succo di Cranberry': 'Sumo de Cranberry', 'Succo di Canna da Zucchero': 'Caldo de Cana',
+                    'Sciroppo di Zucchero': 'Xarope de Açúcar', 'Sciroppo di Lamponi': 'Xarope de Framboesa',
+                    'Panna Fresca': 'Natas Frescas', 'Albume': 'Clara de Ovo',
+                    'Purea di Pesca': 'Purê de Pêssego', 'Purea di Passion Fruit': 'Purê de Maracujá',
+                    'Crema di Cocco': 'Creme de Coco', 'Caffè': 'Café', 'Espresso': 'Espresso',
+                    'Soda': 'Água com Gás', 'Cola': 'Cola', 'Acqua Tonica': 'Água Tónica',
+                    'Lemon Soda': 'Limonada', 'Energy Drink': 'Bebida Energética',
+                    'Ginger Beer': 'Cerveja de Gengibre', 'Ginger Ale': 'Ginger Ale',
+                    'Soda Pompelmo Rosa': 'Soda de Toranja Rosa'
+                }
+            },
+            nl: {
+                storageStatus: 'Status automatisch opgeslagen',
+                btnInstalla: 'App installeren',
+                btnReset: 'Alles resetten',
+                ricettarioTitolo: 'IBA-Receptenboek · Feestversie',
+                ricettarioSub: 'De 102 officiële recepten gehernibreerd voor hoog-volumeservice',
+                ricettarioMeta: 'PDF-document · klik om te lezen',
+                btnLeggi: 'Lezen',
+                btnScarica: 'Downloaden',
+                btnChiudi: 'Sluiten',
+                pdfModalTitolo: 'IBA-Cocktails · Feestversie',
+                h2Parametri: 'Evenementparameters',
+                labelOspiti: 'Verwachte gasten',
+                labelDrink: "Cocktails per persoon",
+                labelShot: 'Shots per persoon',
+                labelScarto: 'Veiligheidsmarge (%)',
+                h2Cocktail: "Cocktails van de Avond",
+                descCocktail: 'Zoek in het receptenboek en pas de frequentie aan met de schuifregelaar van 1 tot 5',
+                phSearchDrink: 'Zoek in het receptenboek (bijv. Negroni, Spritz, Margarita)...',
+                btnAggiungi: 'Toevoegen',
+                h2Shot: "Shots & Digestieven",
+                descShot: 'Standaarddosis 40 ml · zoek onder beschikbare dranken',
+                phSearchShot: 'Zoek shots, bitters of likeur...',
+                h2Creazioni: 'Persoonlijke Creaties',
+                newCocktailH3: 'Nieuwe Cocktail',
+                phNewCocktail: 'Naam van de cocktail',
+                labelIngredienti: 'Ingrediënten',
+                labelAlcolico: 'Alcoholisch',
+                labelAnalcolico: 'Alcoholvrij',
+                btnAggiungiIng: 'Ingrediënt toevoegen',
+                btnCrea: 'Aanmaken & toevoegen aan avond',
+                bottShotH3: 'Shot-fles',
+                descBottShot: 'Voeg een extra drank toe die niet in het receptenboek staat',
+                phNewShot: 'Naam (bijv. Limoncello)',
+                btnCreaShot: 'Aanmaken & toevoegen',
+                btnGenera: 'Boodschappenlijst genereren',
+                printTitle: 'Boodschappenlijst · Barman PRO',
+                risultatiAlcolici: 'Alcohol (Liter)',
+                risultatiAnalcolici: 'Mixers & Vullers (Liter)',
+                risultatiAttrezzatura: 'Materiaal',
+                btnCopia: 'Tekst kopiëren (voor WhatsApp)',
+                btnStampa: 'Afdrukken of als PDF opslaan',
+                sliderRimuovi: '× Verwijderen',
+                sliderFreq: 'Freq.',
+                licenseH2: 'Activering',
+                licenseP: 'Voer de License Key in die je per e-mail na aankoop hebt ontvangen.',
+                licenseBtnTxt: 'Activeren',
+                alertCocktailNonTrovato: 'Cocktail niet gevonden. Selecteer hem uit de lijst of maak hem aan in het paneel hieronder.',
+                confirmReset: 'Weet je zeker dat je alles wilt resetten? Deze actie kan niet ongedaan worden gemaakt.',
+                toastReset: 'Alles gereset',
+                alertNomeCocktailVuoto: 'Voer de naam van de cocktail in.',
+                alertIngVuoti: 'Voeg minstens één ingrediënt toe met een ml-waarde.',
+                toastCocktailCreato: 'Cocktail "{nome}" aangemaakt',
+                alertNomeShotVuoto: 'Voer de naam van de drank in.',
+                toastShotCreato: '"{nome}" toegevoegd aan shots',
+                alertNienteMenu: 'Je hebt cocktails en shots per gast ingesteld maar niets aan het avondmenu toegevoegd.',
+                alertNessunCocktailMenu: 'Je hebt cocktails per gast ingesteld maar geen cocktails aan het menu toegevoegd.',
+                alertNessunDrinkImpostato: 'Stel minstens één cocktail of shot per persoon in.',
+                risultatiTotali: 'Te bereiden: {drink} cocktails · {shot} shots',
+                nessunAlcolico: 'Geen alcohol',
+                nessunAnalcolico: 'Geen mixers',
+                ghiaccio: 'IJsblokjes',
+                bicchieriCocktail: 'Cocktailglazen',
+                bicchieriniShot: 'Shotglaasjes',
+                cannucce: 'Rietjes',
+                toastCopiaOk: 'Lijst gekopieerd naar klembord',
+                errCopia: 'Kopiëerfout: ',
+                toastInstallata: 'App geïnstalleerd',
+                licenseVerifica: 'Bezig met verifiëren...',
+                toastAttivato: 'Barman PRO geactiveerd',
+                copyHeader: '❦  BOODSCHAPPENLIJST — EVENEMENT',
+                copyAlcolici: 'ALCOHOL (Liter)',
+                copyAnalcolici: 'MIXERS & VULLERS (Liter)',
+                copyAttrezzatura: 'MATERIAAL',
+                ing: {
+                    'Rum Bianco': 'Witte Rum', 'Rum Scuro': 'Donkere Rum', 'Rum Dorato': 'Gouden Rum',
+                    'Rum Demerara': 'Demerara Rum', 'Rum Giamaicano': 'Jamaicaanse Rum', 'Rum Martinicano': 'Martinique Rum',
+                    'Gin': 'Gin', 'Vodka Liscia': 'Wodka', 'Vodka al Limone': 'Citroen Vodka',
+                    'Vodka alla Vaniglia': 'Vanille Vodka', 'Vodka Menta': 'Munt Vodka', 'Vodka Pesca': 'Perzik Vodka',
+                    'Vodka Fragola': 'Aardbei Vodka', 'Vodka Melone': 'Meloen Vodka',
+                    'Vermouth Rosso': 'Rode Vermout', 'Vermouth Secco': 'Droge Vermout',
+                    'Whiskey Rye': 'Rogge Whiskey', 'Whiskey Irlandese': 'Ierse Whiskey', 'Whisky Scozzese': 'Schotse Whisky',
+                    'Cognac': 'Cognac', 'Bourbon': 'Bourbon', 'Tequila': 'Tequila', 'Pisco': 'Pisco', 'Cachaça': 'Cachaça',
+                    'Bitter Campari': 'Campari', 'Aperol': 'Aperol', 'Triple Sec': 'Triple Sec',
+                    'Cointreau': 'Cointreau', 'Maraschino': 'Maraschino', "Curaçao all'Arancia": 'Sinaasappel Curaçao',
+                    'Crema di Cacao Scura': 'Donkere Cacaolikeur', 'Crema di Violetta': 'Viooltjeslikeur',
+                    'Drambuie': 'Drambuie', 'Malibu': 'Malibu', 'Midori': 'Midori',
+                    'Amaro Montenegro': 'Amaro Montenegro', 'Fernet Branca': 'Fernet-Branca', 'Jägermeister': 'Jägermeister',
+                    'Liquore al Caffè': 'Koffielikeur', 'Liquore Passion Fruit': 'Passievruchtlikeur',
+                    'Schnapps alla Pesca': 'Perzikschnapps', 'Apricot Brandy': 'Abrikozenlikeur',
+                    'Calvados': 'Calvados', 'Assenzio': 'Absint', 'Prosecco': 'Prosecco', 'Champagne': 'Champagne',
+                    'Orgeat': 'Orgeadesirop', 'Granatina': 'Grenadine',
+                    'Succo di Limone': 'Citroensap', 'Succo di Lime': 'Limoensap',
+                    'Succo di Arancia': 'Sinaasappelsap', 'Succo di Ananas': 'Ananassap',
+                    'Succo di Cranberry': 'Cranberrysap', 'Succo di Canna da Zucchero': 'Suikerrietstap',
+                    'Sciroppo di Zucchero': 'Suikerstroop', 'Sciroppo di Lamponi': 'Frambozensiroop',
+                    'Panna Fresca': 'Slagroom', 'Albume': 'Eiwit',
+                    'Purea di Pesca': 'Perzikpuree', 'Purea di Passion Fruit': 'Passievruchtpuree',
+                    'Crema di Cocco': 'Kokosroom', 'Caffè': 'Koffie', 'Espresso': 'Espresso',
+                    'Soda': 'Sodawater', 'Cola': 'Cola', 'Acqua Tonica': 'Tonicwater',
+                    'Lemon Soda': 'Citroenlimonade', 'Energy Drink': 'Energiedrank',
+                    'Ginger Beer': 'Gemberbier', 'Ginger Ale': 'Ginger Ale',
+                    'Soda Pompelmo Rosa': 'Roze Grapefruitsoda'
+                }
+            }
+        };
+
+        /* Helper: restituisce la stringa tradotta nella lingua corrente */
+        function T(key) {
+            const tr = translations[linguaCorrente] || translations.it;
+            return tr[key] !== undefined ? tr[key] : (translations.it[key] || key);
+        }
+
+        /* Traduce il nome di un ingrediente (canonico italiano → lingua corrente) */
+        function tradIngrediente(nomeIt) {
+            const tr = translations[linguaCorrente] || translations.it;
+            return (tr.ing && tr.ing[nomeIt]) ? tr.ing[nomeIt] : nomeIt;
+        }
+
+        /* Applica tutte le traduzioni al DOM */
+        function cambiaLingua(lang) {
+            if (!translations[lang]) lang = 'it';
+            linguaCorrente = lang;
+            document.documentElement.lang = lang;
+            const tr = translations[lang];
+
+            /* ── Elementi generici con data-i18n → textContent ── */
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const k = el.dataset.i18n;
+                if (tr[k] !== undefined) el.textContent = tr[k];
+            });
+
+            /* ── Placeholder con data-i18n-ph ── */
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const k = el.dataset.i18nPh;
+                if (tr[k] !== undefined) el.placeholder = tr[k];
+            });
+
+            /* ── Elementi con icone — aggiornamento diretto ── */
+            _i18nTxt('.btn-pdf-leggi',                      '✦ ' + tr.btnLeggi + ' (IT)');
+            document.querySelectorAll('[href$=".pdf"][download]').forEach(a => { if (!a.dataset.i18nSkip) a.textContent = '↳ ' + tr.btnScarica; });
+            _i18nTxt('.pdf-modal-actions button',           '× ' + tr.btnChiudi);
+            _i18nTxt('#pdf-modal-title',                    '❦ ' + tr.pdfModalTitolo);
+            _i18nTxt('.ricettario-text h3',                 tr.ricettarioTitolo);
+            _i18nTxt('#h3-nuovo-cocktail',                  '✦ ' + tr.newCocktailH3);
+            _i18nTxt('#h3-bottiglia-shot',                  '✦ ' + tr.bottShotH3);
+            _i18nTxt('.btn-aggiungi-ing',                   '✚ ' + tr.btnAggiungiIng);
+            document.querySelectorAll('.search-add-row button').forEach(b => b.textContent = '✚ ' + tr.btnAggiungi);
+            const bsArr = document.querySelectorAll('.btn-secondary');
+            if (bsArr[0]) bsArr[0].textContent = '✦ ' + tr.btnCrea;
+            if (bsArr[1]) bsArr[1].textContent = '✦ ' + tr.btnCreaShot;
+            _i18nHTML('.btn-grande', '❦  ' + tr.btnGenera + '  ❦');
+            const rh3 = document.querySelectorAll('.result-section h3');
+            if (rh3[0]) rh3[0].textContent = '✦ ' + tr.risultatiAlcolici;
+            if (rh3[1]) rh3[1].textContent = '✦ ' + tr.risultatiAnalcolici;
+            if (rh3[2]) rh3[2].textContent = '✦ ' + tr.risultatiAttrezzatura;
+            const abtn = document.querySelectorAll('.action-buttons button');
+            if (abtn[0]) abtn[0].textContent = '✦ ' + tr.btnCopia;
+            if (abtn[1]) abtn[1].textContent = '✦ ' + tr.btnStampa;
+            // Storage status
+            const ss = document.getElementById('storage-status');
+            if (ss) ss.textContent = '✦ ' + tr.storageStatus;
+            // Bottone installa
+            const binst = document.getElementById('btn-installa-app');
+            if (binst) binst.textContent = '⬇ ' + tr.btnInstalla;
+            // License button
+            const lbtn = document.querySelector('#license-overlay button');
+            if (lbtn) lbtn.innerHTML = '✶  ' + tr.licenseBtnTxt + '  ✶';
+
+            /* ── Selettore lingua ── */
+            const sel = document.getElementById('lang-selector');
+            if (sel && sel.value !== lang) sel.value = lang;
+
+            /* ── Re-render slider per "Rimuovi" e "Freq." ── */
+            if (typeof renderizzaMenu === 'function') renderizzaMenu();
+
+            salvaStato();
+        }
+
+        function _i18nTxt(sel, txt) {
+            const el = document.querySelector(sel);
+            if (el) el.textContent = txt;
+        }
+        function _i18nHTML(sel, html) {
+            const el = document.querySelector(sel);
+            if (el) el.innerHTML = html;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           DATABASE COCKTAIL
+           ════════════════════════════════════════════════════════════ */
+        /* ─── MAPPA ALIAS — fonde voci equivalenti scritte in lingue diverse ───
+           Aggiungi qui qualsiasi nuovo alias se l'utente scrive un ingrediente in modo diverso.
+           Tutto viene normalizzato in italiano coerente nella lista finale. */
+        const aliasIngredienti = {
+            // Rum
+            "white rum": "Rum Bianco",
+            "rum bianco": "Rum Bianco",
+            "dark rum": "Rum Scuro",
+            "rum scuro": "Rum Scuro",
+            "gold rum": "Rum Dorato",
+            "rum dorato": "Rum Dorato",
+            "demerara rum": "Rum Demerara",
+            "rum demerara": "Rum Demerara",
+            "jamaican rum": "Rum Giamaicano",
+            "rum giamaicano": "Rum Giamaicano",
+            "martinique rum": "Rum Martinicano",
+            "rum martinicano": "Rum Martinicano",
+            // Gin
+            "gin": "Gin",
+            "dry gin": "Gin",
+            "london dry gin": "Gin",
+            // Vodka
+            "vodka": "Vodka Liscia",
+            "vodka liscia": "Vodka Liscia",
+            "vodka citron": "Vodka al Limone",
+            "vodka al limone": "Vodka al Limone",
+            "vanilla vodka": "Vodka alla Vaniglia",
+            "vodka alla vaniglia": "Vodka alla Vaniglia",
+            // Vermouth
+            "sweet vermouth": "Vermouth Rosso",
+            "vermouth rosso": "Vermouth Rosso",
+            "vermouth dolce": "Vermouth Rosso",
+            "dry vermouth": "Vermouth Secco",
+            "vermouth secco": "Vermouth Secco",
+            "vermouth dry": "Vermouth Secco",
+            // Whiskey
+            "rye whiskey": "Whiskey Rye",
+            "whiskey rye": "Whiskey Rye",
+            "irish whiskey": "Whiskey Irlandese",
+            "whiskey irlandese": "Whiskey Irlandese",
+            "scotch whisky": "Whisky Scozzese",
+            "whisky scozzese": "Whisky Scozzese",
+            // Liquori
+            "creme de cacao scura": "Crema di Cacao Scura",
+            "crema di cacao scura": "Crema di Cacao Scura",
+            "creme de violette": "Crema di Violetta",
+            "crema di violetta": "Crema di Violetta",
+            "orange curacao": "Curaçao all'Arancia",
+            "curacao all'arancia": "Curaçao all'Arancia",
+            "curaçao all'arancia": "Curaçao all'Arancia",
+            "liquore al caffe": "Liquore al Caffè",
+            "liquore al caffè": "Liquore al Caffè",
+            "liqueur passion fruit": "Liquore Passion Fruit",
+            "liquore passion fruit": "Liquore Passion Fruit",
+            "peach schnapps": "Schnapps alla Pesca",
+            "schnapps alla pesca": "Schnapps alla Pesca",
+            "jagermeister": "Jägermeister",
+            "jägermeister": "Jägermeister",
+            "cachaca": "Cachaça",
+            "cachaça": "Cachaça",
+            // Succhi
+            "succo ananas": "Succo di Ananas",
+            "succo di ananas": "Succo di Ananas",
+            "succo arancia": "Succo di Arancia",
+            "succo di arancia": "Succo di Arancia",
+            "succo limone": "Succo di Limone",
+            "succo di limone": "Succo di Limone",
+            "succo lime": "Succo di Lime",
+            "succo di lime": "Succo di Lime",
+            "succo canna zucchero": "Succo di Canna da Zucchero",
+            "succo di canna da zucchero": "Succo di Canna da Zucchero",
+            "cranberry": "Succo di Cranberry",
+            "succo di cranberry": "Succo di Cranberry",
+            "succo cranberry": "Succo di Cranberry",
+            // Sciroppi
+            "sciroppo": "Sciroppo di Zucchero",
+            "sciroppo zucchero": "Sciroppo di Zucchero",
+            "sciroppo di zucchero": "Sciroppo di Zucchero",
+            "simple syrup": "Sciroppo di Zucchero",
+            "sciroppo lamponi": "Sciroppo di Lamponi",
+            "sciroppo di lamponi": "Sciroppo di Lamponi",
+            // Altri analcolici
+            "panna fresca": "Panna Fresca",
+            "purea di pesca": "Purea di Pesca",
+            "purea passion fruit": "Purea di Passion Fruit",
+            "purea di passion fruit": "Purea di Passion Fruit",
+            "caffe": "Caffè",
+            "caffè": "Caffè"
+        };
+
+        function normalizzaIngrediente(nome) {
+            if(!nome) return nome;
+            const chiave = nome.trim().toLowerCase();
+            if(aliasIngredienti[chiave]) return aliasIngredienti[chiave];
+            return nome.trim();
+        }
+
+        function escHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        let databaseDrink = {
+            "Vodka Redbull (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Lemon (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Menta Redbull (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Pesca Redbull (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Fragola Redbull (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Melone Redbull (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Menta Lemon (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Pesca Lemon (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Fragola Lemon (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Melone Lemon (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Gin Tonic (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Acqua Tonica", tipo: "analcolico", ml: 140}],
+            "Gin Lemon (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Rum & Coca (HV)": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Monte & Coca (HV)": [{nome: "Amaro Montenegro", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Jager & Redbull (HV)": [{nome: "Jägermeister", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Malibu & Ananas (HV)": [{nome: "Malibu", tipo: "alcolico", ml: 60}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 140}],
+            "Midori Lemon (HV)": [{nome: "Midori", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Garibaldi (HV)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 60}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 140}],
+            "Fernandito (HV)": [{nome: "Fernet Branca", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Dark N Stormy (HV)": [{nome: "Rum Scuro", tipo: "alcolico", ml: 60}, {nome: "Ginger Beer", tipo: "analcolico", ml: 140}],
+            "Horses Neck (HV)": [{nome: "Cognac", tipo: "alcolico", ml: 60}, {nome: "Ginger Ale", tipo: "analcolico", ml: 140}],
+            "Alexander": [{nome: "Cognac", tipo: "alcolico", ml: 30}, {nome: "Crema di Cacao Scura", tipo: "alcolico", ml: 30}, {nome: "Panna Fresca", tipo: "analcolico", ml: 30}],
+            "Americano": [{nome: "Bitter Campari", tipo: "alcolico", ml: 30}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}, {nome: "Soda", tipo: "analcolico", ml: 30}],
+            "Angel Face": [{nome: "Gin", tipo: "alcolico", ml: 30}, {nome: "Apricot Brandy", tipo: "alcolico", ml: 30}, {nome: "Calvados", tipo: "alcolico", ml: 30}],
+            "Aviation": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Maraschino", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 15}, {nome: "Crema di Violetta", tipo: "alcolico", ml: 5}],
+            "Between the Sheets": [{nome: "Rum Bianco", tipo: "alcolico", ml: 30}, {nome: "Cognac", tipo: "alcolico", ml: 30}, {nome: "Triple Sec", tipo: "alcolico", ml: 30}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
+            "Boulevardier": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}, {nome: "Bitter Campari", tipo: "alcolico", ml: 30}],
+            "Clover Club": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Sciroppo di Lamponi", tipo: "analcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 15}, {nome: "Albume", tipo: "analcolico", ml: 30}],
+            "Daiquiri": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
+            "Dry Martini": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Vermouth Secco", tipo: "alcolico", ml: 10}],
+            "Gin Fizz": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Succo di Limone", tipo: "analcolico", ml: 30}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}, {nome: "Soda", tipo: "analcolico", ml: 60}],
+            "Hanky Panky": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 45}, {nome: "Fernet Branca", tipo: "alcolico", ml: 7.5}],
+            "Manhattan": [{nome: "Whiskey Rye", tipo: "alcolico", ml: 50}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 20}],
+            "Negroni": [{nome: "Gin", tipo: "alcolico", ml: 30}, {nome: "Bitter Campari", tipo: "alcolico", ml: 30}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}],
+            "Old Fashioned": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}],
+            "Planters Punch": [{nome: "Rum Giamaicano", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Canna da Zucchero", tipo: "analcolico", ml: 30}],
+            "Rusty Nail": [{nome: "Whisky Scozzese", tipo: "alcolico", ml: 45}, {nome: "Drambuie", tipo: "alcolico", ml: 25}],
+            "Sazerac": [{nome: "Cognac", tipo: "alcolico", ml: 50}, {nome: "Assenzio", tipo: "alcolico", ml: 10}],
+            "Sidecar": [{nome: "Cognac", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
+            "Whiskey Sour": [{nome: "Bourbon", tipo: "alcolico", ml: 45}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 20}, {nome: "Albume", tipo: "analcolico", ml: 20}],
+            "White Lady": [{nome: "Gin", tipo: "alcolico", ml: 40}, {nome: "Triple Sec", tipo: "alcolico", ml: 30}, {nome: "Succo di Limone", tipo: "analcolico", ml: 20}],
+            "Bellini": [{nome: "Prosecco", tipo: "alcolico", ml: 100}, {nome: "Purea di Pesca", tipo: "analcolico", ml: 50}],
+            "Black Russian": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 50}, {nome: "Liquore al Caffè", tipo: "alcolico", ml: 20}],
+            "Caipirinha": [{nome: "Cachaça", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
+            "Cosmopolitan": [{nome: "Vodka al Limone", tipo: "alcolico", ml: 40}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 30}],
+            "Cuba Libre": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Cola", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+            "Garibaldi (IBA)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 120}],
+            "Irish Coffee": [{nome: "Whiskey Irlandese", tipo: "alcolico", ml: 50}, {nome: "Caffè", tipo: "analcolico", ml: 120}, {nome: "Panna Fresca", tipo: "analcolico", ml: 50}],
+            "Long Island": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 15}, {nome: "Tequila", tipo: "alcolico", ml: 15}, {nome: "Rum Bianco", tipo: "alcolico", ml: 15}, {nome: "Gin", tipo: "alcolico", ml: 15}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Cola", tipo: "analcolico", ml: 60}],
+            "Mai-Tai": [{nome: "Rum Giamaicano", tipo: "alcolico", ml: 30}, {nome: "Rum Martinicano", tipo: "alcolico", ml: 30}, {nome: "Curaçao all'Arancia", tipo: "alcolico", ml: 15}, {nome: "Orgeat", tipo: "analcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
+            "Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}],
+            "Mojito": [{nome: "Rum Bianco", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Soda", tipo: "analcolico", ml: 40}],
+            "Moscow Mule (IBA)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Ginger Beer", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+            "Pina Colada": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Crema di Cocco", tipo: "analcolico", ml: 30}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 50}],
+            "Pisco Sour": [{nome: "Pisco", tipo: "alcolico", ml: 60}, {nome: "Succo di Limone", tipo: "analcolico", ml: 30}, {nome: "Albume", tipo: "analcolico", ml: 20}],
+            "Sex on the Beach": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 40}, {nome: "Schnapps alla Pesca", tipo: "alcolico", ml: 20}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 40}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 40}],
+            "Tequila Sunrise": [{nome: "Tequila", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 90}, {nome: "Granatina", tipo: "analcolico", ml: 15}],
+            "Zombie": [{nome: "Rum Scuro", tipo: "alcolico", ml: 45}, {nome: "Rum Dorato", tipo: "alcolico", ml: 45}, {nome: "Rum Demerara", tipo: "alcolico", ml: 30}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}],
+            "Bees Knees": [{nome: "Gin", tipo: "alcolico", ml: 52.5}, {nome: "Succo di Limone", tipo: "analcolico", ml: 22.5}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 22.5}],
+            "Espresso Martini": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 50}, {nome: "Liquore al Caffè", tipo: "alcolico", ml: 30}, {nome: "Espresso", tipo: "analcolico", ml: 30}],
+            "Paloma": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Soda Pompelmo Rosa", tipo: "analcolico", ml: 100}],
+            "Porn Star Martini": [{nome: "Vodka alla Vaniglia", tipo: "alcolico", ml: 50}, {nome: "Liquore Passion Fruit", tipo: "alcolico", ml: 20}, {nome: "Purea di Passion Fruit", tipo: "analcolico", ml: 50}, {nome: "Champagne", tipo: "alcolico", ml: 50}],
+            "Spritz": [{nome: "Prosecco", tipo: "alcolico", ml: 90}, {nome: "Aperol", tipo: "alcolico", ml: 60}, {nome: "Soda", tipo: "analcolico", ml: 30}],
+            "Tommys Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}]
+        };
+
+        let menuSerataDrink = {};
+        let menuSerataShot = {};
+        let customShots = [];
+        let customDrinks = {};
+        let ingredientCounter = 0;
+
+        const STORAGE_KEY = 'barmanProState_v7';
+
+        /* ════════════════════════════════════════════════════════════
+           PERSISTENZA  (localStorage)
+           ════════════════════════════════════════════════════════════ */
+        function salvaStato() {
+            try {
+                const state = {
+                    menuSerataDrink: menuSerataDrink,
+                    menuSerataShot: menuSerataShot,
+                    customShots: customShots,
+                    customDrinks: customDrinks,
+                    lingua: linguaCorrente,
+                    config: {
+                        ospiti: document.getElementById('ospiti').value,
+                        drink_testa: document.getElementById('drink_testa').value,
+                        shot_testa: document.getElementById('shot_testa').value,
+                        scarto: document.getElementById('scarto').value
+                    }
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch(e) { console.warn('Salvataggio fallito:', e); }
+        }
+
+        function caricaStato() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if(!raw) return;
+                const s = JSON.parse(raw);
+                menuSerataDrink = s.menuSerataDrink || {};
+                menuSerataShot = s.menuSerataShot || {};
+                customShots = s.customShots || [];
+                customDrinks = s.customDrinks || {};
+                Object.assign(databaseDrink, customDrinks);
+                if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
+                if(s.config) {
+                    if(s.config.ospiti) document.getElementById('ospiti').value = s.config.ospiti;
+                    if(s.config.drink_testa) document.getElementById('drink_testa').value = s.config.drink_testa;
+                    if(s.config.shot_testa) document.getElementById('shot_testa').value = s.config.shot_testa;
+                    if(s.config.scarto) document.getElementById('scarto').value = s.config.scarto;
+                }
+            } catch(e) { console.warn('Caricamento fallito:', e); }
+        }
+
+        function resetCompleto() {
+            if(!confirm(T('confirmReset'))) return;
+            menuSerataDrink = {};
+            menuSerataShot = {};
+            customShots = [];
+            customDrinks = {};
+            // ricostruisco databaseDrink rimuovendo i custom
+            for(const k in databaseDrink) {
+                if(k in (customDrinks || {})) delete databaseDrink[k];
+            }
+            localStorage.removeItem(STORAGE_KEY);
+            document.getElementById('ospiti').value = 50;
+            document.getElementById('drink_testa').value = 3;
+            document.getElementById('shot_testa').value = 1;
+            document.getElementById('scarto').value = 15;
+            document.getElementById('risultati').style.display = 'none';
+            document.getElementById('ingredienti-container').innerHTML = '';
+            aggiungiRigaIngrediente();
+            aggiungiRigaIngrediente();
+            inizializzaApp();
+            renderizzaMenu();
+            mostraToast(T('toastReset'));
+        }
+
+        function mostraToast(testo) {
+            const t = document.getElementById('toast');
+            t.textContent = '❖  ' + testo;
+            t.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           INIZIALIZZAZIONE
+           ════════════════════════════════════════════════════════════ */
+        function inizializzaApp() {
+            function aggiungiOption(datalist, valore) {
+                const opt = document.createElement('option');
+                opt.value = valore;
+                datalist.appendChild(opt);
+            }
+
+            const datalistDrink = document.getElementById('lista-database-drink');
+            datalistDrink.innerHTML = '';
+            Object.keys(databaseDrink).sort().forEach(nome => aggiungiOption(datalistDrink, nome));
+
+            let setTuttiIngredienti = new Set();
+            let setSoloAlcolici = new Set();
+
+            for (const d in databaseDrink) {
+                databaseDrink[d].forEach(ing => {
+                    setTuttiIngredienti.add(ing.nome);
+                    if (ing.tipo === 'alcolico') setSoloAlcolici.add(ing.nome);
+                });
+            }
+            customShots.forEach(s => {
+                setSoloAlcolici.add(s);
+                setTuttiIngredienti.add(s);
+            });
+
+            const datalistIngredienti = document.getElementById('lista-ingredienti');
+            datalistIngredienti.innerHTML = '';
+            Array.from(setTuttiIngredienti).sort().forEach(nome => aggiungiOption(datalistIngredienti, nome));
+
+            const datalistShot = document.getElementById('lista-database-shot');
+            datalistShot.innerHTML = '';
+            Array.from(setSoloAlcolici).sort().forEach(nome => aggiungiOption(datalistShot, nome));
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           AGGIUNTA E RIMOZIONE
+           ════════════════════════════════════════════════════════════ */
+        function aggiungiDrinkSerata() {
+            let inputField = document.getElementById('search-drink-input');
+            let nome = inputField.value.trim();
+            if(!nome) return;
+            if(!databaseDrink[nome]) return alert(T('alertCocktailNonTrovato'));
+
+            if (!(nome in menuSerataDrink)) menuSerataDrink[nome] = 1;
+            inputField.value = '';
+            renderizzaMenu();
+            salvaStato();
+        }
+
+        function aggiungiShotSerata() {
+            let inputField = document.getElementById('search-shot-input');
+            let nome = inputField.value.trim();
+            if(!nome) return;
+
+            if (!(nome in menuSerataShot)) menuSerataShot[nome] = 1;
+            inputField.value = '';
+            renderizzaMenu();
+            salvaStato();
+        }
+
+        function aggiornaFrequenza(nome, tipo, valore) {
+            if (tipo === 'drink') menuSerataDrink[nome] = parseInt(valore);
+            if (tipo === 'shot') menuSerataShot[nome] = parseInt(valore);
+            salvaStato();
+        }
+
+        function rimuovi(nome, tipo) {
+            if(tipo === 'drink') delete menuSerataDrink[nome];
+            if(tipo === 'shot') delete menuSerataShot[nome];
+            renderizzaMenu();
+            salvaStato();
+        }
+
+        function renderizzaMenu() {
+            const containerDrink = document.getElementById('drink-serata-container');
+            containerDrink.innerHTML = '';
+            Object.keys(menuSerataDrink).sort().forEach(nome => {
+                containerDrink.appendChild(creaSliderElement(nome, 'drink', menuSerataDrink[nome]));
+            });
+
+            const containerShot = document.getElementById('shot-serata-container');
+            containerShot.innerHTML = '';
+            Object.keys(menuSerataShot).sort().forEach(nome => {
+                containerShot.appendChild(creaSliderElement(nome, 'shot', menuSerataShot[nome]));
+            });
+        }
+
+        function creaSliderElement(nome, tipo, valoreAttuale) {
+            const wrap = document.createElement('div');
+            wrap.className = 'menu-item';
+
+            const header = document.createElement('div');
+            header.className = 'menu-header';
+
+            const span = document.createElement('span');
+            span.textContent = nome;
+
+            const btnRimuovi = document.createElement('button');
+            btnRimuovi.className = 'btn-rimuovi';
+            btnRimuovi.textContent = T('sliderRimuovi');
+            btnRimuovi.addEventListener('click', () => rimuovi(nome, tipo));
+
+            header.appendChild(span);
+            header.appendChild(btnRimuovi);
+
+            const sliderWrap = document.createElement('div');
+            sliderWrap.className = 'slider-container';
+
+            const lbl = document.createElement('span');
+            lbl.className = 'lbl';
+            lbl.textContent = T('sliderFreq');
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = 1;
+            slider.max = 5;
+            slider.value = valoreAttuale;
+
+            const sliderVal = document.createElement('span');
+            sliderVal.className = 'slider-value';
+            sliderVal.textContent = valoreAttuale;
+
+            slider.addEventListener('input', function() {
+                sliderVal.textContent = this.value;
+                aggiornaFrequenza(nome, tipo, this.value);
+            });
+
+            sliderWrap.appendChild(lbl);
+            sliderWrap.appendChild(slider);
+            sliderWrap.appendChild(sliderVal);
+
+            wrap.appendChild(header);
+            wrap.appendChild(sliderWrap);
+            return wrap;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           CREATOR — Cocktail con N ingredienti dinamici
+           ════════════════════════════════════════════════════════════ */
+        function aggiungiRigaIngrediente(preset) {
+            const c = document.getElementById('ingredienti-container');
+            const id = ++ingredientCounter;
+            const nome = preset && preset.nome ? preset.nome : '';
+            const ml = preset && preset.ml ? preset.ml : '';
+            const tipo = preset && preset.tipo ? preset.tipo : 'alcolico';
+            const div = document.createElement('div');
+            div.className = 'creator-row';
+            div.id = 'row-' + id;
+            div.innerHTML = `
+                <input type="text" class="ing-nome" placeholder="Ingrediente" list="lista-ingredienti">
+                <select class="ing-tipo">
+                    <option value="alcolico">${T('labelAlcolico')}</option>
+                    <option value="analcolico">${T('labelAnalcolico')}</option>
+                </select>
+                <input type="number" class="ing-ml" placeholder="ml" min="0" step="0.5">
+                <button class="btn-rimuovi-ing" title="Rimuovi">&times;</button>
+            `;
+            div.querySelector('.ing-nome').value = nome;
+            div.querySelector('.ing-ml').value = ml;
+            div.querySelector('.ing-tipo').value = tipo;
+            div.querySelector('.btn-rimuovi-ing').addEventListener('click', () => div.remove());
+            c.appendChild(div);
+        }
+
+        function creaCocktail() {
+            let nome = document.getElementById('new_cocktail_name').value.trim();
+            if(!nome) return alert(T('alertNomeCocktailVuoto'));
+
+            let ingredienti = [];
+            document.querySelectorAll('#ingredienti-container .creator-row').forEach(row => {
+                let n = row.querySelector('.ing-nome').value.trim();
+                let mlRaw = row.querySelector('.ing-ml').value;
+                let ml = parseFloat(mlRaw);
+                let tipo = row.querySelector('.ing-tipo').value;
+                if(n && !isNaN(ml) && ml > 0) ingredienti.push({nome: n, tipo: tipo, ml: ml});
+            });
+
+            if(ingredienti.length === 0) return alert(T('alertIngVuoti'));
+
+            databaseDrink[nome] = ingredienti;
+            customDrinks[nome] = ingredienti;
+            menuSerataDrink[nome] = 1;
+
+            document.getElementById('new_cocktail_name').value = '';
+            document.getElementById('ingredienti-container').innerHTML = '';
+            aggiungiRigaIngrediente();
+            aggiungiRigaIngrediente();
+
+            inizializzaApp();
+            renderizzaMenu();
+            salvaStato();
+            mostraToast(T('toastCocktailCreato').replace('{nome}', nome));
+        }
+
+        function creaShot() {
+            let nome = document.getElementById('new_shot_name').value.trim();
+            if(!nome) return alert(T('alertNomeShotVuoto'));
+
+            if(!customShots.includes(nome)) customShots.push(nome);
+            menuSerataShot[nome] = 1;
+
+            document.getElementById('new_shot_name').value = '';
+            inizializzaApp();
+            renderizzaMenu();
+            salvaStato();
+            mostraToast(T('toastShotCreato').replace('{nome}', nome));
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           CALCOLO
+           ════════════════════════════════════════════════════════════ */
+        function calcolaSpesa() {
+            let ospiti = parseFloat(document.getElementById('ospiti').value) || 0;
+            let drinkTesta = parseFloat(document.getElementById('drink_testa').value) || 0;
+            let shotTesta = parseFloat(document.getElementById('shot_testa').value) || 0;
+            let scarto = parseFloat(document.getElementById('scarto').value) || 0;
+
+            let moltiplicatore = 1 + (scarto / 100);
+            let drinkTotali = Math.ceil((ospiti * drinkTesta) * moltiplicatore);
+            let shotTotali = Math.ceil((ospiti * shotTesta) * moltiplicatore);
+
+            let pesoTotDrink = 0; let drinkSelezionati = [];
+            Object.keys(menuSerataDrink).forEach(nome => {
+                let p = menuSerataDrink[nome];
+                pesoTotDrink += p;
+                drinkSelezionati.push({nome: nome, peso: p});
+            });
+
+            let pesoTotShot = 0; let shotSelezionati = [];
+            Object.keys(menuSerataShot).forEach(nome => {
+                let p = menuSerataShot[nome];
+                pesoTotShot += p;
+                shotSelezionati.push({nome: nome, peso: p});
+            });
+
+            // Validazione: serve almeno una sezione popolata se i totali la richiedono
+            const drinkRichiesti = drinkTotali > 0 && pesoTotDrink === 0;
+            const shotRichiesti = shotTotali > 0 && pesoTotShot === 0;
+
+            if (drinkRichiesti && shotRichiesti) {
+                return alert(T('alertNienteMenu'));
+            }
+            if (drinkRichiesti && shotTotali === 0) {
+                return alert(T('alertNessunCocktailMenu'));
+            }
+            if (drinkTotali === 0 && shotTotali === 0) {
+                return alert(T('alertNessunDrinkImpostato'));
+            }
+
+            let spesaAlcolici = {}; let spesaAnalcolici = {};
+
+            // Drink — applica normalizzazione per fondere alias (Rum Bianco / White Rum, ecc.)
+            if (pesoTotDrink > 0 && drinkTotali > 0) {
+                drinkSelezionati.forEach(item => {
+                    let qty = Math.ceil(drinkTotali * (item.peso / pesoTotDrink));
+                    databaseDrink[item.nome].forEach(ing => {
+                        const nomeNorm = normalizzaIngrediente(ing.nome);
+                        if(ing.tipo === 'alcolico') spesaAlcolici[nomeNorm] = (spesaAlcolici[nomeNorm] || 0) + (ing.ml * qty);
+                        else spesaAnalcolici[nomeNorm] = (spesaAnalcolici[nomeNorm] || 0) + (ing.ml * qty);
+                    });
+                });
+            }
+
+            // Shot — anche qui normalizzazione
+            if (pesoTotShot > 0 && shotTotali > 0) {
+                shotSelezionati.forEach(item => {
+                    let qty = Math.ceil(shotTotali * (item.peso / pesoTotShot));
+                    const nomeNorm = normalizzaIngrediente(item.nome);
+                    spesaAlcolici[nomeNorm] = (spesaAlcolici[nomeNorm] || 0) + (40 * qty);
+                });
+            }
+
+            // Reset shot/drink mostrati a zero se non ne sono stati richiesti
+            const drinkMostrati = pesoTotDrink > 0 ? drinkTotali : 0;
+            const shotMostrati = pesoTotShot > 0 ? shotTotali : 0;
+
+            // ─── OUTPUT ───
+            document.getElementById('drink-totali-text').innerHTML =
+                T('risultatiTotali')
+                    .replace('{drink}', `<strong>${drinkMostrati}</strong>`)
+                    .replace('{shot}',  `<strong>${shotMostrati}</strong>`);
+
+            function arrotondaLitri(ml) {
+                const v = Math.ceil((ml / 1000) * 2) / 2;
+                return v % 1 === 0 ? v.toString() : v.toFixed(1);
+            }
+
+            function appendVoce(ul, nomeIng, litri) {
+                const li = document.createElement('li');
+                const s = document.createElement('span');
+                s.textContent = nomeIng;
+                const strong = document.createElement('strong');
+                strong.textContent = litri + ' L';
+                li.appendChild(s);
+                li.appendChild(strong);
+                ul.appendChild(li);
+            }
+
+            const ulAlcol = document.getElementById('lista_alcolici');
+            ulAlcol.innerHTML = '';
+            const keysAlcol = Object.keys(spesaAlcolici).sort();
+            if (keysAlcol.length === 0) { const li=document.createElement('li'); const s=document.createElement('span'); s.textContent=T('nessunAlcolico'); li.appendChild(s); ulAlcol.appendChild(li); }
+            else keysAlcol.forEach(ing => appendVoce(ulAlcol, tradIngrediente(ing), arrotondaLitri(spesaAlcolici[ing])));
+
+            const ulAnalcol = document.getElementById('lista_analcolici');
+            ulAnalcol.innerHTML = '';
+            const keysAnalcol = Object.keys(spesaAnalcolici).sort();
+            if (keysAnalcol.length === 0) { const li=document.createElement('li'); const s=document.createElement('span'); s.textContent=T('nessunAnalcolico'); li.appendChild(s); ulAnalcol.appendChild(li); }
+            else keysAnalcol.forEach(ing => appendVoce(ulAnalcol, tradIngrediente(ing), arrotondaLitri(spesaAnalcolici[ing])));
+
+            let kgGhiaccio = Math.ceil((drinkMostrati * 100) / 1000);
+            const ulExtra = document.getElementById('lista_extra');
+            ulExtra.innerHTML = '';
+            [
+                [T('ghiaccio'),          kgGhiaccio + ' kg'],
+                [T('bicchieriCocktail'), drinkMostrati + ' pz'],
+                [T('bicchieriniShot'),   shotMostrati + ' pz'],
+                [T('cannucce'),          drinkMostrati + ' pz']
+            ].forEach(([label, val]) => {
+                const li = document.createElement('li');
+                const sp = document.createElement('span'); sp.textContent = label;
+                const st = document.createElement('strong'); st.textContent = val;
+                li.appendChild(sp); li.appendChild(st); ulExtra.appendChild(li);
+            });
+
+            document.getElementById('risultati').style.display = 'block';
+            document.getElementById('risultati').scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           ESPORTAZIONE TESTO
+           ════════════════════════════════════════════════════════════ */
+        function copiaListaTesto() {
+            let testo = T('copyHeader') + "\n\n";
+            testo += document.getElementById('drink-totali-text').innerText + "\n\n";
+
+            testo += T('copyAlcolici') + "\n";
+            document.querySelectorAll('#lista_alcolici li').forEach(li => {
+                testo += "  • " + li.innerText + "\n";
+            });
+
+            testo += "\n" + T('copyAnalcolici') + "\n";
+            document.querySelectorAll('#lista_analcolici li').forEach(li => {
+                testo += "  • " + li.innerText + "\n";
+            });
+
+            testo += "\n" + T('copyAttrezzatura') + "\n";
+            document.querySelectorAll('#lista_extra li').forEach(li => {
+                testo += "  • " + li.innerText + "\n";
+            });
+
+            navigator.clipboard.writeText(testo).then(() => {
+                mostraToast(T('toastCopiaOk'));
+            }).catch(err => {
+                alert(T('errCopia') + err);
+            });
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           RICETTARIO PDF
+           ════════════════════════════════════════════════════════════ */
+        function apriPDF(e, lang) {
+            if(e) e.stopPropagation();
+            lang = lang || 'it';
+            const pdfFiles = {
+                it: 'Cocktail_IBA_adattamento_a_feste.pdf',
+                en: 'Cocktail_IBA_party_adaptation.pdf'
+            };
+            const modalTitles = {
+                it: '❦ Cocktail IBA · Adattamento per Feste',
+                en: '❦ IBA Cocktails · Party Adaptation'
+            };
+            const dlLabels = {
+                it: '↳ Scarica (IT)',
+                en: '↳ Download (EN)'
+            };
+            const pdfFile = pdfFiles[lang] || pdfFiles.it;
+            // Su mobile l'iframe del PDF è inutilizzabile (iOS Safari non lo renderizza)
+            // → apriamo direttamente in nuova scheda
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
+            if(isMobile) {
+                window.open(pdfFile, '_blank', 'noopener');
+                return;
+            }
+            const modal    = document.getElementById('pdf-modal');
+            const iframe   = document.getElementById('pdf-iframe');
+            const titleEl  = document.getElementById('pdf-modal-title');
+            const dlLink   = document.getElementById('pdf-modal-download');
+            if(titleEl) titleEl.textContent = modalTitles[lang] || modalTitles.it;
+            if(dlLink)  { dlLink.href = pdfFile; dlLink.textContent = dlLabels[lang] || dlLabels.it; }
+            iframe.src = pdfFile;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        function chiudiPDF() {
+            const modal = document.getElementById('pdf-modal');
+            const iframe = document.getElementById('pdf-iframe');
+            modal.classList.remove('show');
+            iframe.src = '';
+            document.body.style.overflow = '';
+        }
+        // ESC per chiudere
+        document.addEventListener('keydown', e => {
+            if(e.key === 'Escape') chiudiPDF();
+        });
+
+        /* ════════════════════════════════════════════════════════════
+           AUTENTICAZIONE LICENSE KEY
+           ════════════════════════════════════════════════════════════ */
+        (function() {
+            'use strict';
+
+            const STORAGE_KEY = 'bp_license';
+            const REVALIDATE_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
+            const GRACE_PERIOD_MS = 30 * 24 * 60 * 60 * 1000;
+            const API_VALIDATE = 'https://api.lemonsqueezy.com/v1/licenses/validate';
+
+            function readStored() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : null;
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            function writeStored(obj) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+                } catch (e) {
+                    console.warn('[license] impossibile salvare in localStorage', e);
+                }
+            }
+
+            function clearStored() {
+                try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+            }
+
+            async function callLemonSqueezy(licenseKey) {
+                try {
+                    const body = new URLSearchParams();
+                    body.append('license_key', licenseKey);
+
+                    const resp = await fetch(API_VALIDATE, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: body.toString()
+                    });
+
+                    const data = await resp.json();
+
+                    if (data && data.valid === true) {
+                        return {
+                            ok: true,
+                            product: data.meta?.product_name || data.product?.name || 'Barman PRO',
+                            error: null
+                        };
+                    }
+
+                    return {
+                        ok: false,
+                        product: null,
+                        error: data?.error || 'License key non valida'
+                    };
+                } catch (e) {
+                    return { ok: false, product: null, error: 'network', _networkError: true };
+                }
+            }
+
+            window.bpLicense = {
+                async check() {
+                    const stored = readStored();
+                    if (!stored || !stored.key) return false;
+
+                    const now = Date.now();
+                    const lastOk = stored.lastOk || 0;
+                    const sinceLastOk = now - lastOk;
+
+                    if (sinceLastOk < REVALIDATE_AFTER_MS) return true;
+
+                    const result = await callLemonSqueezy(stored.key);
+
+                    if (result.ok) {
+                        writeStored({
+                            ...stored,
+                            lastOk: now,
+                            lastTry: now,
+                            validProduct: result.product
+                        });
+                        return true;
+                    }
+
+                    if (!result._networkError) {
+                        clearStored();
+                        return false;
+                    }
+
+                    if (sinceLastOk < GRACE_PERIOD_MS) {
+                        writeStored({ ...stored, lastTry: now });
+                        console.warn('[license] API non raggiungibile, grace period attivo');
+                        return true;
+                    }
+
+                    return false;
+                },
+
+                async activate(licenseKey) {
+                    const cleaned = (licenseKey || '').trim();
+                    if (!cleaned) return { ok: false, error: 'Inserisci una license key' };
+
+                    const result = await callLemonSqueezy(cleaned);
+
+                    if (result.ok) {
+                        const now = Date.now();
+                        writeStored({
+                            key: cleaned,
+                            lastOk: now,
+                            lastTry: now,
+                            validProduct: result.product
+                        });
+                        return { ok: true };
+                    }
+
+                    if (result._networkError) {
+                        return {
+                            ok: false,
+                            error: 'Impossibile contattare il server di attivazione. Riprova fra qualche minuto.'
+                        };
+                    }
+
+                    return {
+                        ok: false,
+                        error: result.error || 'License key non valida. Controlla la chiave ricevuta via email.'
+                    };
+                },
+
+                reset() {
+                    clearStored();
+                }
+            };
+        })();
+
+        async function bpLicenseSubmit() {
+            const input = document.getElementById('license-input');
+            const errEl = document.getElementById('license-error');
+            const btn = document.querySelector('#license-overlay button');
+
+            errEl.textContent = T('licenseVerifica');
+            if (btn) btn.disabled = true;
+
+            const result = await bpLicense.activate(input.value);
+
+            if (btn) btn.disabled = false;
+
+            if (result.ok) {
+                document.getElementById('license-overlay').classList.remove('show');
+                document.body.style.overflow = '';
+                errEl.textContent = '';
+                mostraToast(T('toastAttivato'));
+            } else {
+                errEl.textContent = result.error;
+                input.focus();
+            }
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           AVVIO
+           ════════════════════════════════════════════════════════════ */
+        // Rileva se l'app è in esecuzione come PWA installata (non come tab del browser)
+        function isPwaInstallata() {
+            return window.matchMedia('(display-mode: standalone)').matches
+                || window.matchMedia('(display-mode: fullscreen)').matches
+                || window.matchMedia('(display-mode: minimal-ui)').matches
+                || window.navigator.standalone === true
+                || document.referrer.startsWith('android-app://');
+        }
+
+        window.onload = async function() {
+            caricaStato();
+            inizializzaApp();
+            renderizzaMenu();
+            aggiungiRigaIngrediente();
+            aggiungiRigaIngrediente();
+            // Applica lingua salvata (o 'it' di default) senza chiamare salvaStato
+            // (la lingua è già in linguaCorrente dopo caricaStato)
+            cambiaLingua(linguaCorrente);
+
+            const licenzaOk = await bpLicense.check();
+            if (!licenzaOk) {
+                document.getElementById('license-overlay').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => document.getElementById('license-input').focus(), 120);
+            }
+
+            // Registrazione PWA + bottone "Installa app"
+            registraServiceWorker();
+            if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches) {
+                mostraBottoneInstalla();
+            }
+        };
+
+        /* ════════════════════════════════════════════════════════════
+           PWA — Service Worker e bottone "Installa app"
+           ════════════════════════════════════════════════════════════ */
+        let installPromptEvent = null;
+
+        function registraServiceWorker() {
+            if(!('serviceWorker' in navigator)) return;
+            if(location.protocol !== 'https:' && location.protocol !== 'http:') return;
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('[PWA] Service worker registrato:', reg.scope))
+                .catch(err => console.warn('[PWA] Registrazione fallita:', err));
+        }
+
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            installPromptEvent = e;
+            mostraBottoneInstalla();
+        });
+
+        function mostraBottoneInstalla() {
+            const btn = document.getElementById('btn-installa-app');
+            if(btn) btn.style.display = 'inline-flex';
+        }
+
+        function nascondiBottoneInstalla() {
+            const btn = document.getElementById('btn-installa-app');
+            if(btn) btn.style.display = 'none';
+        }
+
+        async function installaApp() {
+            if(!installPromptEvent) {
+                const ua = navigator.userAgent;
+                if(/iPhone|iPad|iPod/i.test(ua)) {
+                    alert('Per installare Barman PRO sul tuo iPhone:\n\n1. Tocca il pulsante Condividi (in basso al centro)\n2. Scorri e tocca "Aggiungi alla schermata Home"\n3. Conferma con "Aggiungi"');
+                } else {
+                    alert('Per installare Barman PRO:\n\nApri il menu del browser (i tre puntini) e cerca "Installa app" o "Aggiungi alla schermata Home".');
+                }
+                return;
+            }
+            installPromptEvent.prompt();
+            const result = await installPromptEvent.userChoice;
+            if(result.outcome === 'accepted') {
+                mostraToast('App installata');
+                nascondiBottoneInstalla();
+            }
+            installPromptEvent = null;
+        }
+
+        window.addEventListener('appinstalled', () => {
+            nascondiBottoneInstalla();
+            installPromptEvent = null;
+        });
+    </script>
+</body>
+</html>
