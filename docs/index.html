@@ -17,7 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barman PRO Demo &middot; Free Event Calculator</title>
-    <meta name="description" content="Free demo of Barman PRO: cocktail event calculator with shopping list, IBA recipes and high-volume party drinks. Try it free, get the full version for €15.">
+    <meta name="description" content="Free demo of Barman PRO: cocktail event calculator with shopping list, IBA recipes and high-volume party drinks. Try it free, get the full version for €9.90.">
     <meta name="author" content="Samuele Racca">
     <meta name="theme-color" content="#722F37">
     <meta name="robots" content="index, follow">
@@ -32,7 +32,7 @@
     <!-- ─── Open Graph (WhatsApp / Facebook / LinkedIn) ─── -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Barman PRO Demo · Free Event Calculator">
-    <meta property="og:description" content="Free demo of the cocktail event calculator. 20 famous recipes, shopping list, multi-language. Full version available for €15.">
+    <meta property="og:description" content="Free demo of the cocktail event calculator. 20 famous recipes, shopping list, multi-language. Full version available for €9.90.">
     <meta property="og:image" content="https://raccasamuele.github.io/barman-pro/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -238,9 +238,20 @@
         }
         .ricettario-action {
             display: flex;
+            flex-direction: row;
+            gap: 12px;
+            min-width: 320px;
+            align-items: stretch;
+        }
+        .ricettario-lang-group {
+            display: flex;
             flex-direction: column;
-            gap: 8px;
-            min-width: 160px;
+            gap: 6px;
+            flex: 1;
+        }
+        .ricettario-lang-group + .ricettario-lang-group {
+            border-left: 1px solid var(--bordo-tenue);
+            padding-left: 12px;
         }
         .ricettario-action button {
             margin: 0;
@@ -248,7 +259,7 @@
             font-size: 14px;
             letter-spacing: 1.5px;
         }
-        .btn-pdf-leggi {
+        .btn-pdf-leggi, .btn-pdf-read {
             background: var(--bordeaux);
             color: var(--avorio);
         }
@@ -717,8 +728,8 @@
             .creator-grid { grid-template-columns: 1fr; gap: 18px; }
             .parametri-row { grid-template-columns: repeat(2, 1fr); }
             .ricettario-card .ricettario-inner { grid-template-columns: 1fr; text-align: center; gap: 14px; }
-            .ricettario-action { min-width: 100%; flex-direction: row; justify-content: center; }
-            .ricettario-action button, .ricettario-action .btn-link-download { flex: 1; max-width: 200px; }
+            .ricettario-action { min-width: 100%; justify-content: center; }
+            .ricettario-lang-group button, .ricettario-lang-group .btn-link-download { flex: 1; max-width: 200px; }
         }
 
         /* ─── BREAKPOINT MOBILE ─── */
@@ -766,8 +777,9 @@
             /* Risultati a una colonna sotto */
             .action-buttons { flex-direction: column; gap: 10px; }
 
-            /* Ricettario PDF: bottoni in colonna su mobile stretto */
+            /* Ricettario PDF: gruppi lingua in colonna su mobile stretto */
             .ricettario-action { flex-direction: column; gap: 8px; }
+            .ricettario-lang-group + .ricettario-lang-group { border-left: none; border-top: 1px solid var(--bordo-tenue); padding-left: 0; padding-top: 8px; }
             .ricettario-action button, .ricettario-action .btn-link-download { max-width: 100%; }
 
             /* Modal PDF: header pulsanti più piccoli */
@@ -1000,7 +1012,7 @@
             <div class="demo-eyebrow" data-i18n="demoEyebrow">Versione Demo Gratuita</div>
             <div class="demo-title">
                 <span data-i18n="demoTitle">Sblocca la versione completa di Barman PRO</span>
-                <span class="demo-price"> &middot; <span data-i18n="demoPrice">15 € una tantum</span></span>
+                <span class="demo-price"> &middot; <span data-i18n="demoPrice">9,90 € una tantum</span></span>
             </div>
         </div>
         <a class="btn-acquista" id="btn-acquista" href="#" onclick="apriCheckout(event)">
@@ -1040,8 +1052,14 @@
                 </div>
             </div>
             <div class="ricettario-action">
-                <button class="btn-pdf-leggi">&#10022; <span data-i18n="pdfRead">Leggi</span></button>
-                <span class="btn-link-download">&#8615; <span data-i18n="pdfDownload">Scarica</span></span>
+                <div class="ricettario-lang-group">
+                    <button class="btn-pdf-leggi">&#10022; <span data-i18n="pdfRead">Leggi</span> (IT)</button>
+                    <span class="btn-link-download">&#8615; <span data-i18n="pdfDownload">Scarica</span> (IT)</span>
+                </div>
+                <div class="ricettario-lang-group">
+                    <button class="btn-pdf-read">&#10022; Read (EN)</button>
+                    <span class="btn-link-download">&#8615; Download (EN)</span>
+                </div>
             </div>
         </div>
         <div class="pro-overlay-msg" onclick="apriCheckout(event)">
@@ -1803,7 +1821,7 @@
             const subject = encodeURIComponent("Richiesta versione completa Barman PRO");
             const body = encodeURIComponent(
                 "Ciao Samuele,\n\n" +
-                "ho provato la demo di Barman PRO e vorrei acquistare la versione completa (15 €).\n\n" +
+                "ho provato la demo di Barman PRO e vorrei acquistare la versione completa (9,90 €).\n\n" +
                 "Lingua interfaccia: " + linguaCorrente + "\n" +
                 "Pagina: " + location.href + "\n\n" +
                 "Grazie."
@@ -1822,7 +1840,7 @@
                 hero: "Calcolatore d'Eventi",
                 demoEyebrow: "Versione Demo Gratuita",
                 demoTitle: "Sblocca la versione completa di Barman PRO",
-                demoPrice: "15 € una tantum",
+                demoPrice: "9,90 € una tantum",
                 demoCta: "Acquista versione completa",
                 autosave: "❖ Stato salvato automaticamente",
                 reset: "Azzera tutto",
@@ -1872,7 +1890,7 @@
                 hero: "Event Calculator",
                 demoEyebrow: "Free Demo Version",
                 demoTitle: "Unlock the full version of Barman PRO",
-                demoPrice: "€15 one-time",
+                demoPrice: "€9.90 one-time",
                 demoCta: "Buy full version",
                 autosave: "❖ Auto-saved",
                 reset: "Reset all",
@@ -1922,7 +1940,7 @@
                 hero: "Calculadora de Eventos",
                 demoEyebrow: "Versión Demo Gratuita",
                 demoTitle: "Desbloquea la versión completa de Barman PRO",
-                demoPrice: "15 € pago único",
+                demoPrice: "9,90 € pago único",
                 demoCta: "Comprar versión completa",
                 autosave: "❖ Guardado automático",
                 reset: "Borrar todo",
@@ -1972,7 +1990,7 @@
                 hero: "Calculateur d'Événements",
                 demoEyebrow: "Version Démo Gratuite",
                 demoTitle: "Débloquez la version complète de Barman PRO",
-                demoPrice: "15 € paiement unique",
+                demoPrice: "9,90 € paiement unique",
                 demoCta: "Acheter la version complète",
                 autosave: "❖ Sauvegarde automatique",
                 reset: "Tout effacer",
@@ -2022,7 +2040,7 @@
                 hero: "Veranstaltungsrechner",
                 demoEyebrow: "Kostenlose Demo-Version",
                 demoTitle: "Schalte die Vollversion von Barman PRO frei",
-                demoPrice: "15 € einmalig",
+                demoPrice: "9,90 € einmalig",
                 demoCta: "Vollversion kaufen",
                 autosave: "❖ Automatisch gespeichert",
                 reset: "Alles zurücksetzen",
@@ -2072,7 +2090,7 @@
                 hero: "Calculadora de Eventos",
                 demoEyebrow: "Versão Demo Grátis",
                 demoTitle: "Desbloqueie a versão completa do Barman PRO",
-                demoPrice: "15 € pagamento único",
+                demoPrice: "9,90 € pagamento único",
                 demoCta: "Comprar versão completa",
                 autosave: "❖ Salvamento automático",
                 reset: "Limpar tudo",
@@ -2122,7 +2140,7 @@
                 hero: "Evenementen Calculator",
                 demoEyebrow: "Gratis Demo Versie",
                 demoTitle: "Ontgrendel de volledige versie van Barman PRO",
-                demoPrice: "€15 eenmalig",
+                demoPrice: "€9,90 eenmalig",
                 demoCta: "Volledige versie kopen",
                 autosave: "❖ Automatisch opgeslagen",
                 reset: "Alles wissen",
