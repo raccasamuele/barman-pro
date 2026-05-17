@@ -1,5 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" fill="#722F37"/>
-  <rect x="3" y="3" width="58" height="58" fill="none" stroke="#B8924B" stroke-width="1"/>
-  <text x="32" y="48" font-family="Cormorant Garamond, Garamond, Times New Roman, serif" font-size="48" font-weight="700" text-anchor="middle" fill="#B8924B">&#10086;</text>
+  <rect width="64" height="64" rx="14" fill="#0d0d0f"/>
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="#B38E46" stroke-width="0.8" stroke-opacity="0.45"/>
+  <!-- Ambient glow -->
+  <radialGradient id="gl" cx="50%" cy="42%" r="45%">
+    <stop offset="0%" stop-color="#B38E46" stop-opacity="0.28"/>
+    <stop offset="100%" stop-color="#B38E46" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="64" height="64" rx="14" fill="url(#gl)"/>
+  <!-- Martini glass: rim -->
+  <line x1="10" y1="17" x2="54" y2="17" stroke="#EAD0A1" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Left slope -->
+  <line x1="10" y1="17" x2="32" y2="41" stroke="#C4A257" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Right slope -->
+  <line x1="54" y1="17" x2="32" y2="41" stroke="#C4A257" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Stem -->
+  <line x1="32" y1="41" x2="32" y2="53" stroke="#C4A257" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Base -->
+  <line x1="23" y1="56" x2="41" y2="56" stroke="#937232" stroke-width="2.6" stroke-linecap="round"/>
 </svg>
