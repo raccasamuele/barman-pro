@@ -1,11 +1,11 @@
 # Barman PRO &middot; Calcolatore Eventi
 
-[![Try Demo](https://img.shields.io/badge/TRY%20DEMO-free-722F37?style=for-the-badge&labelColor=B8924B&logoColor=F5EEDC)](https://raccasamuele.github.io/barman-pro/demo/)
-[![Full Version](https://img.shields.io/badge/FULL%20VERSION-15%E2%82%AC-1F1A17?style=for-the-badge&labelColor=B8924B)](mailto:raccasamuele2004@gmail.com?subject=Richiesta%20versione%20completa%20Barman%20PRO)
-[![License](https://img.shields.io/badge/license-proprietary-722F37?style=for-the-badge&labelColor=B8924B)](LICENSE)
-[![Languages](https://img.shields.io/badge/languages-7-1F1A17?style=for-the-badge&labelColor=B8924B)](#multilingua)
+[![Try Demo](https://img.shields.io/badge/TRY%20DEMO-free-0d0d0f?style=for-the-badge&labelColor=B38E46&logoColor=fcfcfc)](https://raccasamuele.github.io/barman-pro/)
+[![Full Version](https://img.shields.io/badge/FULL%20VERSION-9.90%E2%82%AC-0d0d0f?style=for-the-badge&labelColor=B38E46)](mailto:raccasamuele2004@gmail.com?subject=Richiesta%20versione%20completa%20Barman%20PRO)
+[![License](https://img.shields.io/badge/license-proprietary-0d0d0f?style=for-the-badge&labelColor=B38E46)](LICENSE)
+[![Languages](https://img.shields.io/badge/languages-7-0d0d0f?style=for-the-badge&labelColor=B38E46)](#multilingua)
 
-> **[Prova la demo gratuita &rarr;](https://raccasamuele.github.io/barman-pro/demo/)** &middot; 7 lingue, 20 ricette, nessuna registrazione richiesta.
+> **[Prova la demo gratuita &rarr;](https://raccasamuele.github.io/barman-pro/)** &middot; 7 lingue, 20 ricette, nessuna registrazione richiesta.
 
 Strumento web per il calcolo della lista della spesa di eventi di miscelazione, basato sulle 102 ricette ufficiali IBA 2024 e sulle matrici volumetriche per il servizio ad alto volume (party drink 60/140/100).
 
@@ -28,61 +28,57 @@ Pagina HTML singola, autonoma:
 - **HTML5** semantico
 - **CSS3** con variabili custom, niente framework
 - **JavaScript** vanilla (nessuna dipendenza esterna)
-- **Google Fonts** &mdash; EB Garamond e Cormorant Garamond
+- **Google Fonts** &mdash; Manrope e Cinzel
 - **localStorage** per la persistenza dello stato
+- **Service Worker** per il funzionamento offline (PWA)
+- **Sistema di License Key** per la gestione dell'accesso alla versione completa
 
 Nessun build step. Nessun server. Si esegue aprendo `index.html` in un browser.
 
 ## Identita visiva &mdash; design system
 
-L'estetica si ispira a un volume editoriale di mixologia classica.
+L'estetica si ispira all'universo della miscelazione contemporanea: interfaccia dark glass, contrasti netti, tipografia classica su fondo scuro.
 
 ### Tipografia
 
-- **EB Garamond** &mdash; corpo del testo, valori, etichette
-- **Cormorant Garamond** &mdash; titoli, intestazioni, lettering decorativo
+- **Manrope** &mdash; corpo del testo, valori, etichette, UI generale
+- **Cinzel** &mdash; titoli, intestazioni, lettering decorativo
 
 ### Palette colori
 
-| Ruolo | HEX |
+| Ruolo | HEX / valore |
 | --- | --- |
-| Oro / accenti decorativi | `#B8924B` |
-| Oro chiaro | `#D4B271` |
-| Oro scuro | `#8E6F35` |
-| Bordeaux / titoli e azioni primarie | `#722F37` |
-| Bordeaux scuro / hover | `#4F1E24` |
-| Sepia / testo principale | `#1F1A17` |
-| Avorio / sfondo pagina | `#F5EEDC` |
-| Avorio chiaro / sfondo input | `#FAF6E9` |
-| Crema / sfondo card | `#FFFBF0` |
-| Bordo tenue | `#D4C5A0` |
-| Testo tenue | `#6B5D4A` |
-| Verde bottiglia / sezione analcolici | `#3D5A3D` |
-| Viola scuro / sezione attrezzatura | `#4A2C4F` |
+| Sfondo pagina | `#0d0d0f` |
+| Card / glass container | `rgba(22, 22, 22, 0.80)` |
+| Bordo card oro | `rgba(179, 142, 70, 0.40)` |
+| Bordo secondario | `rgba(255, 255, 255, 0.10)` |
+| Testo principale | `#fcfcfc` |
+| Testo attenuato | `#999999` |
+| Oro accento 1 | `#EAD0A1` |
+| Oro accento 2 | `#B38E46` |
 
 ### Elementi grafici
 
-- Ornamenti tipografici al posto delle emoji: `&#10086;` (fleuron), `&#10022;` (stella a quattro punte), `+` `&times;`
-- Filetti doppi in oro a delimitazione delle card
-- Bordo laterale colorato per categorizzare le sezioni
-- Separatori `&mdash;&mdash;&mdash;&mdash;&mdash; &#10022; &mdash;&mdash;&mdash;&mdash;&mdash;`
+- Ornamenti tipografici al posto delle emoji: `&#10086;` (fleuron), `&#10022;` (stella a quattro punte), `&times;`
+- Card con effetto **glass morphism** (`backdrop-filter: blur`) e bordo oro semitrasparente
+- **Ambient background**: div fisso con gradienti radiali sfumati e filtro blur per l'effetto mesh gradient
 - Maiuscoletto a lettere spaziate per le label e i bottoni
-- Spigoli vivi (mai arrotondati)
+- Angoli leggermente arrotondati (`border-radius: 12px` per le card)
 
 ### Componenti chiave
 
-- **Card editoriale** &mdash; doppio filetto oro sopra e sotto, sfondo crema
-- **Input** &mdash; sottolineatura oro come bordo inferiore, sfondo avorio
-- **Bottone primario** &mdash; sfondo bordeaux con bordo oro, lettering maiuscolo spaziato
-- **Bottone primario oro** &mdash; sfondo oro per la call-to-action principale
-- **Bottone secondario** &mdash; trasparente con bordo bordeaux
-- **Slider** &mdash; accent color bordeaux con valore in tag oro
-- **Toast** &mdash; notifica sepia con bordo oro, posizionata in basso al centro
+- **Card glass** &mdash; sfondo semitrasparente scuro, bordo oro sfumato, backdrop blur
+- **Input** &mdash; sfondo scuro con bordo oro inferiore, testo chiaro
+- **Bottone primario** &mdash; sfondo oro `#B38E46`, testo scuro, Cinzel
+- **Bottone outline** &mdash; trasparente con bordo oro semitrasparente
+- **Slider** &mdash; accent color oro con valore in tag gold
+- **Toast** &mdash; notifica dark con bordo oro, posizionata in basso al centro
+- **Modale PDF** &mdash; overlay scuro con iframe e barra header glass
 
 ## Struttura della pagina
 
 1. Intestazione con titolo, sottotitolo e ornamenti
-2. Sezione ricettario PDF (modale di lettura + download)
+2. Sezione ricettario PDF bilingue IT/EN (modale di lettura + download)
 3. Parametri evento (4 input in linea)
 4. Cocktail della serata (ricerca + slider di frequenza)
 5. Shot e amari (ricerca + slider di frequenza)
@@ -95,12 +91,18 @@ L'estetica si ispira a un volume editoriale di mixologia classica.
 
 ```
 barman-pro/
-├── demo/
-│   └── index.html                          DEMO pubblica gratuita (20 cocktail, 7 lingue)
-├── index.html                              VERSIONE COMPLETA (con password / a pagamento)
+├── docs/
+│   ├── index.html                          DEMO pubblica gratuita (20 cocktail, 7 lingue)
+│   ├── eula.html                           EULA versione demo
+│   └── privacy.html                        Privacy Policy versione demo
+├── index.html                              VERSIONE COMPLETA (con License Key)
+├── index_senza_key.html                    VERSIONE COMPLETA (senza sistema di chiavi)
+├── eula.html                               EULA versione completa
+├── privacy.html                            Privacy Policy versione completa
 ├── manifest.json                           PWA manifest
 ├── sw.js                                   service worker (offline + cache)
-├── Cocktail_IBA_adattamento_a_feste.pdf    ricettario (versione completa, 36 pagine)
+├── Cocktail_IBA_adattamento_a_feste.pdf    ricettario IT (versione completa, 36 pagine)
+├── Cocktail_IBA_party_adaptation.pdf       ricettario EN (versione completa, 36 pagine)
 ├── favicon.svg                             icona vettoriale
 ├── icon-192.png                            icona PWA (192x192)
 ├── icon-512.png                            icona PWA (512x512)
@@ -108,7 +110,7 @@ barman-pro/
 ├── apple-touch-icon.png                    icona iOS / homescreen (512x512)
 ├── og-image.png                            preview per social media (1200x630)
 ├── LICENSE                                 licenza proprietaria (codice)
-├── LICENSE-PDF                             licenza CC BY-NC-ND 4.0 (documento PDF)
+├── LICENSE-PDF                             licenza CC BY-NC-ND 4.0 (documenti PDF)
 └── README.md                               questo file
 ```
 
@@ -118,18 +120,19 @@ La demo è disponibile in 7 lingue: **Italiano** (default), **English**, **Espa�
 
 ## Versione DEMO vs Versione COMPLETA
 
-| Funzionalità | Demo (gratis) | Completa (15 €) |
+| Funzionalità | Demo (gratis) | Completa (9,90 €) |
 | --- | --- | --- |
-| Numero cocktail nel database | 20 più famosi | 65+ (IBA + party drink HV) |
+| Numero cocktail nel database | 20 più famosi | 102 (IBA 2024 + party drink HV) |
 | Cocktail nel menu serata | Max 3 | Illimitati |
 | Shot nel menu serata | Max 2 | Illimitati |
 | Creazione cocktail e shot personalizzati | &mdash; | ✓ |
-| Ricettario PDF (36 pagine) | &mdash; | ✓ |
+| Ricettario PDF bilingue IT/EN (36 pagine) | &mdash; | ✓ |
 | Esportazione lista | Con watermark "DEMO" | Pulita |
 | Multilingua | 7 lingue | 7 lingue |
 | Installazione come PWA | &mdash; | ✓ |
+| License Key personale | &mdash; | ✓ |
 
-La versione completa è acquistabile contattando l'autore. È in lavorazione l'integrazione con Lemon Squeezy per il checkout automatico e la gestione fiscale globale.
+La versione completa è acquistabile contattando l'autore tramite email.
 
 ## Installazione come app (PWA)
 
@@ -184,17 +187,18 @@ Barman PRO è distribuito in due modalità, con licenze distinte.
 
 | Componente | Modalità | Licenza | File |
 | --- | --- | --- | --- |
-| Demo pubblica (`demo/`) | Gratuita, valutativa | Proprietaria | [`LICENSE`](LICENSE) |
+| Demo pubblica (`docs/`) | Gratuita, valutativa | Proprietaria | [`LICENSE`](LICENSE) |
 | Versione completa | A pagamento, licenza personale | Proprietaria | [`LICENSE`](LICENSE) |
-| Documento PDF (`Cocktail_IBA_adattamento_a_feste.pdf`) | Lettura libera, condivisione consentita | CC BY-NC-ND 4.0 | [`LICENSE-PDF`](LICENSE-PDF) |
+| Ricettario IT (`Cocktail_IBA_adattamento_a_feste.pdf`) | Lettura libera, condivisione consentita | CC BY-NC-ND 4.0 | [`LICENSE-PDF`](LICENSE-PDF) |
+| Ricettario EN (`Cocktail_IBA_party_adaptation.pdf`) | Lettura libera, condivisione consentita | CC BY-NC-ND 4.0 | [`LICENSE-PDF`](LICENSE-PDF) |
 
 In sintesi:
 
 - **Il codice del software** è coperto da copyright e non può essere copiato, modificato, ridistribuito o rivenduto senza autorizzazione scritta.
 - **La demo** è offerta gratuitamente a scopo dimostrativo. Si può usarla e condividerne l'URL, ma non riprodurne il codice.
 - **La versione completa** è acquistabile tramite i canali ufficiali; la licenza concessa è personale e non trasferibile.
-- **Il documento PDF** può essere letto, scaricato e condiviso citando l'autore, ma non modificato né usato a fini commerciali.
+- **I documenti PDF** possono essere letti, scaricati e condivisi citando l'autore, ma non modificati né usati a fini commerciali.
 
-Le 102 ricette IBA 2024 analizzate nel documento appartengono all'International Bartenders Association.
+Le 102 ricette IBA 2024 analizzate nei documenti appartengono all'International Bartenders Association.
 
-Copyright © 2026 Samuele Racca · Tutti i diritti riservati.
+Copyright &copy; 2026 Samuele Racca &middot; Tutti i diritti riservati.
