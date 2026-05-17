@@ -132,7 +132,7 @@ La demo è disponibile in 7 lingue: **Italiano** (default), **English**, **Espa�
 | Installazione come PWA | &mdash; | ✓ |
 | License Key personale | &mdash; | ✓ |
 
-La versione completa è acquistabile contattando l'autore tramite email.
+La versione completa sarà disponibile a breve.
 
 ## Installazione come app (PWA)
 
