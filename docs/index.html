@@ -800,6 +800,26 @@
         }
         .btn-link-download:hover { color: #fff; }
 
+        .btn-preview {
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            color: var(--accent-gold-1);
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(179,142,70,0.35);
+            border-radius: 4px;
+            padding: 5px 10px;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+        .btn-preview:hover {
+            background: rgba(179,142,70,0.15);
+            border-color: rgba(179,142,70,0.7);
+            color: #fff;
+        }
+
         .btn-premium {
             display: inline-flex;
             align-items: center;
@@ -1019,10 +1039,12 @@
                 <div class="ricettario-lang-group">
                     <button class="btn-pdf-leggi">&#10022; <span data-i18n="pdfRead">Leggi</span> (IT)</button>
                     <span class="btn-link-download">&#8615; <span data-i18n="pdfDownload">Scarica</span> (IT)</span>
+                    <a href="preview-it.html" class="btn-preview">&#128065; Anteprima</a>
                 </div>
                 <div class="ricettario-lang-group">
                     <button class="btn-pdf-read">&#10022; Read (EN)</button>
                     <span class="btn-link-download">&#8615; Download (EN)</span>
+                    <a href="preview-en.html" class="btn-preview">&#128065; Preview</a>
                 </div>
             </div>
         </div>

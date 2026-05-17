@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Preview · Modern Mixology — Barman PRO</title>
+    <meta name="description" content="Preview of the IBA 2024 recipe book included in Barman PRO full version. 102 official recipes, party drinks, volumetric analysis.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:         #F5EEDC;
+            --paper:      #FFFBF0;
+            --text:       #1F1A17;
+            --muted:      #6B5D4A;
+            --gold:       #B8924B;
+            --gold-l:     #D4B271;
+            --gold-d:     #8E6F35;
+            --border:     #D4C5A0;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: 17px;
+            line-height: 1.75;
+        }
+
+        /* ── Top bar ── */
+        .top-bar {
+            background: var(--text);
+            color: var(--gold-l);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .top-bar a { color: var(--gold-l); text-decoration: none; }
+        .top-bar a:hover { text-decoration: underline; }
+
+        /* ── Page wrap ── */
+        .page-wrap { max-width: 820px; margin: 0 auto; padding: 48px 24px 100px; }
+
+        /* ── Cover ── */
+        .cover {
+            background: var(--paper);
+            border: 2px solid var(--gold);
+            text-align: center;
+            padding: 64px 40px 56px;
+            margin-bottom: 48px;
+        }
+        .cover-orn { font-size: 26px; color: var(--gold); letter-spacing: 18px; display: block; margin-bottom: 28px; }
+        .cover-sup {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--muted);
+            margin-bottom: 14px;
+        }
+        .cover-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 54px; font-weight: 300; line-height: 1.1;
+            color: var(--text); margin-bottom: 10px;
+        }
+        .cover-title em { font-style: italic; color: var(--gold-d); }
+        .cover-sub {
+            font-family: 'EB Garamond', serif;
+            font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6;
+        }
+        .cover-stamp {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px; letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--gold-d);
+            border: 1px solid var(--gold);
+            display: inline-block;
+            padding: 6px 24px;
+        }
+        .preview-badge {
+            display: inline-block;
+            margin-top: 20px;
+            background: var(--gold);
+            color: var(--paper);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 4px 16px;
+        }
+
+        /* ── Running header ── */
+        .rhead {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 9px; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--muted);
+            text-align: center;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 7px 0;
+            margin-bottom: 36px;
+        }
+
+        /* ── TOC ── */
+        .toc-box {
+            background: var(--paper);
+            border: 1px solid var(--border);
+            padding: 28px 36px;
+            margin-bottom: 40px;
+        }
+        .toc-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px; text-align: center;
+            font-style: italic; margin-bottom: 18px;
+            color: var(--text);
+        }
+        .toc-orn { text-align: center; color: var(--gold); font-size: 14px; margin-bottom: 16px; }
+        .toc-row {
+            display: flex; justify-content: space-between;
+            align-items: baseline;
+            font-size: 14px; padding: 4px 0;
+            border-bottom: 1px dotted var(--border);
+            gap: 8px;
+        }
+        .toc-row.sub { padding-left: 18px; font-size: 13px; color: var(--muted); }
+        .toc-row .pg { flex-shrink: 0; color: var(--muted); }
+
+        /* ── Headings ── */
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px; font-weight: 400; color: var(--text);
+            margin: 40px 0 16px; line-height: 1.2;
+        }
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 21px; font-weight: 600; color: var(--text);
+            margin: 32px 0 12px;
+        }
+        p { margin-bottom: 16px; text-align: justify; }
+
+        /* ── Ornamental divider ── */
+        .orn { text-align: center; color: var(--gold); font-size: 13px; letter-spacing: 8px; margin: 36px 0; }
+
+        /* ── Category header ── */
+        .cat-header {
+            background: var(--paper);
+            border-top: 2px solid var(--gold);
+            border-bottom: 2px solid var(--gold);
+            text-align: center;
+            padding: 20px 24px;
+            margin: 40px 0 28px;
+        }
+        .cat-header h2 { font-size: 24px; font-weight: 400; margin: 0 0 4px; }
+        .cat-header p { font-size: 13px; color: var(--muted); font-style: italic; margin: 0; }
+
+        /* ── Party drink card ── */
+        .party-card {
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--gold);
+            padding: 16px 20px;
+            margin: 14px 0;
+        }
+        .party-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px; font-weight: 700; margin-bottom: 8px;
+        }
+        .party-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .party-col-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 9px; letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold-d);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px; margin-bottom: 6px;
+        }
+        .party-col p { font-size: 14px; margin: 0; text-align: left; }
+
+        /* ── IBA Recipe card ── */
+        .recipe {
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--gold);
+            padding: 14px 20px;
+            margin: 14px 0;
+        }
+        .recipe-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px; font-weight: 700;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .recipe-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 9px; letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold-d);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px; margin-bottom: 6px;
+        }
+        .recipe-col p { font-size: 14px; margin: 0; text-align: left; line-height: 1.5; }
+
+        /* ── Lock section ── */
+        .fade-section {
+            position: relative;
+            max-height: 280px;
+            overflow: hidden;
+        }
+        .fade-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 200px;
+            background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
+            pointer-events: none;
+        }
+        .recipe.blurred {
+            filter: blur(3.5px);
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.55;
+        }
+        .lock-box {
+            background: var(--paper);
+            border: 2px solid var(--gold);
+            text-align: center;
+            padding: 44px 32px;
+            margin: 8px auto 60px;
+            max-width: 580px;
+        }
+        .lock-icon { font-size: 36px; color: var(--gold); margin-bottom: 14px; }
+        .lock-box h2 { font-size: 26px; font-weight: 400; margin-bottom: 10px; }
+        .lock-box > p { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+        .lock-list {
+            list-style: none;
+            text-align: left;
+            display: inline-block;
+            margin: 0 auto 24px;
+            font-size: 14px;
+        }
+        .lock-list li { padding: 3px 0; color: var(--muted); }
+        .lock-list li::before { content: '✦  '; color: var(--gold); }
+        .btn-unlock {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--paper);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px; letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 13px 36px;
+            text-decoration: none;
+            border: 2px solid var(--gold-d);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-unlock:hover { background: var(--gold-d); border-color: var(--gold-d); }
+        .btn-back {
+            display: block;
+            margin-top: 14px;
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+        .btn-back:hover { color: var(--gold-d); }
+
+        /* ── Footer ── */
+        .doc-footer {
+            text-align: center;
+            font-size: 11px;
+            font-style: italic;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .cover-title { font-size: 36px; }
+            .party-cols, .recipe-grid { grid-template-columns: 1fr; }
+            .top-bar { font-size: 9.5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <span>Barman PRO &mdash; Recipe Book Preview</span>
+    <span>
+        <a href="./">&#8592; Back to Demo</a>
+        &ensp;&middot;&ensp;
+        <a href="preview-it.html">Anteprima Italiana &rarr;</a>
+    </span>
+</div>
+
+<div class="page-wrap">
+
+    <!-- ── COVER ── -->
+    <div class="cover">
+        <span class="cover-orn">❦ ❦ ❦</span>
+        <p class="cover-sup">Structural Analysis &amp; Codification</p>
+        <h1 class="cover-title">Modern<br><em>Mixology</em></h1>
+        <p class="cover-sub">
+            From Official IBA 2024 Standards<br>
+            to High-Volume Beverage Dynamics
+        </p>
+        <span class="cover-stamp">102 Official Recipes &middot; 2024 Edition</span>
+        <br>
+        <span class="preview-badge">&#128065; Free Preview</span>
+    </div>
+
+    <!-- ── TABLE OF CONTENTS ── -->
+    <div class="rhead">M O D E R N &nbsp; M I X O L O G Y &nbsp; · &nbsp; I B A &nbsp; 2 0 2 4 &nbsp; R E C I P E &nbsp; B O O K</div>
+
+    <div class="toc-box">
+        <p class="toc-title">T A B L E &nbsp; O F &nbsp; C O N T E N T S</p>
+        <div class="toc-orn">❦</div>
+        <div class="toc-row"><span>1. Introduction: The Evolution of IBA Codification (1961-2024)</span><span class="pg">2</span></div>
+        <div class="toc-row"><span>2. Operational and Thermodynamic Analysis of High-Volume Service</span><span class="pg">3</span></div>
+        <div class="toc-row sub"><span>2.1 The Mathematical Model 60/140/100: Volumetric Optimization</span><span class="pg">3</span></div>
+        <div class="toc-row sub"><span>2.2 Application of the Volumetric Matrix to Party Drinks</span><span class="pg">4</span></div>
+        <div class="toc-row"><span>3. The IBA 2024 Encyclopedia</span><span class="pg">8</span></div>
+        <div class="toc-row sub"><span>3.1 Category 1 — The Unforgettables (34 recipes)</span><span class="pg">8</span></div>
+        <div class="toc-row sub"><span>3.2 Category 2 — Contemporary Classics (34 recipes)</span><span class="pg">16</span></div>
+        <div class="toc-row sub"><span>3.3 Category 3 — New Era Drinks (34 recipes)</span><span class="pg">24</span></div>
+        <div class="toc-row"><span>4. Chemical-Physical Implications of Dilution</span><span class="pg">32</span></div>
+        <div class="toc-row"><span>5. Conclusions: The Synthesis between Academia and Entertainment</span><span class="pg">34</span></div>
+    </div>
+
+    <!-- ── INTRODUCTION ── -->
+    <h1>1. Introduction: The Evolution of IBA Codification (1961-2024)</h1>
+
+    <p>Mixology, understood as the intersection between chemical-physical science, the art of hospitality, and the sociology of consumption, has experienced an unprecedented formal structuring process in the last century. The core of this regulatory ecosystem is the International Bartenders Association (IBA). From its foundation and the first historic codification approved in Oslo in 1961 — which originally included 50 fundamental recipes — the IBA has assumed the role of guardian of the global liquid heritage.</p>
+
+    <p>The most recent update, formalized between 2020 and early 2024, represents a crucial turning point. The catalog has been expanded and meticulously rebalanced to include exactly <strong>102 cocktails</strong>, divided into three perfectly symmetrical categories of 34 recipes each: <em>&ldquo;The Unforgettables&rdquo;</em>, <em>&ldquo;Contemporary Classics&rdquo;</em> and <em>&ldquo;New Era Drinks&rdquo;</em>.</p>
+
+    <div class="orn">───── ✦ ─────</div>
+
+    <!-- ── HIGH-VOLUME ANALYSIS ── -->
+    <h1>2. Operational Analysis of High-Volume Service</h1>
+    <h2>2.1 The Mathematical Model 60/140/100</h2>
+
+    <p>To standardize the service of these beverages while ensuring an acceptable palatal experience and rigorous control over alcohol intoxication, the industry adopts a rigid volumetric model based on a <strong>300 ml</strong> highball glass:</p>
+
+    <ul style="margin: 0 0 16px 24px; font-size: 15px;">
+        <li style="padding: 3px 0;">&#9670; <strong>100 ml</strong> — Ice (lowers temperature, slows secondary dilution)</li>
+        <li style="padding: 3px 0;">&#9670; <strong>60 ml</strong> — Alcoholic base (spirit or liqueur)</li>
+        <li style="padding: 3px 0;">&#9670; <strong>140 ml</strong> — Non-alcoholic filler (soda, cola, energy drink, juice)</li>
+    </ul>
+
+    <p>The result is a cocktail with an initial alcohol content of <strong>12% ABV</strong>, equivalent to a glass of table wine — ideal for controlled consumption in high-volume contexts.</p>
+
+    <h2>2.2 Party Drinks — Volumetric Matrix</h2>
+
+    <div class="party-card">
+        <p class="party-name">🥃 Gin Tonic</p>
+        <div class="party-cols">
+            <div>
+                <p class="party-col-label">&#10022; Alcoholic — 60 ml</p>
+                <p>London Dry Gin</p>
+            </div>
+            <div>
+                <p class="party-col-label">&#10022; Non-Alcoholic — 140 ml</p>
+                <p>Tonic Water</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="party-card">
+        <p class="party-name">🥃 Vodka Redbull</p>
+        <div class="party-cols">
+            <div>
+                <p class="party-col-label">&#10022; Alcoholic — 60 ml</p>
+                <p>Plain or Flavoured Vodka</p>
+            </div>
+            <div>
+                <p class="party-col-label">&#10022; Non-Alcoholic — 140 ml</p>
+                <p>Energy Drink</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="party-card">
+        <p class="party-name">🥃 Moscow Mule</p>
+        <div class="party-cols">
+            <div>
+                <p class="party-col-label">&#10022; Alcoholic — 60 ml</p>
+                <p>Vodka</p>
+            </div>
+            <div>
+                <p class="party-col-label">&#10022; Non-Alcoholic — 140 ml</p>
+                <p>Ginger Beer + Lime Juice</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="party-card">
+        <p class="party-name">🥃 Malibu &amp; Pineapple</p>
+        <div class="party-cols">
+            <div>
+                <p class="party-col-label">&#10022; Alcoholic — 60 ml</p>
+                <p>Malibu (Coconut Rum, 21% ABV)</p>
+            </div>
+            <div>
+                <p class="party-col-label">&#10022; Non-Alcoholic — 140 ml</p>
+                <p>Pineapple Juice</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="orn">───── ✦ ─────</div>
+
+    <!-- ── IBA ENCYCLOPEDIA ── -->
+    <h1>3. The IBA 2024 Encyclopedia</h1>
+    <p>While the 60/140 volumetric model dominates the entertainment sector, professional high-mixing circles rely on the millimetric rigor established by the IBA. This corpus breaks down and critically analyzes each category, providing official recipes expressed in milliliters.</p>
+
+    <!-- CAT 1 -->
+    <div class="cat-header">
+        <div class="orn">───── ✦ ─────</div>
+        <h2>Category 1 — The Unforgettables</h2>
+        <p>34 cocktails &middot; the foundations of classic mixology</p>
+    </div>
+
+    <p>The <em>&ldquo;Unforgettables&rdquo;</em> section serves as the archaeological foundation of mixology. The 34 cocktails here are historical monuments, mostly created between the mid-nineteenth century and the decade following the American Prohibition (1933). Organoleptically, these drinks are defined as <em>&ldquo;spirit-forward&rdquo;</em>: the structure relies on the exaltation of the base distillate.</p>
+
+    <div class="recipe">
+        <p class="recipe-name">🍸 Negroni</p>
+        <div class="recipe-grid">
+            <div>
+                <p class="recipe-label">&#10022; Ingredients</p>
+                <p>30 ml Gin<br>30 ml Bitter Campari<br>30 ml Sweet Red Vermouth</p>
+            </div>
+            <div>
+                <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                <p>Build in Old Fashioned glass with ice. Stir. Garnish: Orange slice.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="recipe">
+        <p class="recipe-name">🍸 Daiquiri</p>
+        <div class="recipe-grid">
+            <div>
+                <p class="recipe-label">&#10022; Ingredients</p>
+                <p>60 ml White Cuban Rum<br>20 ml Lime Juice<br>2 b.s. Superfine Sugar</p>
+            </div>
+            <div>
+                <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                <p>Stir to dissolve sugar. Shake with ice. Strain into cocktail glass. Garnish: None.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="recipe">
+        <p class="recipe-name">🍸 Dry Martini</p>
+        <div class="recipe-grid">
+            <div>
+                <p class="recipe-label">&#10022; Ingredients</p>
+                <p>60 ml Gin<br>10 ml Dry Vermouth</p>
+            </div>
+            <div>
+                <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                <p>Stir in mixing glass. Strain into Martini glass. Garnish: Olive or lemon zest.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="recipe">
+        <p class="recipe-name">🍸 Manhattan</p>
+        <div class="recipe-grid">
+            <div>
+                <p class="recipe-label">&#10022; Ingredients</p>
+                <p>50 ml Rye Whiskey<br>20 ml Sweet Red Vermouth<br>1 dash Angostura</p>
+            </div>
+            <div>
+                <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                <p>Stir in mixing glass. Strain into cocktail glass. Garnish: Maraschino cherry.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="recipe">
+        <p class="recipe-name">🍸 Old Fashioned</p>
+        <div class="recipe-grid">
+            <div>
+                <p class="recipe-label">&#10022; Ingredients</p>
+                <p>45 ml Bourbon or Rye<br>1 sugar cube<br>2 dash Angostura<br>Splash water</p>
+            </div>
+            <div>
+                <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                <p>Muddle sugar and bitters. Add ice and whiskey. Garnish: Zest and cherry.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FADE + LOCK -->
+    <div class="fade-section">
+        <div class="recipe blurred">
+            <p class="recipe-name">🍸 Whiskey Sour</p>
+            <div class="recipe-grid">
+                <div>
+                    <p class="recipe-label">&#10022; Ingredients</p>
+                    <p>45 ml Bourbon<br>25 ml Lemon<br>20 ml Syrup<br>20 ml Egg White (opt.)</p>
+                </div>
+                <div>
+                    <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                    <p>Shake with ice. Strain. Garnish: Orange and cherry.</p>
+                </div>
+            </div>
+        </div>
+        <div class="recipe blurred">
+            <p class="recipe-name">🥃 Cuba Libre</p>
+            <div class="recipe-grid">
+                <div>
+                    <p class="recipe-label">&#10022; Ingredients</p>
+                    <p>50 ml White Rum<br>120 ml Cola<br>10 ml Lime Juice</p>
+                </div>
+                <div>
+                    <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                    <p>Build in highball with ice. Garnish: Lime wedge.</p>
+                </div>
+            </div>
+        </div>
+        <div class="recipe blurred">
+            <p class="recipe-name">🍸 Cosmopolitan</p>
+            <div class="recipe-grid">
+                <div>
+                    <p class="recipe-label">&#10022; Ingredients</p>
+                    <p>40 ml Citron Vodka<br>15 ml Cointreau<br>15 ml Lime<br>30 ml Cranberry</p>
+                </div>
+                <div>
+                    <p class="recipe-label">&#10022; Procedure &amp; Garnish</p>
+                    <p>Shake with ice. Strain into cocktail glass. Garnish: Lemon twist.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOCK BOX -->
+    <div class="lock-box">
+        <div class="lock-icon">&#128274;</div>
+        <h2>Full Access Reserved</h2>
+        <p>This is a free preview. The complete recipe book includes:</p>
+        <ul class="lock-list">
+            <li>All 102 official IBA 2024 recipes (all 3 categories)</li>
+            <li>Complete party drink volumetric matrix</li>
+            <li>Chemical-physical analysis of dilution</li>
+            <li>Professional techniques for every cocktail</li>
+            <li>34 pages &middot; also available in Italian</li>
+        </ul>
+        <a href="mailto:raccasamuele2004@gmail.com?subject=Full%20Version%20Request%20Barman%20PRO" class="btn-unlock">
+            Unlock the complete recipe book &mdash; &euro;9.90
+        </a>
+        <a href="./" class="btn-back">&#8592; Back to the free demo</a>
+    </div>
+
+    <div class="doc-footer">
+        &copy; 2026 Samuele Racca &middot; CC BY-NC-ND 4.0 &middot; IBA Recipes &copy; International Bartenders Association
+    </div>
+
+</div>
+</body>
+</html>
