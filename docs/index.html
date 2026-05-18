@@ -969,13 +969,107 @@
             .meta-actions { width: 100%; justify-content: space-between; }
         }
 
+        /* ─── MOTORE COSTI ─── */
+        .parametri-row-geo {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .costo-voce {
+            font-family: 'Manrope', sans-serif;
+            font-size: 13px;
+            color: var(--accent-gold-2);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            opacity: 0.88;
+            white-space: nowrap;
+        }
+
+        .result-section li {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            column-gap: 16px;
+            align-items: baseline;
+        }
+        .result-section li > strong { text-align: right; min-width: 56px; }
+        .result-section li > .costo-voce { text-align: right; min-width: 92px; }
+
+        .budget-box {
+            background: rgba(5, 5, 5, 0.92);
+            border: 1px solid rgba(179, 142, 70, 0.55);
+            border-radius: 20px;
+            padding: 36px 48px;
+            margin-bottom: 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .budget-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold-1), transparent);
+            opacity: 0.55;
+        }
+
+        .budget-label {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .budget-amount {
+            font-family: 'Cinzel', serif;
+            font-size: 52px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #EAD0A1 0%, #B38E46 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            line-height: 1;
+            margin-bottom: 14px;
+        }
+
+        .budget-sub {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--text-muted);
+            opacity: 0.65;
+        }
+
+        @media (max-width: 600px) {
+            .parametri-row-geo { grid-template-columns: 1fr; gap: 16px; }
+            .budget-amount { font-size: 38px; }
+            .budget-box { padding: 28px 24px; }
+        }
+
         @media print {
             body { background: #fff !important; color: #000 !important; filter: none !important; }
             .ambient-background, .header, .card, button, .meta-row, .action-buttons { display: none !important; }
             #risultati { display: block !important; margin: 0; animation: none; }
-            .result-section { background: none; border: 1px solid #ccc; color: #000; break-inside: avoid; }
-            .result-section h3, li strong { color: #000 !important; }
+            #risultati .grid { grid-template-columns: 1fr !important; }
+            .result-section { background: #fff !important; border: 1px solid #ccc; color: #000; break-inside: avoid; overflow: hidden; }
+            .result-section h3 { color: #000 !important; }
             li { border-color: #eee; }
+            li strong { color: #000 !important; }
+            /* Prevent ingredient names from overflowing the box */
+            .result-section li { grid-template-columns: minmax(0,1fr) auto auto; }
+            .result-section li > span:first-child { word-break: break-word; overflow-wrap: break-word; min-width: 0; }
+            .costo-voce { color: #555 !important; }
+            /* Budget box: force visible dark text (gradient text trick becomes invisible at print) */
+            .budget-box { background: #f5f5f5 !important; border: 1px solid #bbb !important; }
+            .budget-box::before { display: none !important; }
+            .budget-label { color: #444 !important; }
+            .budget-amount { background: none !important; -webkit-background-clip: unset !important; background-clip: unset !important; -webkit-text-fill-color: #000 !important; color: #000 !important; font-size: 36px !important; }
+            .budget-sub { color: #555 !important; }
         }
     </style>
 
@@ -1068,6 +1162,20 @@
             <div><label data-i18n="paramShotPP">Shot a persona</label><input type="number" id="shot_testa" value="1" min="0" step="0.5" oninput="salvaStato()"></div>
             <div><label data-i18n="paramSafety">Margine sicurezza (%)</label><input type="number" id="scarto" value="15" min="0" oninput="salvaStato()"></div>
         </div>
+        <div class="parametri-row-geo">
+            <div>
+                <label>Nazione Evento</label>
+                <select id="sel-nazione" onchange="ricalcolaSeVisibile()"></select>
+            </div>
+            <div>
+                <label>Fascia di Prezzo</label>
+                <select id="sel-fascia" onchange="ricalcolaSeVisibile()">
+                    <option value="bassa">Bassa — Prodotti Economici</option>
+                    <option value="media" selected>Media — Prodotti Standard</option>
+                    <option value="alta">Alta — Prodotti Premium</option>
+                </select>
+            </div>
+        </div>
     </section>
 
     <!-- ─── COCKTAIL DELLA SERATA ─── -->
@@ -1155,6 +1263,12 @@
 
         <div class="risultati-header">
             <div class="total-drinks" id="drink-totali-text"></div>
+        </div>
+
+        <div class="budget-box" id="budget-box" style="display:none;">
+            <div class="budget-label">Budget Stimato Materie Prime</div>
+            <div class="budget-amount" id="budget-amount">€ 0,00</div>
+            <div class="budget-sub" id="budget-sub">Fascia Media · Italia</div>
         </div>
 
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
@@ -1290,6 +1404,108 @@
             "caffè": "Caffè"
         };
 
+        /* ════════════════════════════════════════════════════════════
+           MOTORE DI STIMA COSTI — Dati (prezzi arrotondati ↑0.5)
+           ════════════════════════════════════════════════════════════ */
+        const prezziBase = {
+            "Vodka Liscia":               { bassa: 6.5,  media: 11.5, alta: 38.0  },
+            "Vodka Menta":                { bassa: 7.5,  media: 13.0, alta: 42.0  },
+            "Vodka Pesca":                { bassa: 7.5,  media: 13.0, alta: 42.0  },
+            "Vodka Fragola":              { bassa: 7.5,  media: 13.0, alta: 42.0  },
+            "Vodka Melone":               { bassa: 7.5,  media: 13.0, alta: 42.0  },
+            "Vodka al Limone":            { bassa: 7.5,  media: 13.0, alta: 42.0  },
+            "Vodka alla Vaniglia":        { bassa: 7.5,  media: 13.0, alta: 42.0  },
+            "Gin":                        { bassa: 7.0,  media: 14.5, alta: 45.0  },
+            "Rum Bianco":                 { bassa: 7.5,  media: 13.0, alta: 35.0  },
+            "Rum Scuro":                  { bassa: 9.0,  media: 18.0, alta: 65.0  },
+            "Rum Dorato":                 { bassa: 9.0,  media: 18.0, alta: 65.0  },
+            "Rum Demerara":               { bassa: 9.0,  media: 18.0, alta: 65.0  },
+            "Rum Giamaicano":             { bassa: 9.0,  media: 18.0, alta: 65.0  },
+            "Rum Martinicano":            { bassa: 9.0,  media: 18.0, alta: 65.0  },
+            "Tequila":                    { bassa: 10.0, media: 18.5, alta: 55.0  },
+            "Bourbon":                    { bassa: 11.0, media: 19.5, alta: 60.0  },
+            "Whiskey Rye":                { bassa: 14.0, media: 28.0, alta: 75.0  },
+            "Whisky Scozzese":            { bassa: 10.0, media: 16.0, alta: 45.0  },
+            "Whiskey Irlandese":          { bassa: 11.0, media: 17.5, alta: 50.0  },
+            "Cognac":                     { bassa: 18.0, media: 35.0, alta: 150.0 },
+            "Brandy":                     { bassa: 8.0,  media: 14.0, alta: 40.0  },
+            "Cachaça":                    { bassa: 9.0,  media: 15.0, alta: 35.0  },
+            "Pisco":                      { bassa: 14.0, media: 22.0, alta: 48.0  },
+            "Calvados":                   { bassa: 15.0, media: 26.0, alta: 65.0  },
+            "Assenzio":                   { bassa: 18.0, media: 32.0, alta: 70.0  },
+            "Bitter Campari":             { bassa: 15.5, media: 17.0, alta: 19.5  },
+            "Aperol":                     { bassa: 11.0, media: 13.5, alta: 16.0  },
+            "Vermouth Rosso":             { bassa: 5.5,  media: 9.5,  alta: 28.0  },
+            "Vermouth Secco":             { bassa: 5.5,  media: 9.5,  alta: 25.0  },
+            "Triple Sec":                 { bassa: 6.0,  media: 11.0, alta: 24.0  },
+            "Cointreau":                  { bassa: 18.0, media: 21.0, alta: 24.0  },
+            "Curaçao all'Arancia":        { bassa: 12.0, media: 24.0, alta: 38.0  },
+            "Maraschino":                 { bassa: 11.0, media: 18.0, alta: 32.0  },
+            "Crema di Cacao Scura":       { bassa: 8.0,  media: 14.0, alta: 26.0  },
+            "Crema di Violetta":          { bassa: 14.0, media: 22.0, alta: 35.0  },
+            "Schnapps alla Pesca":        { bassa: 8.0,  media: 14.5, alta: 26.0  },
+            "Liquore al Caffè":           { bassa: 9.0,  media: 16.5, alta: 28.0  },
+            "Liquore Passion Fruit":      { bassa: 8.0,  media: 14.5, alta: 26.0  },
+            "Jägermeister":               { bassa: 12.0, media: 16.0, alta: 24.0  },
+            "Amaro Montenegro":           { bassa: 12.0, media: 16.0, alta: 24.0  },
+            "Fernet Branca":              { bassa: 12.0, media: 16.0, alta: 24.0  },
+            "Midori":                     { bassa: 12.0, media: 18.0, alta: 25.0  },
+            "Malibu":                     { bassa: 8.0,  media: 14.5, alta: 26.0  },
+            "Drambuie":                   { bassa: 18.0, media: 26.0, alta: 42.0  },
+            "Apricot Brandy":             { bassa: 8.0,  media: 14.5, alta: 26.0  },
+            "Champagne":                  { bassa: 25.0, media: 45.0, alta: 180.0 },
+            "Prosecco":                   { bassa: 4.5,  media: 8.0,  alta: 22.0  },
+            "Energy Drink":               { bassa: 2.0,  media: 3.5,  alta: 6.0   },
+            "Lemon Soda":                 { bassa: 1.0,  media: 1.5,  alta: 4.0   },
+            "Acqua Tonica":               { bassa: 1.0,  media: 2.5,  alta: 5.5   },
+            "Cola":                       { bassa: 1.0,  media: 2.0,  alta: 3.5   },
+            "Ginger Beer":                { bassa: 1.5,  media: 3.0,  alta: 6.5   },
+            "Ginger Ale":                 { bassa: 1.0,  media: 2.5,  alta: 5.0   },
+            "Soda":                       { bassa: 1.0,  media: 1.5,  alta: 4.0   },
+            "Succo di Ananas":            { bassa: 1.5,  media: 3.0,  alta: 5.5   },
+            "Succo di Arancia":           { bassa: 1.5,  media: 2.5,  alta: 6.0   },
+            "Succo di Limone":            { bassa: 1.5,  media: 3.5,  alta: 8.0   },
+            "Succo di Lime":              { bassa: 2.0,  media: 4.5,  alta: 12.0  },
+            "Succo di Cranberry":         { bassa: 2.0,  media: 3.5,  alta: 7.0   },
+            "Succo di Canna da Zucchero": { bassa: 1.5,  media: 3.5,  alta: 8.0   },
+            "Sciroppo di Zucchero":       { bassa: 1.5,  media: 3.5,  alta: 8.0   },
+            "Sciroppo di Lamponi":        { bassa: 3.0,  media: 6.5,  alta: 14.0  },
+            "Granatina":                  { bassa: 2.5,  media: 5.5,  alta: 12.0  },
+            "Orgeat":                     { bassa: 3.5,  media: 7.0,  alta: 16.0  },
+            "Panna Fresca":               { bassa: 3.0,  media: 5.5,  alta: 10.0  },
+            "Purea di Pesca":             { bassa: 2.5,  media: 6.0,  alta: 14.0  },
+            "Purea di Passion Fruit":     { bassa: 2.5,  media: 6.0,  alta: 14.0  },
+            "Crema di Cocco":             { bassa: 2.0,  media: 4.0,  alta: 9.0   },
+            "Soda Pompelmo Rosa":         { bassa: 1.5,  media: 3.0,  alta: 6.5   },
+            "Espresso":                   { bassa: 1.0,  media: 2.0,  alta: 5.0   },
+            "Caffè":                      { bassa: 1.0,  media: 2.0,  alta: 5.0   },
+            "Albume":                     { bassa: 5.0,  media: 10.0, alta: 20.0  },
+            "_ghiaccio_kg":               { bassa: 1.5,  media: 1.5,  alta: 1.5   },
+            "_bicchiere_pz":              { bassa: 0.5,  media: 0.5,  alta: 0.5   },
+            "_bicchierino_shot_pz":       { bassa: 0.5,  media: 0.5,  alta: 0.5   },
+            "_cannuccia_pz":              { bassa: 0.5,  media: 0.5,  alta: 0.5   },
+        };
+
+        const indiciGeo = {
+            "Albania": 0.83, "Andorra": 1.05, "Argentina": 0.50, "Australia": 2.50,
+            "Austria": 1.00, "Belgio": 1.15, "Bielorussia": 0.85, "Bosnia ed Erzegovina": 0.85,
+            "Brasile": 0.65, "Bulgaria": 0.76, "Canada": 1.45, "Cina": 1.25,
+            "Cipro": 1.37, "Corea del Nord": 0.90, "Corea del Sud": 1.25, "Croazia": 1.05,
+            "Danimarca": 1.72, "Estonia": 1.10, "Figi": 1.40, "Finlandia": 2.50,
+            "Francia": 1.19, "Germania": 1.03, "Giappone": 1.15, "Grecia": 1.82,
+            "Hong Kong": 1.50, "Irlanda": 2.35, "Islanda": 3.39, "Italia": 1.00,
+            "Lettonia": 1.10, "Liechtenstein": 1.50, "Lituania": 1.05, "Lussemburgo": 1.15,
+            "Macao": 1.30, "Macedonia del Nord": 0.65, "Malta": 1.20, "Messico": 0.60,
+            "Micronesia": 1.40, "Moldavia": 0.70, "Monaco": 1.60, "Mongolia": 0.85,
+            "Montenegro": 0.83, "Norvegia": 2.45, "Nuova Zelanda": 2.20, "Paesi Bassi": 1.10,
+            "Papua Nuova Guinea": 1.60, "Polonia": 0.90, "Portogallo": 1.05, "Regno Unito": 1.95,
+            "Repubblica Ceca": 0.94, "Romania": 0.86, "Russia": 0.80, "Samoa": 1.35,
+            "San Marino": 1.00, "Serbia": 0.80, "Singapore": 2.15, "Slovacchia": 0.95,
+            "Slovenia": 1.00, "Spagna": 1.16, "Stati Uniti": 1.25, "Svezia": 1.80,
+            "Svizzera": 1.50, "Taiwan": 1.15, "Tonga": 1.40, "Ucraina": 0.75,
+            "Ungheria": 0.97, "Vanuatu": 1.45
+        };
+
         function normalizzaIngrediente(nome) {
             if(!nome) return nome;
             const chiave = nome.trim().toLowerCase();
@@ -1357,7 +1573,9 @@
                         ospiti: document.getElementById('ospiti').value,
                         drink_testa: document.getElementById('drink_testa').value,
                         shot_testa: document.getElementById('shot_testa').value,
-                        scarto: document.getElementById('scarto').value
+                        scarto: document.getElementById('scarto').value,
+                        nazione: document.getElementById('sel-nazione').value,
+                        fascia: document.getElementById('sel-fascia').value
                     }
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -1379,6 +1597,7 @@
                     if(s.config.drink_testa) document.getElementById('drink_testa').value = s.config.drink_testa;
                     if(s.config.shot_testa) document.getElementById('shot_testa').value = s.config.shot_testa;
                     if(s.config.scarto) document.getElementById('scarto').value = s.config.scarto;
+                    if(s.config.fascia) document.getElementById('sel-fascia').value = s.config.fascia;
                 }
             } catch(e) { console.warn('Caricamento fallito:', e); }
         }
@@ -1398,6 +1617,9 @@
             document.getElementById('drink_testa').value = 3;
             document.getElementById('shot_testa').value = 1;
             document.getElementById('scarto').value = 15;
+            document.getElementById('sel-nazione').value = 'Italia';
+            document.getElementById('sel-fascia').value = 'media';
+            document.getElementById('budget-box').style.display = 'none';
             document.getElementById('risultati').style.display = 'none';
             document.getElementById('ingredienti-container').innerHTML = '';
             aggiungiRigaIngrediente();
@@ -1450,6 +1672,17 @@
             const datalistShot = document.getElementById('lista-database-shot');
             datalistShot.innerHTML = '';
             Array.from(setSoloAlcolici).sort().forEach(nome => aggiungiOption(datalistShot, nome));
+
+            const selNazione = document.getElementById('sel-nazione');
+            if (selNazione && selNazione.options.length === 0) {
+                Object.keys(indiciGeo).sort().forEach(n => {
+                    const opt = document.createElement('option');
+                    opt.value = n;
+                    opt.textContent = n;
+                    if (n === 'Italia') opt.selected = true;
+                    selNazione.appendChild(opt);
+                });
+            }
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -1655,8 +1888,14 @@
         /* ════════════════════════════════════════════════════════════
            CALCOLO
            ════════════════════════════════════════════════════════════ */
+        function ricalcolaSeVisibile() {
+            if (document.getElementById('risultati').style.display !== 'none') {
+                calcolaSpesa();
+                salvaStato();
+            }
+        }
+
         function calcolaSpesa() {
-            // Demo: nessun check password, accesso libero
             let ospiti = parseFloat(document.getElementById('ospiti').value) || 0;
             let drinkTesta = parseFloat(document.getElementById('drink_testa').value) || 0;
             let shotTesta = parseFloat(document.getElementById('shot_testa').value) || 0;
@@ -1680,7 +1919,6 @@
                 shotSelezionati.push({nome: nome, peso: p});
             });
 
-            // Validazione: serve almeno una sezione popolata se i totali la richiedono
             const drinkRichiesti = drinkTotali > 0 && pesoTotDrink === 0;
             const shotRichiesti = shotTotali > 0 && pesoTotShot === 0;
 
@@ -1690,15 +1928,16 @@
             if (drinkRichiesti && shotTotali === 0) {
                 return alert("Hai impostato cocktail per gli ospiti, ma non hai aggiunto nessun cocktail al menu della serata.");
             }
-            // Se ci sono solo shot impostati e nessun cocktail nel menu, OK procedo
-            // Se ci sono solo cocktail impostati e nessuno shot nel menu, OK procedo
             if (drinkTotali === 0 && shotTotali === 0) {
                 return alert("Imposta almeno un cocktail o uno shot a persona.");
             }
 
+            const fascia = document.getElementById('sel-fascia').value;
+            const nazione = document.getElementById('sel-nazione').value;
+            const geoMult = indiciGeo[nazione] || 1;
+
             let spesaAlcolici = {}; let spesaAnalcolici = {};
 
-            // Drink — applica normalizzazione per fondere alias (Rum Bianco / White Rum, ecc.)
             if (pesoTotDrink > 0 && drinkTotali > 0) {
                 drinkSelezionati.forEach(item => {
                     let qty = Math.ceil(drinkTotali * (item.peso / pesoTotDrink));
@@ -1710,7 +1949,6 @@
                 });
             }
 
-            // Shot — anche qui normalizzazione
             if (pesoTotShot > 0 && shotTotali > 0) {
                 shotSelezionati.forEach(item => {
                     let qty = Math.ceil(shotTotali * (item.peso / pesoTotShot));
@@ -1719,11 +1957,9 @@
                 });
             }
 
-            // Reset shot/drink mostrati a zero se non ne sono stati richiesti
             const drinkMostrati = pesoTotDrink > 0 ? drinkTotali : 0;
             const shotMostrati = pesoTotShot > 0 ? shotTotali : 0;
 
-            // ─── OUTPUT ───
             document.getElementById('drink-totali-text').innerHTML =
                 `Da preparare: <strong>${drinkMostrati}</strong> cocktail &middot; <strong>${shotMostrati}</strong> shot`;
 
@@ -1732,7 +1968,7 @@
                 return v % 1 === 0 ? v.toString() : v.toFixed(1);
             }
 
-            function appendVoce(ul, nomeIng, litri) {
+            function appendVoce(ul, nomeIng, litri, costo) {
                 const li = document.createElement('li');
                 const s = document.createElement('span');
                 s.textContent = nomeIng;
@@ -1740,28 +1976,85 @@
                 strong.textContent = litri + ' L';
                 li.appendChild(s);
                 li.appendChild(strong);
+                if (costo > 0) {
+                    const cs = document.createElement('span');
+                    cs.className = 'costo-voce';
+                    cs.textContent = '≈ € ' + costo.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+                    li.appendChild(cs);
+                }
                 ul.appendChild(li);
             }
+
+            function rigaExtra(ul, label, val, costo) {
+                const li = document.createElement('li');
+                const sp = document.createElement('span'); sp.textContent = label;
+                const st = document.createElement('strong'); st.textContent = val;
+                li.appendChild(sp); li.appendChild(st);
+                if (costo > 0) {
+                    const cs = document.createElement('span'); cs.className = 'costo-voce';
+                    cs.textContent = '≈ € ' + costo.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+                    li.appendChild(cs);
+                }
+                ul.appendChild(li);
+            }
+
+            let budgetTot = 0;
+            const arrotondaCosto = c => Math.ceil(c * 2) / 2;
 
             const ulAlcol = document.getElementById('lista_alcolici');
             ulAlcol.innerHTML = '';
             const keysAlcol = Object.keys(spesaAlcolici).sort();
-            if (keysAlcol.length === 0) ulAlcol.innerHTML = '<li><span>Nessun alcolico</span></li>';
-            else keysAlcol.forEach(ing => appendVoce(ulAlcol, ing, arrotondaLitri(spesaAlcolici[ing])));
+            if (keysAlcol.length === 0) {
+                ulAlcol.innerHTML = '<li><span>Nessun alcolico</span></li>';
+            } else {
+                keysAlcol.forEach(ing => {
+                    const ml = spesaAlcolici[ing];
+                    const p = prezziBase[ing];
+                    const costo = arrotondaCosto((ml / 1000) * (p ? p[fascia] : 15) * geoMult);
+                    budgetTot += costo;
+                    appendVoce(ulAlcol, ing, arrotondaLitri(ml), costo);
+                });
+            }
 
             const ulAnalcol = document.getElementById('lista_analcolici');
             ulAnalcol.innerHTML = '';
             const keysAnalcol = Object.keys(spesaAnalcolici).sort();
-            if (keysAnalcol.length === 0) ulAnalcol.innerHTML = '<li><span>Nessun analcolico</span></li>';
-            else keysAnalcol.forEach(ing => appendVoce(ulAnalcol, ing, arrotondaLitri(spesaAnalcolici[ing])));
+            if (keysAnalcol.length === 0) {
+                ulAnalcol.innerHTML = '<li><span>Nessun analcolico</span></li>';
+            } else {
+                keysAnalcol.forEach(ing => {
+                    const ml = spesaAnalcolici[ing];
+                    const p = prezziBase[ing];
+                    const costo = arrotondaCosto((ml / 1000) * (p ? p[fascia] : 2) * geoMult);
+                    budgetTot += costo;
+                    appendVoce(ulAnalcol, ing, arrotondaLitri(ml), costo);
+                });
+            }
 
             let kgGhiaccio = Math.ceil((drinkMostrati * 100) / 1000);
-            document.getElementById('lista_extra').innerHTML = `
-                <li><span>Ghiaccio a cubi</span> <strong>${kgGhiaccio} kg</strong></li>
-                <li><span>Bicchieri da cocktail</span> <strong>${drinkMostrati} pz</strong></li>
-                <li><span>Bicchierini da shot</span> <strong>${shotMostrati} pz</strong></li>
-                <li><span>Cannucce</span> <strong>${drinkMostrati} pz</strong></li>
-            `;
+            const pGhiaccio    = prezziBase['_ghiaccio_kg']         ? prezziBase['_ghiaccio_kg'][fascia]         : 1.5;
+            const pBicchiere   = prezziBase['_bicchiere_pz']        ? prezziBase['_bicchiere_pz'][fascia]        : 0.5;
+            const pBicchierino = prezziBase['_bicchierino_shot_pz'] ? prezziBase['_bicchierino_shot_pz'][fascia] : 0.5;
+            const pCannuccia   = prezziBase['_cannuccia_pz']        ? prezziBase['_cannuccia_pz'][fascia]        : 0.5;
+            const costoGhiaccio    = arrotondaCosto(kgGhiaccio    * pGhiaccio    * geoMult);
+            const costoBicchieri   = arrotondaCosto(drinkMostrati  * pBicchiere   * geoMult);
+            const costoBicchierini = arrotondaCosto(shotMostrati   * pBicchierino * geoMult);
+            const costoCannucce    = arrotondaCosto(drinkMostrati  * pCannuccia   * geoMult);
+            budgetTot += costoGhiaccio + costoBicchieri + costoBicchierini + costoCannucce;
+
+            const ulExtra = document.getElementById('lista_extra');
+            ulExtra.innerHTML = '';
+            rigaExtra(ulExtra, 'Ghiaccio a cubi',       kgGhiaccio    + ' kg',  costoGhiaccio);
+            rigaExtra(ulExtra, 'Bicchieri da cocktail', drinkMostrati + ' pz',  costoBicchieri);
+            rigaExtra(ulExtra, 'Bicchierini da shot',   shotMostrati  + ' pz',  costoBicchierini);
+            rigaExtra(ulExtra, 'Cannucce',              drinkMostrati + ' pz',  costoCannucce);
+
+            const bbox = document.getElementById('budget-box');
+            bbox.style.display = 'block';
+            document.getElementById('budget-amount').textContent =
+                '€ ' + budgetTot.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+            document.getElementById('budget-sub').textContent =
+                nazione + ' · fascia ' + fascia;
 
             document.getElementById('risultati').style.display = 'block';
             document.getElementById('risultati').scrollIntoView({behavior: 'smooth', block: 'start'});
@@ -1788,6 +2081,15 @@
             document.querySelectorAll('#lista_extra li').forEach(li => {
                 testo += "  • " + li.innerText + "\n";
             });
+
+            const bbox = document.getElementById('budget-box');
+            if (bbox && bbox.style.display !== 'none') {
+                const amount = document.getElementById('budget-amount').textContent;
+                const sub = document.getElementById('budget-sub').textContent;
+                testo += "\n─────────────────────\n";
+                testo += "Budget stimato materie prime: " + amount + "\n";
+                testo += "(" + sub + ")\n";
+            }
 
             testo += "\n— " + t('demoFooter') + " —\n";
 
@@ -2226,6 +2528,10 @@
             linguaCorrente = rilevaLinguaIniziale();
             caricaStato();
             inizializzaApp();
+            try {
+                const _raw = localStorage.getItem(STORAGE_KEY);
+                if (_raw) { const _s = JSON.parse(_raw); if (_s.config && _s.config.nazione) document.getElementById('sel-nazione').value = _s.config.nazione; }
+            } catch(e) {}
             renderizzaMenu();
             aggiungiRigaIngrediente();
             aggiungiRigaIngrediente();
