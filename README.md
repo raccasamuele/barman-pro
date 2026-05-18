@@ -21,6 +21,17 @@ Inserendo numero di ospiti, cocktail e shot a persona, l'app calcola automaticam
 
 L'utente sceglie i drink della serata da un ricettario integrato (cocktail IBA classici e party drink "high volume") e ne regola la frequenza con uno slider da 1 a 5. Possono essere creati cocktail e shot personalizzati. Lo stato dell'evento viene salvato automaticamente in `localStorage`.
 
+### Motore di stima costi
+
+Dopo aver generato la lista della spesa, l'app calcola anche il **budget stimato per le materie prime**. Il motore opera su due variabili selezionabili dall'utente:
+
+| Parametro | Opzioni |
+| --- | --- |
+| **Nazione evento** | 66 paesi supportati (Italia, Germania, USA, Giappone, Svizzera...) |
+| **Fascia di prezzo** | Bassa (prodotti economici), Media, Alta (prodotti premium) |
+
+Per ogni ingrediente viene mostrato il costo stimato al fianco della quantita, e un riquadro finale riepiloga il **budget totale materie prime** con il relativo contesto (nazione e fascia attivi). Tutti i prezzi sono arrotondati per eccesso alla meta unita piu vicina (es. 3,20 € → 3,50 €).
+
 ## Stack tecnologico
 
 Pagina HTML singola, autonoma:
@@ -79,13 +90,14 @@ L'estetica si ispira all'universo della miscelazione contemporanea: interfaccia 
 
 1. Intestazione con titolo, sottotitolo e ornamenti
 2. Sezione ricettario PDF bilingue IT/EN (modale di lettura + download)
-3. Parametri evento (4 input in linea)
+3. Parametri evento (ospiti, drink/shot a persona, margine di sicurezza, **nazione evento**, **fascia di prezzo**)
 4. Cocktail della serata (ricerca + slider di frequenza)
 5. Shot e amari (ricerca + slider di frequenza)
 6. Creazioni personalizzate (creator dinamico per cocktail e bottiglie)
 7. Pulsante "Genera lista della spesa"
-8. Risultati &mdash; alcolici, analcolici, attrezzatura
-9. Esportazione &mdash; copia testo, stampa o salva PDF
+8. Risultati &mdash; alcolici, analcolici, attrezzatura con **costo stimato per voce**
+9. Riquadro **Budget Stimato Materie Prime** (totale con nazione e fascia attivi)
+10. Esportazione &mdash; copia testo (include il budget), stampa o salva PDF
 
 ## Struttura del progetto
 
@@ -126,13 +138,14 @@ La demo è disponibile in 7 lingue: **Italiano** (default), **English**, **Espa�
 | Cocktail nel menu serata | Max 3 | Illimitati |
 | Shot nel menu serata | Max 2 | Illimitati |
 | Creazione cocktail e shot personalizzati | &mdash; | ✓ |
+| Stima costi materie prime (66 paesi, 3 fasce) | ✓ | ✓ |
 | Ricettario PDF bilingue IT/EN (36 pagine) | &mdash; | ✓ |
-| Esportazione lista | Con watermark "DEMO" | Pulita |
+| Esportazione lista (include budget stimato) | Con watermark "DEMO" | Pulita |
 | Multilingua | 7 lingue | 7 lingue |
 | Installazione come PWA | &mdash; | ✓ |
 | License Key personale | &mdash; | ✓ |
 
-La versione completa sarà disponibile a breve.
+La versione completa è acquistabile contattando l'autore tramite email.
 
 ## Installazione come app (PWA)
 
