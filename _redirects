@@ -1,28 +1,13 @@
 # ═══════════════════════════════════════════════════════════════════
-#   Barman PRO · Redirect rules (Cloudflare Pages / Netlify compat.)
+#   Barman PRO · Redirect rules (Cloudflare Pages)
 # ═══════════════════════════════════════════════════════════════════
-# Blocca l'accesso pubblico a file di sviluppo/sorgenti/build/marketing
-# Sintassi: <from>  <to>  <status>
-# 404! con "!" forza il redirect anche se esiste un file reale
+# NB: Cloudflare Pages (Workers Assets) accetta solo status
+#     200, 301, 302, 303, 307, 308 — NON 404.
+#     I file sensibili (node_modules, .docx, RIPRENDIAMO-QUI.md, ecc.)
+#     non sono presenti nel repo GitHub → non c'è nulla da bloccare via redirect.
+#
+# Lascio il file vuoto (a parte questi commenti) per due motivi:
+#  1. Documentare esplicitamente la scelta a chi legge il repo.
+#  2. Avere un file pronto se in futuro servirà aggiungere redirect
+#     (es. www → root, vecchi path → nuovi path).
 # ═══════════════════════════════════════════════════════════════════
-
-/node_modules/*               /404.html   404!
-/scripts/*                    /404.html   404!
-/video_promo/*                /404.html   404!
-/package.json                 /404.html   404!
-/package-lock.json            /404.html   404!
-/*.docx                       /404.html   404!
-/RIPRENDIAMO-QUI.md           /404.html   404!
-/GUIDA-LEMON-SQUEEZY.md       /404.html   404!
-/index_senza_key*             /404.html   404!
-/generate_luxury_mixology_docx.py  /404.html   404!
-/Backup_codes_Autenticathor.txt    /404.html   404!
-/link_sito_netlify.txt        /404.html   404!
-/Modern_Mixology_English_RAW_TEXT.txt  /404.html   404!
-/Logo_barman_pro.png          /404.html   404!
-
-# ─── BLOCCO ZIP DI CONSEGNA ────────────────────────────────────────
-# Il file barman-pro-full-v1.0.zip NON deve essere scaricabile da URL:
-# i clienti lo ricevono via Lemon Squeezy. Blocchiamo tutti gli .zip.
-/barman-pro-full-v1.0.zip     /404.html   404!
-/*.zip                        /404.html   404!
