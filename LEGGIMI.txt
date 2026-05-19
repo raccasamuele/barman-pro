@@ -1,0 +1,103 @@
+═══════════════════════════════════════════════════════════════
+  BARMAN PRO · VERSIONE COMPLETA
+═══════════════════════════════════════════════════════════════
+
+Grazie per il tuo acquisto. Di seguito le istruzioni per attivare
+e installare l'app sui tuoi dispositivi.
+
+─── ⚠️ COME APRIRE L'APP — LEGGI PRIMA DI TUTTO ────────────────
+
+  Barman PRO è una Progressive Web App (PWA): per funzionare
+  correttamente (validazione License Key online, installazione
+  come app nativa, funzionamento offline) DEVE essere aperta
+  tramite l'indirizzo web ufficiale, NON facendo doppio clic
+  sul file index.html estratto dallo ZIP.
+
+  👉 INDIRIZZO UFFICIALE:
+
+        https://barman-pro.pages.dev
+
+  Apri quel link nel browser, inserisci la tua License Key una
+  sola volta, poi installa l'app (vedi sotto): da quel momento
+  in poi avrai l'icona sul desktop/home e l'app funzionerà
+  anche offline.
+
+  Lo ZIP che hai scaricato contiene una copia integrale del
+  codice sorgente come archivio personale e prova d'acquisto.
+  Non è pensato per essere eseguito facendo doppio clic sui
+  file: in quella modalità il browser blocca le chiamate di
+  rete (license key non validabile) e l'installazione PWA
+  non è possibile.
+
+─── COSA TROVI IN QUESTO ZIP ───────────────────────────────────
+
+  • index.html                 → codice sorgente dell'app
+  • Cocktail_IBA_adattamento_a_feste.pdf → ricettario IT (36 pagine)
+  • Cocktail_IBA_party_adaptation.pdf    → ricettario EN
+  • manifest.json, sw.js       → file PWA
+  • favicon.svg, icon-*.png    → icone dell'app
+  • apple-touch-icon.png       → icona iOS
+  • eula.html, privacy.html    → condizioni d'uso e informativa privacy
+  • LICENSE                    → contratto di licenza d'uso (EULA)
+  • LICENSE-PDF                → licenza separata del documento PDF
+
+─── ATTIVAZIONE (PRIMA APERTURA) ───────────────────────────────
+
+  1. Vai su https://barman-pro.pages.dev
+  2. Alla prima apertura comparirà un campo "License Key".
+  3. Incolla la chiave che hai ricevuto via email (formato
+     XXXX-XXXX-XXXX-XXXX) e clicca "Attiva".
+  4. La chiave viene validata online e salvata nel browser.
+     Le volte successive non te la chiederà più, su quel
+     dispositivo. La chiave viene riverificata online ogni
+     24 ore; se sei offline, l'app continua a funzionare
+     per un massimo di 14 giorni (grace period).
+
+─── INSTALLAZIONE COME APP (PWA) ───────────────────────────────
+
+  Per usare Barman PRO come una vera app, con icona sulla home
+  e funzionamento offline:
+
+  SU SMARTPHONE
+  • Apri https://barman-pro.pages.dev in Chrome (Android) o
+    Safari (iOS).
+  • Tocca il menu del browser (tre puntini o pulsante condividi).
+  • Scegli "Installa app" / "Aggiungi a schermata Home".
+
+  SU PC
+  • Apri https://barman-pro.pages.dev in Chrome o Edge.
+  • In alto a destra apparirà un'icona di installazione (⊕).
+  • Cliccala e conferma.
+
+  L'app è ora installata e funziona offline.
+
+─── ATTIVAZIONE SU PIÙ DISPOSITIVI ─────────────────────────────
+
+  La tua licenza permette l'attivazione su 3 dispositivi (es.
+  telefono + tablet + PC). Su ogni nuovo dispositivo dovrai
+  inserire la stessa License Key. Se serve attivare un quarto
+  dispositivo (es. hai cambiato telefono), scrivi a:
+
+  raccasamuele2004@gmail.com
+
+  Conserva la License Key in un posto sicuro. Se la perdi puoi
+  recuperarla dalla email di conferma dell'acquisto.
+
+─── SUPPORTO ────────────────────────────────────────────────────
+
+  Per qualsiasi problema, segnalazione bug o richiesta di
+  funzionalità: raccasamuele2004@gmail.com
+
+  Tempo di risposta tipico: 24-48 ore.
+
+─── LICENZA ─────────────────────────────────────────────────────
+
+  Software protetto da copyright (vedi file LICENSE).
+  La copia, ridistribuzione, rivendita o condivisione della
+  License Key sono vietate.
+
+  Documento PDF: Creative Commons BY-NC-ND 4.0 (vedi LICENSE-PDF).
+
+═══════════════════════════════════════════════════════════════
+© 2026 Samuele Racca · Tutti i diritti riservati
+═══════════════════════════════════════════════════════════════

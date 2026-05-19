@@ -1,13 +1,20 @@
 /**
  * Barman PRO · Service Worker
  * Strategy: cache-first per gli asset, network-first per il documento HTML.
- * © 2026 Samuele Racca · MIT
+ * © 2026 Samuele Racca · Tutti i diritti riservati.
+ *
+ * ⚠️ RELEASE CHECKLIST — bumpa SEMPRE CACHE_VERSION + ASSET_CACHE a ogni
+ *    rilascio (anche per fix piccoli). Senza bump, i client già installati
+ *    continuano a servire gli asset vecchi dalla cache e i fix non arrivano.
+ *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v1.0.0';
-const ASSET_CACHE = 'barman-pro-assets-v1.0.0';
+const CACHE_VERSION = 'barman-pro-v1.0.1';
+const ASSET_CACHE = 'barman-pro-assets-v1.0.1';
 
-// Asset da pre-cachare alla prima installazione
+// Asset da pre-cachare alla prima installazione.
+// NB: cache.addAll è atomico → se un solo file 404, NIENTE viene cachato.
+// Tienine dentro solo file effettivamente presenti nel deploy.
 const PRECACHE_ASSETS = [
     './',
     './index.html',
@@ -15,6 +22,9 @@ const PRECACHE_ASSETS = [
     './apple-touch-icon.png',
     './icon-192.png',
     './icon-512.png',
+    './icon-maskable-512.png',
+    './eula.html',
+    './privacy.html',
     './manifest.json'
 ];
 

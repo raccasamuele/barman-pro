@@ -1,0 +1,25 @@
+# ═══════════════════════════════════════════════════════════════════
+#   Barman PRO · Headers (Cloudflare Pages / Netlify compat.)
+# ═══════════════════════════════════════════════════════════════════
+# Sintassi:
+#   /path
+#     Header-Name: value
+# ═══════════════════════════════════════════════════════════════════
+
+# ─── Header globali su TUTTE le pagine ─────────────────────────────
+# noindex/nofollow: l'app è a pagamento, non vogliamo indicizzazione
+/*
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# ─── Service Worker: niente cache lato browser ─────────────────────
+# Il SW DEVE essere sempre fresco, altrimenti gli aggiornamenti non arrivano
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# ─── Manifest: cache breve ─────────────────────────────────────────
+/manifest.json
+  Cache-Control: public, max-age=3600
