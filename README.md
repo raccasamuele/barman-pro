@@ -1,7 +1,7 @@
 # Barman PRO &middot; Calcolatore Eventi
 
 [![Try Demo](https://img.shields.io/badge/TRY%20DEMO-free-0d0d0f?style=for-the-badge&labelColor=B38E46&logoColor=fcfcfc)](https://raccasamuele.github.io/barman-pro/)
-[![Full Version](https://img.shields.io/badge/FULL%20VERSION-9.90%E2%82%AC-0d0d0f?style=for-the-badge&labelColor=B38E46)](mailto:raccasamuele2004@gmail.com?subject=Richiesta%20versione%20completa%20Barman%20PRO)
+[![Full Version](https://img.shields.io/badge/LAUNCH%20PRICE-14.90%E2%82%AC-0d0d0f?style=for-the-badge&labelColor=B38E46)](https://barman-pro.lemonsqueezy.com)
 [![License](https://img.shields.io/badge/license-proprietary-0d0d0f?style=for-the-badge&labelColor=B38E46)](LICENSE)
 [![Languages](https://img.shields.io/badge/languages-7-0d0d0f?style=for-the-badge&labelColor=B38E46)](#multilingua)
 
@@ -132,7 +132,7 @@ La demo è disponibile in 7 lingue: **Italiano** (default), **English**, **Espa�
 
 ## Versione DEMO vs Versione COMPLETA
 
-| Funzionalità | Demo (gratis) | Completa (9,90 €) |
+| Funzionalità | Demo (gratis) | Completa (lancio 14,90 €, listino 19,90 €) |
 | --- | --- | --- |
 | Numero cocktail nel database | 20 più famosi | 102 (IBA 2024 + party drink HV) |
 | Cocktail nel menu serata | Max 3 | Illimitati |
@@ -145,7 +145,7 @@ La demo è disponibile in 7 lingue: **Italiano** (default), **English**, **Espa�
 | Installazione come PWA | &mdash; | ✓ |
 | License Key personale | &mdash; | ✓ |
 
-La versione completa è acquistabile contattando l'autore tramite email.
+La versione completa è acquistabile su [Lemon Squeezy](https://barman-pro.lemonsqueezy.com) al prezzo di lancio di **14,90 €** una tantum (listino 19,90 €). Dopo l'acquisto si riceve via email la License Key (3 attivazioni, nessuna scadenza) e l'app è subito disponibile su `https://barmanpro.app`.
 
 ## Installazione come app (PWA)
 
