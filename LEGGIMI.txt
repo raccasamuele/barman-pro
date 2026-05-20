@@ -15,7 +15,7 @@ e installare l'app sui tuoi dispositivi.
 
   👉 INDIRIZZO UFFICIALE:
 
-        https://barman-pro.pages.dev
+        https://barmanpro.app
 
   Apri quel link nel browser, inserisci la tua License Key una
   sola volta, poi installa l'app (vedi sotto): da quel momento
@@ -43,7 +43,7 @@ e installare l'app sui tuoi dispositivi.
 
 ─── ATTIVAZIONE (PRIMA APERTURA) ───────────────────────────────
 
-  1. Vai su https://barman-pro.pages.dev
+  1. Vai su https://barmanpro.app
   2. Alla prima apertura comparirà un campo "License Key".
   3. Incolla la chiave che hai ricevuto via email (formato
      XXXX-XXXX-XXXX-XXXX) e clicca "Attiva".
@@ -59,13 +59,13 @@ e installare l'app sui tuoi dispositivi.
   e funzionamento offline:
 
   SU SMARTPHONE
-  • Apri https://barman-pro.pages.dev in Chrome (Android) o
+  • Apri https://barmanpro.app in Chrome (Android) o
     Safari (iOS).
   • Tocca il menu del browser (tre puntini o pulsante condividi).
   • Scegli "Installa app" / "Aggiungi a schermata Home".
 
   SU PC
-  • Apri https://barman-pro.pages.dev in Chrome o Edge.
+  • Apri https://barmanpro.app in Chrome o Edge.
   • In alto a destra apparirà un'icona di installazione (⊕).
   • Cliccala e conferma.
 
