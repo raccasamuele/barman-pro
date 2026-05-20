@@ -1094,7 +1094,7 @@
                 <span class="demo-price"> &middot; <span data-i18n="demoPrice">🚀 Prezzo di lancio · 14,90 € (anziché 19,90 €)</span></span>
             </div>
         </div>
-        <a class="btn-premium" id="btn-acquista" href="#" onclick="apriCheckout(event)" style="margin-top: 16px;">
+        <a class="btn-premium lemonsqueezy-button" id="btn-acquista" href="https://barman-pro.lemonsqueezy.com/checkout/buy/615640ad-5b95-44d2-95c7-b2b639a9ef89?embed=1" target="_blank" rel="noopener" onclick="apriCheckout(event)" style="margin-top: 16px;">
             <span class="lock-icon">&#128274;</span> <span data-i18n="demoCta">Acquista versione completa</span>
         </a>
     </div>
@@ -1143,7 +1143,7 @@
             </div>
         </div>
         <div class="pro-overlay-msg" onclick="apriCheckout(event)">
-            <a href="#" class="btn-premium" onclick="apriCheckout(event); event.stopPropagation();">
+            <a href="https://barman-pro.lemonsqueezy.com/checkout/buy/615640ad-5b95-44d2-95c7-b2b639a9ef89?embed=1" target="_blank" rel="noopener" class="btn-premium lemonsqueezy-button" onclick="apriCheckout(event); event.stopPropagation();">
                 <span class="lock-icon">&#128274;</span> <span data-i18n="proLockPdf">Disponibile nella versione completa &mdash; clicca per sbloccare</span>
             </a>
         </div>
@@ -1248,7 +1248,7 @@
             </div>
         </div>
         <div class="pro-overlay-msg" onclick="apriCheckout(event)" style="cursor: pointer;">
-            <a href="#" class="btn-premium" onclick="apriCheckout(event); event.stopPropagation();">
+            <a href="https://barman-pro.lemonsqueezy.com/checkout/buy/615640ad-5b95-44d2-95c7-b2b639a9ef89?embed=1" target="_blank" rel="noopener" class="btn-premium lemonsqueezy-button" onclick="apriCheckout(event); event.stopPropagation();">
                 <span class="lock-icon">&#128274;</span> <span data-i18n="proLockCreator">Creazione personalizzata &mdash; sblocca versione completa</span>
             </a>
         </div>
@@ -2103,18 +2103,21 @@
         /* ════════════════════════════════════════════════════════════
            CHECKOUT (mailto temporaneo, sostituire con link Lemon Squeezy)
            ════════════════════════════════════════════════════════════ */
+        // Direct checkout link (variant-specific UUID, salta la storefront page).
+        // ?embed=1 abilita la modalità overlay quando lemon.js è caricato.
+        const LS_CHECKOUT_URL = "https://barman-pro.lemonsqueezy.com/checkout/buy/615640ad-5b95-44d2-95c7-b2b639a9ef89?embed=1";
+
         function apriCheckout(e) {
             if(e && e.stopPropagation) e.stopPropagation();
             if(e && e.preventDefault) e.preventDefault();
-            const subject = encodeURIComponent("Richiesta versione completa Barman PRO");
-            const body = encodeURIComponent(
-                "Ciao Samuele,\n\n" +
-                "ho provato la demo di Barman PRO e vorrei acquistare la versione completa (prezzo di lancio 14,90 €).\n\n" +
-                "Lingua interfaccia: " + linguaCorrente + "\n" +
-                "Pagina: " + location.href + "\n\n" +
-                "Grazie."
-            );
-            location.href = "mailto:raccasamuele2004@gmail.com?subject=" + subject + "&body=" + body;
+            // Prima scelta: overlay modale via lemon.js (no context switch, +conversione).
+            if(window.LemonSqueezy && window.LemonSqueezy.Url && window.LemonSqueezy.Url.Open) {
+                window.LemonSqueezy.Url.Open(LS_CHECKOUT_URL);
+                return;
+            }
+            // Fallback: se lemon.js non si è caricato (ad-blocker, offline, errore CDN),
+            // apriamo il checkout in nuova tab. Funziona sempre.
+            window.open(LS_CHECKOUT_URL, '_blank', 'noopener,noreferrer');
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -2539,5 +2542,12 @@
             registraServiceWorker();
         };
     </script>
+
+    <!-- ─── Lemon Squeezy checkout overlay ───────────────────────────
+         Carica lemon.js: trasforma i click sui link .lemonsqueezy-button
+         in modali checkout (senza uscire dalla demo). Se lo script fallisce
+         (ad-blocker, offline), i link cadono sul fallback window.open.
+    -->
+    <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
 </body>
 </html>
