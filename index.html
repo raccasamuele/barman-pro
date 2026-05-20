@@ -3108,8 +3108,10 @@
             // ma non concediamo "licenza a vita" se l'utente resta offline.
             const GRACE_PERIOD_MS = 14 * 24 * 60 * 60 * 1000;
             const API_VALIDATE = 'https://api.lemonsqueezy.com/v1/licenses/validate';
-            // Prodotto Lemon Squeezy "Barman PRO". Aggiorna SOLO se ricrei il prodotto su LS.
-            const EXPECTED_PRODUCT_ID = 1047474;
+            // Prodotto Lemon Squeezy "Barman PRO" (LIVE mode).
+            // ⚠️ NB: Test mode e Live mode generano product_id DIVERSI. Questa è la
+            // versione Live, pubblicata il 2026-05-20. Se ricrei ancora il prodotto, aggiorna qui.
+            const EXPECTED_PRODUCT_ID = 1072260;
 
             function readStored() {
                 try {

@@ -9,8 +9,8 @@
  *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v1.0.1';
-const ASSET_CACHE = 'barman-pro-assets-v1.0.1';
+const CACHE_VERSION = 'barman-pro-v1.0.2';
+const ASSET_CACHE = 'barman-pro-assets-v1.0.2';
 
 // Asset da pre-cachare alla prima installazione.
 // NB: cache.addAll è atomico → se un solo file 404, NIENTE viene cachato.
