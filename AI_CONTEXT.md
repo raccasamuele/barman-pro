@@ -1,7 +1,7 @@
 # AI_CONTEXT.md — Barman PRO
 
 Knowledge base for LLM agents. Last update: 2026-05-20.
-Owner: Samuele Racca (raccasamuele2004@gmail.com, CF RCCSML04M05D205P, Italia).
+Owner: Samuele Racca (CF RCCSML04M05D205P, Italia). Email personale identità: raccasamuele2004@gmail.com. **Email business pubblica (support/sponsor/social/legal)**: barmanproapp@gmail.com.
 
 ---
 
@@ -287,7 +287,7 @@ Template configurato in LS Settings → Emails → Order Confirmation. Include `
 ### 🟢 Coerenze importanti
 
 21. URL paid version: **sempre** `https://barmanpro.app` (mai netlify, mai workers.dev, mai pages.dev — quelli erano stati intermedi).
-22. Indirizzo support: **sempre** `raccasamuele2004@gmail.com`.
+22. Indirizzo support pubblico (clienti/sponsor/social/legal): **sempre** `barmanproapp@gmail.com`. La mail personale `raccasamuele2004@gmail.com` resta privata, mai esposta nei file deployati.
 23. Product ID stabile finché non elimini+ricrei il prodotto su LS (modifiche a prezzo/titolo/copy non lo cambiano). **Test mode e Live mode hanno product_id DIVERSI** — sono ambienti separati. Test mode era 1047474, Live mode è 1072260.
 
 ---
@@ -414,4 +414,4 @@ Compress-Archive -Path index.html,sw.js,manifest.json,eula.html,privacy.html,LEG
 
 ---
 
-*Fine knowledge base. Per dubbi su decisioni non documentate qui, chiedere a raccasamuele2004@gmail.com.*
+*Fine knowledge base. Per dubbi su decisioni non documentate qui, contattare barmanproapp@gmail.com (support pubblico).*
