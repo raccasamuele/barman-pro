@@ -35,6 +35,7 @@
             font-size: 15px;
             min-height: 100vh;
         }
+        /* ─── Mesh gradient background ─── */
         .ambient-background {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -45,6 +46,7 @@
                 radial-gradient(circle at 50% 80%, rgba(100,100,100,0.04), transparent 50%);
             filter: blur(60px);
         }
+        /* ─── Card container ─── */
         .container {
             max-width: 820px;
             margin: 0 auto;
@@ -58,10 +60,11 @@
             position: relative;
             z-index: 1;
         }
+        /* ─── Typography ─── */
         h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 400; letter-spacing: 2px; color: var(--gold-1); }
         h1 { font-size: 32px; text-align: center; margin: 0 0 4px; }
         h2 { font-size: 18px; border-bottom: 1px solid rgba(179,142,70,0.30); padding-bottom: 6px; margin-top: 36px; }
-        h3 { font-size: 15px; margin-top: 24px; }
+        h3 { font-size: 15px; margin-top: 24px; color: var(--gold-1); }
         .subtitle {
             text-align: center; color: var(--text-muted);
             margin-bottom: 30px; letter-spacing: 4px; font-size: 11px; text-transform: uppercase;
@@ -74,6 +77,7 @@
         a:hover { color: #fff; }
         strong { color: #fff; font-weight: 600; }
         code { background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+        /* ─── Table ─── */
         table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
         th {
             background: rgba(179,142,70,0.18); color: var(--gold-1);
@@ -83,6 +87,7 @@
         }
         td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: top; }
         tr:last-child td { border-bottom: none; }
+        /* ─── Lang tabs ─── */
         .lang-tabs {
             display: flex; justify-content: center;
             margin: 0 0 30px; border-bottom: 1px solid var(--glass-border-sub);
@@ -97,6 +102,7 @@
         .lang-tab.active { color: var(--gold-1); border-bottom-color: var(--gold-2); }
         .lang-content { display: none; }
         .lang-content.active { display: block; }
+        /* ─── Footer navigation ─── */
         nav.footer {
             margin-top: 44px; padding-top: 28px;
             border-top: 1px solid var(--glass-border-sub);
@@ -118,6 +124,7 @@
             border: 1px solid rgba(179,142,70,0.45);
         }
         nav.footer a.btn-outline:hover { background: rgba(179,142,70,0.12); border-color: var(--gold-1); }
+        /* ─── Responsive ─── */
         @media (max-width: 600px) {
             body { padding: 16px 10px; }
             .container { padding: 28px 20px; border-radius: 16px; }
@@ -132,7 +139,7 @@
 <body>
 <div class="ambient-background"></div>
 <div class="container">
-    <div class="ornament">&#10086; &#10086; &#10086;</div>
+    <div class="ornament">&#10022;</div>
     <h1>Privacy Policy</h1>
     <div class="subtitle">Barman PRO &middot; trattamento dei dati personali</div>
 
@@ -145,12 +152,12 @@
     <div class="lang-content active" id="lang-it">
         <p><strong>Ultimo aggiornamento:</strong> 1 giugno 2026<br>
         <strong>Titolare del trattamento:</strong> Samuele Racca, Italia<br>
-        <strong>Email di contatto:</strong> raccasamuele2004@gmail.com</p>
+        <strong>Email di contatto:</strong> barmanproapp@gmail.com</p>
 
         <p>La presente informativa descrive in modo trasparente come vengono trattati i dati personali degli utenti che utilizzano la demo gratuita o la versione completa di "Barman PRO" (di seguito "Servizio"), in conformità al Regolamento UE 2016/679 ("GDPR") e al D.Lgs. 196/2003 e successive modifiche.</p>
 
         <h2>1. Dati trattati &mdash; demo gratuita</h2>
-        <p>Il Servizio (sia la demo pubblica sia la versione completa ospitata su <code>barmanpro.app</code>) &egrave; progettato per minimizzare la raccolta di dati personali.</p>
+        <p>La demo pubblica disponibile su <code>raccasamuele.github.io/barman-pro/</code> &egrave; progettata per minimizzare la raccolta di dati personali.</p>
         <ul>
             <li><strong>Nessun account, nessuna registrazione.</strong> La demo non richiede creazione di profilo n&eacute; raccolta diretta di dati personali.</li>
             <li><strong>Nessun cookie, nessun tracker.</strong> Il Servizio non utilizza cookie, pixel di tracciamento, analytics o strumenti di profilazione.</li>
@@ -162,7 +169,7 @@
                 </ul>
                 Tali dati restano sul dispositivo dell'Utente, non vengono trasmessi a server esterni e possono essere cancellati in qualsiasi momento dalle impostazioni del browser oppure tramite il pulsante "Azzera tutto" all'interno dell'app.
             </li>
-            <li><strong>Log del server di hosting:</strong> il provider di hosting (Cloudflare, Inc.) registra automaticamente l'indirizzo IP e lo user-agent del visitatore a fini di sicurezza e funzionamento del servizio. Cloudflare &egrave; titolare autonomo di tali log; per dettagli vedere la <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">privacy policy di Cloudflare</a>.</li>
+            <li><strong>Log del server di hosting:</strong> il provider di hosting della demo (GitHub Pages) registra automaticamente l'indirizzo IP e lo user-agent del visitatore a fini di sicurezza e funzionamento del servizio. GitHub &egrave; titolare autonomo di tali log; per dettagli vedere la <a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">privacy policy di GitHub</a>.</li>
         </ul>
 
         <h2>2. Dati trattati &mdash; versione completa (a pagamento)</h2>
@@ -192,7 +199,7 @@
         <ul>
             <li><strong>localStorage:</strong> permane sul dispositivo dell'Utente fino a cancellazione manuale.</li>
             <li><strong>License Key sui server Lemon Squeezy:</strong> conservata per la durata del contratto e per il termine prescrizionale ordinario (10 anni) ai fini fiscali e di difesa in giudizio.</li>
-            <li><strong>Log di sistema (IP):</strong> conservati da Lemon Squeezy/Cloudflare secondo le rispettive policy (tipicamente 30-180 giorni).</li>
+            <li><strong>Log di sistema (IP):</strong> conservati da Lemon Squeezy/GitHub secondo le rispettive policy (tipicamente 30-180 giorni).</li>
         </ul>
 
         <h2>6. Diritti dell'interessato</h2>
@@ -205,7 +212,7 @@
             <li>revoca del consenso ove applicabile;</li>
             <li>reclamo all'Autorit&agrave; Garante per la Protezione dei Dati Personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">www.garanteprivacy.it</a>).</li>
         </ul>
-        <p>Per esercitare tali diritti contattare il Titolare all'indirizzo <strong>raccasamuele2004@gmail.com</strong>. I dati gestiti direttamente da Lemon Squeezy vanno richiesti al loro Data Protection Officer (<a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">link</a>).</p>
+        <p>Per esercitare tali diritti contattare il Titolare all'indirizzo <strong>barmanproapp@gmail.com</strong>. I dati gestiti direttamente da Lemon Squeezy vanno richiesti al loro Data Protection Officer (<a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">link</a>).</p>
 
         <h2>7. Cookie banner</h2>
         <p>Il Servizio non utilizza cookie e non richiede pertanto un banner di consenso ai sensi della normativa ePrivacy. Il localStorage tecnico, in quanto strettamente necessario al funzionamento del servizio richiesto dall'Utente, &egrave; esente da consenso preventivo (Direttiva 2002/58/CE, considerando 25).</p>
@@ -218,12 +225,12 @@
     <div class="lang-content" id="lang-en">
         <p><strong>Last update:</strong> 1 June 2026<br>
         <strong>Data controller:</strong> Samuele Racca, Italy<br>
-        <strong>Contact email:</strong> raccasamuele2004@gmail.com</p>
+        <strong>Contact email:</strong> barmanproapp@gmail.com</p>
 
         <p>This Privacy Policy transparently describes how personal data of users of the free demo or the full version of "Barman PRO" (the "Service") are processed, in compliance with EU Regulation 2016/679 ("GDPR") and applicable national laws.</p>
 
         <h2>1. Data processed &mdash; free demo</h2>
-        <p>The Service (both the public demo and the full version hosted at <code>barmanpro.app</code>) is designed to minimize personal data collection.</p>
+        <p>The public demo available at <code>raccasamuele.github.io/barman-pro/</code> is designed to minimize personal data collection.</p>
         <ul>
             <li><strong>No account, no registration.</strong> The demo does not require profile creation or direct collection of personal data.</li>
             <li><strong>No cookies, no trackers.</strong> The Service does not use cookies, tracking pixels, analytics, or profiling tools.</li>
@@ -235,7 +242,7 @@
                 </ul>
                 Such data remains on the User's device, is not transmitted to external servers, and can be deleted at any time from browser settings or via the "Reset all" button within the app.
             </li>
-            <li><strong>Hosting server logs:</strong> the hosting provider (Cloudflare, Inc.) automatically logs the visitor's IP address and user-agent for security and operational purposes. Cloudflare is the autonomous controller of such logs; for details see the <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare privacy policy</a>.</li>
+            <li><strong>Hosting server logs:</strong> the demo's hosting provider (GitHub Pages) automatically logs the visitor's IP address and user-agent for security and operational purposes. GitHub is the autonomous controller of such logs; for details see the <a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">GitHub privacy policy</a>.</li>
         </ul>
 
         <h2>2. Data processed &mdash; full version (paid)</h2>
@@ -278,7 +285,7 @@
             <li>withdrawal of consent where applicable;</li>
             <li>complaint to a Data Protection Authority.</li>
         </ul>
-        <p>To exercise these rights, contact the Controller at <strong>raccasamuele2004@gmail.com</strong>. Data managed directly by Lemon Squeezy should be requested from their Data Protection Officer.</p>
+        <p>To exercise these rights, contact the Controller at <strong>barmanproapp@gmail.com</strong>. Data managed directly by Lemon Squeezy should be requested from their Data Protection Officer.</p>
 
         <h2>7. Cookie banner</h2>
         <p>The Service does not use cookies and therefore does not require a consent banner under the ePrivacy regulations. Technical localStorage, being strictly necessary for the operation of the service requested by the User, is exempt from prior consent (Directive 2002/58/EC, recital 25).</p>
@@ -288,9 +295,9 @@
     </div>
 
     <nav class="footer">
-        <a href="docs/" class="btn-primary">&#8592; Demo</a>
+        <a href="./" class="btn-primary">&#8592; Demo</a>
         <a href="eula.html" class="btn-outline">EULA</a>
-        <a href="mailto:raccasamuele2004@gmail.com" class="btn-outline">Contatti</a>
+        <a href="mailto:barmanproapp@gmail.com" class="btn-outline">Contatti</a>
     </nav>
 </div>
 
