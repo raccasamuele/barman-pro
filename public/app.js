@@ -920,7 +920,7 @@
            ════════════════════════════════════════════════════════════ */
         const _extraI18n = {
             it: {
-                themeNight: "Scuro", themeWedding: "Chiaro",
+                themeAuto: "Auto", themeNight: "Scuro", themeWedding: "Chiaro",
                 labelPctBevitori: "Percentuale bevitori (alcolici)",
                 lblAlcolici: "Alcolici", lblAnalcolici: "Analcolici",
                 h2Mocktail: "Cocktail Analcolici",
@@ -944,7 +944,7 @@
                 lblCalici: "calici", lblConsumazioni: "consumazioni"
             },
             en: {
-                themeNight: "Dark", themeWedding: "Light",
+                themeAuto: "Auto", themeNight: "Dark", themeWedding: "Light",
                 labelPctBevitori: "Alcohol drinkers percentage",
                 lblAlcolici: "Alcoholic", lblAnalcolici: "Non-alcoholic",
                 h2Mocktail: "Non-alcoholic Cocktails",
@@ -968,7 +968,7 @@
                 lblCalici: "glasses", lblConsumazioni: "servings"
             },
             es: {
-                themeNight: "Oscuro", themeWedding: "Claro",
+                themeAuto: "Auto", themeNight: "Oscuro", themeWedding: "Claro",
                 labelPctBevitori: "Porcentaje bebedores (alcohol)",
                 lblAlcolici: "Alcohólicos", lblAnalcolici: "Sin alcohol",
                 h2Mocktail: "Cócteles Sin Alcohol",
@@ -992,7 +992,7 @@
                 lblCalici: "copas", lblConsumazioni: "consumiciones"
             },
             fr: {
-                themeNight: "Sombre", themeWedding: "Clair",
+                themeAuto: "Auto", themeNight: "Sombre", themeWedding: "Clair",
                 labelPctBevitori: "Pourcentage buveurs (alcool)",
                 lblAlcolici: "Alcoolisés", lblAnalcolici: "Sans alcool",
                 h2Mocktail: "Cocktails Sans Alcool",
@@ -1016,7 +1016,7 @@
                 lblCalici: "verres", lblConsumazioni: "consommations"
             },
             de: {
-                themeNight: "Dunkel", themeWedding: "Hell",
+                themeAuto: "Auto", themeNight: "Dunkel", themeWedding: "Hell",
                 labelPctBevitori: "Anteil Alkoholtrinker",
                 lblAlcolici: "Alkoholisch", lblAnalcolici: "Alkoholfrei",
                 h2Mocktail: "Alkoholfreie Cocktails",
@@ -1040,7 +1040,7 @@
                 lblCalici: "Gläser", lblConsumazioni: "Getränke"
             },
             pt: {
-                themeNight: "Escuro", themeWedding: "Claro",
+                themeAuto: "Auto", themeNight: "Escuro", themeWedding: "Claro",
                 labelPctBevitori: "Percentagem bebedores (álcool)",
                 lblAlcolici: "Alcoólicos", lblAnalcolici: "Sem álcool",
                 h2Mocktail: "Cocktails Sem Álcool",
@@ -1064,7 +1064,7 @@
                 lblCalici: "taças", lblConsumazioni: "consumos"
             },
             nl: {
-                themeNight: "Donker", themeWedding: "Licht",
+                themeAuto: "Auto", themeNight: "Donker", themeWedding: "Licht",
                 labelPctBevitori: "Percentage alcoholdrinkers",
                 lblAlcolici: "Alcoholisch", lblAnalcolici: "Alcoholvrij",
                 h2Mocktail: "Alcoholvrije Cocktails",
@@ -2364,9 +2364,8 @@
                 customDrinks = s.customDrinks || {};
                 Object.assign(databaseDrink, customDrinks);
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
-                if (s.tema === 'night' || s.tema === 'wedding') {
-                    document.body.setAttribute('data-theme', s.tema);
-                    aggiornaThemeButtons(s.tema);
+                if (s.tema) {
+                    bpApplicaTema(s.tema);
                 }
                 const _set = (id, v) => { const el = document.getElementById(id); if (el && v != null && v !== '') el.value = v; };
                 if(s.config) {
@@ -2407,9 +2406,8 @@
                 if (!raw) return;
                 const s = JSON.parse(raw);
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
-                if (s.tema === 'night' || s.tema === 'wedding') {
-                    document.body.setAttribute('data-theme', s.tema);
-                    aggiornaThemeButtons(s.tema);
+                if (s.tema) {
+                    bpApplicaTema(s.tema);
                 }
                 if (s.autosave != null) bpAutoSave = !!s.autosave;
             } catch(e) { console.warn('Caricamento impostazioni fallito:', e); }
@@ -2827,17 +2825,53 @@
         /* ════════════════════════════════════════════════════════════
            THEME SWITCHER (Night ↔ Wedding)
            ════════════════════════════════════════════════════════════ */
+        /* ══════════════════════════════════════════════════════════
+           TEMA · un solo insieme di token, tre stati
+           ══════════════════════════════════════════════════════════
+           Precedenza: scelta manuale salvata > preferenza del sistema >
+           chiaro. "Auto" esiste perche' altrimenti una scelta manuale non
+           si potrebbe piu' disfare.
+
+           L'attributo va su <html>, non su <body>: i token sono definiti su
+           :root, e scriverlo sul body non aveva alcun effetto. E' cosi' che
+           il cambio tema era rimasto muto dopo il nuovo design system.
+           ══════════════════════════════════════════════════════════ */
+
+        /* I temi si chiamavano 'night' e 'wedding'. Chi ha gia' l'app
+           installata ha quei valori salvati: vanno tradotti, non ignorati,
+           altrimenti al primo avvio della v3 si ritrova il tema cambiato
+           sotto il naso. */
+        function bpNormalizzaTema(tema) {
+            if (tema === 'night') return 'dark';
+            if (tema === 'wedding') return 'light';
+            if (tema === 'dark' || tema === 'light' || tema === 'auto') return tema;
+            return 'auto';
+        }
+
         function aggiornaThemeButtons(tema) {
-            const n = document.getElementById('theme-btn-night');
-            const w = document.getElementById('theme-btn-wedding');
-            if (!n || !w) return;
-            n.classList.toggle('active', tema === 'night');
-            w.classList.toggle('active', tema === 'wedding');
+            const scelto = bpNormalizzaTema(tema);
+            for (const nome of ['auto', 'light', 'dark']) {
+                const b = document.getElementById('theme-btn-' + nome);
+                if (!b) continue;
+                b.classList.toggle('active', nome === scelto);
+                b.setAttribute('aria-pressed', String(nome === scelto));
+            }
+        }
+
+        function bpApplicaTema(tema) {
+            const scelto = bpNormalizzaTema(tema);
+            const root = document.documentElement;
+            // In "auto" l'attributo si toglie: decide prefers-color-scheme.
+            if (scelto === 'auto') root.removeAttribute('data-theme');
+            else root.setAttribute('data-theme', scelto);
+            // Il vecchio attributo sul body non serve piu' a niente: se resta,
+            // confonde chi legge il DOM cercando di capire quale tema e' attivo.
+            document.body.removeAttribute('data-theme');
+            aggiornaThemeButtons(scelto);
+            return scelto;
         }
         function cambiaTema(tema) {
-            if (tema !== 'night' && tema !== 'wedding') tema = 'night';
-            document.body.setAttribute('data-theme', tema);
-            aggiornaThemeButtons(tema);
+            bpApplicaTema(tema);
             bpSaveSettings();   // il tema scelto è una preferenza: persiste sempre
             // Salvataggio differito: scrivere su localStorage in modo sincrono qui
             // bloccava il thread proprio durante il repaint del cambio tema.

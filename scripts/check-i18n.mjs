@@ -13,8 +13,8 @@
  * `_T('…')`. Le famiglie costruite a runtime stanno nell'allowlist.
  *
  * Modalita': informativa per default (exit 0), bloccante con --strict.
- * Diventa bloccante in CI alla fine della Fase 6, non prima: durante il
- * rewrite le chiavi si spostano, e un gate che fallisce sempre viene ignorato.
+ * In CI gira con --strict: le sette lingue sono allineate, quindi da qui in
+ * poi uno scostamento e' una regressione.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,6 +24,17 @@ import { chromium } from '@playwright/test';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const INDEX = path.join(ROOT, 'public', 'index.html');
+
+/**
+ * Le chiavi si usano in due posti e vanno cercate in entrambi.
+ *
+ * Fino allo split del monolite bastava index.html, perche' conteneva anche
+ * tutto il JavaScript. Dopo lo split le chiamate T() sono finite in app.js e
+ * questo controllo ha smesso di vederle: continuava a passare, ma su meta'
+ * del progetto era cieco. Se ne e' accorto solo perche' il numero di chiavi
+ * "definite ma mai usate" e' saltato da 52 a 189 di colpo.
+ */
+const SORGENTI = [INDEX, path.join(ROOT, 'public', 'app.js')];
 
 const STRICT = process.argv.includes('--strict');
 
@@ -81,7 +92,7 @@ async function chiaviDefinite() {
   return { dati, errori };
 }
 
-const sorgente = fs.readFileSync(INDEX, 'utf8');
+const sorgente = SORGENTI.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
 const usate = chiaviUsate(sorgente);
 const { dati, errori } = await chiaviDefinite();
 

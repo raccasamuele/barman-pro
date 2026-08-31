@@ -133,9 +133,13 @@
 
                 <div class="bpset-row">
                     <label class="bpset-label" data-i18n="setTheme">Tema predefinito</label>
-                    <div class="theme-switcher bpset-theme" role="tablist" aria-label="Theme">
-                        <button type="button" id="theme-btn-night" class="active" data-do="cambiaTema" data-arg="night" data-i18n="themeNight">Scuro</button>
-                        <button type="button" id="theme-btn-wedding" data-do="cambiaTema" data-arg="wedding" data-i18n="themeWedding">Chiaro</button>
+                    <!-- Tre stati, non due: "Auto" segue l'impostazione del
+                         sistema, ed e' il default. Senza, una scelta manuale
+                         non si poteva piu' disfare. -->
+                    <div class="theme-switcher bpset-theme" role="group" aria-label="Tema">
+                        <button type="button" id="theme-btn-auto" class="active" data-do="cambiaTema" data-arg="auto" data-i18n="themeAuto">Auto</button>
+                        <button type="button" id="theme-btn-light" data-do="cambiaTema" data-arg="light" data-i18n="themeWedding">Chiaro</button>
+                        <button type="button" id="theme-btn-dark" data-do="cambiaTema" data-arg="dark" data-i18n="themeNight">Scuro</button>
                     </div>
                 </div>
 
