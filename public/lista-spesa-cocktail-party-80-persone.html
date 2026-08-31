@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista della spesa per un cocktail party da 80 persone (esempio reale con costi)</title>
+    <meta name="description" content="Esempio completo e reale: cosa comprare per un cocktail party da 80 invitati con Spritz, Mojito e Gin Tonic. Tutte le quantità, i costi voce per voce e il budget totale: € 528.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://demo.barmanpro.app/lista-spesa-cocktail-party-80-persone.html">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Lista della spesa per un cocktail party da 80 persone">
+    <meta property="og:description" content="Esempio reale: Spritz, Mojito e Gin Tonic per 80 invitati. Quantità, costi voce per voce, budget € 528 (≈ € 6,60 a persona).">
+    <meta property="og:url" content="https://demo.barmanpro.app/lista-spesa-cocktail-party-80-persone.html">
+    <meta property="og:image" content="https://demo.barmanpro.app/og-image.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Quanto costa il bar di una festa da 80 persone?", "acceptedAnswer": { "@type": "Answer", "text": "Con un menu di 3 cocktail (Spritz, Mojito, Gin Tonic), uno shot a testa e bollicine, la materia prima in fascia di prezzo media costa circa 528 euro in Italia, cioè 6,60 euro a persona. Salendo alla fascia premium il budget cresce sensibilmente, in fascia economica scende." } },
+        { "@type": "Question", "name": "Quante bottiglie servono per 80 invitati?", "acceptedAnswer": { "@type": "Answer", "text": "Per 277 cocktail e 74 shot servono circa 24,5 litri di alcolici (Prosecco 8,5 L, Aperol 6 L, Gin 3,5 L, Rum bianco 3,5 L, Jägermeister 3 L) più 27,5 litri di analcolici tra tonica, soda, succo di lime e sciroppo." } }
+      ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0806; --bg-soft: #14110e;
+            --gold-1: #EAD0A1; --gold-2: #B38E46;
+            --text: #fcfcfc; --text-soft: #c9c4bc; --text-mute: #8d877d;
+            --border: rgba(179, 142, 70, 0.25); --border-soft: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Manrope', sans-serif; font-size: 17px; line-height: 1.7;
+            background: var(--bg); color: var(--text-soft); padding-bottom: 60px;
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background: radial-gradient(circle at 20% 10%, rgba(179,142,70,0.07), transparent 45%),
+                        radial-gradient(circle at 80% 60%, rgba(234,208,161,0.05), transparent 50%);
+            filter: blur(60px);
+        }
+        .wrap { max-width: 760px; margin: 0 auto; padding: 0 22px; position: relative; z-index: 1; }
+        .topnav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
+        .brand { font-family: 'Cinzel', serif; color: var(--gold-1); text-decoration: none; font-size: 18px; letter-spacing: 2px; }
+        .topnav a.demo { color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid var(--border); border-radius: 999px; padding: 9px 16px; }
+        h1 { font-family: 'Cinzel', serif; font-weight: 500; color: var(--text); font-size: clamp(28px, 6vw, 40px); line-height: 1.15; margin: 28px 0 18px; }
+        h2 { font-family: 'Cinzel', serif; font-weight: 500; color: var(--text); font-size: 24px; margin: 44px 0 14px; }
+        p { margin-bottom: 16px; }
+        em, .gold { color: var(--gold-1); font-style: normal; }
+        table { width: 100%; border-collapse: collapse; margin: 18px 0 24px; font-size: 15px; }
+        th { text-align: left; color: var(--gold-2); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        td { padding: 11px 12px; border-bottom: 1px solid var(--border-soft); color: var(--text-soft); }
+        td:first-child { color: var(--text); font-weight: 600; }
+        td:last-child { color: var(--gold-1); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .budget { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 18px; padding: 24px; margin: 22px 0; text-align: center; }
+        .budget .num { font-family: 'Cinzel', serif; font-size: 44px; color: var(--text); line-height: 1.1; }
+        .budget .sub { color: var(--text-mute); font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 6px; }
+        .cta { background: linear-gradient(160deg, rgba(179,142,70,0.12), transparent 70%), var(--bg-soft); border: 1px solid var(--border); border-radius: 18px; padding: 26px; margin: 40px 0; text-align: center; }
+        .cta h3 { font-family: 'Cinzel', serif; color: var(--text); font-weight: 500; font-size: 21px; margin-bottom: 8px; }
+        .cta p { color: var(--text-mute); font-size: 15px; }
+        .cta a.btn { display: inline-block; margin-top: 14px; background: linear-gradient(135deg, var(--gold-1), var(--gold-2)); color: #0a0806; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; padding: 13px 26px; border-radius: 999px; }
+        .related { margin-top: 48px; border-top: 1px solid var(--border-soft); padding-top: 22px; }
+        .related h4 { color: var(--gold-2); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+        .related a { display: block; color: var(--text-soft); text-decoration: none; padding: 6px 0; }
+        .related a:hover { color: var(--gold-1); }
+        footer { text-align: center; color: var(--text-mute); font-size: 12px; margin-top: 50px; letter-spacing: 1px; }
+        footer a { color: var(--gold-2); text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="./">Barman PRO</a>
+        <a class="demo" href="./app.html">Prova il calcolatore →</a>
+    </nav>
+
+    <article>
+        <h1>Lista della spesa per un cocktail party da 80 persone</h1>
+        <p>Questo è un esempio <em>completo e reale</em>, generato con il calcolatore Barman PRO. Scenario: festa serale da 80 invitati, menu con <em>Spritz, Mojito e Gin Tonic</em>, un Virgin Mojito per chi non beve, Jägermeister come shot e bollicine per il brindisi. Ipotesi: 3 cocktail e 1 shot a testa, 80% di bevitori, margine di sicurezza +15%, prezzi Italia in fascia media.</p>
+        <p>Risultato: <em>277 cocktail e 74 shot da preparare</em>.</p>
+
+        <div class="budget">
+            <div class="num">€ 528,00</div>
+            <div class="sub">Budget totale materie prime · ≈ € 6,60 a persona</div>
+        </div>
+
+        <h2>Alcolici</h2>
+        <table>
+            <thead><tr><th>Voce</th><th>Quantità</th><th>Costo stimato</th></tr></thead>
+            <tbody>
+                <tr><td>Prosecco</td><td>8,5 L</td><td>≈ € 67,00</td></tr>
+                <tr><td>Aperol</td><td>6 L</td><td>≈ € 75,50</td></tr>
+                <tr><td>Gin</td><td>3,5 L</td><td>≈ € 49,00</td></tr>
+                <tr><td>Rum bianco</td><td>3,5 L</td><td>≈ € 43,50</td></tr>
+                <tr><td>Jägermeister (shot)</td><td>3 L</td><td>≈ € 47,50</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Analcolici e filler</h2>
+        <table>
+            <thead><tr><th>Voce</th><th>Quantità</th><th>Costo stimato</th></tr></thead>
+            <tbody>
+                <tr><td>Soda</td><td>14,5 L</td><td>≈ € 21,50</td></tr>
+                <tr><td>Acqua tonica</td><td>8 L</td><td>≈ € 20,00</td></tr>
+                <tr><td>Succo di lime</td><td>3,5 L</td><td>≈ € 14,50</td></tr>
+                <tr><td>Sciroppo di zucchero</td><td>1,5 L</td><td>≈ € 4,00</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Vini e bollicine</h2>
+        <table>
+            <thead><tr><th>Voce</th><th>Quantità</th><th>Costo stimato</th></tr></thead>
+            <tbody>
+                <tr><td>Bollicine (32 calici)</td><td>7 bottiglie da 75 cl</td><td>≈ € 98,00</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Attrezzatura</h2>
+        <table>
+            <thead><tr><th>Voce</th><th>Quantità</th><th>Costo stimato</th></tr></thead>
+            <tbody>
+                <tr><td>Ghiaccio a cubi</td><td>28 kg</td><td>≈ € 42,00</td></tr>
+                <tr><td>Bicchieri da cocktail</td><td>277 pz</td><td>≈ € 28,00</td></tr>
+                <tr><td>Cannucce</td><td>277 pz</td><td>≈ € 11,50</td></tr>
+                <tr><td>Bicchierini da shot</td><td>74 pz</td><td>≈ € 6,00</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Tre cose da notare</h2>
+        <p><em>1. Gli analcolici pesano più di quanto pensi.</em> 27,5 litri tra soda, tonica e succhi: chi compra solo le bottiglie di alcol scopre il problema a festa iniziata. Nel Gin Tonic la tonica è il 70% del bicchiere.</p>
+        <p><em>2. Il ghiaccio è una voce seria.</em> 28 kg, quasi 6 sacchi da 5 kg. Il conto completo è spiegato nella <a href="./quanto-ghiaccio-per-una-festa.html" style="color: var(--gold-1);">guida al ghiaccio</a>.</p>
+        <p><em>3. I costi sono stime prudenti.</em> Arrotondate per eccesso (mezzo euro a voce, mezzo litro sulle quantità): meglio avanzare qualcosa che tornare al supermercato a metà serata. Cambiando paese o fascia di prezzo, il calcolatore aggiorna tutti i costi da solo.</p>
+
+        <div class="cta">
+            <h3>La stessa lista, sul tuo evento</h3>
+            <p>Cambia ospiti, cocktail e paese: la lista si ricalcola in tempo reale, la copi su WhatsApp o la stampi in PDF. Gratis, senza registrazione.</p>
+            <a class="btn" href="./app.html">Prova il calcolatore gratis</a>
+        </div>
+
+        <div class="related">
+            <h4>Guide correlate</h4>
+            <a href="./quanto-alcol-per-una-festa.html">→ Quanto alcol comprare per una festa: tabelle 20-100 invitati</a>
+            <a href="./quanto-vino-per-un-matrimonio.html">→ Quanto vino per un matrimonio: calcolo bottiglie e calici</a>
+            <a href="./quanto-ghiaccio-per-una-festa.html">→ Quanto ghiaccio serve per una festa</a>
+        </div>
+    </article>
+
+    <footer>
+        <a href="./">Barman PRO</a> · © 2026 Samuele Racca · Tutti i diritti riservati
+    </footer>
+</div>
+<!-- Cloudflare Web Analytics (cookieless) --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "05c0492a60e34874aaa3168c1d1649f0"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

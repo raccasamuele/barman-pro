@@ -1,0 +1,29 @@
+{
+    // ═══════════════════════════════════════════════════════════════════
+    //   Barman PRO FULL · Cloudflare Workers Assets configuration
+    // ═══════════════════════════════════════════════════════════════════
+    //
+    // Questo file è letto da `npx wrangler deploy` quando il comando viene
+    // eseguito con CWD = / (root del repo). Specifica esplicitamente:
+    //  - name: identifica il Worker (deve coincidere col project CF "barman-pro")
+    //  - assets.directory: "." = serve tutto da root del repo
+    //  - main: non definito → Workers Assets puro, nessun JS server-side
+    //
+    // ⚠️ NON cambiare name "barman-pro": il dominio custom barmanpro.app è
+    //    agganciato esattamente a questo Worker. Cambiare nome rompe il dominio.
+    //
+    // 📁 La versione DEMO ha un wrangler.jsonc separato in docs/wrangler.jsonc
+    //    con name "barman-pro-demo" servito da demo.barmanpro.app.
+    //
+    // 🚫 File esclusi dal deploy: vedi .assetsignore in questa stessa cartella
+    //    (esclude .git, node_modules, .docx, .zip, file dev/marketing privati)
+    // ═══════════════════════════════════════════════════════════════════
+    "name": "barman-pro",
+    "compatibility_date": "2026-05-23",
+    "assets": {
+        "directory": "."
+    },
+    "observability": {
+        "enabled": true
+    }
+}

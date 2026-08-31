@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quanto alcol comprare per una festa? Calcolo per 20, 50, 80 e 100 invitati</title>
+    <meta name="description" content="Quanti cocktail e quante bottiglie servono per una festa? Tabelle pronte per 20, 50, 80 e 100 invitati, con la formula usata dai barman e un esempio reale con i costi.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://demo.barmanpro.app/quanto-alcol-per-una-festa.html">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Quanto alcol comprare per una festa? Tabelle per 20-100 invitati">
+    <meta property="og:description" content="La formula dei barman per non restare a secco (e non buttare soldi): tabelle pronte e un esempio reale con i costi.">
+    <meta property="og:url" content="https://demo.barmanpro.app/quanto-alcol-per-una-festa.html">
+    <meta property="og:image" content="https://demo.barmanpro.app/og-image.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Quanti cocktail beve in media un ospite a una festa?", "acceptedAnswer": { "@type": "Answer", "text": "Per un aperitivo di 2 ore contate 2 cocktail a testa, per una festa serale lunga 3-4. Il conto va fatto solo sugli ospiti che bevono alcolici, in media l'80% degli adulti presenti." } },
+        { "@type": "Question", "name": "Quanto alcol serve per 50 persone?", "acceptedAnswer": { "@type": "Answer", "text": "Con 50 invitati di cui l'80% beve alcolici, a 3 cocktail a testa con il 15% di margine di sicurezza servono circa 138 cocktail. Come ordine di grandezza: 7-10 litri di alcolici, più filler analcolici e ghiaccio." } },
+        { "@type": "Question", "name": "Meglio comprare di più o di meno?", "acceptedAnswer": { "@type": "Answer", "text": "Sempre un 10-15% in più del calcolo esatto. Le bottiglie chiuse si conservano o si rendono, mentre restare a secco a metà serata rovina la festa." } }
+      ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0806; --bg-soft: #14110e;
+            --gold-1: #EAD0A1; --gold-2: #B38E46;
+            --text: #fcfcfc; --text-soft: #c9c4bc; --text-mute: #8d877d;
+            --border: rgba(179, 142, 70, 0.25); --border-soft: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Manrope', sans-serif; font-size: 17px; line-height: 1.7;
+            background: var(--bg); color: var(--text-soft); padding-bottom: 60px;
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background: radial-gradient(circle at 20% 10%, rgba(179,142,70,0.07), transparent 45%),
+                        radial-gradient(circle at 80% 60%, rgba(234,208,161,0.05), transparent 50%);
+            filter: blur(60px);
+        }
+        .wrap { max-width: 760px; margin: 0 auto; padding: 0 22px; position: relative; z-index: 1; }
+        .topnav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
+        .brand { font-family: 'Cinzel', serif; color: var(--gold-1); text-decoration: none; font-size: 18px; letter-spacing: 2px; }
+        .topnav a.demo { color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid var(--border); border-radius: 999px; padding: 9px 16px; }
+        h1 { font-family: 'Cinzel', serif; font-weight: 500; color: var(--text); font-size: clamp(28px, 6vw, 42px); line-height: 1.15; margin: 28px 0 18px; }
+        h2 { font-family: 'Cinzel', serif; font-weight: 500; color: var(--text); font-size: 24px; margin: 44px 0 14px; }
+        p { margin-bottom: 16px; }
+        em, .gold { color: var(--gold-1); font-style: normal; }
+        table { width: 100%; border-collapse: collapse; margin: 18px 0 24px; font-size: 15px; }
+        th { text-align: left; color: var(--gold-2); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        td { padding: 11px 12px; border-bottom: 1px solid var(--border-soft); color: var(--text-soft); }
+        td:first-child { color: var(--text); font-weight: 600; }
+        .formula { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 20px 0; font-size: 15px; }
+        .formula b { color: var(--gold-1); }
+        .cta { background: linear-gradient(160deg, rgba(179,142,70,0.12), transparent 70%), var(--bg-soft); border: 1px solid var(--border); border-radius: 18px; padding: 26px; margin: 40px 0; text-align: center; }
+        .cta h3 { font-family: 'Cinzel', serif; color: var(--text); font-weight: 500; font-size: 21px; margin-bottom: 8px; }
+        .cta p { color: var(--text-mute); font-size: 15px; }
+        .cta a.btn { display: inline-block; margin-top: 14px; background: linear-gradient(135deg, var(--gold-1), var(--gold-2)); color: #0a0806; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; padding: 13px 26px; border-radius: 999px; }
+        .related { margin-top: 48px; border-top: 1px solid var(--border-soft); padding-top: 22px; }
+        .related h4 { color: var(--gold-2); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+        .related a { display: block; color: var(--text-soft); text-decoration: none; padding: 6px 0; }
+        .related a:hover { color: var(--gold-1); }
+        footer { text-align: center; color: var(--text-mute); font-size: 12px; margin-top: 50px; letter-spacing: 1px; }
+        footer a { color: var(--gold-2); text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="./">Barman PRO</a>
+        <a class="demo" href="./app.html">Prova il calcolatore →</a>
+    </nav>
+
+    <article>
+        <h1>Quanto alcol comprare per una festa?</h1>
+        <p>È la domanda che chiunque organizzi una festa si fa davanti allo scaffale del supermercato: <em>quante bottiglie metto nel carrello?</em> Comprare a occhio finisce in due modi: o restate a secco alle 23:30, o vi ritrovate 80 euro di bottiglie aperte che nessuno berrà più. Qui trovate il metodo che usano i barman per gli eventi, con tabelle già calcolate.</p>
+
+        <h2>La formula dei barman</h2>
+        <div class="formula">
+            <b>Cocktail da preparare</b> = ospiti che bevono alcolici × cocktail a testa × margine di sicurezza<br><br>
+            Dove: gli ospiti che bevono alcolici sono in media l'<b>80%</b> degli adulti · i cocktail a testa sono <b>2</b> per un aperitivo, <b>3-4</b> per una festa serale · il margine di sicurezza consigliato è <b>+15%</b>.
+        </div>
+        <p>Il punto che quasi tutti sbagliano: il conto non si fa su <em>tutti</em> gli invitati. C'è sempre chi guida, chi non beve, chi va via presto. Per chi non beve alcolici vanno previsti mocktail e analcolici, che costano molto meno.</p>
+
+        <h2>Tabella: quanti cocktail per quanti invitati</h2>
+        <p>Ipotesi: festa serale, 3 cocktail a testa, 80% di bevitori, margine +15%. Lo shot conta a parte (1 a testa).</p>
+        <table>
+            <thead><tr><th>Invitati</th><th>Cocktail da preparare</th><th>Shot (1 a testa)</th><th>Spirits, ordine di grandezza*</th></tr></thead>
+            <tbody>
+                <tr><td>20</td><td>56</td><td>19</td><td>3-4 bottiglie da 70 cl</td></tr>
+                <tr><td>30</td><td>83</td><td>28</td><td>5-6 bottiglie</td></tr>
+                <tr><td>50</td><td>138</td><td>46</td><td>8-10 bottiglie</td></tr>
+                <tr><td>80</td><td>221</td><td>74</td><td>13-16 bottiglie</td></tr>
+                <tr><td>100</td><td>276</td><td>92</td><td>16-20 bottiglie</td></tr>
+            </tbody>
+        </table>
+        <p style="font-size:13px; color: var(--text-mute);">* Stima per cocktail a base spirit (~50 ml di alcolico a drink). I cocktail tipo Spritz consumano più prosecco e meno spirits: il mix esatto dipende dal menu, ed è proprio quello che un calcolatore fa meglio di una tabella.</p>
+
+        <h2>Esempio reale: 80 invitati, menu Spritz · Mojito · Gin Tonic</h2>
+        <p>Questa è la lista generata dal calcolatore per una festa da 80 persone (3 cocktail e 1 shot a testa, 80% bevitori, +15% di margine): <em>Prosecco 8,5 L · Aperol 6 L · Gin 3,5 L · Rum bianco 3,5 L · Jägermeister 3 L</em>, più soda, tonica, succo di lime, 28 kg di ghiaccio e 277 bicchieri. Budget totale stimato: <em>€ 528, cioè ≈ € 6,60 a persona</em>.</p>
+        <p>La lista completa voce per voce, con tutti i costi, è in <a href="./lista-spesa-cocktail-party-80-persone.html" style="color: var(--gold-1);">questo esempio dettagliato</a>.</p>
+
+        <h2>Gli errori più comuni</h2>
+        <p><em>1. Dimenticare i filler.</em> Tonica, soda e succhi pesano: in un Gin Tonic ci sono 140 ml di tonica contro 60 di gin. Se comprate solo le bottiglie di alcol, la festa si ferma lo stesso.</p>
+        <p><em>2. Niente margine.</em> Il 10-15% in più non è spreco: è la differenza tra una festa riuscita e il giro frenetico al minimarket a mezzanotte.</p>
+        <p><em>3. Sottovalutare il ghiaccio.</em> Servono circa 100 g a cocktail. Per 80 persone sono quasi 30 kg: non si fanno con le vaschette del freezer. <a href="./quanto-ghiaccio-per-una-festa.html" style="color: var(--gold-1);">Qui il calcolo del ghiaccio</a>.</p>
+
+        <div class="cta">
+            <h3>Il conto esatto, sul tuo menu, in 30 secondi</h3>
+            <p>Il calcolatore Barman PRO fa questo calcolo sul tuo numero di ospiti e sui cocktail che scegli tu, con quantità per ingrediente e budget in euro. Gratis, senza registrazione.</p>
+            <a class="btn" href="./app.html">Prova il calcolatore gratis</a>
+        </div>
+
+        <div class="related">
+            <h4>Guide correlate</h4>
+            <a href="./quanto-vino-per-un-matrimonio.html">→ Quanto vino per un matrimonio: calcolo bottiglie e calici</a>
+            <a href="./quanto-ghiaccio-per-una-festa.html">→ Quanto ghiaccio serve per una festa</a>
+            <a href="./lista-spesa-cocktail-party-80-persone.html">→ Lista della spesa completa per un party da 80 persone</a>
+        </div>
+    </article>
+
+    <footer>
+        <a href="./">Barman PRO</a> · © 2026 Samuele Racca · Tutti i diritti riservati
+    </footer>
+</div>
+<!-- Cloudflare Web Analytics (cookieless) --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "05c0492a60e34874aaa3168c1d1649f0"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

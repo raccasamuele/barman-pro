@@ -1,0 +1,25 @@
+# Dipendenze
+node_modules/
+
+# Output di test
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Build / deploy
+dist/
+.wrangler/
+
+# Sistema ed editor
+.DS_Store
+Thumbs.db
+*.local
+.env
+.env.*
+!.env.example
+
+# Backup accidentali
+*~
+*.bak
+*.orig
