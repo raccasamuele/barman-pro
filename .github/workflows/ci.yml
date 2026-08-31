@@ -35,6 +35,9 @@ jobs:
       - name: Golden · motore di calcolo e database
         run: npx playwright test --project=golden
 
+      - name: UI · interazioni reali
+        run: npx playwright test --project=ui
+
       - name: PWA · precache e aggiornamento
         run: npx playwright test --project=pwa
 
