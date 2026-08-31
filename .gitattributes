@@ -1,0 +1,9 @@
+# Normalizza i fine riga: nel repo sempre LF, in checkout secondo la piattaforma.
+# Senza questo, su Windows ogni file toccato produce un diff fittizio CRLF/LF.
+* text=auto eol=lf
+
+# Binari: mai toccare.
+*.png  binary
+*.woff2 binary
+*.ico  binary
+*.pdf  binary

@@ -23,7 +23,6 @@ const PRECACHE_ASSETS = [
     './icon-192.png',
     './icon-512.png',
     './icon-maskable-512.png',
-    './eula.html',
     './privacy.html',
     './manifest.json'
 ];

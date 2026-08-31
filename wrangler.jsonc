@@ -1,27 +1,32 @@
 {
     // ═══════════════════════════════════════════════════════════════════
-    //   Barman PRO FULL · Cloudflare Workers Assets configuration
+    //   Barman PRO · Cloudflare Workers Assets
     // ═══════════════════════════════════════════════════════════════════
     //
-    // Questo file è letto da `npx wrangler deploy` quando il comando viene
-    // eseguito con CWD = / (root del repo). Specifica esplicitamente:
-    //  - name: identifica il Worker (deve coincidere col project CF "barman-pro")
-    //  - assets.directory: "." = serve tutto da root del repo
-    //  - main: non definito → Workers Assets puro, nessun JS server-side
+    //   assets.directory punta a "./public": SOLO quella cartella viene
+    //   pubblicata. Test, script e documentazione stanno fuori e non
+    //   possono finire online per distrazione — per questo qui non serve
+    //   nessun .assetsignore.
     //
-    // ⚠️ NON cambiare name "barman-pro": il dominio custom barmanpro.app è
-    //    agganciato esattamente a questo Worker. Cambiare nome rompe il dominio.
+    //   main non definito → Workers Assets puro, nessun JS server-side.
     //
-    // 📁 La versione DEMO ha un wrangler.jsonc separato in docs/wrangler.jsonc
-    //    con name "barman-pro-demo" servito da demo.barmanpro.app.
+    //   ⚠️ NON usare `wrangler deploy` per validare una modifica: questo
+    //      Worker è quello servito agli utenti. Prima si carica una
+    //      versione di preview, si verifica lì, e solo dopo si promuove:
     //
-    // 🚫 File esclusi dal deploy: vedi .assetsignore in questa stessa cartella
-    //    (esclude .git, node_modules, .docx, .zip, file dev/marketing privati)
+    //        npx wrangler versions upload --preview-alias staging
+    //        # verifica sull'URL di preview, poi:
+    //        npx wrangler versions deploy
+    //
+    //      L'alias di preview va rimosso dopo la promozione: resta
+    //      pubblico e indicizzabile, e duplicherebbe le pagine SEO.
     // ═══════════════════════════════════════════════════════════════════
     "name": "barman-pro",
     "compatibility_date": "2026-05-23",
+    "workers_dev": true,
+    "preview_urls": true,
     "assets": {
-        "directory": "."
+        "directory": "./public"
     },
     "observability": {
         "enabled": true
