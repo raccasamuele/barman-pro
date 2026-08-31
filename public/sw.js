@@ -20,6 +20,12 @@ const ASSET_CACHE = 'barman-pro-assets-v3.0.0';
 //    installata e semplicemente non funziona offline, senza che nessuno
 //    se ne accorga. Tienici dentro solo file che esistono davvero —
 //    tests/pwa-precache.spec.js lo verifica a ogni esecuzione della CI.
+// ⚠️ E i percorsi devono essere quelli FINALI: Cloudflare serve gli URL
+//    senza estensione e rimanda /privacy.html a /privacy con un 307.
+//    cache.addAll() rifiuta le risposte reindirizzate, quindi bastava un
+//    './privacy.html' qui per azzerare l'intero precache in produzione —
+//    senza che i test locali potessero accorgersene, perche' http-server
+//    serve il file direttamente.
 const PRECACHE_ASSETS = [
     './',
     './index.html',
@@ -32,7 +38,7 @@ const PRECACHE_ASSETS = [
     './icon-192.png',
     './icon-512.png',
     './icon-maskable-512.png',
-    './privacy.html',
+    './privacy',
     './manifest.json',
     './fonts/manrope-latin-wght-normal.woff2',
     './fonts/manrope-latin-ext-wght-normal.woff2'

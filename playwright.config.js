@@ -26,7 +26,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['list']] : [['list']],
 
   webServer: {
-    command: 'npx --yes http-server public -p 8099 -c-1 --silent',
+    command: 'npx --yes http-server public -p 8099 -c-1 --ext html --silent',
     url: 'http://127.0.0.1:8099/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

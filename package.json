@@ -9,7 +9,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "serve": "npx --yes http-server public -p 8099 -c-1 --silent",
+    "serve": "npx --yes http-server public -p 8099 -c-1 --ext html --silent",
     "test": "playwright test",
     "test:golden": "playwright test tests/golden-calc.spec.js tests/golden-wizard.spec.js",
     "check:i18n": "node scripts/check-i18n.mjs",
