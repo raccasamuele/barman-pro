@@ -1,16 +1,10 @@
 <!DOCTYPE html>
 <!--
-    ════════════════════════════════════════════════════════════════════
-    Barman PRO · Calcolatore Eventi
-    ════════════════════════════════════════════════════════════════════
-    Copyright (c) 2026 Samuele Racca · Tutti i diritti riservati.
+    Barman PRO · calcolatore per feste ed eventi.
+    Copyright (c) 2026 Samuele Racca — licenza MIT, vedi il file LICENSE.
 
-    Software protetto da copyright. La copia, modifica, ridistribuzione
-    o rivendita, anche parziale, è vietata senza autorizzazione scritta
-    dell'autore. Vedi il file LICENSE per i termini completi.
-
-    Per richieste di licenza commerciale: [contatto da inserire]
-    ════════════════════════════════════════════════════════════════════
+    Gratuito, senza account, senza backend: tutto vive nel localStorage
+    del dispositivo. Sorgente: https://github.com/raccasamuele/barman-pro
 -->
 <html lang="it">
 <head>
@@ -19,7 +13,10 @@
     <title>Barman PRO &middot; Calcolatore Eventi</title>
     <meta name="description" content="Calcolatore gratuito per feste ed eventi: quante bottiglie comprare, quanto ghiaccio e quanto spendi. Nessun account, funziona offline.">
     <meta name="author" content="Samuele Racca">
-    <meta name="theme-color" content="#722F37">
+    <!-- Il colore della barra del browser segue il tema: carta di giorno,
+         quasi-nero caldo di notte. Gli stessi valori dei token in app.css. -->
+    <meta name="theme-color" content="#f7f2e9" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#191714" media="(prefers-color-scheme: dark)">
 
     <!-- ─── Favicon e icone ─── -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -52,60 +49,15 @@
     <meta name="twitter:description" content="Dici quanti ospiti hai e cosa vuoi servire: ottieni la lista della spesa con quantità e costi. Gratuito e open source.">
     <meta name="twitter:image" content="https://barman-pro.raccasamuele2004.workers.dev/icon-512.png">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <!-- Font self-hostato: nessuna richiesta a terzi, nessun blocco di
+         rendering se il CDN e' lento, e una cosa in meno da dichiarare
+         nella privacy. Il preload evita il lampo di testo non stilato. -->
+    <link rel="preload" href="fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     
     <link rel="stylesheet" href="app.css">
 
 </head>
 <body>
-    <div class="ambient-background"></div>
-
-    <!-- ════ HOME · SCENA (calice faux-3D + polvere d'oro su canvas) ════
-         Solo sulla Home (body.bp-home). Dietro ai contenuti, opacità bassa
-         per non disturbare la lettura. Pausa fuori dalla home / tab nascosta /
-         reduced-motion / stampa. Zero librerie, single-file. -->
-    <div class="bph-stage" aria-hidden="true">
-        <div class="bph-glow"></div>
-        <div class="bph-glass-wrap">
-            <div class="bph-glass-rot">
-                <svg class="bph-glass-svg" viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="bphBody" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#FFF3D6" stop-opacity="0.14"/><stop offset="55%" stop-color="#D8B568" stop-opacity="0.07"/><stop offset="100%" stop-color="#B89048" stop-opacity="0.04"/>
-                        </linearGradient>
-                        <linearGradient id="bphLiquidT" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#EAC885" stop-opacity="0.5"/><stop offset="100%" stop-color="#7A5A28" stop-opacity="0.3"/>
-                        </linearGradient>
-                        <linearGradient id="bphStemT" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#7A5E2A" stop-opacity="0.5"/><stop offset="42%" stop-color="#F0D696" stop-opacity="0.85"/><stop offset="100%" stop-color="#6E5526" stop-opacity="0.5"/>
-                        </linearGradient>
-                        <linearGradient id="bphSheenG" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#fff" stop-opacity="0"/><stop offset="50%" stop-color="#fff" stop-opacity="0.4"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-                        </linearGradient>
-                        <clipPath id="bphBowlClip"><path d="M32 60 L120 166 L208 60 Z"/></clipPath>
-                    </defs>
-                    <path d="M32 60 L120 166 L208 60 Z" fill="url(#bphBody)"/>
-                    <g clip-path="url(#bphBowlClip)"><g class="bph-liquid">
-                        <path d="M54 88 L120 166 L186 88 Z" fill="url(#bphLiquidT)"/>
-                        <ellipse cx="120" cy="88" rx="64" ry="7.5" fill="#EAC885" fill-opacity="0.5"/>
-                        <ellipse cx="120" cy="88" rx="64" ry="7.5" fill="none" stroke="#F6E6BE" stroke-width="1" stroke-opacity="0.55"/>
-                    </g></g>
-                    <g clip-path="url(#bphBowlClip)"><rect class="bph-sheen" x="96" y="50" width="18" height="128" fill="url(#bphSheenG)"/></g>
-                    <path d="M44 66 L106 150" fill="none" stroke="#FFF6E0" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.42"/>
-                    <ellipse cx="120" cy="60" rx="88" ry="12.5" fill="none" stroke="#F4E3BC" stroke-width="1.8" stroke-opacity="0.95"/>
-                    <ellipse cx="120" cy="60" rx="88" ry="12.5" fill="none" stroke="#ffffff" stroke-width="0.6" stroke-opacity="0.5"/>
-                    <path d="M32 60 L120 166 L208 60" fill="none" stroke="#EAD0A1" stroke-width="1.6" stroke-linejoin="round" stroke-opacity="0.85"/>
-                    <rect x="117" y="164" width="6" height="88" rx="3" fill="url(#bphStemT)"/>
-                    <line x1="118.5" y1="168" x2="118.5" y2="250" stroke="#FFF6E0" stroke-width="0.8" stroke-opacity="0.4"/>
-                    <ellipse cx="120" cy="258" rx="50" ry="10" fill="url(#bphStemT)"/>
-                    <ellipse cx="120" cy="255.5" rx="50" ry="8" fill="none" stroke="#EAD0A1" stroke-width="1.4" stroke-opacity="0.65"/>
-                </svg>
-            </div>
-        </div>
-        <canvas id="bph-dust" class="bph-dust"></canvas>
-    </div>
 
     <!-- ════ MENU A PANINO · navigazione rapida ════ -->
     <button type="button" class="bp-burger bp-homebtn" id="bp-burger" aria-label="Home" onclick="bpGoHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.6 12 3l9 7.6"></path><path d="M5.2 9.4V20a1 1 0 0 0 1 1h3.3v-5.4h5V21h3.3a1 1 0 0 0 1-1V9.4"></path></svg></button>

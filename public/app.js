@@ -7,31 +7,10 @@
  */
 
 /* ═══ blocco 1 di 2 (era riga 1809 di index.html) ═══ */
-        (function(){
-            var cv = document.getElementById('bph-dust');
-            if (!cv || !cv.getContext) return;
-            var ctx = cv.getContext('2d');
-            var DPR = Math.min(window.devicePixelRatio || 1, 2);
-            var W = 0, H = 0, parts = [], wasOn = false;
-            var reduce = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-            function rnd(a, b){ return a + Math.random() * (b - a); }
-            function size(){ W = cv.clientWidth; H = cv.clientHeight; cv.width = Math.max(1, W*DPR); cv.height = Math.max(1, H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0); }
-            function mk(){ return { x:rnd(0,W), y:rnd(0,H), r:rnd(0.6,2.4), vx:rnd(-0.1,0.1), vy:rnd(-0.22,-0.04), a:rnd(0.15,0.7), tw:rnd(0.006,0.02), ph:rnd(0,6.28) }; }
-            function init(){ parts = []; var n = Math.round(Math.min(60, Math.max(28, W/14))); for (var i=0;i<n;i++) parts.push(mk()); }
-            function update(){ for (var i=0;i<parts.length;i++){ var p=parts[i]; p.ph+=p.tw; p.x+=p.vx; p.y+=p.vy; if(p.y<-12){p.y=H+12;p.x=rnd(0,W);} if(p.x<-12)p.x=W+12; else if(p.x>W+12)p.x=-12; } }
-            function render(){ ctx.clearRect(0,0,W,H); for (var i=0;i<parts.length;i++){ var p=parts[i]; var tw=0.5+0.5*Math.sin(p.ph); var al=p.a*tw; var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*3.2); g.addColorStop(0,'rgba(234,208,161,'+al.toFixed(3)+')'); g.addColorStop(1,'rgba(234,208,161,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,p.r*3.2,0,6.2832); ctx.fill(); ctx.fillStyle='rgba(246,230,196,'+al.toFixed(3)+')'; ctx.beginPath(); ctx.arc(p.x,p.y,p.r*0.55,0,6.2832); ctx.fill(); } }
-            function frame(){
-                var home = document.body.classList.contains('bp-home');
-                if (home) {
-                    if (cv.clientWidth !== W || cv.clientHeight !== H) { size(); init(); }
-                    if (!reduce && !window.__bphPause) update();
-                    render(); wasOn = true;
-                } else if (wasOn) { ctx.clearRect(0,0,W,H); wasOn = false; }
-                requestAnimationFrame(frame);
-            }
-            window.addEventListener('resize', function(){ if (document.body.classList.contains('bp-home')) { size(); init(); } });
-            requestAnimationFrame(frame);
-        })();
+        /* L'animazione della polvere d'oro viveva qui: e' uscita di scena con il
+   tema oro. Faceva girare un requestAnimationFrame a ogni frame sulla
+   home, per una decorazione che non diceva niente. */
+
 
 /* ═══ blocco 2 di 2 (era riga 2831 di index.html) ═══ */
         /* ════════════════════════════════════════════════════════════
