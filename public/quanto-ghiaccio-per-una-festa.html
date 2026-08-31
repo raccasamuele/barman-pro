@@ -7,6 +7,8 @@
     <meta name="description" content="100 grammi a cocktail: la regola dei barman per calcolare il ghiaccio di una festa. Tabelle in kg per 20, 50, 80 e 100 invitati, più il ghiaccio per raffreddare le bottiglie.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://barman-pro.raccasamuele2004.workers.dev/quanto-ghiaccio-per-una-festa.html">
+    <meta name="theme-color" content="#f7f2e9" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#191714" media="(prefers-color-scheme: dark)">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
     <meta property="og:type" content="article">
@@ -27,58 +29,14 @@
     }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0a0806; --bg-soft: #14110e;
-            --gold-1: #EAD0A1; --gold-2: #B38E46;
-            --text: #fcfcfc; --text-soft: #c9c4bc; --text-mute: #8d877d;
-            --border: rgba(179, 142, 70, 0.25); --border-soft: rgba(255, 255, 255, 0.08);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Manrope', sans-serif; font-size: 17px; line-height: 1.7;
-            background: var(--bg); color: var(--text-soft); padding-bottom: 60px;
-        }
-        body::before {
-            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-            background: radial-gradient(circle at 20% 10%, rgba(179,142,70,0.07), transparent 45%),
-                        radial-gradient(circle at 80% 60%, rgba(234,208,161,0.05), transparent 50%);
-            filter: blur(60px);
-        }
-        .wrap { max-width: 760px; margin: 0 auto; padding: 0 22px; position: relative; z-index: 1; }
-        .topnav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
-        .brand { font-family: 'Cinzel', serif; color: var(--gold-1); text-decoration: none; font-size: 18px; letter-spacing: 2px; }
-        .topnav a.demo { color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid var(--border); border-radius: 999px; padding: 9px 16px; }
-        h1 { font-family: 'Cinzel', serif; font-weight: 500; color: var(--text); font-size: clamp(28px, 6vw, 42px); line-height: 1.15; margin: 28px 0 18px; }
-        h2 { font-family: 'Cinzel', serif; font-weight: 500; color: var(--text); font-size: 24px; margin: 44px 0 14px; }
-        p { margin-bottom: 16px; }
-        em, .gold { color: var(--gold-1); font-style: normal; }
-        table { width: 100%; border-collapse: collapse; margin: 18px 0 24px; font-size: 15px; }
-        th { text-align: left; color: var(--gold-2); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-        td { padding: 11px 12px; border-bottom: 1px solid var(--border-soft); color: var(--text-soft); }
-        td:first-child { color: var(--text); font-weight: 600; }
-        .formula { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 20px 0; font-size: 15px; }
-        .formula b { color: var(--gold-1); }
-        .cta { background: linear-gradient(160deg, rgba(179,142,70,0.12), transparent 70%), var(--bg-soft); border: 1px solid var(--border); border-radius: 18px; padding: 26px; margin: 40px 0; text-align: center; }
-        .cta h3 { font-family: 'Cinzel', serif; color: var(--text); font-weight: 500; font-size: 21px; margin-bottom: 8px; }
-        .cta p { color: var(--text-mute); font-size: 15px; }
-        .cta a.btn { display: inline-block; margin-top: 14px; background: linear-gradient(135deg, var(--gold-1), var(--gold-2)); color: #0a0806; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; padding: 13px 26px; border-radius: 999px; }
-        .related { margin-top: 48px; border-top: 1px solid var(--border-soft); padding-top: 22px; }
-        .related h4 { color: var(--gold-2); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
-        .related a { display: block; color: var(--text-soft); text-decoration: none; padding: 6px 0; }
-        .related a:hover { color: var(--gold-1); }
-        footer { text-align: center; color: var(--text-mute); font-size: 12px; margin-top: 50px; letter-spacing: 1px; }
-        footer a { color: var(--gold-2); text-decoration: none; }
-    </style>
+    <link rel="preload" href="fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="app.css">
 </head>
-<body>
-<div class="wrap">
+<body class="pagina-testo">
+<div class="testo-wrap">
     <nav class="topnav">
         <a class="brand" href="./">Barman PRO</a>
-        <a class="demo" href="./app.html">Prova il calcolatore →</a>
+        <a class="demo" href="./">Prova il calcolatore →</a>
     </nav>
 
     <article>
@@ -114,7 +72,7 @@
         <div class="cta">
             <h3>Ghiaccio, bicchieri, bottiglie: la lista completa in 30 secondi</h3>
             <p>Il calcolatore Barman PRO mette il ghiaccio in lista da solo, insieme a bicchieri, cannucce e a tutte le bottiglie con i costi stimati. Gratis, senza registrazione.</p>
-            <a class="btn" href="./app.html">Prova il calcolatore gratis</a>
+            <a class="btn" href="./">Prova il calcolatore gratis</a>
         </div>
 
         <div class="related">
@@ -126,7 +84,7 @@
     </article>
 
     <footer>
-        <a href="./">Barman PRO</a> · © 2026 Samuele Racca · Tutti i diritti riservati
+        <a href="./">Barman PRO</a> · © 2026 Samuele Racca · <a href="https://github.com/raccasamuele/barman-pro" rel="noopener">codice sorgente</a> · MIT
     </footer>
 </div>
 <!-- Cloudflare Web Analytics (cookieless) --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "05c0492a60e34874aaa3168c1d1649f0"}'></script><!-- End Cloudflare Web Analytics -->

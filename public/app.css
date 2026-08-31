@@ -2326,3 +2326,119 @@
 }
 
 @media print { .bp-footer { display: none; } }
+
+/* ─── Pagine di contenuto (le guide) ────────────────────────────
+   Stessi token dell'app: chi arriva da una ricerca e poi apre il
+   calcolatore non deve avere l'impressione di cambiare sito. */
+.pagina-testo .topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    flex-wrap: wrap;
+    padding-bottom: var(--s-4);
+    margin-bottom: var(--s-6);
+    border-bottom: 1px solid var(--bp-line);
+}
+
+.pagina-testo .topnav .brand {
+    font-weight: 700;
+    font-size: var(--t-md);
+    color: var(--bp-ink);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+}
+
+.pagina-testo .topnav .demo {
+    font-size: var(--t-sm);
+    font-weight: 500;
+    color: var(--bp-accent);
+    text-decoration: none;
+    padding: var(--s-2) var(--s-3);
+    border: 1px solid var(--bp-line-strong);
+    border-radius: var(--r-md);
+    transition: border-color var(--bp-fast) var(--bp-ease), background var(--bp-fast) var(--bp-ease);
+}
+.pagina-testo .topnav .demo:hover {
+    border-color: var(--bp-accent);
+    background: var(--bp-accent-soft);
+}
+
+.pagina-testo article h2 { margin-top: var(--s-7); }
+.pagina-testo article h3 { font-size: var(--t-base); font-weight: 600; margin: var(--s-5) 0 var(--s-2); }
+
+/* La formula: e' il cuore della guida, quindi ha una superficie propria
+   invece di un bordo colorato su un lato. */
+.pagina-testo .formula {
+    background: var(--bp-sunken);
+    border: 1px solid var(--bp-line);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+    margin: var(--s-5) 0;
+    font-size: var(--t-sm);
+    line-height: 1.8;
+}
+.pagina-testo .formula b { color: var(--bp-accent); font-weight: 600; }
+
+.pagina-testo table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--s-5) 0;
+    font-size: var(--t-sm);
+    font-variant-numeric: tabular-nums;
+}
+.pagina-testo th, .pagina-testo td {
+    padding: var(--s-3) var(--s-2);
+    border-bottom: 1px solid var(--bp-line);
+    text-align: left;
+}
+.pagina-testo th { font-weight: 600; color: var(--bp-ink-soft); }
+
+.pagina-testo .cta {
+    background: var(--bp-accent-soft);
+    border: 1px solid var(--bp-accent);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+    margin: var(--s-7) 0;
+}
+.pagina-testo .cta h3 { margin-top: 0; color: var(--bp-accent-ink); }
+
+.pagina-testo .btn {
+    display: inline-block;
+    margin-top: var(--s-2);
+    padding: var(--s-3) var(--s-5);
+    background: var(--bp-accent);
+    color: var(--bp-on-accent);
+    border-radius: var(--r-md);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--bp-fast) var(--bp-ease);
+}
+.pagina-testo .btn:hover { background: var(--bp-accent-hover); color: var(--bp-on-accent); }
+
+.pagina-testo .related {
+    margin-top: var(--s-7);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--bp-line);
+}
+.pagina-testo .related h4 {
+    font-size: var(--t-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--bp-ink-faint);
+    margin: 0 0 var(--s-3);
+}
+.pagina-testo .related a { display: block; margin-bottom: var(--s-2); }
+
+.pagina-testo > .testo-wrap > footer,
+.pagina-testo footer {
+    margin-top: var(--s-8);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--bp-line);
+    font-size: var(--t-sm);
+    color: var(--bp-ink-faint);
+}
+
+@media print {
+    .pagina-testo .topnav, .pagina-testo .cta, .pagina-testo .related { display: none; }
+}

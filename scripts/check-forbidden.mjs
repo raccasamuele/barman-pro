@@ -8,9 +8,11 @@
  * piu' niente.
  *
  * Modalita': informativa per default (exit 0), bloccante con --strict.
- * Diventa bloccante in CI alla fine della Fase 8, quando privacy, metadata e
- * commenti sono stati bonificati. Prima di allora i residui sono attesi: e'
- * il lavoro che deve ancora essere fatto, non una regressione.
+ *
+ * In CI gira con --strict. Nasceva informativo perche' i residui erano 88 e
+ * un controllo sempre rosso viene ignorato — a quel punto non protegge piu'
+ * niente. Ora sono zero: ogni nuova occorrenza e' una regressione, non
+ * lavoro arretrato, ed e' giusto che fermi la build.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -34,6 +36,7 @@ const VIETATI = [
   { re: /#722F37/i,                       cosa: 'colore borgogna legacy (theme-color / manifest)' },
   { re: /Tutti i diritti riservati/i,     cosa: 'claim di copyright proprietario' },
   { re: /fonts\.googleapis\.com/i,        cosa: 'Google Fonts da CDN (i font vanno self-hostati)' },
+  { re: /\.\/app\.html/,                  cosa: 'link a app.html: era la demo, il calcolatore ora sta in ./' },
 ];
 
 /**
@@ -95,7 +98,7 @@ for (const [cosa, occ] of [...perTipo.entries()].sort((a, b) => b[1].length - a[
 console.log(
   STRICT
     ? '\n  ✗ residui presenti (modalita\' bloccante)\n'
-    : '\n  ⚠ modalita\' informativa: e\' il lavoro ancora da fare.\n    Diventa bloccante con --strict alla fine della Fase 8.\n',
+    : '\n  ⚠ modalita\' informativa. In CI questo controllo gira con --strict:\n    ogni occorrenza e\' una regressione e ferma la build.\n',
 );
 
 process.exit(STRICT ? 1 : 0);

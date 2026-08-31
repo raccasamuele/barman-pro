@@ -42,10 +42,10 @@ jobs:
         run: npx playwright test --project=pwa
 
       - name: Traduzioni
-        run: npm run check:i18n
+        run: npm run check:i18n -- --strict
 
       - name: Residui del prodotto commerciale
-        run: npm run check:forbidden
+        run: npm run check:forbidden -- --strict
 
       - name: Salva i report in caso di errore
         if: failure()
