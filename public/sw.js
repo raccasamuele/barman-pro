@@ -26,6 +26,7 @@ const PRECACHE_ASSETS = [
     './app.css',
     './app.js',
     './mail.js',
+    './analytics.js',
     './favicon.svg',
     './apple-touch-icon.png',
     './icon-192.png',

@@ -45,7 +45,16 @@ const VIETATI = [
  * si nascondono i problemi.
  */
 const ALLOWLIST = [
-  // esempio: { file: 'public/privacy.html', re: /barmanpro\.app/, perche: '…' },
+  {
+    file: 'public/analytics.js',
+    re: /demo\.barmanpro\.app|barmanpro\.app/,
+    perche:
+      'Il commento spiega perche\' il token precedente e\' stato tolto, e per '
+      + 'spiegarlo deve dire a quale hostname apparteneva. Toglierlo '
+      + 'renderebbe l\'avvertimento inutile: chi legge non capirebbe che un '
+      + 'token di un altro hostname non da\' errori, semplicemente fa scartare '
+      + 'i dati.',
+  },
 ];
 
 const ESTENSIONI = new Set(['.html', '.js', '.json', '.txt', '.xml', '.css', '.webmanifest']);

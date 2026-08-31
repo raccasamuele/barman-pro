@@ -92,6 +92,19 @@ oggetti che vengono uniti a `translations`. Non aggiungerle a mano seguendo
 un elenco: `scripts/check-i18n.mjs` li enumera da solo e segnala le chiavi
 mancanti in ognuna delle sette lingue.
 
+## Statistiche di visita
+
+Sono spente. `public/analytics.js` contiene una costante `TOKEN` vuota:
+finché resta vuota, **nessuna richiesta parte verso terzi**.
+
+Per accenderle serve un token di Cloudflare Web Analytics legato
+all'hostname su cui il sito gira davvero (Analytics & Logs → Web Analytics
+→ Add a site). Il token va incollato in quell'unica costante.
+
+Il token è legato all'hostname: usarne uno di un altro sito non produce
+errori visibili, semplicemente Cloudflare scarta i dati. Chi forka il
+progetto dovrebbe mettere il proprio, o lasciare vuoto.
+
 ## Licenza
 
 Codice: **MIT** (vedi [LICENSE](LICENSE)).

@@ -33,6 +33,17 @@ const PRECACHE = leggiPrecache();
  * Verificare "l'install e' andata a buon fine" non prova niente: va verificato
  * che la cache sia davvero popolata.
  */
+/**
+ * In serie, non in parallelo.
+ *
+ * Questi test registrano service worker e creano cache sulla STESSA origine:
+ * eseguiti insieme si pestano i piedi, e il test sull'aggiornamento di
+ * versione falliva a intermittenza pur passando sempre da solo. Non e' un
+ * difetto dell'app, e' la natura di cio' che stanno verificando — il service
+ * worker e' uno stato globale del browser per quell'origine.
+ */
+test.describe.configure({ mode: 'serial' });
+
 test.describe('PWA · precache', () => {
   test(`i ${PRECACHE.length} asset di PRECACHE_ASSETS esistono davvero`, async ({ request, baseURL }) => {
     const mancanti = [];
