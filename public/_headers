@@ -7,9 +7,7 @@
 # ═══════════════════════════════════════════════════════════════════
 
 # ─── Header globali su TUTTE le pagine ─────────────────────────────
-# noindex/nofollow: l'app è a pagamento, non vogliamo indicizzazione
 /*
-  X-Robots-Tag: noindex, nofollow
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

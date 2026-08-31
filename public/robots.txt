@@ -1,8 +1,7 @@
-# Versione completa: contenuto a pagamento, non deve essere indicizzato.
+# Barman PRO — calcolatore per eventi, gratuito e open source.
+# L'app era a pagamento e si nascondeva ai motori di ricerca: ora deve
+# farsi trovare, quindi tutto e' consentito.
 User-agent: *
-Disallow: /
-Disallow: /index.html
-Disallow: /Cocktail_IBA_adattamento_a_feste.pdf
+Allow: /
 
-# La demo è invece libera di essere indicizzata (resta su GitHub Pages, qui no)
-# Allow: /demo/
+Sitemap: https://barman-pro.raccasamuele2004.workers.dev/sitemap.xml
