@@ -1425,7 +1425,7 @@
             body { background: #fff !important; color: #000 !important; filter: none !important; }
             /* Hide everything that's not the shopping list */
             .ambient-background, .header, .card, button, .meta-row, .action-buttons,
-            .pdf-modal, .toast, .lang-selector, .license-overlay, .app-stepper,
+            .pdf-modal, .toast, .lang-selector, .app-stepper,
             footer, .btn-installa, .review-banner { display: none !important; }
             .step-panel { display: block !important; animation: none; }
             #risultati { display: block !important; margin: 0; animation: none; }
@@ -1446,96 +1446,9 @@
             .budget-sub { color: #555 !important; }
         }
     
-        /* ─── MODALE LICENSE KEY (AVANGUARDIA) ─── */
-        .license-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(13, 13, 15, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .license-overlay.show {
-            display: flex;
-            animation: fadeInOverlay 0.5s ease forwards;
-        }
         @keyframes fadeInOverlay {
             from { opacity: 0; }
             to { opacity: 1; }
-        }
-        .license-box {
-            background: rgba(22, 22, 22, 0.75);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 40px;
-            max-width: 450px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
-        }
-        .license-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-gold-1), transparent);
-            opacity: 0.5;
-        }
-        .license-ornament {
-            color: var(--accent-gold-1);
-            font-size: 24px;
-            margin-bottom: 20px;
-            letter-spacing: 10px;
-        }
-        .license-box h2 {
-            font-family: 'Cinzel', serif;
-            color: var(--accent-gold-1);
-            font-size: 32px;
-            margin-bottom: 12px;
-        }
-        .license-box p {
-            color: rgba(255, 255, 255, 0.7);
-            font-family: 'Manrope', sans-serif;
-            font-size: 16px;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-        .license-box input {
-            text-align: center;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-        .license-box input::placeholder {
-            text-transform: none;
-            letter-spacing: normal;
-        }
-        .license-error {
-            color: #ff4d4d;
-            font-family: 'Manrope', sans-serif;
-            font-size: 14px;
-            min-height: 20px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        .license-hint {
-            margin-top: 24px !important;
-            font-size: 14px !important;
-            margin-bottom: 0 !important;
-        }
-        .license-hint a {
-            color: var(--accent-gold-1);
-            text-decoration: none;
-            font-weight: 700;
-        }
-        .license-hint a:hover {
-            text-decoration: underline;
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -1802,7 +1715,7 @@
         .bp-burger { position: fixed; top: 14px; left: 14px; z-index: 1320; width: 46px; height: 46px; border-radius: 14px; background: var(--glass-bg); border: 1px solid var(--glass-border); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; touch-action: manipulation; transition: transform 200ms cubic-bezier(0.23,1,0.32,1), border-color 200ms ease, opacity 180ms ease; }
         .bp-burger:active { transform: scale(0.92); }
         /* Il burger sparisce quando è aperto un overlay modale (resta durante il nav, che è il suo menu) */
-        body:has(.bpc-overlay.show) .bp-burger, body:has(.license-overlay.show) .bp-burger { opacity: 0; pointer-events: none; transform: scale(0.8); }
+        body:has(.bpc-overlay.show) .bp-burger { opacity: 0; pointer-events: none; transform: scale(0.8); }
         @media (hover: hover) and (pointer: fine) { .bp-burger:hover { border-color: rgba(234,208,161,0.5); } }
         .bp-burger span { display: block; width: 20px; height: 2px; border-radius: 2px; background: var(--accent-gold-1); transition: transform 300ms cubic-bezier(0.32,0.72,0,1), opacity 200ms ease; }
         .bp-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -3091,27 +3004,6 @@
         <button type="button" class="btn-primary-gold btn-grande" style="margin-top:18px" onclick="bpEventsOpen()">&#10070;&nbsp;&nbsp;<span data-i18n="uiVaiEventi">Apri i miei eventi salvati</span>&nbsp;&nbsp;&#8250;</button>
     </div>
 
-    <!-- ─── MODALE LICENSE KEY ─── -->
-    <div class="license-overlay" id="license-overlay">
-        <div class="license-box">
-            <div class="license-ornament">&#10022;</div>
-            <h2 data-i18n="licenseH2">Attivazione</h2>
-            <p data-i18n="licenseP">Inserisci la License Key ricevuta via email dopo l'acquisto.</p>
-            <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX"
-                   autocomplete="off"
-                   onkeydown="if(event.key==='Enter')bpLicenseSubmit()">
-            <div class="license-error" id="license-error"></div>
-            <button onclick="bpLicenseSubmit()">&#10022;&nbsp;&nbsp;Attiva&nbsp;&nbsp;&#10022;</button>
-            <div id="license-buy-block" style="margin-top: 24px; text-align: center;">
-                <p class="license-hint" style="margin-top: 0 !important; margin-bottom: 12px !important;">
-                    Non hai una License Key?
-                </p>
-                <a href="https://barman-pro.lemonsqueezy.com" target="_blank" rel="noopener" class="btn-premium">
-                    <span class="lock-icon">&#128274;</span> Acquista Barman PRO
-                </a>
-            </div>
-        </div>
-    </div>
 
     </div>
 
@@ -3125,9 +3017,6 @@
             <a href="mailto:barmanproapp@gmail.com" style="color: var(--accent-gold-2); margin: 0 10px; text-decoration: none;" data-i18n="footerContatti">Contatti</a>
         </div>
         <div style="font-size: 12px; letter-spacing: 2px;" data-i18n="footerRights">&copy; 2026 Samuele Racca &middot; Tutti i diritti riservati</div>
-        <div id="license-deactivate-row" style="display:none; margin-top: 14px;">
-            <a href="#" id="license-deactivate-link" onclick="bpDeactivateDevice(event)" style="color: rgba(255,255,255,0.35); font-size: 12px; text-decoration: underline; cursor: pointer;" data-i18n="btnDeattiva">Disattiva questo dispositivo</a>
-        </div>
     </footer>
 
     <div class="toast" id="toast"></div>
@@ -3200,10 +3089,9 @@
                 pdfGuests: 'ospiti',
                 sliderRimuovi: '× Rimuovi',
                 sliderFreq: 'Freq.',
-                // License
-                licenseH2: 'Attivazione',
-                licenseP: "Inserisci la License Key ricevuta via email dopo l'acquisto.",
-                licenseBtnTxt: 'Attiva',
+                
+                
+                
                 // JS strings
                 alertCocktailNonTrovato: 'Cocktail non trovato. Selezionalo dalla tendina o crealo nel pannello qui sotto.',
                 confirmReset: 'Vuoi davvero azzerare tutto? Questa azione non può essere annullata.',
@@ -3226,8 +3114,8 @@
                 toastCopiaOk: 'Lista copiata negli appunti',
                 errCopia: 'Errore nella copia: ',
                 toastInstallata: 'App installata',
-                licenseVerifica: 'Verifica in corso...',
-                toastAttivato: 'Barman PRO attivato',
+                
+                
                 // Esportazione testo
                 copyHeader: '❦  LISTA DELLA SPESA — EVENTO',
                 copyAlcolici: 'ALCOLICI (Litri)',
@@ -3330,9 +3218,9 @@
                 pdfGuests: 'guests',
                 sliderRimuovi: '× Remove',
                 sliderFreq: 'Freq.',
-                licenseH2: 'Activation',
-                licenseP: 'Enter the License Key received by email after purchase.',
-                licenseBtnTxt: 'Activate',
+                
+                
+                
                 alertCocktailNonTrovato: 'Cocktail not found. Select it from the dropdown or create it in the panel below.',
                 confirmReset: 'Are you sure you want to reset everything? This action cannot be undone.',
                 toastReset: 'Everything reset',
@@ -3354,8 +3242,8 @@
                 toastCopiaOk: 'List copied to clipboard',
                 errCopia: 'Copy error: ',
                 toastInstallata: 'App installed',
-                licenseVerifica: 'Verifying...',
-                toastAttivato: 'Barman PRO activated',
+                
+                
                 copyHeader: '❦  SHOPPING LIST — EVENT',
                 copyAlcolici: 'SPIRITS (Litres)',
                 copyAnalcolici: 'MIXERS & FILLERS (Litres)',
@@ -3456,9 +3344,9 @@
                 pdfGuests: 'invitados',
                 sliderRimuovi: '× Quitar',
                 sliderFreq: 'Frec.',
-                licenseH2: 'Activación',
-                licenseP: 'Introduce la License Key recibida por email tras la compra.',
-                licenseBtnTxt: 'Activar',
+                
+                
+                
                 alertCocktailNonTrovato: 'Cóctel no encontrado. Selecciónalo del desplegable o créalo en el panel de abajo.',
                 confirmReset: '¿Seguro que quieres resetear todo? Esta acción no se puede deshacer.',
                 toastReset: 'Todo reseteado',
@@ -3480,8 +3368,8 @@
                 toastCopiaOk: 'Lista copiada al portapapeles',
                 errCopia: 'Error al copiar: ',
                 toastInstallata: 'App instalada',
-                licenseVerifica: 'Verificando...',
-                toastAttivato: 'Barman PRO activado',
+                
+                
                 copyHeader: '❦  LISTA DE COMPRA — EVENTO',
                 copyAlcolici: 'DESTILADOS (Litros)',
                 copyAnalcolici: 'MIXERS Y RELLENOS (Litros)',
@@ -3582,9 +3470,9 @@
                 pdfGuests: 'invités',
                 sliderRimuovi: '× Supprimer',
                 sliderFreq: 'Fréq.',
-                licenseH2: 'Activation',
-                licenseP: "Saisissez la License Key reçue par email après l'achat.",
-                licenseBtnTxt: 'Activer',
+                
+                
+                
                 alertCocktailNonTrovato: "Cocktail introuvable. Sélectionnez-le dans la liste ou créez-le dans le panneau ci-dessous.",
                 confirmReset: 'Voulez-vous vraiment tout réinitialiser ? Cette action est irréversible.',
                 toastReset: 'Tout réinitialisé',
@@ -3606,8 +3494,8 @@
                 toastCopiaOk: 'Liste copiée dans le presse-papiers',
                 errCopia: 'Erreur de copie : ',
                 toastInstallata: 'App installée',
-                licenseVerifica: 'Vérification en cours...',
-                toastAttivato: 'Barman PRO activé',
+                
+                
                 copyHeader: '❦  LISTE DE COURSES — ÉVÉNEMENT',
                 copyAlcolici: 'ALCOOLS (Litres)',
                 copyAnalcolici: 'SOFTS & REMPLISSEURS (Litres)',
@@ -3708,9 +3596,9 @@
                 pdfGuests: 'Gäste',
                 sliderRimuovi: '× Entfernen',
                 sliderFreq: 'Freq.',
-                licenseH2: 'Aktivierung',
-                licenseP: 'Gib den nach dem Kauf per E-Mail erhaltenen Lizenzschlüssel ein.',
-                licenseBtnTxt: 'Aktivieren',
+                
+                
+                
                 alertCocktailNonTrovato: 'Cocktail nicht gefunden. Wähle ihn aus der Liste oder erstelle ihn im Bereich unten.',
                 confirmReset: 'Möchtest du wirklich alles zurücksetzen? Diese Aktion kann nicht rückgängig gemacht werden.',
                 toastReset: 'Alles zurückgesetzt',
@@ -3732,8 +3620,8 @@
                 toastCopiaOk: 'Liste in Zwischenablage kopiert',
                 errCopia: 'Kopierfehler: ',
                 toastInstallata: 'App installiert',
-                licenseVerifica: 'Wird überprüft...',
-                toastAttivato: 'Barman PRO aktiviert',
+                
+                
                 copyHeader: '❦  EINKAUFSLISTE — VERANSTALTUNG',
                 copyAlcolici: 'SPIRITUOSEN (Liter)',
                 copyAnalcolici: 'MISCHGETRÄNKE & FÜLLER (Liter)',
@@ -3834,9 +3722,9 @@
                 pdfGuests: 'convidados',
                 sliderRimuovi: '× Remover',
                 sliderFreq: 'Freq.',
-                licenseH2: 'Ativação',
-                licenseP: 'Insira a License Key recebida por e-mail após a compra.',
-                licenseBtnTxt: 'Ativar',
+                
+                
+                
                 alertCocktailNonTrovato: 'Cocktail não encontrado. Selecione-o na lista ou crie-o no painel abaixo.',
                 confirmReset: 'Tem certeza que deseja reiniciar tudo? Esta ação não pode ser desfeita.',
                 toastReset: 'Tudo reiniciado',
@@ -3858,8 +3746,8 @@
                 toastCopiaOk: 'Lista copiada para a área de transferência',
                 errCopia: 'Erro ao copiar: ',
                 toastInstallata: 'App instalado',
-                licenseVerifica: 'A verificar...',
-                toastAttivato: 'Barman PRO ativado',
+                
+                
                 copyHeader: '❦  LISTA DE COMPRAS — EVENTO',
                 copyAlcolici: 'BEBIDAS ALCOÓLICAS (Litros)',
                 copyAnalcolici: 'MIXERS & COMPLEMENTOS (Litros)',
@@ -3960,9 +3848,9 @@
                 pdfGuests: 'gasten',
                 sliderRimuovi: '× Verwijderen',
                 sliderFreq: 'Freq.',
-                licenseH2: 'Activering',
-                licenseP: 'Voer de License Key in die je per e-mail na aankoop hebt ontvangen.',
-                licenseBtnTxt: 'Activeren',
+                
+                
+                
                 alertCocktailNonTrovato: 'Cocktail niet gevonden. Selecteer hem uit de lijst of maak hem aan in het paneel hieronder.',
                 confirmReset: 'Weet je zeker dat je alles wilt resetten? Deze actie kan niet ongedaan worden gemaakt.',
                 toastReset: 'Alles gereset',
@@ -3984,8 +3872,8 @@
                 toastCopiaOk: 'Lijst gekopieerd naar klembord',
                 errCopia: 'Kopiëerfout: ',
                 toastInstallata: 'App geïnstalleerd',
-                licenseVerifica: 'Bezig met verifiëren...',
-                toastAttivato: 'Barman PRO geactiveerd',
+                
+                
                 copyHeader: '❦  BOODSCHAPPENLIJST — EVENEMENT',
                 copyAlcolici: 'ALCOHOL (Liter)',
                 copyAnalcolici: 'MIXERS & VULLERS (Liter)',
@@ -4235,10 +4123,10 @@
                 phNomeShot: "Nome (es. Limoncello)",
                 footerContatti: "Contatti",
                 footerRights: "© 2026 Samuele Racca · Tutti i diritti riservati",
-                btnDeattiva: "Disattiva questo dispositivo",
-                confirmDeattiva: "Disattivare la licenza su questo dispositivo? Libererai uno slot di attivazione e dovrai reinserire la chiave per riusare l'app qui.",
-                toastDeattivato: "Licenza disattivata su questo dispositivo",
-                errDeattiva: "Impossibile contattare il server. Controlla la connessione e riprova.",
+                
+                
+                
+                
                 btnSuggerisci: "Suggerisci un menu",
                 risultatiGarnish: "Da comprare a parte",
                 garnishSub: "Guarnizioni e ingredienti di preparazione (senza dose): procurali a parte",
@@ -4279,10 +4167,10 @@
                 phNomeShot: "Name (e.g. Limoncello)",
                 footerContatti: "Contact",
                 footerRights: "© 2026 Samuele Racca · All rights reserved",
-                btnDeattiva: "Deactivate this device",
-                confirmDeattiva: "Deactivate the license on this device? You'll free up an activation slot and will need to re-enter your key to use the app here again.",
-                toastDeattivato: "License deactivated on this device",
-                errDeattiva: "Could not reach the server. Check your connection and try again.",
+                
+                
+                
+                
                 btnSuggerisci: "Suggest a menu",
                 risultatiGarnish: "Buy separately",
                 garnishSub: "Garnishes and prep ingredients (no measure): get them separately",
@@ -4323,10 +4211,10 @@
                 phNomeShot: "Nombre (ej. Limoncello)",
                 footerContatti: "Contacto",
                 footerRights: "© 2026 Samuele Racca · Todos los derechos reservados",
-                btnDeattiva: "Desactivar este dispositivo",
-                confirmDeattiva: "¿Desactivar la licencia en este dispositivo? Liberarás un espacio de activación y tendrás que volver a introducir la clave para usar la app aquí.",
-                toastDeattivato: "Licencia desactivada en este dispositivo",
-                errDeattiva: "No se pudo contactar con el servidor. Comprueba la conexión e inténtalo de nuevo.",
+                
+                
+                
+                
                 btnSuggerisci: "Sugerir un menú",
                 risultatiGarnish: "Comprar aparte",
                 garnishSub: "Guarniciones e ingredientes de preparación (sin dosis): consíguelos aparte",
@@ -4367,10 +4255,10 @@
                 phNomeShot: "Nom (ex. Limoncello)",
                 footerContatti: "Contact",
                 footerRights: "© 2026 Samuele Racca · Tous droits réservés",
-                btnDeattiva: "Désactiver cet appareil",
-                confirmDeattiva: "Désactiver la licence sur cet appareil ? Vous libérerez un emplacement d'activation et devrez ressaisir votre clé pour réutiliser l'app ici.",
-                toastDeattivato: "Licence désactivée sur cet appareil",
-                errDeattiva: "Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.",
+                
+                
+                
+                
                 btnSuggerisci: "Suggérer un menu",
                 risultatiGarnish: "À acheter à part",
                 garnishSub: "Garnitures et ingrédients de préparation (sans dose) : à prévoir séparément",
@@ -4411,10 +4299,10 @@
                 phNomeShot: "Name (z.B. Limoncello)",
                 footerContatti: "Kontakt",
                 footerRights: "© 2026 Samuele Racca · Alle Rechte vorbehalten",
-                btnDeattiva: "Dieses Gerät deaktivieren",
-                confirmDeattiva: "Lizenz auf diesem Gerät deaktivieren? Du gibst einen Aktivierungsplatz frei und musst den Schlüssel erneut eingeben, um die App hier wieder zu nutzen.",
-                toastDeattivato: "Lizenz auf diesem Gerät deaktiviert",
-                errDeattiva: "Server nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
+                
+                
+                
+                
                 btnSuggerisci: "Menü vorschlagen",
                 risultatiGarnish: "Separat kaufen",
                 garnishSub: "Garnituren und Zubereitungszutaten (ohne Menge): separat besorgen",
@@ -4455,10 +4343,10 @@
                 phNomeShot: "Nome (ex. Limoncello)",
                 footerContatti: "Contacto",
                 footerRights: "© 2026 Samuele Racca · Todos os direitos reservados",
-                btnDeattiva: "Desativar este dispositivo",
-                confirmDeattiva: "Desativar a licença neste dispositivo? Vais libertar um espaço de ativação e terás de reinserir a chave para voltar a usar a app aqui.",
-                toastDeattivato: "Licença desativada neste dispositivo",
-                errDeattiva: "Não foi possível contactar o servidor. Verifica a ligação e tenta novamente.",
+                
+                
+                
+                
                 btnSuggerisci: "Sugerir um menu",
                 risultatiGarnish: "Comprar à parte",
                 garnishSub: "Guarnições e ingredientes de preparação (sem dose): compra-os à parte",
@@ -4499,10 +4387,10 @@
                 phNomeShot: "Naam (bv. Limoncello)",
                 footerContatti: "Contact",
                 footerRights: "© 2026 Samuele Racca · Alle rechten voorbehouden",
-                btnDeattiva: "Dit apparaat deactiveren",
-                confirmDeattiva: "Licentie op dit apparaat deactiveren? Je maakt een activeringsplek vrij en moet je sleutel opnieuw invoeren om de app hier weer te gebruiken.",
-                toastDeattivato: "Licentie gedeactiveerd op dit apparaat",
-                errDeattiva: "Kan de server niet bereiken. Controleer je verbinding en probeer opnieuw.",
+                
+                
+                
+                
                 btnSuggerisci: "Menu voorstellen",
                 risultatiGarnish: "Apart kopen",
                 garnishSub: "Garnituren en bereidingsingrediënten (zonder maat): apart aanschaffen",
@@ -5009,9 +4897,6 @@
             // Bottone installa
             const binst = document.getElementById('btn-installa-app');
             if (binst) binst.textContent = '⬇ ' + tr.btnInstalla;
-            // License button
-            const lbtn = document.querySelector('#license-overlay button');
-            if (lbtn) lbtn.innerHTML = '✶  ' + tr.licenseBtnTxt + '  ✶';
 
             /* ── Selettore lingua ── */
             const sel = document.getElementById('lang-selector');
@@ -7833,289 +7718,6 @@
         });
 
         /* ════════════════════════════════════════════════════════════
-           AUTENTICAZIONE LICENSE KEY
-           ════════════════════════════════════════════════════════════ */
-        (function() {
-            'use strict';
-
-            const STORAGE_KEY = 'bp_license';
-            // Revalidate ogni 24h online — riduce la finestra di abuso post-refund.
-            const REVALIDATE_AFTER_MS = 24 * 60 * 60 * 1000;
-            // Grace period 14gg (era 30) — refund window LS è 30gg, lasciamo margine
-            // ma non concediamo "licenza a vita" se l'utente resta offline.
-            const GRACE_PERIOD_MS = 14 * 24 * 60 * 60 * 1000;
-            const API_VALIDATE = 'https://api.lemonsqueezy.com/v1/licenses/validate';
-            const API_ACTIVATE = 'https://api.lemonsqueezy.com/v1/licenses/activate';
-            const API_DEACTIVATE = 'https://api.lemonsqueezy.com/v1/licenses/deactivate';
-            // Prodotto Lemon Squeezy "Barman PRO" (LIVE mode).
-            // ⚠️ NB: Test mode e Live mode generano product_id DIVERSI. Questa è la
-            // versione Live, pubblicata il 2026-05-20. Se ricrei ancora il prodotto, aggiorna qui.
-            const EXPECTED_PRODUCT_ID = 1072260;
-
-            function readStored() {
-                try {
-                    const raw = localStorage.getItem(STORAGE_KEY);
-                    return raw ? JSON.parse(raw) : null;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            function writeStored(obj) {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
-                } catch (e) {
-                    console.warn('[license] impossibile salvare in localStorage', e);
-                }
-            }
-
-            function clearStored() {
-                try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-            }
-
-            // Nome-istanza stabile per questo dispositivo/browser. Serve a Lemon Squeezy per
-            // registrare l'attivazione e far salire il contatore X/3 nella dashboard.
-            function buildInstanceName() {
-                let plat = 'device';
-                try { plat = (navigator.platform || navigator.userAgent || 'device').slice(0, 40); } catch (e) {}
-                const rand = Math.random().toString(36).slice(2, 8);
-                return 'Barman PRO · ' + plat + ' · ' + rand;
-            }
-
-            // Gate anti key-cross-product: una key valida di un altro nostro prodotto
-            // NON deve sbloccare Barman PRO.
-            function productMatches(data) {
-                const productId = data?.meta?.product_id ?? data?.product?.id;
-                return productId == null || Number(productId) === EXPECTED_PRODUCT_ID;
-            }
-
-            // POST /v1/licenses/activate — REGISTRA un'attivazione (incrementa il contatore su LS).
-            async function callActivate(licenseKey, instanceName) {
-                try {
-                    const body = new URLSearchParams();
-                    body.append('license_key', licenseKey);
-                    body.append('instance_name', instanceName);
-
-                    const resp = await fetch(API_ACTIVATE, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: body.toString()
-                    });
-
-                    const data = await resp.json();
-
-                    if (data && data.activated === true) {
-                        if (!productMatches(data)) {
-                            return { ok: false, error: 'Questa License Key non è valida per Barman PRO.' };
-                        }
-                        return {
-                            ok: true,
-                            product: data.meta?.product_name || 'Barman PRO',
-                            instanceId: data.instance?.id || null,
-                            error: null
-                        };
-                    }
-
-                    const msg = data?.error || 'License key non valida';
-                    return { ok: false, error: msg, _limitReached: /activation limit/i.test(msg) };
-                } catch (e) {
-                    return { ok: false, error: 'network', _networkError: true };
-                }
-            }
-
-            // POST /v1/licenses/validate — CONTROLLA la validità (con instance_id se presente).
-            // NON consuma uno slot di attivazione.
-            async function callValidate(licenseKey, instanceId) {
-                try {
-                    const body = new URLSearchParams();
-                    body.append('license_key', licenseKey);
-                    if (instanceId) body.append('instance_id', instanceId);
-
-                    const resp = await fetch(API_VALIDATE, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: body.toString()
-                    });
-
-                    const data = await resp.json();
-
-                    if (data && data.valid === true) {
-                        if (!productMatches(data)) {
-                            return { ok: false, error: 'Questa License Key non è valida per Barman PRO.' };
-                        }
-                        return { ok: true, product: data.meta?.product_name || 'Barman PRO', error: null };
-                    }
-
-                    return { ok: false, error: data?.error || 'License key non valida' };
-                } catch (e) {
-                    return { ok: false, error: 'network', _networkError: true };
-                }
-            }
-
-            window.bpLicense = {
-                async check() {
-                    const stored = readStored();
-                    if (!stored || !stored.key) return false;
-
-                    const now = Date.now();
-                    const lastOk = stored.lastOk || 0;
-                    const sinceLastOk = now - lastOk;
-
-                    if (sinceLastOk < REVALIDATE_AFTER_MS) return true;
-
-                    // Revalida online; se abbiamo un instance_id verifichiamo proprio quell'attivazione.
-                    const result = await callValidate(stored.key, stored.instanceId);
-
-                    if (result.ok) {
-                        writeStored({ ...stored, lastOk: now, lastTry: now, validProduct: result.product });
-                        return true;
-                    }
-
-                    if (!result._networkError) {
-                        clearStored();
-                        return false;
-                    }
-
-                    if (sinceLastOk < GRACE_PERIOD_MS) {
-                        writeStored({ ...stored, lastTry: now });
-                        console.warn('[license] API non raggiungibile, grace period attivo');
-                        return true;
-                    }
-
-                    return false;
-                },
-
-                async activate(licenseKey) {
-                    const cleaned = (licenseKey || '').trim();
-                    if (!cleaned) return { ok: false, error: 'Inserisci una license key' };
-
-                    const stored = readStored();
-                    const now = Date.now();
-
-                    // Se questa stessa chiave è già attivata su questo dispositivo, non consumare un
-                    // nuovo slot: basta rivalidare l'istanza esistente.
-                    if (stored && stored.key === cleaned && stored.instanceId) {
-                        const v = await callValidate(cleaned, stored.instanceId);
-                        if (v.ok) {
-                            writeStored({ ...stored, lastOk: now, lastTry: now, validProduct: v.product });
-                            return { ok: true };
-                        }
-                        if (v._networkError) {
-                            return { ok: false, error: 'Impossibile contattare il server di attivazione. Riprova fra qualche minuto.' };
-                        }
-                        // istanza non più valida (es. disattivata da LS) → proviamo una nuova attivazione sotto
-                    }
-
-                    // Riusa il nome-istanza se già generato, così le riattivazioni restano coerenti.
-                    const instanceName = (stored && stored.instanceName) || buildInstanceName();
-                    const result = await callActivate(cleaned, instanceName);
-
-                    if (result.ok) {
-                        writeStored({
-                            key: cleaned,
-                            instanceId: result.instanceId,
-                            instanceName: instanceName,
-                            lastOk: now,
-                            lastTry: now,
-                            validProduct: result.product
-                        });
-                        return { ok: true };
-                    }
-
-                    if (result._networkError) {
-                        return { ok: false, error: 'Impossibile contattare il server di attivazione. Riprova fra qualche minuto.' };
-                    }
-
-                    if (result._limitReached) {
-                        return { ok: false, error: 'Questa chiave ha raggiunto il limite di 3 dispositivi. Disattiva un dispositivo o scrivi a barmanproapp@gmail.com.' };
-                    }
-
-                    return { ok: false, error: result.error || 'License key non valida. Controlla la chiave ricevuta via email.' };
-                },
-
-                // True se su questo dispositivo c'è una chiave attivata (con instance_id).
-                hasActivation() {
-                    const s = readStored();
-                    return !!(s && s.key && s.instanceId);
-                },
-
-                // POST /v1/licenses/deactivate — libera lo slot su LS e blocca questo dispositivo.
-                async deactivate() {
-                    const stored = readStored();
-                    if (!stored || !stored.key) { clearStored(); return { ok: true }; }
-                    // Senza instance_id non c'è un'attivazione registrata da liberare: basta pulire localmente.
-                    if (!stored.instanceId) { clearStored(); return { ok: true }; }
-                    try {
-                        const body = new URLSearchParams();
-                        body.append('license_key', stored.key);
-                        body.append('instance_id', stored.instanceId);
-                        const resp = await fetch(API_DEACTIVATE, {
-                            method: 'POST',
-                            headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: body.toString()
-                        });
-                        const data = await resp.json();
-                        // deactivated:true (slot liberato) oppure instance già inesistente → in ogni caso puliamo.
-                        clearStored();
-                        if (data && data.deactivated === true) return { ok: true };
-                        return { ok: true, warning: data?.error || null };
-                    } catch (e) {
-                        return { ok: false, error: 'network', _networkError: true };
-                    }
-                },
-
-                reset() {
-                    clearStored();
-                }
-            };
-        })();
-
-        async function bpLicenseSubmit() {
-            const input = document.getElementById('license-input');
-            const errEl = document.getElementById('license-error');
-            const btn = document.querySelector('#license-overlay button');
-
-            errEl.textContent = T('licenseVerifica');
-            if (btn) btn.disabled = true;
-
-            const result = await bpLicense.activate(input.value);
-
-            if (btn) btn.disabled = false;
-
-            if (result.ok) {
-                document.getElementById('license-overlay').classList.remove('show');
-                document.body.style.overflow = '';
-                errEl.textContent = '';
-                mostraToast(T('toastAttivato'));
-            } else {
-                errEl.textContent = result.error;
-                input.focus();
-            }
-        }
-
-        async function bpDeactivateDevice(e) {
-            if (e) e.preventDefault();
-            const msg = T('confirmDeattiva') || 'Disattivare la licenza su questo dispositivo? Libererai uno slot di attivazione e dovrai reinserire la chiave per riusare l\'app qui.';
-            if (!confirm(msg)) return;
-            const link = document.getElementById('license-deactivate-link');
-            if (link) { link.style.pointerEvents = 'none'; link.style.opacity = '0.5'; }
-            const res = await bpLicense.deactivate();
-            if (res.ok) {
-                mostraToast(T('toastDeattivato') || 'Licenza disattivata su questo dispositivo');
-                setTimeout(() => location.reload(), 900);
-            } else {
-                if (link) { link.style.pointerEvents = ''; link.style.opacity = ''; }
-                alert(T('errDeattiva') || 'Impossibile contattare il server. Controlla la connessione e riprova.');
-            }
-        }
-
-        /* ════════════════════════════════════════════════════════════
            AVVIO
            ════════════════════════════════════════════════════════════ */
         // Rileva se l'app è in esecuzione come PWA installata (non come tab del browser)
@@ -8148,24 +7750,6 @@
             aggiungiRigaIngrediente();
             cambiaLingua(linguaCorrente);
 
-            const licenzaOk = await bpLicense.check();
-            // Mostra "Disattiva questo dispositivo" solo se c'è un'attivazione registrata (instance_id).
-            if (licenzaOk && bpLicense.hasActivation()) {
-                const _dr = document.getElementById('license-deactivate-row');
-                if (_dr) _dr.style.display = 'block';
-            }
-            if (!licenzaOk) {
-                // Se esiste già una chiave salvata (es. grace period offline), nascondi
-                // il blocco "Acquista" per non confondere chi ha già pagato.
-                try {
-                    const _hasKey = !!(JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || {}).key;
-                    const _buyBlock = document.getElementById('license-buy-block');
-                    if (_hasKey && _buyBlock) _buyBlock.style.display = 'none';
-                } catch (e) {}
-                document.getElementById('license-overlay').classList.add('show');
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => document.getElementById('license-input').focus(), 120);
-            }
 
             // All'avvio si entra nella HOME (hub). "Crea nuovo evento" mostrerà poi la scelta guidata/manuale.
             try { bpGoHome(); } catch(e){}

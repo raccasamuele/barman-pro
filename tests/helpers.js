@@ -22,6 +22,13 @@ export async function openApp(page, { locale = 'it' } = {}) {
     return route.abort();
   });
 
+  // Google Fonts viene ancora caricato da CDN (via fino alla Fase 4). In
+  // headless quella richiesta esterna e' lenta e variabile: `waitUntil:
+  // 'load'` la aspetta, e sotto carico i tempi passavano da ~1s a oltre 30,
+  // fino al timeout. Bloccarla rende i tempi stabili e non cambia nulla del
+  // calcolo, che e' cio' che questi test misurano.
+  await page.route(/fonts\.(googleapis|gstatic)\.com/, (route) => route.abort());
+
   await page.addInitScript(({ lang }) => {
     try {
       localStorage.setItem('bp_license', JSON.stringify({

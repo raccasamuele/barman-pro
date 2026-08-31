@@ -16,7 +16,13 @@ export default defineConfig({
   // una propria copia del modulo e scriverebbe nell'afterAll soltanto i casi
   // che ha eseguito lui, lasciando sul disco un frammento invece del golden
   // completo (bug osservato: "golden rigenerato: 3 casi", poi "1 casi").
-  workers: process.env.UPDATE_GOLDEN === '1' ? 1 : undefined,
+  //
+  // Altrimenti massimo 4 worker. Ogni worker apre un Chromium che carica una
+  // pagina da ~536 KB con sette dizionari di traduzioni: con il numero di
+  // worker di default la macchina va in contesa e i test superano il timeout
+  // per esaurimento di risorse, non per un difetto dell'app. Con 4 la suite
+  // e' stabile e non piu' lenta.
+  workers: process.env.UPDATE_GOLDEN === '1' ? 1 : 4,
   reporter: process.env.CI ? [['github'], ['list']] : [['list']],
 
   webServer: {
