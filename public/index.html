@@ -60,14 +60,14 @@
 <body>
 
     <!-- ════ MENU A PANINO · navigazione rapida ════ -->
-    <button type="button" class="bp-burger bp-homebtn" id="bp-burger" aria-label="Home" onclick="bpGoHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.6 12 3l9 7.6"></path><path d="M5.2 9.4V20a1 1 0 0 0 1 1h3.3v-5.4h5V21h3.3a1 1 0 0 0 1-1V9.4"></path></svg></button>
+    <button type="button" class="bp-burger bp-homebtn" id="bp-burger" aria-label="Home" data-do="bpGoHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.6 12 3l9 7.6"></path><path d="M5.2 9.4V20a1 1 0 0 0 1 1h3.3v-5.4h5V21h3.3a1 1 0 0 0 1-1V9.4"></path></svg></button>
     <div class="bp-nav" id="bp-nav" role="dialog" aria-modal="true" aria-label="Menu">
         <div class="bp-nav-inner">
             <div class="bp-nav-eyebrow" data-i18n="uiMenu">Menu</div>
-            <button type="button" class="bp-nav-item" onclick="bpNavGo('nuovo')"><span class="ic">&#10010;</span><span class="tx" data-i18n="uiNuovoEvento">Crea nuovo evento</span><span class="ar">&rsaquo;</span></button>
-            <button type="button" class="bp-nav-item" onclick="bpNavGo('eventi')"><span class="ic">&#10070;</span><span class="tx" data-i18n="evHeaderBtn">I miei eventi</span><span class="ar">&rsaquo;</span></button>
-            <button type="button" class="bp-nav-item" onclick="bpNavGo('cocktail')"><span class="ic">&#10049;</span><span class="tx" data-i18n="navCocktail">I miei cocktail</span><span class="ar">&rsaquo;</span></button>
-            <button type="button" class="bp-nav-item" onclick="bpNavGo('amari')"><span class="ic">&#10059;</span><span class="tx" data-i18n="navAmari">I miei amari</span><span class="ar">&rsaquo;</span></button>
+            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="nuovo"><span class="ic">&#10010;</span><span class="tx" data-i18n="uiNuovoEvento">Crea nuovo evento</span><span class="ar">&rsaquo;</span></button>
+            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="eventi"><span class="ic">&#10070;</span><span class="tx" data-i18n="evHeaderBtn">I miei eventi</span><span class="ar">&rsaquo;</span></button>
+            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="cocktail"><span class="ic">&#10049;</span><span class="tx" data-i18n="navCocktail">I miei cocktail</span><span class="ar">&rsaquo;</span></button>
+            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="amari"><span class="ic">&#10059;</span><span class="tx" data-i18n="navAmari">I miei amari</span><span class="ar">&rsaquo;</span></button>
         </div>
     </div>
 
@@ -76,14 +76,14 @@
         <div class="bpm-shell">
             <div class="bpm-toolbar">
                 <div class="bpm-styles" role="tablist" aria-label="Stile menù">
-                    <button type="button" class="bpm-style-btn active" data-style="elegant" onclick="bpMenuSetStyle('elegant')" data-i18n="menuStyleElegant">Elegante</button>
-                    <button type="button" class="bpm-style-btn" data-style="minimal" onclick="bpMenuSetStyle('minimal')" data-i18n="menuStyleMinimal">Minimal</button>
-                    <button type="button" class="bpm-style-btn" data-style="chalk" onclick="bpMenuSetStyle('chalk')" data-i18n="menuStyleChalk">Lavagna</button>
-                    <button type="button" class="bpm-style-btn" data-style="festa" onclick="bpMenuSetStyle('festa')" data-i18n="menuStyleFesta">Festa</button>
+                    <button type="button" class="bpm-style-btn active" data-style="elegant" data-do="bpMenuSetStyle" data-arg="elegant" data-i18n="menuStyleElegant">Elegante</button>
+                    <button type="button" class="bpm-style-btn" data-style="minimal" data-do="bpMenuSetStyle" data-arg="minimal" data-i18n="menuStyleMinimal">Minimal</button>
+                    <button type="button" class="bpm-style-btn" data-style="chalk" data-do="bpMenuSetStyle" data-arg="chalk" data-i18n="menuStyleChalk">Lavagna</button>
+                    <button type="button" class="bpm-style-btn" data-style="festa" data-do="bpMenuSetStyle" data-arg="festa" data-i18n="menuStyleFesta">Festa</button>
                 </div>
                 <div class="bpm-tools">
-                    <button type="button" class="bpm-tool" onclick="bpMenuPrint()">&#10515;&nbsp;<span data-i18n="menuPrint">Stampa / PDF</span></button>
-                    <button type="button" class="bpm-close" aria-label="Chiudi" onclick="bpMenuClose()">&times;</button>
+                    <button type="button" class="bpm-tool" data-do="bpMenuPrint">&#10515;&nbsp;<span data-i18n="menuPrint">Stampa / PDF</span></button>
+                    <button type="button" class="bpm-close" aria-label="Chiudi" data-do="bpMenuClose">&times;</button>
                 </div>
             </div>
             <div class="bpm-hint" data-i18n="menuEditHint">Tocca i testi per modificarli. Usa × per togliere una voce.</div>
@@ -97,9 +97,9 @@
     <div class="bpc-overlay" id="bp-library" role="dialog" aria-modal="true" aria-label="Libreria ricette">
         <div class="bpc-shell">
             <div class="bpc-topbar">
-                <button type="button" class="bpc-evback" id="bpl-backbtn" style="display:none" onclick="bpLibShowList()">&#8249;</button>
+                <button type="button" class="bpc-evback" id="bpl-backbtn" style="display:none" data-do="bpLibShowList">&#8249;</button>
                 <div style="flex:1"></div>
-                <button type="button" class="bpc-close" aria-label="Chiudi" onclick="bpLibraryClose()">&times;</button>
+                <button type="button" class="bpc-close" aria-label="Chiudi" data-do="bpLibraryClose">&times;</button>
             </div>
             <div class="bpc-body" style="justify-content:flex-start;padding-top:0">
                 <div class="bpl-wrap" id="bpl-wrap"></div>
@@ -112,7 +112,7 @@
         <div class="bpc-shell">
             <div class="bpc-topbar">
                 <div style="flex:1"></div>
-                <button type="button" class="bpc-close" aria-label="Chiudi" onclick="bpSettingsClose()">&times;</button>
+                <button type="button" class="bpc-close" aria-label="Chiudi" data-do="bpSettingsClose">&times;</button>
             </div>
             <div class="bpc-body" style="justify-content:flex-start;padding-top:0">
                 <div class="bpset-eyebrow" data-i18n="setEyebrow">Preferenze</div>
@@ -120,7 +120,7 @@
 
                 <div class="bpset-row">
                     <label class="bpset-label" for="lang-selector" data-i18n="setLang">Lingua predefinita</label>
-                    <select id="lang-selector" class="bpset-select" onchange="cambiaLingua(this.value)" aria-label="Language / Lingua">
+                    <select id="lang-selector" class="bpset-select" data-on-change-value="cambiaLingua" aria-label="Language / Lingua">
                         <option value="it">🇮🇹 Italiano</option>
                         <option value="en">🇬🇧 English</option>
                         <option value="es">🇪🇸 Español</option>
@@ -134,8 +134,8 @@
                 <div class="bpset-row">
                     <label class="bpset-label" data-i18n="setTheme">Tema predefinito</label>
                     <div class="theme-switcher bpset-theme" role="tablist" aria-label="Theme">
-                        <button type="button" id="theme-btn-night" class="active" onclick="cambiaTema('night')" data-i18n="themeNight">Scuro</button>
-                        <button type="button" id="theme-btn-wedding" onclick="cambiaTema('wedding')" data-i18n="themeWedding">Chiaro</button>
+                        <button type="button" id="theme-btn-night" class="active" data-do="cambiaTema" data-arg="night" data-i18n="themeNight">Scuro</button>
+                        <button type="button" id="theme-btn-wedding" data-do="cambiaTema" data-arg="wedding" data-i18n="themeWedding">Chiaro</button>
                     </div>
                 </div>
 
@@ -144,7 +144,7 @@
                         <label class="bpset-label" data-i18n="setAutosave">Salvataggio automatico</label>
                         <span class="bpset-desc" data-i18n="setAutosaveDesc">Salva da solo l'evento in corso mentre lavori.</span>
                     </div>
-                    <button type="button" id="bp-autosave" class="bpset-switch" role="switch" aria-checked="true" onclick="bpToggleAutoSave()">
+                    <button type="button" id="bp-autosave" class="bpset-switch" role="switch" aria-checked="true" data-do="bpToggleAutoSave">
                         <span class="bpset-switch-knob"></span>
                     </button>
                 </div>
@@ -155,15 +155,13 @@
     <div class="container">
 
     <header class="header">
-        <div class="ornament">&#10022;</div>
         <div class="subtitle">Barman PRO</div>
         <h1>Calcolatore d'Eventi</h1>
-        <div class="ornament-row" style="font-size: 14px; letter-spacing: 8px;">───── &#10022; ─────</div>
     </header>
 
     <div class="meta-row">
         <div class="meta-actions" style="margin-left:auto">
-            <button id="btn-installa-app" class="btn-installa" onclick="installaApp()" style="display:none">&#11015; Installa app</button>
+            <button id="btn-installa-app" class="btn-installa" data-do="installaApp" style="display:none">&#11015; Installa app</button>
         </div>
     </div>
 
@@ -171,7 +169,7 @@
     <div class="bpc-overlay" id="bp-welcome" role="dialog" aria-modal="true" aria-labelledby="bp-welcome-title">
         <div class="bpc-shell">
             <div class="bpc-wlang">
-                <select id="bp-welcome-lang" onchange="cambiaLingua(this.value)" aria-label="Language / Lingua">
+                <select id="bp-welcome-lang" data-on-change-value="cambiaLingua" aria-label="Language / Lingua">
                     <option value="it">🇮🇹</option>
                     <option value="en">🇬🇧</option>
                     <option value="es">🇪🇸</option>
@@ -187,14 +185,14 @@
                 <p data-i18n="cfgWelcomeSub">Scegli come iniziare. Potrai sempre cambiare ogni dettaglio dopo.</p>
             </div>
             <div class="bpc-choices">
-                <button type="button" class="bpc-choice primary" onclick="bpCfgStart()">
-                    <span class="bpc-choice-mark">&#10022;</span>
+                <button type="button" class="bpc-choice primary" data-do="bpCfgStart">
+                    <span class="bpc-choice-mark">&#10003;</span>
                     <span class="bpc-choice-txt">
                         <h3 data-i18n="cfgChoiceGuidedTitle">Configurazione guidata</h3>
                         <p data-i18n="cfgChoiceGuidedDesc">Rispondi a poche domande semplici: l'app compila parametri e menu di partenza.</p>
                     </span>
                 </button>
-                <button type="button" class="bpc-choice" onclick="bpWelcomeManual()">
+                <button type="button" class="bpc-choice" data-do="bpWelcomeManual">
                     <span class="bpc-choice-mark">&#10010;</span>
                     <span class="bpc-choice-txt">
                         <h3 data-i18n="cfgChoiceManualTitle">Creazione manuale</h3>
@@ -211,12 +209,12 @@
             <div class="bpc-topbar">
                 <div class="bpc-progress"><div class="bpc-progress-fill" id="bp-cfg-progress"></div></div>
                 <span class="bpc-count" id="bp-cfg-count">1 / 12</span>
-                <button type="button" class="bpc-close" aria-label="Chiudi" onclick="bpCfgClose()">&times;</button>
+                <button type="button" class="bpc-close" aria-label="Chiudi" data-do="bpCfgClose">&times;</button>
             </div>
             <div class="bpc-body"><div class="bpc-panel" id="bp-cfg-mount"></div></div>
             <div class="bpc-nav">
-                <button type="button" class="bpc-back" id="bp-cfg-back" onclick="bpCfgPrev()" data-i18n="cfgBack">Indietro</button>
-                <button type="button" class="bpc-next" id="bp-cfg-next" onclick="bpCfgNext()" data-i18n="cfgNext">Avanti</button>
+                <button type="button" class="bpc-back" id="bp-cfg-back" data-do="bpCfgPrev" data-i18n="cfgBack">Indietro</button>
+                <button type="button" class="bpc-next" id="bp-cfg-next" data-do="bpCfgNext" data-i18n="cfgNext">Avanti</button>
             </div>
         </div>
     </div>
@@ -225,9 +223,9 @@
     <div class="bpc-overlay" id="bp-events" role="dialog" aria-modal="true" aria-label="I miei eventi">
         <div class="bpc-shell">
             <div class="bpc-topbar">
-                <button type="button" class="bpc-evback" id="bp-ev-backbtn" style="display:none" onclick="bpEventsList()">&#8249;</button>
+                <button type="button" class="bpc-evback" id="bp-ev-backbtn" style="display:none" data-do="bpEventsList">&#8249;</button>
                 <div style="flex:1"></div>
-                <button type="button" class="bpc-close" aria-label="Chiudi" onclick="bpEventsClose()">&times;</button>
+                <button type="button" class="bpc-close" aria-label="Chiudi" data-do="bpEventsClose">&times;</button>
             </div>
             <div class="bpc-body" style="justify-content:flex-start;padding-top:4px"><div id="bp-ev-mount"></div></div>
         </div>
@@ -249,15 +247,15 @@
     </section>
 
     <nav class="app-stepper" aria-label="Passi">
-        <button type="button" class="step active" data-step="step-setup" aria-current="step" onclick="vaiAStep('step-setup')">
+        <button type="button" class="step active" data-step="step-setup" aria-current="step" data-do="vaiAStep" data-arg="step-setup">
             <span class="num">1</span><span class="lbl-step" data-i18n="stepSetup">Setup</span>
         </button>
         <span class="sep"></span>
-        <button type="button" class="step" data-step="step-menu" onclick="vaiAStep('step-menu')">
+        <button type="button" class="step" data-step="step-menu" data-do="vaiAStep" data-arg="step-menu">
             <span class="num">2</span><span class="lbl-step" data-i18n="stepMenu">Menu</span>
         </button>
         <span class="sep"></span>
-        <button type="button" class="step" data-step="risultati" onclick="vaiAStep('risultati')">
+        <button type="button" class="step" data-step="risultati" data-do="vaiAStep" data-arg="risultati">
             <span class="num">3</span><span class="lbl-step" data-i18n="stepLista">Lista</span>
         </button>
     </nav>
@@ -267,16 +265,16 @@
     <!-- Modal suggeritore menu -->
     <div class="suggeritore-modal" id="suggeritore-modal">
         <div class="suggeritore-box">
-            <h3 data-i18n="sugTitolo">&#10022; Suggerisci un menu</h3>
+            <h3 data-i18n="sugTitolo">Suggerisci un menu</h3>
             <p data-i18n="sugSub">Per che tipo di evento? Compileremo un menu di partenza, poi potrai modificarlo.</p>
             <div class="suggeritore-eventi">
-                <button type="button" onclick="applicaSuggerimento('matrimonio')" data-i18n="sugMatrimonio">Matrimonio</button>
-                <button type="button" onclick="applicaSuggerimento('compleanno')" data-i18n="sugCompleanno">Compleanno</button>
-                <button type="button" onclick="applicaSuggerimento('aperitivo')" data-i18n="sugAperitivo">Aperitivo</button>
-                <button type="button" onclick="applicaSuggerimento('serata')" data-i18n="sugSerata">Serata / Festa</button>
-                <button type="button" onclick="applicaSuggerimento('aziendale')" data-i18n="sugAziendale">Evento aziendale</button>
+                <button type="button" data-do="applicaSuggerimento" data-arg="matrimonio" data-i18n="sugMatrimonio">Matrimonio</button>
+                <button type="button" data-do="applicaSuggerimento" data-arg="compleanno" data-i18n="sugCompleanno">Compleanno</button>
+                <button type="button" data-do="applicaSuggerimento" data-arg="aperitivo" data-i18n="sugAperitivo">Aperitivo</button>
+                <button type="button" data-do="applicaSuggerimento" data-arg="serata" data-i18n="sugSerata">Serata / Festa</button>
+                <button type="button" data-do="applicaSuggerimento" data-arg="aziendale" data-i18n="sugAziendale">Evento aziendale</button>
             </div>
-            <button type="button" class="suggeritore-close" onclick="chiudiSuggeritore()" data-i18n="sugAnnulla">Annulla</button>
+            <button type="button" class="suggeritore-close" data-do="chiudiSuggeritore" data-i18n="sugAnnulla">Annulla</button>
         </div>
     </div>
 
@@ -289,36 +287,36 @@
             <h2 data-i18n="h2Parametri">Parametri dell'Evento</h2>
             <div class="section-divider"></div>
         </div>
-        <button type="button" class="guided-launch" onclick="bpCfgStart()">
-            <span class="gl-mark">&#10022;</span>
+        <button type="button" class="guided-launch" data-do="bpCfgStart">
+            <span class="gl-mark">&#10003;</span>
             <span class="gl-txt"><b data-i18n="cfgLaunchTitle">Configurazione guidata</b><span data-i18n="cfgLaunchSub">Rispondi a poche domande, compiliamo noi parametri e menu</span></span>
             <span class="gl-arrow">&rsaquo;</span>
         </button>
         <div class="nome-evento-wrap">
             <label data-i18n="cfgEyName">Nome evento</label>
-            <input type="text" id="nome-evento" maxlength="60" data-i18n-ph="cfgNomePh" placeholder="Es. Matrimonio Anna & Luca" oninput="bpAggiornaNomeEvento(this.value)">
+            <input type="text" id="nome-evento" maxlength="60" data-i18n-ph="cfgNomePh" placeholder="Es. Matrimonio Anna & Luca" data-on-input-value="bpAggiornaNomeEvento">
         </div>
         <div class="parametri-row">
-            <div><label data-i18n="labelOspiti">Ospiti previsti</label><input type="number" id="ospiti" value="50" min="1" oninput="programmaSalvataggio(); aggiornaStimaForm()"></div>
-            <div><label><span data-i18n="labelDrink">Cocktail a persona</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipDrink">Quanti cocktail berrà in media un ospite. Indicativamente: aperitivo ~2, festa serale lunga ~4. Vale solo per gli ospiti che bevono alcolici.</span></span></label><input type="number" id="drink_testa" value="3" min="0" step="0.5" oninput="programmaSalvataggio(); aggiornaStimaForm()"></div>
-            <div><label><span data-i18n="labelShot">Shot a persona</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipShot">Numero medio di shottini per ospite. Lascialo a 0 se non servi shot.</span></span></label><input type="number" id="shot_testa" value="1" min="0" step="0.5" oninput="programmaSalvataggio(); aggiornaStimaForm()"></div>
-            <div><label><span data-i18n="labelScarto">Margine sicurezza (%)</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipScarto">Scorta extra aggiunta alle quantità per non rimanere a secco. 10-15% è il valore consigliato.</span></span></label><input type="number" id="scarto" value="15" min="0" oninput="programmaSalvataggio(); aggiornaStimaForm()"></div>
+            <div><label data-i18n="labelOspiti">Ospiti previsti</label><input type="number" id="ospiti" value="50" min="1" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
+            <div><label><span data-i18n="labelDrink">Cocktail a persona</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipDrink">Quanti cocktail berrà in media un ospite. Indicativamente: aperitivo ~2, festa serale lunga ~4. Vale solo per gli ospiti che bevono alcolici.</span></span></label><input type="number" id="drink_testa" value="3" min="0" step="0.5" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
+            <div><label><span data-i18n="labelShot">Shot a persona</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipShot">Numero medio di shottini per ospite. Lascialo a 0 se non servi shot.</span></span></label><input type="number" id="shot_testa" value="1" min="0" step="0.5" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
+            <div><label><span data-i18n="labelScarto">Margine sicurezza (%)</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipScarto">Scorta extra aggiunta alle quantità per non rimanere a secco. 10-15% è il valore consigliato.</span></span></label><input type="number" id="scarto" value="15" min="0" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
         </div>
         <div class="pct-bevitori-wrap">
             <label>
-                <span data-i18n="labelPctBevitori">Percentuale bevitori (alcolici)</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipPct">Quota di ospiti che beve alcolici. Il resto riceve mocktail e analcolici. Sposta il cursore per dividere automaticamente cocktail alcolici e analcolici.</span></span>:
+                <span data-i18n="labelPctBevitori">Percentuale bevitori (alcolici)</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipPct">Quota di ospiti che beve alcolici. Il resto riceve mocktail e analcolici. Sposta il cursore per dividere automaticamente cocktail alcolici e analcolici.</span></span>:
                 <span class="pct-bevitori-display"><span id="pct-bevitori-val">80</span>% <span data-i18n="lblAlcolici">Alcolici</span> / <span id="pct-bevitori-inv">20</span>% <span data-i18n="lblAnalcolici">Analcolici</span></span>
             </label>
-            <input type="range" id="pct-bevitori" min="0" max="100" value="80" oninput="aggiornaPctBevitori()">
+            <input type="range" id="pct-bevitori" min="0" max="100" value="80" data-on-input="aggiornaPctBevitori">
         </div>
         <div class="parametri-row-geo">
             <div>
                 <label data-i18n="labelNazione">Nazione Evento</label>
-                <select id="sel-nazione" onchange="ricalcolaSeVisibile()"></select>
+                <select id="sel-nazione" data-on-change="ricalcolaSeVisibile"></select>
             </div>
             <div>
-                <label><span data-i18n="labelFascia">Fascia di Prezzo</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipFascia">Qualità/prezzo dei prodotti usati per la stima: Bassa = economici, Media = standard, Alta = premium. Cambia i costi unitari, non le quantità.</span></span></label>
-                <select id="sel-fascia" onchange="ricalcolaSeVisibile()">
+                <label><span data-i18n="labelFascia">Fascia di Prezzo</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipFascia">Qualità/prezzo dei prodotti usati per la stima: Bassa = economici, Media = standard, Alta = premium. Cambia i costi unitari, non le quantità.</span></span></label>
+                <select id="sel-fascia" data-on-change="ricalcolaSeVisibile">
                     <option value="bassa" data-i18n="optBassa">Bassa · Prodotti Economici</option>
                     <option value="media" selected data-i18n="optMedia">Media · Prodotti Standard</option>
                     <option value="alta" data-i18n="optAlta">Alta · Prodotti Premium</option>
@@ -330,7 +328,7 @@
             <span class="sl-vals"><span class="sl-tot" id="stima-live-tot">€ 0</span> <span class="sl-pp" id="stima-live-pp"></span></span>
         </div>
     </section>
-    <button class="btn-primary-gold btn-grande" onclick="vaiAStep('step-menu')">&#10086;&nbsp;&nbsp;<span data-i18n="cfgContinuaMenu">Continua al menu</span>&nbsp;&nbsp;&#8250;</button>
+    <button class="btn-primary-gold btn-grande" data-do="vaiAStep" data-arg="step-menu">&#10086;&nbsp;&nbsp;<span data-i18n="cfgContinuaMenu">Continua al menu</span>&nbsp;&nbsp;&#8250;</button>
     </div>
 
     <!-- ════ STEP 2 · MENU ════ -->
@@ -345,28 +343,28 @@
         <p class="descrizione" data-i18n="menuSub">Passa da una scheda all'altra: ogni voce scelta confluisce nella lista finale</p>
 
         <div class="suggeritore-row">
-            <button type="button" class="btn-suggerisci" onclick="apriSuggeritore()">&#10022; <span data-i18n="btnSuggerisci">Suggerisci un menu</span></button>
-            <span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipSuggerisci">Scegli il tipo di evento e l'app compila in automatico un menu di partenza (cocktail, mocktail, shot e vini/birre). Potrai poi modificarlo a piacere.</span></span>
+            <button type="button" class="btn-suggerisci" data-do="apriSuggeritore"><span data-i18n="btnSuggerisci">Suggerisci un menu</span></button>
+            <span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipSuggerisci">Scegli il tipo di evento e l'app compila in automatico un menu di partenza (cocktail, mocktail, shot e vini/birre). Potrai poi modificarlo a piacere.</span></span>
         </div>
 
         <div class="builder-tabs" role="tablist">
-            <button type="button" role="tab" aria-selected="true" class="builder-tab active" data-tab="alcolici" onclick="mostraTab('alcolici')"><span data-i18n="h2Cocktail">Cocktail Alcolici</span><span class="tab-badge empty" id="badge-alcolici">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="analcolici" onclick="mostraTab('analcolici')"><span data-i18n="h2Mocktail">Cocktail Analcolici</span><span class="tab-badge empty" id="badge-analcolici">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="shot" onclick="mostraTab('shot')"><span data-i18n="h2Shot">Shot &amp; Amari</span><span class="tab-badge empty" id="badge-shot">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="fermentati" onclick="mostraTab('fermentati')"><span data-i18n="h2Fermentati">Servizio Fermentati</span><span class="tab-badge empty" id="badge-fermentati">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="custom" onclick="mostraTab('custom')"><span data-i18n="h2Creazioni">Creazioni Personalizzate</span></button>
+            <button type="button" role="tab" aria-selected="true" class="builder-tab active" data-tab="alcolici" data-do="mostraTab" data-arg="alcolici"><span data-i18n="h2Cocktail">Cocktail Alcolici</span><span class="tab-badge empty" id="badge-alcolici">0</span></button>
+            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="analcolici" data-do="mostraTab" data-arg="analcolici"><span data-i18n="h2Mocktail">Cocktail Analcolici</span><span class="tab-badge empty" id="badge-analcolici">0</span></button>
+            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="shot" data-do="mostraTab" data-arg="shot"><span data-i18n="h2Shot">Shot &amp; Amari</span><span class="tab-badge empty" id="badge-shot">0</span></button>
+            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="fermentati" data-do="mostraTab" data-arg="fermentati"><span data-i18n="h2Fermentati">Servizio Fermentati</span><span class="tab-badge empty" id="badge-fermentati">0</span></button>
+            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="custom" data-do="mostraTab" data-arg="custom"><span data-i18n="h2Creazioni">Creazioni Personalizzate</span></button>
         </div>
 
         <div class="builder-panel active" data-panel="alcolici">
-            <p class="descrizione"><span data-i18n="descCocktail">Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipFrequenza">La frequenza (da 1 a 5) indica quanto spesso quel drink verrà scelto rispetto agli altri: 5 = molto gettonato, 1 = di nicchia. L'app distribuisce le quantità totali in base a questi pesi relativi.</span></span></p>
+            <p class="descrizione"><span data-i18n="descCocktail">Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipFrequenza">La frequenza (da 1 a 5) indica quanto spesso quel drink verrà scelto rispetto agli altri: 5 = molto gettonato, 1 = di nicchia. L'app distribuisce le quantità totali in base a questi pesi relativi.</span></span></p>
             <div class="search-add-row">
                 <input list="lista-database-drink" id="search-drink-input" data-i18n-ph="phSearchDrink" placeholder="Cerca dal ricettario (es. Negroni, Spritz, Margarita)...">
                 <datalist id="lista-database-drink"></datalist>
-                <button onclick="aggiungiDrinkSerata()">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
+                <button data-do="aggiungiDrinkSerata">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
             </div>
             <br>
             <div id="drink-serata-container" class="grid"></div>
-            <div class="bp-empty" role="status"><span class="bp-empty-ic">&#10022;</span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
+            <div class="bp-empty" role="status"><span class="bp-empty-ic"></span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
         </div>
 
         <div class="builder-panel" data-panel="analcolici">
@@ -374,38 +372,38 @@
             <div class="search-add-row">
                 <input list="lista-database-mocktail" id="search-mocktail-input" data-i18n-ph="phSearchMocktail" placeholder="Cerca un mocktail (es. Virgin Mojito, Shirley Temple)...">
                 <datalist id="lista-database-mocktail"></datalist>
-                <button onclick="aggiungiMocktailSerata()">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
+                <button data-do="aggiungiMocktailSerata">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
             </div>
             <br>
             <div id="mocktail-serata-container" class="grid"></div>
-            <div class="bp-empty" role="status"><span class="bp-empty-ic">&#10022;</span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
+            <div class="bp-empty" role="status"><span class="bp-empty-ic"></span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
         </div>
 
         <div class="builder-panel" data-panel="shot">
-            <p class="descrizione"><span data-i18n="descShot">Dose standard 40 ml &middot; cerca tra gli alcolici disponibili</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipFrequenza">La frequenza (da 1 a 5) indica quanto spesso quel drink verrà scelto rispetto agli altri: 5 = molto gettonato, 1 = di nicchia. L'app distribuisce le quantità totali in base a questi pesi relativi.</span></span></p>
+            <p class="descrizione"><span data-i18n="descShot">Dose standard 40 ml &middot; cerca tra gli alcolici disponibili</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipFrequenza">La frequenza (da 1 a 5) indica quanto spesso quel drink verrà scelto rispetto agli altri: 5 = molto gettonato, 1 = di nicchia. L'app distribuisce le quantità totali in base a questi pesi relativi.</span></span></p>
             <div class="search-add-row">
                 <input list="lista-database-shot" id="search-shot-input" data-i18n-ph="phSearchShot" placeholder="Cerca shot, amaro o liquore...">
                 <datalist id="lista-database-shot"></datalist>
-                <button onclick="aggiungiShotSerata()">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
+                <button data-do="aggiungiShotSerata">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
             </div>
             <br>
             <div id="shot-serata-container" class="grid"></div>
-            <div class="bp-empty" role="status"><span class="bp-empty-ic">&#10022;</span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
+            <div class="bp-empty" role="status"><span class="bp-empty-ic"></span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
         </div>
 
         <div class="builder-panel" data-panel="fermentati">
-            <p class="descrizione"><span data-i18n="descFermentati">Vino e birra: indica calici/consumazioni a persona, l'app calcola bottiglie e costi</span><span class="help-tip" tabindex="0" role="button" aria-label="?" onclick="this.classList.toggle('active')"><span class="help-bubble" data-i18n="tipFermentati">Indica per ogni ospite quanti calici di vino/bollicine e quante consumazioni di birra. L'app calcola le bottiglie (vino 75 cl ≈ 5 calici) e le aggiunge alla lista con i relativi costi.</span></span></p>
+            <p class="descrizione"><span data-i18n="descFermentati">Vino e birra: indica calici/consumazioni a persona, l'app calcola bottiglie e costi</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-toggle="active"><span class="help-bubble" data-i18n="tipFermentati">Indica per ogni ospite quanti calici di vino/bollicine e quante consumazioni di birra. L'app calcola le bottiglie (vino 75 cl ≈ 5 calici) e le aggiunge alla lista con i relativi costi.</span></span></p>
             <div id="fermentati-panel">
             <div class="parametri-row">
-                <div><label data-i18n="labelVinoRosso">Calici Vino Rosso/persona</label><input type="number" id="ferm_vino_rosso" value="0" min="0" step="0.25" oninput="ricalcolaSeVisibile(); programmaSalvataggio()"></div>
-                <div><label data-i18n="labelVinoBianco">Calici Vino Bianco/persona</label><input type="number" id="ferm_vino_bianco" value="0" min="0" step="0.25" oninput="ricalcolaSeVisibile(); programmaSalvataggio()"></div>
-                <div><label data-i18n="labelBollicine">Calici Bollicine/persona</label><input type="number" id="ferm_bollicine" value="0" min="0" step="0.25" oninput="ricalcolaSeVisibile(); programmaSalvataggio()"></div>
-                <div><label data-i18n="labelBirra">Consumazioni Birra/persona</label><input type="number" id="ferm_birra" value="0" min="0" step="0.25" oninput="ricalcolaSeVisibile(); programmaSalvataggio()"></div>
+                <div><label data-i18n="labelVinoRosso">Calici Vino Rosso/persona</label><input type="number" id="ferm_vino_rosso" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
+                <div><label data-i18n="labelVinoBianco">Calici Vino Bianco/persona</label><input type="number" id="ferm_vino_bianco" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
+                <div><label data-i18n="labelBollicine">Calici Bollicine/persona</label><input type="number" id="ferm_bollicine" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
+                <div><label data-i18n="labelBirra">Consumazioni Birra/persona</label><input type="number" id="ferm_birra" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
             </div>
             <div class="parametri-row-geo" style="margin-top: 12px;">
                 <div>
                     <label data-i18n="labelFasciaFermentati">Fascia Prezzo Fermentati</label>
-                    <select id="sel-fascia-fermentati" onchange="ricalcolaSeVisibile(); programmaSalvataggio()">
+                    <select id="sel-fascia-fermentati" data-on-change="ricalcolaSeVisibile programmaSalvataggio">
                         <option value="bassa" data-i18n="fasciaBassa">Bassa</option>
                         <option value="media" selected data-i18n="fasciaMedia">Media</option>
                         <option value="alta" data-i18n="fasciaAlta">Alta</option>
@@ -420,32 +418,32 @@
             <div class="creator-grid">
 
                 <div class="creator-box">
-                    <h3 id="h3-nuovo-cocktail" data-i18n="h3NuovoCocktail">&#10022; Nuovo Cocktail</h3>
+                    <h3 id="h3-nuovo-cocktail" data-i18n="h3NuovoCocktail">Nuovo Cocktail</h3>
                     <input type="text" id="new_cocktail_name" data-i18n-ph="phNomeCocktail" placeholder="Nome del cocktail">
                     <datalist id="lista-ingredienti"></datalist>
 
                     <div style="margin-top: 14px;">
                         <label style="margin-bottom: 6px;" data-i18n="labelIngredienti">Ingredienti</label>
                         <div id="ingredienti-container"></div>
-                        <button class="btn-aggiungi-ing" onclick="aggiungiRigaIngrediente()">&#10010; <span data-i18n="btnAggiungiIng">Aggiungi ingrediente</span></button>
+                        <button class="btn-aggiungi-ing" data-do="aggiungiRigaIngrediente">&#10010; <span data-i18n="btnAggiungiIng">Aggiungi ingrediente</span></button>
                     </div>
 
-                    <button class="btn-secondary" onclick="creaCocktail()">&#10022; <span data-i18n="btnCrea">Crea e aggiungi alla serata</span></button>
+                    <button class="btn-secondary" data-do="creaCocktail"><span data-i18n="btnCrea">Crea e aggiungi alla serata</span></button>
                 </div>
 
                 <div class="creator-box">
-                    <h3 id="h3-bottiglia-shot" data-i18n="h3BottigliaShot">&#10022; Bottiglia Shot</h3>
+                    <h3 id="h3-bottiglia-shot" data-i18n="h3BottigliaShot">Bottiglia Shot</h3>
                     <p class="descrizione" style="text-align: left; margin-bottom: 12px;" data-i18n="descBottShot">Aggiungi un alcolico extra non presente nel ricettario</p>
                     <input type="text" id="new_shot_name" data-i18n-ph="phNomeShot" placeholder="Nome (es. Limoncello)">
-                    <button class="btn-secondary" onclick="creaShot()">&#10022; <span data-i18n="btnCreaShot">Crea e aggiungi</span></button>
+                    <button class="btn-secondary" data-do="creaShot"><span data-i18n="btnCreaShot">Crea e aggiungi</span></button>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ─── BOTTONE GENERA ─── -->
-    <button type="button" class="wizard-back" onclick="vaiAStep('step-setup')">&#8249; <span data-i18n="cfgTornaSetup">Torna al setup</span></button>
-    <button class="btn-primary-gold btn-grande" onclick="vaiAStep('risultati')">&#10086;&nbsp;&nbsp;<span data-i18n="btnGenera">Genera lista della spesa</span>&nbsp;&nbsp;&#10086;</button>
+    <button type="button" class="wizard-back" data-do="vaiAStep" data-arg="step-setup">&#8249; <span data-i18n="cfgTornaSetup">Torna al setup</span></button>
+    <button class="btn-primary-gold btn-grande" data-do="vaiAStep" data-arg="risultati">&#10086;&nbsp;&nbsp;<span data-i18n="btnGenera">Genera lista della spesa</span>&nbsp;&nbsp;&#10086;</button>
     </div>
 
     <!-- ════ STEP 3 · LISTA ════ -->
@@ -491,21 +489,21 @@
         </div>
 
         <div class="action-buttons">
-            <button onclick="condividiLista()">&#10148; <span data-i18n="btnCondividi">Condividi</span></button>
-            <button onclick="copiaListaTesto()">&#10022; <span data-i18n="btnCopia">Copia testo</span></button>
-            <button onclick="stampaLista()">&#10022; <span data-i18n="btnStampa">Stampa o salva in PDF</span></button>
-            <button onclick="bpMenuOpenFromList()">&#10022; <span data-i18n="menuOpenBtn">Crea menù da esporre</span></button>
+            <button data-do="condividiLista">&#10148; <span data-i18n="btnCondividi">Condividi</span></button>
+            <button data-do="copiaListaTesto"><span data-i18n="btnCopia">Copia testo</span></button>
+            <button data-do="stampaLista"><span data-i18n="btnStampa">Stampa o salva in PDF</span></button>
+            <button data-do="bpMenuOpenFromList"><span data-i18n="menuOpenBtn">Crea menù da esporre</span></button>
         </div>
 
         <div class="wizard-actions">
-            <button class="wz-primary" onclick="bpSalvaEvento()">&#10022; <span data-i18n="cfgSalvaEvento">Salva evento</span></button>
-            <button onclick="vaiAStep('step-menu')">&#9998; <span data-i18n="cfgModificaMenu">Modifica menu</span></button>
-            <button onclick="resetCompleto()">&#10010; <span data-i18n="cfgNuovoEvento">Nuovo evento</span></button>
+            <button class="wz-primary" data-do="bpSalvaEvento"><span data-i18n="cfgSalvaEvento">Salva evento</span></button>
+            <button data-do="vaiAStep" data-arg="step-menu">&#9998; <span data-i18n="cfgModificaMenu">Modifica menu</span></button>
+            <button data-do="resetCompleto">&#10010; <span data-i18n="cfgNuovoEvento">Nuovo evento</span></button>
         </div>
 
     </div>
 
-        <button type="button" class="btn-primary-gold btn-grande" style="margin-top:18px" onclick="bpEventsOpen()">&#10070;&nbsp;&nbsp;<span data-i18n="uiVaiEventi">Apri i miei eventi salvati</span>&nbsp;&nbsp;&#8250;</button>
+        <button type="button" class="btn-primary-gold btn-grande" style="margin-top:18px" data-do="bpEventsOpen">&#10070;&nbsp;&nbsp;<span data-i18n="uiVaiEventi">Apri i miei eventi salvati</span>&nbsp;&nbsp;&#8250;</button>
     </div>
 
 

@@ -1,23 +1,59 @@
 # ═══════════════════════════════════════════════════════════════════
-#   Barman PRO · Headers (Cloudflare Pages / Netlify compat.)
+#   Barman PRO · header HTTP
 # ═══════════════════════════════════════════════════════════════════
 # Sintassi:
 #   /path
-#     Header-Name: value
+#     Nome-Header: valore
 # ═══════════════════════════════════════════════════════════════════
 
-# ─── Header globali su TUTTE le pagine ─────────────────────────────
+# ─── Header globali su tutte le pagine ─────────────────────────────
 /*
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
 
-# ─── Service Worker: niente cache lato browser ─────────────────────
-# Il SW DEVE essere sempre fresco, altrimenti gli aggiornamenti non arrivano
+# ─── Perche' la CSP e' scritta cosi' ───────────────────────────────
+#
+# script-src 'self' SENZA 'unsafe-inline': e' il punto della faccenda.
+#   L'app non ha piu' nessun handler negli attributi (erano 83 fra onclick,
+#   oninput e onchange): le azioni passano tutte per event delegation, il
+#   markup dichiara cosa fare e non come. Finche' c'era codice negli
+#   attributi, questa direttiva andava lasciata aperta — e con essa la
+#   difesa principale contro l'XSS. Serve perche' i dati liberi dell'utente
+#   (nomi di eventi e di ricette) finiscono in localStorage e poi in
+#   innerHTML.
+#   ⚠️ Se un giorno rimetti un onclick nel markup, quel bottone non
+#      funzionera' e la console dira' perche'. E' voluto.
+#
+# static.cloudflareinsights.com: il beacon di Web Analytics, cookieless,
+#   sulle pagine dei contenuti. connect-src apre l'invio verso
+#   cloudflareinsights.com. Sono le uniche due terze parti del progetto, ed
+#   entrambe sono dichiarate nella privacy.
+#
+# style-src-attr 'unsafe-inline': restano 30 attributi style= nel markup.
+#   Un attributo di stile non puo' eseguire codice, quindi il rischio non e'
+#   paragonabile a quello degli script; ma resta lavoro da fare, e tenerlo
+#   separato da style-src rende esplicito cosa manca invece di nasconderlo
+#   dentro un permesso generico.
+#
+# font-src 'self': i font sono self-hostati, nessun CDN.
+# form-action 'none': l'app non invia form da nessuna parte, non ha backend.
+# base-uri 'none' e object-src 'none': chiudono due vie classiche di
+#   dirottamento che non servono a niente qui.
+
+# ─── Service worker: mai dalla cache del browser ───────────────────
+# Deve essere sempre fresco, altrimenti gli aggiornamenti non arrivano mai.
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
 
 # ─── Manifest: cache breve ─────────────────────────────────────────
 /manifest.json
   Cache-Control: public, max-age=3600
+
+# ─── Font: immutabili, cache lunga ─────────────────────────────────
+# Il nome non cambia mai, ma il contenuto nemmeno: se un giorno cambia il
+# font, cambia anche il nome del file.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

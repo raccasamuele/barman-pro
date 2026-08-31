@@ -150,7 +150,7 @@
             border-radius: 0;
             padding: 8px 14px;
             font: 600 12px/1 var(--bp-font);
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
             cursor: pointer;
             text-transform: uppercase;
         }
@@ -290,7 +290,7 @@
             font-family: var(--bp-font);
             font-weight: 400;
             margin: 0;
-            letter-spacing: 2px;
+            letter-spacing: 0.05em;
         }
 
         .header {
@@ -310,7 +310,7 @@
         .header .subtitle {
             font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 6px;
+            letter-spacing: 0.08em;
             color: var(--accent-gold-1);
             font-weight: 500;
             opacity: 0.9;
@@ -319,7 +319,7 @@
         .header .ornament {
             font-family: var(--bp-font);
             color: var(--glass-border);
-            letter-spacing: 12px;
+            letter-spacing: 0.08em;
             font-size: 18px;
         }
 
@@ -407,7 +407,7 @@
             display: block;
             font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 0.05em;
             color: var(--text-muted);
             margin-bottom: 8px;
             font-weight: 600;
@@ -460,7 +460,7 @@
             font-size: 14px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 0.05em;
             cursor: pointer;
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
             position: relative;
@@ -519,7 +519,7 @@
             padding: 24px;
             margin-top: 40px;
             border-radius: 16px;
-            letter-spacing: 4px;
+            letter-spacing: 0.08em;
         }
 
         /* ─── STEPPER (orientamento + jump nav) ─── */
@@ -560,7 +560,7 @@
             gap: 12px;
             color: var(--text-muted);
             text-transform: none;
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
             font-size: 13px;
             font-weight: 600;
             overflow: visible;
@@ -597,7 +597,7 @@
         @media (max-width: 560px) {
             .app-stepper { padding: 12px 6px; }
             .app-stepper .sep { width: 14px; margin: 0 3px; }
-            .app-stepper .step { gap: 6px; font-size: 11px; letter-spacing: 0.3px; }
+            .app-stepper .step { gap: 6px; font-size: 11px; letter-spacing: 0.01em; }
             .app-stepper .step .num { width: 28px; height: 28px; font-size: 13px; }
         }
 
@@ -622,7 +622,7 @@
             padding: 14px 16px;
             border-radius: 12px;
             font-size: 12.5px;
-            letter-spacing: 1.5px;
+            letter-spacing: 0.02em;
             text-transform: uppercase;
             font-weight: 600;
             display: inline-flex;
@@ -756,7 +756,7 @@
             font-size: 12px;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
         }
 
         input[type="range"] {
@@ -888,7 +888,7 @@
             color: var(--accent-gold-1);
             font-weight: 800;
             margin: 0;
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
         }
 
         .total-drinks strong {
@@ -955,7 +955,7 @@
             color: var(--accent-gold-1);
             font-size: 20px;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
         }
 
         .action-buttons {
@@ -972,7 +972,7 @@
             margin-bottom: 24px;
             font-size: 12px;
             color: var(--text-muted);
-            letter-spacing: 2px;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
         }
 
@@ -1025,7 +1025,7 @@
             font-family: var(--bp-font);
             font-size: 14px;
             font-weight: 500;
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
             box-shadow: 0 10px 30px var(--bp-shadow-color);
             opacity: 0;
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1053,7 +1053,7 @@
             text-decoration: none;
             color: var(--text-muted);
             font-size: 12px;
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
             text-transform: uppercase;
             transition: color 0.3s;
         }
@@ -1073,7 +1073,7 @@
             border-radius: 50px;
             text-decoration: none !important;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.02em;
             box-shadow: 0 4px 15px var(--bp-accent-soft), inset 0 1px 1px var(--bp-line);
             border: 1px solid var(--bp-accent);
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
@@ -1169,7 +1169,7 @@
             font-size: 13px;
             color: var(--accent-gold-2);
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.01em;
             opacity: 0.88;
             white-space: nowrap;
         }
@@ -1207,11 +1207,12 @@
             font-family: var(--bp-font);
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 5px;
+            letter-spacing: 0.08em;
             color: var(--text-muted);
             margin-bottom: 14px;
         }
 
+        /* cifre a larghezza fissa: in una colonna di costi devono incolonnarsi */
         .budget-amount {
             font-family: var(--bp-font);
             font-size: 52px;
@@ -1226,7 +1227,7 @@
         .budget-sub {
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 0.08em;
             color: var(--text-muted);
             opacity: 0.65;
         }
@@ -1244,7 +1245,8 @@
 
         /* Intestazione documento: visibile solo nel PDF/stampa */
         .print-meta { display: none; }
-        .budget-perperson { font-family: var(--bp-font); font-size: 15px; font-weight: 600; color: var(--accent-gold-1); margin-bottom: 12px; letter-spacing: 0.3px; }
+        .budget-perperson {
+            font-variant-numeric: tabular-nums; font-family: var(--bp-font); font-size: 15px; font-weight: 600; color: var(--accent-gold-1); margin-bottom: 12px; letter-spacing: 0.01em; }
 
         /* Stima costo in tempo reale (form di configurazione) */
         .stima-live {
@@ -1252,7 +1254,7 @@
             margin-top: 26px; padding: 14px 18px; border-radius: 14px;
             background: var(--bp-accent-soft); border: 1px solid var(--bp-accent-soft);
         }
-        .stima-live .sl-label { font-family: var(--bp-font); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); }
+        .stima-live .sl-label { font-family: var(--bp-font); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
         .stima-live .sl-vals { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
         .stima-live .sl-tot { font-family: var(--bp-font); font-weight: 700; font-size: 24px; color: var(--accent-gold-1); font-variant-numeric: tabular-nums; }
         .stima-live .sl-pp { font-family: var(--bp-font); font-size: 13px; font-weight: 600; color: var(--text-muted); }
@@ -1263,7 +1265,7 @@
             background: linear-gradient(135deg, var(--bp-accent-soft), var(--bp-accent-soft));
             border: 1px solid var(--bp-accent-soft);
         }
-        .bpc-costbox .cb-k { display: block; font-family: var(--bp-font); font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        .bpc-costbox .cb-k { display: block; font-family: var(--bp-font); font-size: 11px; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
         .bpc-costbox .cb-v { font-family: var(--bp-font); font-weight: 700; font-size: 30px; color: var(--accent-gold-1); font-variant-numeric: tabular-nums; }
         .bpc-costbox .cb-pp { display: block; font-family: var(--bp-font); font-size: 13px; font-weight: 600; color: var(--text-muted); margin-top: 4px; }
 
@@ -1332,7 +1334,7 @@
             transform-origin: left center;
             transition: width 320ms cubic-bezier(0.23,1,0.32,1);
         }
-        .bpc-count { font-family: var(--bp-font); font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; white-space: nowrap; }
+        .bpc-count { font-family: var(--bp-font); font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.02em; white-space: nowrap; }
         .bpc-close {
             background: none; border: none; color: var(--text-muted); font-size: 26px; line-height: 1;
             cursor: pointer; padding: 4px 6px; border-radius: 8px; transition: color 160ms ease, transform 160ms ease;
@@ -1346,7 +1348,7 @@
            in permanenza anche quando il pannello è fermo. */
         .bpc-panel.bpc-anim { animation: bpcIn 300ms cubic-bezier(0.23,1,0.32,1) both; will-change: transform, opacity; }
 
-        .bpc-eyebrow { font-family: var(--bp-font); font-size: 12px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 12px; }
+        .bpc-eyebrow { font-family: var(--bp-font); font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 12px; }
         .bpc-q { font-family: var(--bp-font); font-weight: 600; font-size: clamp(22px, 6vw, 28px); line-height: 1.18; color: var(--text-main); margin: 0 0 10px; }
         .bpc-desc { font-family: var(--bp-font); font-size: 14.5px; line-height: 1.5; color: var(--text-muted); margin: 0 0 22px; max-width: 46ch; }
         .bpc-more { margin: -8px 0 22px; }
@@ -1523,7 +1525,7 @@
         .bpc-chkprog .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-gold-2), var(--accent-gold-1)); transition: width 260ms cubic-bezier(0.23,1,0.32,1); }
         .bpc-chkprog .lbl { font-family: var(--bp-font); font-size: 13px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
         .bpc-chkgroup { margin-bottom: 18px; }
-        .bpc-chkgroup > .gt { font-family: var(--bp-font); font-weight: 800; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 6px; }
+        .bpc-chkgroup > .gt { font-family: var(--bp-font); font-weight: 800; font-size: 12px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 6px; }
         .bpc-chkitem { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-top: 1px solid var(--glass-border); cursor: pointer; }
         .bpc-chkgroup .bpc-chkitem:first-of-type { border-top: none; }
         .bpc-chkbox { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; border: 1.5px solid var(--input-border); display: flex; align-items: center; justify-content: center; color: var(--text-dark); font-size: 14px; transition: background-color 160ms ease, border-color 160ms ease; }
@@ -1537,8 +1539,9 @@
         /* ─── Checklist: riepilogo Totale / Speso / Da spendere ─── */
         .bpc-chkstats { display: flex; gap: 10px; margin: 14px 0 20px; }
         .bpc-chkstat { flex: 1; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px 8px; text-align: center; }
-        .bpc-chkstat .k { font-family: var(--bp-font); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); }
-        .bpc-chkstat .v { font-family: var(--bp-font); font-size: clamp(15px, 4.6vw, 19px); font-weight: 700; color: var(--text-main); margin-top: 5px; font-variant-numeric: tabular-nums; }
+        .bpc-chkstat .k { font-family: var(--bp-font); font-size: 10.5px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text-muted); }
+        .bpc-chkstat .v {
+            font-variant-numeric: tabular-nums; font-family: var(--bp-font); font-size: clamp(15px, 4.6vw, 19px); font-weight: 700; color: var(--text-main); margin-top: 5px; font-variant-numeric: tabular-nums; }
         .bpc-chkstat.spent .v { color: var(--accent-gold-1); }
 
         /* ─── Card evento: kebab (⋮) + menu azioni ─── */
@@ -1579,7 +1582,7 @@
         .bp-nav { position: fixed; inset: 0; z-index: 1310; display: none; background: radial-gradient(130% 90% at 0% 0%, var(--bp-panel), var(--bp-panel)); backdrop-filter: blur(12px); }
         .bp-nav.show { display: block; }
         .bp-nav-inner { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 14px; max-width: 520px; margin: 0 auto; padding: 88px 24px calc(40px + env(safe-area-inset-bottom, 0px)); }
-        .bp-nav-eyebrow { font-family: var(--bp-font); font-size: 12px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 6px; padding-left: 4px; }
+        .bp-nav-eyebrow { font-family: var(--bp-font); font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 6px; padding-left: 4px; }
         .bp-nav-item { display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; padding: 20px 20px; border-radius: 20px; background: var(--input-bg); border: 1px solid var(--glass-border); cursor: pointer; transition: transform 220ms cubic-bezier(0.23,1,0.32,1), border-color 200ms ease; }
         .bp-nav-item:active { transform: scale(0.985); }
         @media (hover: hover) and (pointer: fine) { .bp-nav-item:hover { border-color: var(--bp-accent-soft); } }
@@ -1683,7 +1686,7 @@
         body.bp-home .header h1 { font-size: 30px; margin: 4px 0 2px; }
         body.bp-home .header > .ornament { display: none; }
         body.bp-home .header .ornament-row { display: none; }
-        body.bp-home .header .subtitle { letter-spacing: 5px; }
+        body.bp-home .header .subtitle { letter-spacing: 0.08em; }
         @media (max-width: 560px) {
             body.bp-home .header h1 { font-size: 24px; }
             body.bp-home .header { margin-bottom: 14px; }
@@ -1881,7 +1884,7 @@
         .bpl-ed-actions .bpl-btn { flex: 1 1 130px; padding: 13px 16px; font-size: 14px; }
 
 /* ═══ blocco 5 di 9 (era riga 2038 di index.html) ═══ */
-        .bpset-eyebrow { font-family:var(--bp-font); font-size:12px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent-gold-2); margin-bottom:10px; }
+        .bpset-eyebrow { font-family:var(--bp-font); font-size:12px; font-weight:800; letter-spacing: 0.05em; text-transform:uppercase; color:var(--accent-gold-2); margin-bottom:10px; }
         .bpset-title { font-family:var(--bp-font); font-weight:600; font-size:clamp(22px,6vw,28px); color:var(--text-main); margin:0 0 22px; }
         .bpset-row { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:18px 2px; border-bottom:1px solid var(--glass-border); }
         .bpset-row:last-child { border-bottom:none; }
@@ -1925,7 +1928,7 @@
         .bph-resume-main { display: flex; align-items: center; gap: 16px; flex: 1 1 auto; min-width: 0; width: auto; padding: 18px 20px; background: transparent; border: none; border-radius: 0; text-transform: none; letter-spacing: 0; text-align: left; cursor: pointer; }
         .bph-resume-main::before { content: none; }
         .bph-resume-main:hover { transform: none; background: transparent; border-color: transparent; }
-        .bph-resume-reset { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; width: auto; min-width: 0; padding: 0 18px; background: transparent; border: none; border-left: 1px solid var(--glass-border); border-radius: 0; color: var(--text-muted); cursor: pointer; font: 700 11.5px/1.2 var(--bp-font); letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; transition: color .18s ease, background-color .18s ease; }
+        .bph-resume-reset { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; width: auto; min-width: 0; padding: 0 18px; background: transparent; border: none; border-left: 1px solid var(--glass-border); border-radius: 0; color: var(--text-muted); cursor: pointer; font: 700 11.5px/1.2 var(--bp-font); letter-spacing: 0.01em; text-transform: uppercase; white-space: nowrap; transition: color .18s ease, background-color .18s ease; }
         .bph-resume-reset::before { content: none; }
         .bph-resume-reset:hover { transform: none; color: #fff; background: var(--danger-color); border-color: var(--danger-color); }
         .bph-reset-ic { font-size: 13px; }
@@ -2021,7 +2024,7 @@
             color: var(--bp-panel);
             box-shadow: 0 12px 28px -10px var(--accent-glow), inset 0 1px 0 var(--bp-line);
         }
-        body.bp-home .bph-hero-title { font-size: 26px; letter-spacing: 0.3px; }
+        body.bp-home .bph-hero-title { font-size: 26px; letter-spacing: 0.01em; }
         body.bp-home .bph-hero-desc  { font-size: 14px; margin-top: 5px; }
         body.bp-home .bph-hero-arrow {
             display: flex; align-items: center; justify-content: center;
@@ -2108,9 +2111,9 @@
             pointer-events: none;
         }
         #budget-box.budget-box > * { position: relative; z-index: 1; }
-        #budget-box .budget-label { letter-spacing: 6px; font-size: 12px; }
+        #budget-box .budget-label { letter-spacing: 0.08em; font-size: 12px; }
         #budget-box .budget-amount {
-            font-size: 64px; letter-spacing: 1px;
+            font-size: 64px; letter-spacing: 0.02em;
             filter: drop-shadow(0 8px 26px var(--bp-accent-soft));
         }
         #budget-box .budget-perperson {

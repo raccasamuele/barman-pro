@@ -1123,7 +1123,7 @@
                 garnishSub: "Guarnizioni e ingredienti di preparazione (senza dose): procurali a parte",
                 copyGarnish: "DA COMPRARE A PARTE",
                 tipSuggerisci: "Scegli il tipo di evento e l'app compila in automatico un menu di partenza (cocktail, mocktail, shot e vini/birre). Potrai poi modificarlo a piacere.",
-                sugTitolo: "✦ Suggerisci un menu",
+                sugTitolo: "Suggerisci un menu",
                 sugSub: "Per che tipo di evento? Compileremo un menu di partenza, poi potrai modificarlo.",
                 sugMatrimonio: "Matrimonio",
                 sugCompleanno: "Compleanno",
@@ -1167,7 +1167,7 @@
                 garnishSub: "Garnishes and prep ingredients (no measure): get them separately",
                 copyGarnish: "BUY SEPARATELY",
                 tipSuggerisci: "Pick the type of event and the app fills in a starting menu for you (cocktails, mocktails, shots and wines/beers). You can fine-tune it afterwards.",
-                sugTitolo: "✦ Suggest a menu",
+                sugTitolo: "Suggest a menu",
                 sugSub: "What kind of event? We'll build a starting menu that you can then adjust.",
                 sugMatrimonio: "Wedding",
                 sugCompleanno: "Birthday",
@@ -1211,7 +1211,7 @@
                 garnishSub: "Guarniciones e ingredientes de preparación (sin dosis): consíguelos aparte",
                 copyGarnish: "COMPRAR APARTE",
                 tipSuggerisci: "Elige el tipo de evento y la app crea un menú inicial (cócteles, mocktails, chupitos y vinos/cervezas). Luego podrás modificarlo.",
-                sugTitolo: "✦ Sugerir un menú",
+                sugTitolo: "Sugerir un menú",
                 sugSub: "¿Qué tipo de evento? Crearemos un menú inicial que luego podrás ajustar.",
                 sugMatrimonio: "Boda",
                 sugCompleanno: "Cumpleaños",
@@ -1255,7 +1255,7 @@
                 garnishSub: "Garnitures et ingrédients de préparation (sans dose) : à prévoir séparément",
                 copyGarnish: "À ACHETER À PART",
                 tipSuggerisci: "Choisis le type d'événement et l'app crée un menu de départ (cocktails, mocktails, shots et vins/bières). Tu pourras ensuite le modifier.",
-                sugTitolo: "✦ Suggérer un menu",
+                sugTitolo: "Suggérer un menu",
                 sugSub: "Pour quel type d'événement ? Nous créons un menu de départ que tu pourras ajuster.",
                 sugMatrimonio: "Mariage",
                 sugCompleanno: "Anniversaire",
@@ -1299,7 +1299,7 @@
                 garnishSub: "Garnituren und Zubereitungszutaten (ohne Menge): separat besorgen",
                 copyGarnish: "SEPARAT KAUFEN",
                 tipSuggerisci: "Wähle die Art der Veranstaltung und die App erstellt ein Start-Menü (Cocktails, Mocktails, Shots und Wein/Bier). Du kannst es danach anpassen.",
-                sugTitolo: "✦ Menü vorschlagen",
+                sugTitolo: "Menü vorschlagen",
                 sugSub: "Welche Art von Event? Wir erstellen ein Start-Menü, das du anpassen kannst.",
                 sugMatrimonio: "Hochzeit",
                 sugCompleanno: "Geburtstag",
@@ -1343,7 +1343,7 @@
                 garnishSub: "Guarnições e ingredientes de preparação (sem dose): compra-os à parte",
                 copyGarnish: "COMPRAR À PARTE",
                 tipSuggerisci: "Escolhe o tipo de evento e a app cria um menu inicial (cocktails, mocktails, shots e vinhos/cervejas). Depois podes modificá-lo.",
-                sugTitolo: "✦ Sugerir um menu",
+                sugTitolo: "Sugerir um menu",
                 sugSub: "Que tipo de evento? Criamos um menu inicial que podes depois ajustar.",
                 sugMatrimonio: "Casamento",
                 sugCompleanno: "Aniversário",
@@ -1387,7 +1387,7 @@
                 garnishSub: "Garnituren en bereidingsingrediënten (zonder maat): apart aanschaffen",
                 copyGarnish: "APART KOPEN",
                 tipSuggerisci: "Kies het type evenement en de app stelt een startmenu samen (cocktails, mocktails, shots en wijn/bier). Je kunt het daarna aanpassen.",
-                sugTitolo: "✦ Menu voorstellen",
+                sugTitolo: "Menu voorstellen",
                 sugSub: "Wat voor evenement? We maken een startmenu dat je daarna kunt aanpassen.",
                 sugMatrimonio: "Bruiloft",
                 sugCompleanno: "Verjaardag",
@@ -1803,23 +1803,23 @@
 
             /* ── Elementi con icone — aggiornamento diretto ── */
             document.querySelectorAll('[href$=".pdf"][download]').forEach(a => { if (!a.dataset.i18nSkip) a.textContent = '↳ ' + tr.btnScarica; });
-            _i18nTxt('#h3-nuovo-cocktail',                  '✦ ' + tr.newCocktailH3);
-            _i18nTxt('#h3-bottiglia-shot',                  '✦ ' + tr.bottShotH3);
+            _i18nTxt('#h3-nuovo-cocktail',                  '' + tr.newCocktailH3);
+            _i18nTxt('#h3-bottiglia-shot',                  '' + tr.bottShotH3);
             _i18nTxt('.btn-aggiungi-ing',                   '✚ ' + tr.btnAggiungiIng);
             document.querySelectorAll('.search-add-row button').forEach(b => b.textContent = '✚ ' + tr.btnAggiungi);
             const bsArr = document.querySelectorAll('.btn-secondary');
-            if (bsArr[0]) bsArr[0].textContent = '✦ ' + tr.btnCrea;
-            if (bsArr[1]) bsArr[1].textContent = '✦ ' + tr.btnCreaShot;
+            if (bsArr[0]) bsArr[0].textContent = '' + tr.btnCrea;
+            if (bsArr[1]) bsArr[1].textContent = '' + tr.btnCreaShot;
             false && _i18nHTML('.btn-grande', '❦  ' + tr.btnGenera + '  ❦');
             const rh3 = document.querySelectorAll('.result-section h3');
-            if (rh3[0]) rh3[0].textContent = '✦ ' + tr.risultatiAlcolici;
-            if (rh3[1]) rh3[1].textContent = '✦ ' + tr.risultatiAnalcolici;
-            if (rh3[2]) rh3[2].textContent = '✦ ' + tr.risultatiAttrezzatura;
+            if (rh3[0]) rh3[0].textContent = '' + tr.risultatiAlcolici;
+            if (rh3[1]) rh3[1].textContent = '' + tr.risultatiAnalcolici;
+            if (rh3[2]) rh3[2].textContent = '' + tr.risultatiAttrezzatura;
             const abtn = document.querySelectorAll('.action-buttons button');
             if (abtn[0]) abtn[0].textContent = '➜ ' + (tr.btnCondividi || translations.it.btnCondividi);
-            if (abtn[1]) abtn[1].textContent = '✦ ' + tr.btnCopia;
-            if (abtn[2]) abtn[2].textContent = '✦ ' + tr.btnStampa;
-            if (abtn[3]) abtn[3].textContent = '✦ ' + (tr.menuOpenBtn || translations.it.menuOpenBtn);
+            if (abtn[1]) abtn[1].textContent = '' + tr.btnCopia;
+            if (abtn[2]) abtn[2].textContent = '' + tr.btnStampa;
+            if (abtn[3]) abtn[3].textContent = '' + (tr.menuOpenBtn || translations.it.menuOpenBtn);
             // La home è costruita con T() al render (niente data-i18n): se è aperta, va ri-renderizzata.
             if (document.body.classList.contains('bp-home') && typeof bpHomeRender === 'function') bpHomeRender();
             // Storage status (riflette anche lo stato del salvataggio automatico)
@@ -2416,7 +2416,7 @@
         }
         function bpUpdateStorageStatus() {
             const ss = document.getElementById('storage-status');
-            if (ss) ss.textContent = '✦ ' + (bpAutoSave ? T('storageStatus') : T('storageStatusOff'));
+            if (ss) ss.textContent = '' + (bpAutoSave ? T('storageStatus') : T('storageStatusOff'));
         }
         function bpSettingsOpen() {
             const o = document.getElementById('bp-settings'); if (!o) return;
@@ -3446,7 +3446,7 @@
                 '<div class="bpc-chkstat"><div class="k">'+_T('chkManca')+'</div><div class="v" id="bp-chk-manca">'+_bpMoney(costTot - costDone)+'</div></div>'+
                 '</div>';
             const head = '<div class="bpc-chkhead"><h2>'+_bpEsc(ev.nome)+'</h2><div class="sub">'+_T('chkTitle')+'</div></div>'+
-                '<button type="button" class="bpm-evbtn" onclick="bpMenuOpenFromEvent(\''+ev.id+'\')">✦ '+_T('menuViewBtn')+'</button>'+
+                '<button type="button" class="bpm-evbtn" data-do="bpMenuOpenFromEvent" data-arg="'+_bpEsc(ev.id)+'">'+_T('menuViewBtn')+'</button>'+
                 '<div class="bpc-chkprog"><div class="bar"><div class="fill" id="bp-chk-fill" style="width:'+pct+'%"></div></div>'+
                 '<span class="lbl" id="bp-chk-lbl">'+done+'/'+tot+' '+_T('chkBought')+'</span></div>';
             mount.innerHTML = head + stats + body;
@@ -3583,7 +3583,7 @@
                 '<div class="bpm-eyebrow" contenteditable="true" spellcheck="false">' + esc(src.eyebrow || T('menuEyebrow')) + '</div>' +
                 '<h1 class="bpm-title" contenteditable="true" spellcheck="false">' + esc(src.titolo || T('menuDefaultTitle')) + '</h1>' +
                 '<div class="bpm-date" contenteditable="true" spellcheck="false">' + esc(src.dataTxt || '') + '</div>' +
-                '<div class="bpm-headrule" aria-hidden="true">✦</div>' +
+                '<div class="bpm-headrule" aria-hidden="true"></div>' +
                 '</div>';
             html += '<div class="bpm-cats">';
             cats.forEach(c => {
@@ -3742,7 +3742,7 @@
             wrap.innerHTML =
                 '<div class="bpl-head"><h2>' + _bpEsc(title) + '</h2><div class="bpl-sub">' + _bpEsc(sub) + '</div></div>' +
                 '<div class="bpl-toolbar">' +
-                    '<input type="text" id="bpl-search" autocomplete="off" placeholder="' + _bpEsc(ph) + '" value="' + _bpEsc(bpLibQuery) + '" oninput="bpLibFilter(this.value)">' +
+                    '<input type="text" id="bpl-search" autocomplete="off" placeholder="' + _bpEsc(ph) + '" value="' + _bpEsc(bpLibQuery) + '" data-on-input-value="bpLibFilter">' +
                     '<button type="button" class="bpl-btn primary bpl-new" data-act="new">✚ ' + _bpEsc(newL) + '</button>' +
                 '</div>' +
                 '<div class="bpl-count" id="bpl-count"></div>' +
@@ -4590,7 +4590,74 @@
            RICETTARIO PDF
            ════════════════════════════════════════════════════════════ */
 
-        /* ════════════════════════════════════════════════════════════
+        
+/* ════════════════════════════════════════════════════════════
+   AZIONI · un solo ascoltatore per tutti i click
+   ════════════════════════════════════════════════════════════
+   Il markup dichiara COSA fare (data-do), non COME farlo: niente codice
+   negli attributi, quindi la CSP puo' vietare gli script inline.
+
+   Gestisce anche Invio e Spazio: su un <span role="button"> il tasto Invio
+   non genera un click da solo, e prima quei controlli erano raggiungibili
+   con il Tab ma non azionabili con la tastiera.
+   ════════════════════════════════════════════════════════════ */
+(function () {
+    function esegui(el, evento) {
+        const daAlternare = el.getAttribute('data-toggle');
+        if (daAlternare) { el.classList.toggle(daAlternare); return; }
+
+        const nome = el.getAttribute('data-do');
+        if (!nome) return;
+        const fn = window[nome];
+        if (typeof fn !== 'function') {
+            console.warn('[bp] azione sconosciuta:', nome);
+            return;
+        }
+        const arg = el.getAttribute('data-arg');
+        if (evento && el.tagName === 'A') evento.preventDefault();
+        if (arg === null) fn(); else fn(arg);
+    }
+
+    document.addEventListener('click', function (e) {
+        const el = e.target.closest('[data-do],[data-toggle]');
+        if (el) esegui(el, e);
+    });
+
+
+    /* Stessa idea per input e change. Due attributi distinti invece di uno
+       solo: passare il valore del campo a tutte le funzioni sarebbe stato
+       comodo ma sbagliato — programmaSalvataggio(delay) lo avrebbe letto
+       come un ritardo di salvataggio. */
+    function chiamaTutte(el, attr, conValore) {
+        const lista = el.getAttribute(attr);
+        if (!lista) return;
+        for (const nome of lista.split(/s+/)) {
+            const fn = window[nome];
+            if (typeof fn !== 'function') { console.warn('[bp] azione sconosciuta:', nome); continue; }
+            if (conValore) fn(el.value); else fn();
+        }
+    }
+
+    for (const evento of ['input', 'change']) {
+        document.addEventListener(evento, function (e) {
+            const el = e.target;
+            if (!el || !el.getAttribute) return;
+            chiamaTutte(el, 'data-on-' + evento, false);
+            chiamaTutte(el, 'data-on-' + evento + '-value', true);
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const el = e.target.closest('[data-do],[data-toggle]');
+        // I <button> generano gia' un click da soli: non raddoppiare.
+        if (!el || el.tagName === 'BUTTON' || el.tagName === 'A') return;
+        e.preventDefault();
+        esegui(el, e);
+    });
+})();
+
+/* ════════════════════════════════════════════════════════════
            AVVIO
            ════════════════════════════════════════════════════════════ */
         // Rileva se l'app è in esecuzione come PWA installata (non come tab del browser)

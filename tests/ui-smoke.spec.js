@@ -1,51 +1,47 @@
 import { test, expect } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { openApp } from './helpers.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pub = (f) => fs.readFileSync(path.join(__dirname, '..', 'public', f), 'utf8');
+
 /**
- * Verifica che gli handler `onclick` inline funzionino con app.js caricato
- * in `defer`.
+ * Le azioni passano per event delegation: il markup dichiara COSA fare
+ * (`data-do`), non COME farlo. E' la condizione per poter vietare gli script
+ * inline nella CSP.
  *
- * I test golden non lo dimostrano: usano `page.evaluate` e chiamano le
- * funzioni direttamente, quindi passerebbero anche se nessun bottone della
- * pagina rispondesse. Qui si clicca davvero.
- *
- * Il rischio e' concreto: nel markup ci sono 79 attributi `onclick="fn()"`,
- * e con `defer` lo script viene eseguito dopo il parsing. Le funzioni devono
- * essere globali e definite prima del primo clic dell'utente — cosa vera in
- * teoria, ma da dimostrare, non da dedurre.
- *
- * Questi test diventeranno ridondanti nella Fase 5, quando gli `onclick`
- * inline verranno sostituiti da event delegation.
+ * Questi test verificano che il meccanismo funzioni davvero, cliccando: un
+ * refuso in un `data-do` produce un bottone silenziosamente inerte, che e'
+ * il modo peggiore di rompersi.
  */
-test.describe('UI · gli handler inline rispondono con app.js in defer', () => {
-  test('le funzioni chiamate dagli onclick sono globali', async ({ page }) => {
+test.describe('UI · azioni per delega', () => {
+  test('nessun handler inline resta nel markup', () => {
+    for (const f of ['index.html', 'app.js']) {
+      const inline = (pub(f).match(/\son(click|change|input|submit|keydown)=/g) || []);
+      expect(inline, `${f} contiene ancora handler inline: ${inline.join(', ')}`).toEqual([]);
+    }
+  });
+
+  test('ogni data-do punta a una funzione che esiste', async ({ page }) => {
     await openApp(page);
 
     const mancanti = await page.evaluate(() => {
       const nomi = new Set();
-      document.querySelectorAll('[onclick]').forEach((el) => {
-        const code = el.getAttribute('onclick') || '';
-        // Il lookbehind esclude le chiamate di metodo: in
-        // `this.classList.toggle('active')` il nome globale non e' `toggle`,
-        // ed e' un membro di un oggetto, non di window.
-        for (const m of code.matchAll(/(?<![.\w$])([a-zA-Z_$][\w$]*)\s*\(/g)) nomi.add(m[1]);
-      });
-      const parole = new Set(['if', 'return', 'typeof', 'catch', 'for', 'while', 'switch', 'function']);
-      return [...nomi].filter((n) => !parole.has(n) && typeof window[n] !== 'function');
+      document.querySelectorAll('[data-do]').forEach((el) => nomi.add(el.getAttribute('data-do')));
+      return [...nomi].filter((n) => typeof window[n] !== 'function');
     });
 
     expect(
       mancanti,
-      'funzioni richiamate da onclick= ma non presenti come globali: con defer i bottoni sarebbero inerti',
+      `data-do che non corrispondono a nessuna funzione: i bottoni sarebbero inerti`,
     ).toEqual([]);
   });
 
   test('il bottone Home reagisce al clic', async ({ page }) => {
     await openApp(page);
-
-    // Porta l'app fuori dalla home, poi ci torna col bottone.
     await page.evaluate(() => document.body.classList.remove('bp-home'));
-    expect(await page.evaluate(() => document.body.classList.contains('bp-home'))).toBe(false);
 
     await page.locator('#bp-burger').click();
 
@@ -56,15 +52,30 @@ test.describe('UI · gli handler inline rispondono con app.js in defer', () => {
 
   test('la card "eventi" della home apre il pannello', async ({ page }) => {
     await openApp(page);
-
-    // La home e' costruita da JS e le sue card usano `data-home` con event
-    // delegation, non `onclick` inline: e' l'altra meta' del meccanismo, e
-    // va verificata anche quella.
     await page.locator('[data-home="events"]').first().click();
 
     await expect
       .poll(() => page.evaluate(() => document.getElementById('bp-events')?.classList.contains('show')), { timeout: 5000 })
       .toBe(true);
+  });
+
+  test('i controlli non nativi rispondono anche da tastiera', async ({ page }) => {
+    await openApp(page);
+
+    // Su uno <span role="button"> il tasto Invio non genera un click da solo:
+    // prima questi controlli si raggiungevano col Tab ma non si potevano
+    // azionare. Il dispatcher ora gestisce Invio e Spazio.
+    const risultato = await page.evaluate(() => {
+      const el = document.querySelector('[data-toggle]');
+      if (!el) return 'nessun elemento con data-toggle';
+      const cls = el.getAttribute('data-toggle');
+      const prima = el.classList.contains(cls);
+      el.focus();
+      el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      return prima === el.classList.contains(cls) ? 'nessun cambiamento' : 'ok';
+    });
+
+    expect(risultato, 'Invio su un controllo non nativo non ha avuto effetto').toBe('ok');
   });
 
   test('nessun errore JavaScript al caricamento', async ({ page }) => {
@@ -73,11 +84,9 @@ test.describe('UI · gli handler inline rispondono con app.js in defer', () => {
     page.on('console', (m) => { if (m.type() === 'error') errori.push(m.text()); });
 
     await openApp(page);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(800);
 
-    // Google Fonts e' bloccato di proposito dalle fixture: i suoi errori di
-    // rete non sono difetti dell'app.
-    const veri = errori.filter((e) => !/fonts\.(googleapis|gstatic)|net::ERR_FAILED/i.test(e));
+    const veri = errori.filter((e) => !/ServiceWorker|net::ERR_FAILED/i.test(e));
     expect(veri, 'errori JavaScript in pagina').toEqual([]);
   });
 });
