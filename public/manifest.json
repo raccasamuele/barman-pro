@@ -1,15 +1,19 @@
 {
     "name": "Barman PRO · Calcolatore Eventi",
     "short_name": "Barman PRO",
-    "description": "Calcolatore eventi per barman: ricette IBA, lista della spesa, party drink ad alto volume.",
+    "description": "Calcolatore gratuito per feste ed eventi: quante bottiglie comprare, quanto ghiaccio e quanto spendi.",
     "start_url": "./",
     "scope": "./",
     "display": "standalone",
     "orientation": "portrait-primary",
-    "background_color": "#F5EEDC",
-    "theme_color": "#722F37",
+    "background_color": "#f7f2e9",
+    "theme_color": "#f7f2e9",
     "lang": "it-IT",
-    "categories": ["food", "lifestyle", "utilities"],
+    "categories": [
+        "food",
+        "lifestyle",
+        "utilities"
+    ],
     "icons": [
         {
             "src": "icon-192.png",

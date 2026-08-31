@@ -1113,7 +1113,7 @@
                 h3BottigliaShot: "Bottiglia Shot",
                 phNomeShot: "Nome (es. Limoncello)",
                 footerContatti: "Contatti",
-                footerRights: "© 2026 Samuele Racca · Tutti i diritti riservati",
+                footerRights: "© 2026 Samuele Racca · MIT",
                 
                 
                 
@@ -1157,7 +1157,7 @@
                 h3BottigliaShot: "Shot Bottle",
                 phNomeShot: "Name (e.g. Limoncello)",
                 footerContatti: "Contact",
-                footerRights: "© 2026 Samuele Racca · All rights reserved",
+                footerRights: "© 2026 Samuele Racca · MIT",
                 
                 
                 
@@ -1201,7 +1201,7 @@
                 h3BottigliaShot: "Botella de Chupito",
                 phNomeShot: "Nombre (ej. Limoncello)",
                 footerContatti: "Contacto",
-                footerRights: "© 2026 Samuele Racca · Todos los derechos reservados",
+                footerRights: "© 2026 Samuele Racca · MIT",
                 
                 
                 
@@ -1245,7 +1245,7 @@
                 h3BottigliaShot: "Bouteille Shot",
                 phNomeShot: "Nom (ex. Limoncello)",
                 footerContatti: "Contact",
-                footerRights: "© 2026 Samuele Racca · Tous droits réservés",
+                footerRights: "© 2026 Samuele Racca · MIT",
                 
                 
                 
@@ -1289,7 +1289,7 @@
                 h3BottigliaShot: "Shot-Flasche",
                 phNomeShot: "Name (z.B. Limoncello)",
                 footerContatti: "Kontakt",
-                footerRights: "© 2026 Samuele Racca · Alle Rechte vorbehalten",
+                footerRights: "© 2026 Samuele Racca · MIT",
                 
                 
                 
@@ -1333,7 +1333,7 @@
                 h3BottigliaShot: "Garrafa Shot",
                 phNomeShot: "Nome (ex. Limoncello)",
                 footerContatti: "Contacto",
-                footerRights: "© 2026 Samuele Racca · Todos os direitos reservados",
+                footerRights: "© 2026 Samuele Racca · MIT",
                 
                 
                 
@@ -1377,7 +1377,7 @@
                 h3BottigliaShot: "Shot Fles",
                 phNomeShot: "Naam (bv. Limoncello)",
                 footerContatti: "Contact",
-                footerRights: "© 2026 Samuele Racca · Alle rechten voorbehouden",
+                footerRights: "© 2026 Samuele Racca · MIT",
                 
                 
                 

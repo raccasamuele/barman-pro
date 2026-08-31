@@ -25,13 +25,16 @@ const PRECACHE_ASSETS = [
     './index.html',
     './app.css',
     './app.js',
+    './mail.js',
     './favicon.svg',
     './apple-touch-icon.png',
     './icon-192.png',
     './icon-512.png',
     './icon-maskable-512.png',
     './privacy.html',
-    './manifest.json'
+    './manifest.json',
+    './fonts/manrope-latin-wght-normal.woff2',
+    './fonts/manrope-latin-ext-wght-normal.woff2'
 ];
 
 // ─── INSTALL ───
