@@ -28,7 +28,8 @@ const ASSET_CACHE = 'barman-pro-assets-v3.0.0';
 //    serve il file direttamente.
 const PRECACHE_ASSETS = [
     './',
-    './index.html',
+    // NB: niente './index.html' — Cloudflare lo rimanda a './' con un 307,
+    // e addAll() rifiuta i redirect. './' serve gia' lo stesso documento.
     './app.css',
     './app.js',
     './mail.js',

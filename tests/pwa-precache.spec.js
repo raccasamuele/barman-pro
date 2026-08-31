@@ -15,7 +15,15 @@ function leggiCostante(nome) {
 function leggiPrecache() {
   const m = SW.match(/const PRECACHE_ASSETS = \[([\s\S]*?)\]/);
   if (!m) throw new Error('PRECACHE_ASSETS non trovato in sw.js');
-  return [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]);
+  // I commenti dentro l'array citano percorsi fra apici per spiegare perche'
+  // sono stati tolti (es. './index.html', che Cloudflare reindirizza). Senza
+  // scartarli, il test crederebbe che facciano ancora parte del precache e
+  // fallirebbe proprio su cio' che e' stato rimosso apposta.
+  const senzaCommenti = m[1]
+    .split('\n')
+    .filter((r) => !r.trim().startsWith('//'))
+    .join('\n');
+  return [...senzaCommenti.matchAll(/'([^']+)'/g)].map((x) => x[1]);
 }
 
 const ASSET_CACHE = leggiCostante('ASSET_CACHE');
