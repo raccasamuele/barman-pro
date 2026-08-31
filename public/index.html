@@ -185,36 +185,6 @@
 
         /* ─── HELP TIP (tooltip "?") ─── */
         /* ─── BANNER RECENSIONE (soglie 3/10/20 liste generate) ─── */
-        .review-banner {
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 18px; flex-wrap: wrap;
-            margin-top: 26px; padding: 20px 24px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-        }
-        .review-title { font: 700 16px/1.4 'Manrope', sans-serif; color: var(--text-main); }
-        .review-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-        .review-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .review-cta {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 11px 18px; border-radius: 999px;
-            background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2));
-            color: #0a0a0a; font: 700 13px/1 'Manrope', sans-serif;
-            text-decoration: none; letter-spacing: 0.5px; white-space: nowrap;
-        }
-        .review-cta:hover { filter: brightness(1.06); }
-        .review-hide {
-            width: auto; background: transparent;
-            border: 1px solid var(--glass-border); color: var(--text-muted);
-            border-radius: 999px; padding: 10px 16px;
-            font: 600 12px/1 'Manrope', sans-serif; cursor: pointer;
-        }
-        .review-never {
-            width: auto; background: transparent; border: none;
-            color: var(--text-muted); text-decoration: underline;
-            padding: 10px 4px; font: 600 12px/1 'Manrope', sans-serif; cursor: pointer;
-        }
 
         .help-tip {
             display: inline-flex; align-items: center; justify-content: center;
@@ -1075,66 +1045,13 @@
         }
 
         /* ─── PDF MODAL ─── */
-        .ricettario-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.2) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            cursor: pointer;
-            overflow: hidden;
-            position: relative;
-        }
         
-        .ricettario-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-gold-1), transparent);
-            opacity: 0.5;
-        }
 
-        .ricettario-inner {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 32px;
-            align-items: center;
-        }
 
-        .ricettario-icon {
-            font-family: 'Cinzel', serif;
-            font-size: 48px;
-            color: var(--accent-gold-1);
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            background: rgba(212, 175, 55, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.1);
-            text-shadow: 0 0 20px var(--accent-glow);
-        }
 
-        .ricettario-text h3 {
-            font-size: 24px;
-            color: #fff;
-            margin-bottom: 8px;
-        }
 
-        .ricettario-sub {
-            color: var(--text-muted);
-            margin: 0;
-            font-size: 14px;
-        }
 
-        .ricettario-action {
-            display: flex;
-            gap: 16px;
-        }
 
-        .ricettario-lang-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
 
         .btn-link-download {
             display: inline-block;
@@ -1198,55 +1115,12 @@
             100% { transform: translateX(420%); }
         }
 
-        .pdf-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-            padding: 40px;
-        }
 
-        .pdf-modal.show {
-            display: flex;
-            flex-direction: column;
-            animation: fadeIn 0.3s ease-out;
-        }
 
-        .pdf-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #111;
-            padding: 20px 32px;
-            border-radius: 16px 16px 0 0;
-            border: 1px solid var(--glass-border);
-            border-bottom: none;
-        }
 
-        .pdf-modal-header h3 {
-            color: var(--accent-gold-1);
-            font-size: 20px;
-        }
 
-        .pdf-modal-actions {
-            display: flex;
-            gap: 16px;
-        }
 
-        .pdf-modal-frame {
-            flex: 1;
-            background: #fff;
-            border-radius: 0 0 16px 16px;
-            overflow: hidden;
-        }
         
-        .pdf-modal-frame iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
 
         /* ─── ANIMATIONS ─── */
         @keyframes fadeInDown {
@@ -1270,8 +1144,6 @@
         @media (max-width: 900px) {
             .creator-grid { grid-template-columns: 1fr; }
             .parametri-row { grid-template-columns: repeat(2, 1fr); }
-            .ricettario-inner { grid-template-columns: 1fr; text-align: center; justify-items: center; }
-            .ricettario-action { width: 100%; flex-direction: row; justify-content: center; }
         }
 
         @media (max-width: 600px) {
@@ -1291,9 +1163,6 @@
             .creator-row .btn-rimuovi-ing { grid-area: rim; width: 100%; height: auto; padding: 12px 0;}
             
             .action-buttons { flex-direction: column; }
-            .pdf-modal { padding: 0; }
-            .pdf-modal-header { border-radius: 0; flex-direction: column; gap: 16px; text-align: center; }
-            .pdf-modal-frame { border-radius: 0; }
             .meta-row { flex-direction: column; align-items: stretch; gap: 16px; }
             .meta-actions { width: 100%; justify-content: space-between; }
         }
@@ -1425,8 +1294,7 @@
             body { background: #fff !important; color: #000 !important; filter: none !important; }
             /* Hide everything that's not the shopping list */
             .ambient-background, .header, .card, button, .meta-row, .action-buttons,
-            .pdf-modal, .toast, .lang-selector, .app-stepper,
-            footer, .btn-installa, .review-banner { display: none !important; }
+            footer, .btn-installa { display: none !important; }
             .step-panel { display: block !important; animation: none; }
             #risultati { display: block !important; margin: 0; animation: none; }
             #risultati .grid { grid-template-columns: 1fr !important; }
@@ -1978,7 +1846,6 @@
             <button type="button" class="bp-nav-item" onclick="bpNavGo('eventi')"><span class="ic">&#10070;</span><span class="tx" data-i18n="evHeaderBtn">I miei eventi</span><span class="ar">&rsaquo;</span></button>
             <button type="button" class="bp-nav-item" onclick="bpNavGo('cocktail')"><span class="ic">&#10049;</span><span class="tx" data-i18n="navCocktail">I miei cocktail</span><span class="ar">&rsaquo;</span></button>
             <button type="button" class="bp-nav-item" onclick="bpNavGo('amari')"><span class="ic">&#10059;</span><span class="tx" data-i18n="navAmari">I miei amari</span><span class="ar">&rsaquo;</span></button>
-            <button type="button" class="bp-nav-item" onclick="bpNavGo('ricettario')"><span class="ic">&#10086;</span><span class="tx" data-i18n="uiRicettario">Ricettario</span><span class="ar">&rsaquo;</span></button>
         </div>
     </div>
 
@@ -2314,37 +2181,6 @@
         </div>
     </div>
 
-    <!-- ════ RICETTARIO · overlay (apribile dal menu) ════ -->
-    <div class="bpc-overlay" id="bp-ricettario" role="dialog" aria-modal="true" aria-label="Ricettario">
-        <div class="bpc-shell">
-            <div class="bpc-topbar">
-                <div style="flex:1"></div>
-                <button type="button" class="bpc-close" aria-label="Chiudi" onclick="bpRicettarioClose()">&times;</button>
-            </div>
-            <div class="bpc-body" style="justify-content:flex-start;padding-top:4px">
-                <section class="card ricettario-card">
-                    <div class="ricettario-inner">
-                        <div class="ricettario-icon">&#10086;</div>
-                        <div class="ricettario-text">
-                            <h3>Ricettario IBA &middot; Adattamento per Feste</h3>
-                            <p class="ricettario-sub" data-i18n="ricettarioSub">Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume</p>
-                            <div class="ricettario-meta" data-i18n="ricettarioMeta">Documento PDF &middot; clicca per leggere</div>
-                        </div>
-                        <div class="ricettario-action">
-                            <div class="ricettario-lang-group">
-                                <button class="btn-pdf-leggi" onclick="apriPDF(event,'it')">&#10022; Leggi (IT)</button>
-                                <a href="Cocktail_IBA_adattamento_a_feste.pdf" download class="btn-link-download" onclick="event.stopPropagation()">&#8615; Scarica (IT)</a>
-                            </div>
-                            <div class="ricettario-lang-group">
-                                <button class="btn-pdf-read" onclick="apriPDF(event,'en')">&#10022; Read (EN)</button>
-                                <a href="Cocktail_IBA_party_adaptation.pdf" download data-i18n-skip="true" class="btn-link-download" onclick="event.stopPropagation()">&#8615; Download (EN)</a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </div>
 
     <!-- ─── STEPPER · orientamento + jump nav ─── -->
     <!-- ════ HOME · hub d'ingresso (hero "nuovo evento" + griglia) ════ -->
@@ -2735,18 +2571,6 @@
     </nav>
 
     <!-- Modal lettura PDF -->
-    <div class="pdf-modal" id="pdf-modal">
-        <div class="pdf-modal-header">
-            <h3 id="pdf-modal-title">&#10086; Cocktail IBA &middot; Adattamento per Feste</h3>
-            <div class="pdf-modal-actions">
-                <a id="pdf-modal-download" href="Cocktail_IBA_adattamento_a_feste.pdf" download data-i18n-skip="true">&#8615; Scarica (IT)</a>
-                <button onclick="chiudiPDF()">&times; Chiudi</button>
-            </div>
-        </div>
-        <div class="pdf-modal-frame">
-            <iframe id="pdf-iframe" src="" title="Ricettario IBA"></iframe>
-        </div>
-    </div>
 
     <!-- Modal suggeritore menu -->
     <div class="suggeritore-modal" id="suggeritore-modal">
@@ -2987,18 +2811,6 @@
             <button onclick="resetCompleto()">&#10010; <span data-i18n="cfgNuovoEvento">Nuovo evento</span></button>
         </div>
 
-        <!-- ─── BANNER RECENSIONE · appare dopo 3/10/20 liste generate (Senja) ─── -->
-        <div class="review-banner" id="review-banner" style="display:none;">
-            <div class="review-text">
-                <div class="review-title" data-i18n="reviewTitle">Barman PRO ti sta tornando utile?</div>
-                <div class="review-sub" data-i18n="reviewSub">Una recensione onesta di 30 secondi aiuta altri barman e organizzatori a scoprirla.</div>
-            </div>
-            <div class="review-actions">
-                <a class="review-cta" href="https://senja.io/p/barman-pro/r/iJK3UT" target="_blank" rel="noopener">&#10022; <span data-i18n="reviewCta">Lascia una recensione</span></a>
-                <button type="button" class="review-hide" onclick="bpReviewHide()" data-i18n="reviewHide">Nascondi</button>
-                <button type="button" class="review-never" id="review-never-btn" style="display:none;" onclick="bpReviewNever()" data-i18n="reviewNever">Non mostrare pi&ugrave;</button>
-            </div>
-        </div>
     </div>
 
         <button type="button" class="btn-primary-gold btn-grande" style="margin-top:18px" onclick="bpEventsOpen()">&#10070;&nbsp;&nbsp;<span data-i18n="uiVaiEventi">Apri i miei eventi salvati</span>&nbsp;&nbsp;&#8250;</button>
@@ -3034,13 +2846,13 @@
                 btnInstalla: 'Installa app',
                 btnReset: 'Azzera tutto',
                 // Ricettario
-                ricettarioTitolo: 'Ricettario IBA · Adattamento per Feste',
-                ricettarioSub: 'Le 102 ricette ufficiali ricalibrate per il servizio ad alto volume',
-                ricettarioMeta: 'Documento PDF · clicca per leggere',
-                btnLeggi: 'Leggi',
+                
+                
+                
+                
                 btnScarica: 'Scarica',
                 btnChiudi: 'Chiudi',
-                pdfModalTitolo: 'Cocktail IBA · Adattamento per Feste',
+                
                 // Parametri
                 h2Parametri: "Parametri dell'Evento",
                 labelOspiti: 'Ospiti previsti',
@@ -3169,13 +2981,13 @@
                 storageStatus: 'State saved automatically',
                 btnInstalla: 'Install app',
                 btnReset: 'Reset all',
-                ricettarioTitolo: 'IBA Recipes · Party Edition',
-                ricettarioSub: 'The 102 official recipes recalibrated for high-volume service',
-                ricettarioMeta: 'PDF Document · click to read',
-                btnLeggi: 'Read',
+                
+                
+                
+                
                 btnScarica: 'Download',
                 btnChiudi: 'Close',
-                pdfModalTitolo: 'IBA Cocktails · Party Edition',
+                
                 h2Parametri: 'Event Parameters',
                 labelOspiti: 'Expected guests',
                 labelDrink: 'Cocktails per person',
@@ -3295,13 +3107,13 @@
                 storageStatus: 'Estado guardado automáticamente',
                 btnInstalla: 'Instalar app',
                 btnReset: 'Resetear todo',
-                ricettarioTitolo: 'Recetario IBA · Edición para Fiestas',
-                ricettarioSub: 'Las 102 recetas oficiales recalibradas para servicio de alto volumen',
-                ricettarioMeta: 'Documento PDF · haz clic para leer',
-                btnLeggi: 'Leer',
+                
+                
+                
+                
                 btnScarica: 'Descargar',
                 btnChiudi: 'Cerrar',
-                pdfModalTitolo: 'Cócteles IBA · Edición para Fiestas',
+                
                 h2Parametri: 'Parámetros del Evento',
                 labelOspiti: 'Invitados previstos',
                 labelDrink: 'Cócteles por persona',
@@ -3421,13 +3233,13 @@
                 storageStatus: 'État sauvegardé automatiquement',
                 btnInstalla: "Installer l'app",
                 btnReset: 'Tout réinitialiser',
-                ricettarioTitolo: 'Recettes IBA · Édition Soirée',
-                ricettarioSub: 'Les 102 recettes officielles recalibrées pour le service en grand volume',
-                ricettarioMeta: 'Document PDF · cliquez pour lire',
-                btnLeggi: 'Lire',
+                
+                
+                
+                
                 btnScarica: 'Télécharger',
                 btnChiudi: 'Fermer',
-                pdfModalTitolo: 'Cocktails IBA · Édition Soirée',
+                
                 h2Parametri: "Paramètres de l'Événement",
                 labelOspiti: 'Invités prévus',
                 labelDrink: 'Cocktails par personne',
@@ -3547,13 +3359,13 @@
                 storageStatus: 'Zustand automatisch gespeichert',
                 btnInstalla: 'App installieren',
                 btnReset: 'Alles zurücksetzen',
-                ricettarioTitolo: 'IBA-Rezeptbuch · Party-Edition',
-                ricettarioSub: 'Die 102 offiziellen Rezepte für den Hochvolumen-Service kalibriert',
-                ricettarioMeta: 'PDF-Dokument · zum Lesen klicken',
-                btnLeggi: 'Lesen',
+                
+                
+                
+                
                 btnScarica: 'Herunterladen',
                 btnChiudi: 'Schließen',
-                pdfModalTitolo: 'IBA-Cocktails · Party-Edition',
+                
                 h2Parametri: 'Veranstaltungsparameter',
                 labelOspiti: 'Erwartete Gäste',
                 labelDrink: 'Cocktails pro Person',
@@ -3673,13 +3485,13 @@
                 storageStatus: 'Estado salvo automaticamente',
                 btnInstalla: 'Instalar app',
                 btnReset: 'Reiniciar tudo',
-                ricettarioTitolo: 'Receituário IBA · Edição para Festas',
-                ricettarioSub: 'As 102 receitas oficiais recalibradas para serviço de alto volume',
-                ricettarioMeta: 'Documento PDF · clique para ler',
-                btnLeggi: 'Ler',
+                
+                
+                
+                
                 btnScarica: 'Baixar',
                 btnChiudi: 'Fechar',
-                pdfModalTitolo: 'Cocktails IBA · Edição para Festas',
+                
                 h2Parametri: 'Parâmetros do Evento',
                 labelOspiti: 'Convidados previstos',
                 labelDrink: 'Cocktails por pessoa',
@@ -3799,13 +3611,13 @@
                 storageStatus: 'Status automatisch opgeslagen',
                 btnInstalla: 'App installeren',
                 btnReset: 'Alles resetten',
-                ricettarioTitolo: 'IBA-Receptenboek · Feestversie',
-                ricettarioSub: 'De 102 officiële recepten gehernibreerd voor hoog-volumeservice',
-                ricettarioMeta: 'PDF-document · klik om te lezen',
-                btnLeggi: 'Lezen',
+                
+                
+                
+                
                 btnScarica: 'Downloaden',
                 btnChiudi: 'Sluiten',
-                pdfModalTitolo: 'IBA-Cocktails · Feestversie',
+                
                 h2Parametri: 'Evenementparameters',
                 labelOspiti: 'Verwachte gasten',
                 labelDrink: "Cocktails per persoon",
@@ -4693,19 +4505,6 @@
             if (translations[lg]) Object.assign(translations[lg], _extraI18nCfg[lg]);
         });
 
-        /* ── i18n Banner recensione (Senja) — 7 lingue ── */
-        const _reviewI18n = {
-            it: { reviewTitle: "Barman PRO ti sta tornando utile?", reviewSub: "Una recensione onesta di 30 secondi aiuta altri barman e organizzatori a scoprirla.", reviewCta: "Lascia una recensione", reviewHide: "Nascondi", reviewNever: "Non mostrare più" },
-            en: { reviewTitle: "Is Barman PRO proving useful?", reviewSub: "An honest 30-second review helps other bartenders and event hosts find it.", reviewCta: "Leave a review", reviewHide: "Hide", reviewNever: "Don't show again" },
-            es: { reviewTitle: "¿Te está siendo útil Barman PRO?", reviewSub: "Una reseña honesta de 30 segundos ayuda a otros bármanes y organizadores a descubrirla.", reviewCta: "Deja una reseña", reviewHide: "Ocultar", reviewNever: "No mostrar más" },
-            fr: { reviewTitle: "Barman PRO vous est utile ?", reviewSub: "Un avis honnête de 30 secondes aide d'autres barmans et organisateurs à la découvrir.", reviewCta: "Laisser un avis", reviewHide: "Masquer", reviewNever: "Ne plus afficher" },
-            de: { reviewTitle: "Ist Barman PRO hilfreich für dich?", reviewSub: "Eine ehrliche 30-Sekunden-Bewertung hilft anderen Barkeepern und Veranstaltern, die App zu entdecken.", reviewCta: "Bewertung schreiben", reviewHide: "Ausblenden", reviewNever: "Nicht mehr anzeigen" },
-            pt: { reviewTitle: "O Barman PRO está a ser útil?", reviewSub: "Uma avaliação honesta de 30 segundos ajuda outros barmans e organizadores a descobri-la.", reviewCta: "Deixar uma avaliação", reviewHide: "Ocultar", reviewNever: "Não mostrar mais" },
-            nl: { reviewTitle: "Is Barman PRO nuttig voor je?", reviewSub: "Een eerlijke review van 30 seconden helpt andere barmannen en organisatoren de app te vinden.", reviewCta: "Laat een review achter", reviewHide: "Verbergen", reviewNever: "Niet meer tonen" }
-        };
-        Object.keys(_reviewI18n).forEach(lg => {
-            if (translations[lg]) Object.assign(translations[lg], _reviewI18n[lg]);
-        });
 
         /* ── i18n firma condivisione lista (crescita: ogni lista condivisa porta un link) ── */
         const _shareI18n = {
@@ -4751,13 +4550,13 @@
 
         /* ── i18n Home (hub d'ingresso) — 7 lingue ── */
         const _homeI18n = {
-            it: { homeEyebrow:"Da dove vuoi iniziare?", homeNewTitle:"Crea nuovo evento", homeNewDesc:"Calcola la lista della spesa e i costi per la tua serata.", homeResumeTitle:"Riprendi evento in corso", homeResumeDesc:"Torna all'evento che stavi preparando.", homeEventsDesc:"Apri, modifica o spunta la lista di un evento salvato.", homeCocktailDesc:"Modifica le ricette o creane di nuove.", homeAmariDesc:"Gestisci amari e liquori da shot.", homeRicettarioDesc:"Sfoglia il ricettario IBA adattato alle feste.", homeConfirmNew:"Iniziare un nuovo evento? I dati non ancora salvati andranno persi." },
-            en: { homeEyebrow:"Where do you want to start?", homeNewTitle:"Create new event", homeNewDesc:"Work out the shopping list and costs for your night.", homeResumeTitle:"Resume event in progress", homeResumeDesc:"Go back to the event you were preparing.", homeEventsDesc:"Open, edit or check off the list of a saved event.", homeCocktailDesc:"Edit recipes or create new ones.", homeAmariDesc:"Manage bitters and shot liqueurs.", homeRicettarioDesc:"Browse the party-adapted IBA recipe book.", homeConfirmNew:"Start a new event? Any unsaved data will be lost." },
-            es: { homeEyebrow:"¿Por dónde quieres empezar?", homeNewTitle:"Crear nuevo evento", homeNewDesc:"Calcula la lista de la compra y los costes de tu noche.", homeResumeTitle:"Retomar evento en curso", homeResumeDesc:"Vuelve al evento que estabas preparando.", homeEventsDesc:"Abre, edita o marca la lista de un evento guardado.", homeCocktailDesc:"Edita las recetas o crea nuevas.", homeAmariDesc:"Gestiona amargos y licores para chupitos.", homeRicettarioDesc:"Explora el recetario IBA adaptado a fiestas.", homeConfirmNew:"¿Empezar un nuevo evento? Se perderán los datos no guardados." },
-            fr: { homeEyebrow:"Par où veux-tu commencer ?", homeNewTitle:"Créer un événement", homeNewDesc:"Calcule la liste de courses et les coûts de ta soirée.", homeResumeTitle:"Reprendre l'événement en cours", homeResumeDesc:"Reviens à l'événement que tu préparais.", homeEventsDesc:"Ouvre, modifie ou coche la liste d'un événement enregistré.", homeCocktailDesc:"Modifie les recettes ou créés-en de nouvelles.", homeAmariDesc:"Gère les amers et liqueurs à shot.", homeRicettarioDesc:"Parcours le livre de recettes IBA adapté aux fêtes.", homeConfirmNew:"Commencer un nouvel événement ? Les données non enregistrées seront perdues." },
-            de: { homeEyebrow:"Womit möchtest du starten?", homeNewTitle:"Neues Event erstellen", homeNewDesc:"Berechne Einkaufsliste und Kosten für deinen Abend.", homeResumeTitle:"Laufendes Event fortsetzen", homeResumeDesc:"Zurück zum Event, das du vorbereitet hast.", homeEventsDesc:"Öffne, bearbeite oder hake die Liste eines gespeicherten Events ab.", homeCocktailDesc:"Rezepte bearbeiten oder neue erstellen.", homeAmariDesc:"Amari und Shot-Liköre verwalten.", homeRicettarioDesc:"Blättere im party-tauglichen IBA-Rezeptbuch.", homeConfirmNew:"Neues Event starten? Nicht gespeicherte Daten gehen verloren." },
-            pt: { homeEyebrow:"Por onde queres começar?", homeNewTitle:"Criar novo evento", homeNewDesc:"Calcula a lista de compras e os custos da tua noite.", homeResumeTitle:"Retomar evento em curso", homeResumeDesc:"Volta ao evento que estavas a preparar.", homeEventsDesc:"Abre, edita ou marca a lista de um evento guardado.", homeCocktailDesc:"Edita as receitas ou cria novas.", homeAmariDesc:"Gere amari e licores para shots.", homeRicettarioDesc:"Explora o receituário IBA adaptado a festas.", homeConfirmNew:"Começar um novo evento? Os dados não guardados serão perdidos." },
-            nl: { homeEyebrow:"Waar wil je beginnen?", homeNewTitle:"Nieuw evenement maken", homeNewDesc:"Bereken de boodschappenlijst en kosten voor je avond.", homeResumeTitle:"Lopend evenement hervatten", homeResumeDesc:"Ga terug naar het evenement dat je aan het voorbereiden was.", homeEventsDesc:"Open, bewerk of vink de lijst van een opgeslagen evenement af.", homeCocktailDesc:"Bewerk recepten of maak nieuwe.", homeAmariDesc:"Beheer bitters en shotlikeuren.", homeRicettarioDesc:"Blader door het feest-aangepaste IBA-receptenboek.", homeConfirmNew:"Een nieuw evenement beginnen? Niet-opgeslagen gegevens gaan verloren." }
+            it: { homeEyebrow:"Da dove vuoi iniziare?", homeNewTitle:"Crea nuovo evento", homeNewDesc:"Calcola la lista della spesa e i costi per la tua serata.", homeResumeTitle:"Riprendi evento in corso", homeResumeDesc:"Torna all'evento che stavi preparando.", homeEventsDesc:"Apri, modifica o spunta la lista di un evento salvato.", homeCocktailDesc:"Modifica le ricette o creane di nuove.", homeAmariDesc:"Gestisci amari e liquori da shot.", homeConfirmNew:"Iniziare un nuovo evento? I dati non ancora salvati andranno persi." },
+            en: { homeEyebrow:"Where do you want to start?", homeNewTitle:"Create new event", homeNewDesc:"Work out the shopping list and costs for your night.", homeResumeTitle:"Resume event in progress", homeResumeDesc:"Go back to the event you were preparing.", homeEventsDesc:"Open, edit or check off the list of a saved event.", homeCocktailDesc:"Edit recipes or create new ones.", homeAmariDesc:"Manage bitters and shot liqueurs.", homeConfirmNew:"Start a new event? Any unsaved data will be lost." },
+            es: { homeEyebrow:"¿Por dónde quieres empezar?", homeNewTitle:"Crear nuevo evento", homeNewDesc:"Calcula la lista de la compra y los costes de tu noche.", homeResumeTitle:"Retomar evento en curso", homeResumeDesc:"Vuelve al evento que estabas preparando.", homeEventsDesc:"Abre, edita o marca la lista de un evento guardado.", homeCocktailDesc:"Edita las recetas o crea nuevas.", homeAmariDesc:"Gestiona amargos y licores para chupitos.", homeConfirmNew:"¿Empezar un nuevo evento? Se perderán los datos no guardados." },
+            fr: { homeEyebrow:"Par où veux-tu commencer ?", homeNewTitle:"Créer un événement", homeNewDesc:"Calcule la liste de courses et les coûts de ta soirée.", homeResumeTitle:"Reprendre l'événement en cours", homeResumeDesc:"Reviens à l'événement que tu préparais.", homeEventsDesc:"Ouvre, modifie ou coche la liste d'un événement enregistré.", homeCocktailDesc:"Modifie les recettes ou créés-en de nouvelles.", homeAmariDesc:"Gère les amers et liqueurs à shot.", homeConfirmNew:"Commencer un nouvel événement ? Les données non enregistrées seront perdues." },
+            de: { homeEyebrow:"Womit möchtest du starten?", homeNewTitle:"Neues Event erstellen", homeNewDesc:"Berechne Einkaufsliste und Kosten für deinen Abend.", homeResumeTitle:"Laufendes Event fortsetzen", homeResumeDesc:"Zurück zum Event, das du vorbereitet hast.", homeEventsDesc:"Öffne, bearbeite oder hake die Liste eines gespeicherten Events ab.", homeCocktailDesc:"Rezepte bearbeiten oder neue erstellen.", homeAmariDesc:"Amari und Shot-Liköre verwalten.", homeConfirmNew:"Neues Event starten? Nicht gespeicherte Daten gehen verloren." },
+            pt: { homeEyebrow:"Por onde queres começar?", homeNewTitle:"Criar novo evento", homeNewDesc:"Calcula a lista de compras e os custos da tua noite.", homeResumeTitle:"Retomar evento em curso", homeResumeDesc:"Volta ao evento que estavas a preparar.", homeEventsDesc:"Abre, edita ou marca a lista de um evento guardado.", homeCocktailDesc:"Edita as receitas ou cria novas.", homeAmariDesc:"Gere amari e licores para shots.", homeConfirmNew:"Começar um novo evento? Os dados não guardados serão perdidos." },
+            nl: { homeEyebrow:"Waar wil je beginnen?", homeNewTitle:"Nieuw evenement maken", homeNewDesc:"Bereken de boodschappenlijst en kosten voor je avond.", homeResumeTitle:"Lopend evenement hervatten", homeResumeDesc:"Ga terug naar het evenement dat je aan het voorbereiden was.", homeEventsDesc:"Open, bewerk of vink de lijst van een opgeslagen evenement af.", homeCocktailDesc:"Bewerk recepten of maak nieuwe.", homeAmariDesc:"Beheer bitters en shotlikeuren.", homeConfirmNew:"Een nieuw evenement beginnen? Niet-opgeslagen gegevens gaan verloren." }
         };
         Object.keys(_homeI18n).forEach(lg => {
             if (translations[lg]) Object.assign(translations[lg], _homeI18n[lg]);
@@ -4791,50 +4590,6 @@
             if (translations[lg]) Object.assign(translations[lg], _emptyI18n[lg]);
         });
 
-        /* ════════════════════════════════════════════════════════════
-           BANNER RECENSIONE — logica soglie
-           Conta le liste generate (max 1 ogni 30 min, così i ricalcoli
-           della stessa serata non gonfiano il contatore).
-           Soglie: 3 → 10 → 20 → poi ogni 10. "Nascondi" rimanda alla
-           soglia successiva; "Non mostrare più" (visibile da 20 in poi)
-           spegne il banner per sempre.
-           ════════════════════════════════════════════════════════════ */
-        const REVIEW_LS_KEY = 'bp_review';
-        function _revState() { try { return JSON.parse(localStorage.getItem(REVIEW_LS_KEY)) || {}; } catch (e) { return {}; } }
-        function _revSave(s) { try { localStorage.setItem(REVIEW_LS_KEY, JSON.stringify(s)); } catch (e) {} }
-        function bpReviewTick(silenzioso) {
-            const s = _revState();
-            const now = Date.now();
-            if (!silenzioso && now - (s.lastTick || 0) > 30 * 60 * 1000) {
-                s.count = (s.count || 0) + 1;
-                s.lastTick = now;
-                if (s.next === undefined) s.next = 3;
-                _revSave(s);
-            }
-            bpReviewRender();
-        }
-        function bpReviewRender() {
-            const el = document.getElementById('review-banner');
-            if (!el) return;
-            const s = _revState();
-            const show = !s.never && (s.count || 0) >= (s.next === undefined ? 3 : s.next);
-            el.style.display = show ? 'flex' : 'none';
-            const nv = document.getElementById('review-never-btn');
-            if (nv) nv.style.display = (s.count || 0) >= 20 ? '' : 'none';
-        }
-        function bpReviewHide() {
-            const s = _revState();
-            const c = s.count || 0;
-            s.next = c < 10 ? 10 : (c < 20 ? 20 : c + 10);
-            _revSave(s);
-            bpReviewRender();
-        }
-        function bpReviewNever() {
-            const s = _revState();
-            s.never = true;
-            _revSave(s);
-            bpReviewRender();
-        }
 
         /* Helper: restituisce la stringa tradotta nella lingua corrente */
         function T(key) {
@@ -4868,11 +4623,7 @@
             });
 
             /* ── Elementi con icone — aggiornamento diretto ── */
-            _i18nTxt('.btn-pdf-leggi',                      '✦ ' + tr.btnLeggi + ' (IT)');
             document.querySelectorAll('[href$=".pdf"][download]').forEach(a => { if (!a.dataset.i18nSkip) a.textContent = '↳ ' + tr.btnScarica; });
-            _i18nTxt('.pdf-modal-actions button',           '× ' + tr.btnChiudi);
-            _i18nTxt('#pdf-modal-title',                    '❦ ' + tr.pdfModalTitolo);
-            _i18nTxt('.ricettario-text h3',                 tr.ricettarioTitolo);
             _i18nTxt('#h3-nuovo-cocktail',                  '✦ ' + tr.newCocktailH3);
             _i18nTxt('#h3-bottiglia-shot',                  '✦ ' + tr.bottShotH3);
             _i18nTxt('.btn-aggiungi-ing',                   '✚ ' + tr.btnAggiungiIng);
@@ -6041,13 +5792,13 @@
 
         /* ── i18n menu a panino + totali checklist (UX-2) — 7 lingue ── */
         const _extraI18nUi = {
-            it: { uiMenu:"Menu", uiNuovoEvento:"Crea nuovo evento", uiRicettario:"Ricettario", uiVaiEventi:"Apri i miei eventi salvati", chkTotale:"Totale", chkSpeso:"Speso", chkManca:"Da spendere" },
-            en: { uiMenu:"Menu", uiNuovoEvento:"Create new event", uiRicettario:"Recipe book", uiVaiEventi:"Open my saved events", chkTotale:"Total", chkSpeso:"Spent", chkManca:"Remaining" },
-            es: { uiMenu:"Menú", uiNuovoEvento:"Crear nuevo evento", uiRicettario:"Recetario", uiVaiEventi:"Abrir mis eventos guardados", chkTotale:"Total", chkSpeso:"Gastado", chkManca:"Por gastar" },
-            fr: { uiMenu:"Menu", uiNuovoEvento:"Créer un événement", uiRicettario:"Recettes", uiVaiEventi:"Ouvrir mes événements", chkTotale:"Total", chkSpeso:"Dépensé", chkManca:"Restant" },
-            de: { uiMenu:"Menü", uiNuovoEvento:"Neues Event erstellen", uiRicettario:"Rezeptbuch", uiVaiEventi:"Meine Events öffnen", chkTotale:"Gesamt", chkSpeso:"Ausgegeben", chkManca:"Offen" },
-            pt: { uiMenu:"Menu", uiNuovoEvento:"Criar novo evento", uiRicettario:"Receituário", uiVaiEventi:"Abrir os meus eventos", chkTotale:"Total", chkSpeso:"Gasto", chkManca:"Por gastar" },
-            nl: { uiMenu:"Menu", uiNuovoEvento:"Nieuw evenement maken", uiRicettario:"Receptenboek", uiVaiEventi:"Mijn evenementen openen", chkTotale:"Totaal", chkSpeso:"Uitgegeven", chkManca:"Resterend" }
+            it: { uiMenu:"Menu", uiNuovoEvento:"Crea nuovo evento", uiVaiEventi:"Apri i miei eventi salvati", chkTotale:"Totale", chkSpeso:"Speso", chkManca:"Da spendere" },
+            en: { uiMenu:"Menu", uiNuovoEvento:"Create new event", uiVaiEventi:"Open my saved events", chkTotale:"Total", chkSpeso:"Spent", chkManca:"Remaining" },
+            es: { uiMenu:"Menú", uiNuovoEvento:"Crear nuevo evento", uiVaiEventi:"Abrir mis eventos guardados", chkTotale:"Total", chkSpeso:"Gastado", chkManca:"Por gastar" },
+            fr: { uiMenu:"Menu", uiNuovoEvento:"Créer un événement", uiVaiEventi:"Ouvrir mes événements", chkTotale:"Total", chkSpeso:"Dépensé", chkManca:"Restant" },
+            de: { uiMenu:"Menü", uiNuovoEvento:"Neues Event erstellen", uiVaiEventi:"Meine Events öffnen", chkTotale:"Gesamt", chkSpeso:"Ausgegeben", chkManca:"Offen" },
+            pt: { uiMenu:"Menu", uiNuovoEvento:"Criar novo evento", uiVaiEventi:"Abrir os meus eventos", chkTotale:"Total", chkSpeso:"Gasto", chkManca:"Por gastar" },
+            nl: { uiMenu:"Menu", uiNuovoEvento:"Nieuw evenement maken", uiVaiEventi:"Mijn evenementen openen", chkTotale:"Totaal", chkSpeso:"Uitgegeven", chkManca:"Resterend" }
         };
         Object.keys(_extraI18nUi).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _extraI18nUi[lg]); });
 
@@ -6605,10 +6356,7 @@
             else if (which === 'eventi') bpEventsOpen();
             else if (which === 'cocktail') bpLibraryOpen('cocktail');
             else if (which === 'amari') bpLibraryOpen('amari');
-            else if (which === 'ricettario') bpRicettarioOpen();
         }
-        function bpRicettarioOpen(){ const o = document.getElementById('bp-ricettario'); if (!o) return; o.classList.add('show'); document.body.style.overflow = 'hidden'; }
-        function bpRicettarioClose(){ const o = document.getElementById('bp-ricettario'); if (!o) return; o.classList.remove('show'); document.body.style.overflow = ''; }
 
         /* ════════════════════════════════════════════════════════════
            MENÙ DA ESPORRE — vista lato-ospite (solo nomi), 4 stili,
@@ -7075,7 +6823,6 @@
                     gcard('events',     '&#10070;', T('evHeaderBtn'),  T('homeEventsDesc')) +
                     gcard('cocktail',   '&#10049;', T('navCocktail'),  T('homeCocktailDesc')) +
                     gcard('amari',      '&#10059;', T('navAmari'),     T('homeAmariDesc')) +
-                    gcard('ricettario', '&#10086;', T('uiRicettario'), T('homeRicettarioDesc')) +
                     gcard('settings',   '&#9881;',  T('homeSettingsTitle'), T('homeSettingsDesc'), 'bph-card-wide') +
                  '</div>';
             wrap.innerHTML = h;
@@ -7540,7 +7287,6 @@
                 nazione + ' · ' + T('budgetFasciaWord') + ' ' + (T(_fasciaKey) || fascia).toLowerCase();
 
             document.getElementById('risultati').style.display = 'block';
-            try { bpReviewTick(silenzioso); } catch (e) {}
             return true;
         }
 
@@ -7664,58 +7410,6 @@
         /* ════════════════════════════════════════════════════════════
            RICETTARIO PDF
            ════════════════════════════════════════════════════════════ */
-        function apriPDF(e, lang) {
-            if(e) e.stopPropagation();
-            lang = lang || 'it';
-            const pdfFiles = {
-                it: 'Cocktail_IBA_adattamento_a_feste.pdf',
-                en: 'Cocktail_IBA_party_adaptation.pdf'
-            };
-            const modalTitles = {
-                it: '❦ Cocktail IBA · Adattamento per Feste',
-                en: '❦ IBA Cocktails · Party Adaptation'
-            };
-            const dlLabels = {
-                it: '↳ Scarica (IT)',
-                en: '↳ Download (EN)'
-            };
-            const pdfFile = pdfFiles[lang] || pdfFiles.it;
-            // Su mobile l'iframe PDF è inutilizzabile (iOS Safari non lo renderizza).
-            // Usiamo un <a> temporaneo invece di window.open: se siamo dentro alla PWA
-            // standalone, window.open lancia un browser esterno e rompe l'UX; l'anchor
-            // click resta gestito dal browser host in modo più prevedibile.
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 700;
-            if(isMobile) {
-                const a = document.createElement('a');
-                a.href = pdfFile;
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                return;
-            }
-            const modal    = document.getElementById('pdf-modal');
-            const iframe   = document.getElementById('pdf-iframe');
-            const titleEl  = document.getElementById('pdf-modal-title');
-            const dlLink   = document.getElementById('pdf-modal-download');
-            if(titleEl) titleEl.textContent = modalTitles[lang] || modalTitles.it;
-            if(dlLink)  { dlLink.href = pdfFile; dlLink.textContent = dlLabels[lang] || dlLabels.it; }
-            iframe.src = pdfFile;
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function chiudiPDF() {
-            const modal = document.getElementById('pdf-modal');
-            const iframe = document.getElementById('pdf-iframe');
-            modal.classList.remove('show');
-            iframe.src = '';
-            document.body.style.overflow = '';
-        }
-        // ESC per chiudere
-        document.addEventListener('keydown', e => {
-            if(e.key === 'Escape') chiudiPDF();
-        });
 
         /* ════════════════════════════════════════════════════════════
            AVVIO
