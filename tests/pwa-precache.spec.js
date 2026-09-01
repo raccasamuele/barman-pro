@@ -52,6 +52,25 @@ const PRECACHE = leggiPrecache();
  */
 test.describe.configure({ mode: 'serial' });
 
+/**
+ * Ogni test parte da un'origine pulita.
+ *
+ * Il service worker e le cache vivono nell'origine, non nel contesto del
+ * browser: quello che una suite precedente ha registrato resta li'. Senza
+ * questa pulizia il risultato dipendeva da cosa era girato prima, e la stessa
+ * suite dava 3/3 da sola e 2/3 in coda alle altre. Un test che cambia esito
+ * secondo l'ordine non sta misurando l'app.
+ */
+test.beforeEach(async ({ page }) => {
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(async () => {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((r) => r.unregister()));
+    const nomi = await caches.keys();
+    await Promise.all(nomi.map((n) => caches.delete(n)));
+  });
+});
+
 test.describe('PWA · precache', () => {
   test(`i ${PRECACHE.length} asset di PRECACHE_ASSETS esistono davvero`, async ({ request, baseURL }) => {
     const mancanti = [];

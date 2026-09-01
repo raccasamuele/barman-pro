@@ -155,7 +155,7 @@
             text-transform: uppercase;
         }
         .theme-switcher button.active {
-            background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2));
+            background: var(--bp-accent);
             color: var(--bp-panel);
         }
 
@@ -222,7 +222,7 @@
         .suggeritore-row { display: flex; align-items: center; gap: 4px; margin: 4px 0 18px; flex-wrap: wrap; }
         .btn-suggerisci {
             width: auto; display: inline-flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2));
+            background: var(--bp-accent);
             color: var(--bp-panel); border: none; border-radius: 12px;
             padding: 12px 20px; font: 700 14px/1 var(--bp-font); cursor: pointer;
         }
@@ -343,7 +343,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, var(--bp-line), transparent);
+            background: var(--bp-line);
             transform: translateX(-100%);
             transition: transform 0.7s ease;
             pointer-events: none;
@@ -384,7 +384,7 @@
             content: "";
             flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+            background: var(--bp-line);
         }
 
         .section-title h2 {
@@ -471,7 +471,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, var(--bp-line), transparent);
+            background: var(--bp-line);
             transform: translateX(-100%);
             transition: transform 0.5s;
         }
@@ -491,14 +491,14 @@
         }
 
         .btn-primary-gold {
-            background: linear-gradient(135deg, var(--accent-gold-2) 0%, var(--accent-gold-1) 100%);
+            background: var(--bp-accent);
             color: var(--text-dark);
             border: none;
-            box-shadow: 0 8px 24px var(--accent-glow);
+            box-shadow: none;
         }
 
         .btn-primary-gold:hover {
-            background: linear-gradient(135deg, var(--accent-gold-1) 0%, #fff 100%);
+            background: var(--bp-accent);
             box-shadow: 0 12px 32px var(--bp-accent-soft);
             color: #000;
         }
@@ -584,14 +584,14 @@
         .app-stepper .step:hover .num { background: var(--bp-accent-soft); border-color: var(--accent-gold-1); }
         .app-stepper .step.active { color: var(--text-main); }
         .app-stepper .step.active .num {
-            background: linear-gradient(135deg, var(--accent-gold-2), var(--accent-gold-1));
+            background: var(--bp-accent);
             color: var(--text-dark);
             border-color: var(--accent-gold-1);
         }
         .app-stepper .step:active .num { transform: scale(0.93); }
         .app-stepper .sep {
             width: 40px; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+            background: var(--bp-line);
             margin: 0 8px;
         }
         @media (max-width: 560px) {
@@ -633,10 +633,10 @@
         }
         .builder-tab:hover { transform: none; color: var(--accent-gold-1); background: var(--bp-accent-soft); border-color: transparent; }
         .builder-tab.active {
-            background: linear-gradient(135deg, var(--accent-gold-2), var(--accent-gold-1));
+            background: var(--bp-accent);
             color: var(--text-dark);
             border-color: var(--accent-gold-1);
-            box-shadow: 0 6px 18px var(--accent-glow);
+            box-shadow: none;
         }
         .builder-tab:active { transform: scale(0.97); }
         .builder-tab .tab-badge {
@@ -785,7 +785,7 @@
             cursor: pointer;
             -webkit-appearance: none;
             margin-top: -9px;
-            box-shadow: 0 0 10px var(--accent-glow);
+            box-shadow: none;
             transition: transform 0.2s;
         }
 
@@ -1068,7 +1068,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background: linear-gradient(135deg, var(--bp-accent) 0%, #aa8c2c 100%);
+            background: var(--bp-accent);
             color: var(--bp-panel) !important;
             font-family: var(--bp-font);
             font-weight: 800;
@@ -1089,7 +1089,7 @@
         .btn-premium:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 20px var(--bp-accent-soft), inset 0 1px 1px var(--bp-line);
-            background: linear-gradient(135deg, var(--bp-accent) 0%, var(--bp-accent) 100%);
+            background: var(--bp-accent);
             color: var(--bp-panel) !important;
         }
 
@@ -1097,7 +1097,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, var(--bp-line), transparent);
+            background: var(--bp-line);
             transform: translateX(-220%);
         }
 
@@ -1266,7 +1266,7 @@
         /* Box costo stimato nel riepilogo del wizard guidato */
         .bpc-costbox {
             margin: 18px 0 4px; padding: 16px 18px; border-radius: 14px; text-align: center;
-            background: linear-gradient(135deg, var(--bp-accent-soft), var(--bp-accent-soft));
+            background: var(--bp-accent-soft);
             border: 1px solid var(--bp-accent-soft);
         }
         .bpc-costbox .cb-k { display: block; font-family: var(--bp-font); font-size: 11px; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
@@ -1334,7 +1334,7 @@
         .bpc-progress { flex: 1; height: 4px; border-radius: 4px; background: var(--bp-sunken); overflow: hidden; }
         .bpc-progress-fill {
             height: 100%; width: 0%; border-radius: 4px;
-            background: linear-gradient(90deg, var(--accent-gold-2), var(--accent-gold-1));
+            background: var(--bp-accent);
             transform-origin: left center;
             transition: width 320ms cubic-bezier(0.23,1,0.32,1);
         }
@@ -1378,9 +1378,9 @@
         @media (hover: hover) and (pointer: fine) { .bpc-chip:hover { border-color: var(--bp-accent-soft); } }
         .bpc-chip:active { transform: scale(0.98); }
         .bpc-chip.sel {
-            background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2));
+            background: var(--bp-accent);
             color: var(--text-dark); border-color: var(--accent-gold-1);
-            box-shadow: 0 8px 22px -10px var(--accent-glow);
+            box-shadow: none;
         }
         .bpc-chip.sel .bpc-chip-sub { color: var(--bp-panel); }
 
@@ -1406,7 +1406,7 @@
             transition: transform 160ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease, background-color 160ms ease;
         }
         .bpc-seg:active { transform: scale(0.97); }
-        .bpc-seg.sel { background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2)); color: var(--text-dark); border-color: var(--accent-gold-1); box-shadow: 0 8px 22px -10px var(--accent-glow); }
+        .bpc-seg.sel { background: var(--bp-accent); color: var(--text-dark); border-color: var(--accent-gold-1); box-shadow: none; }
 
         /* Slider */
         .bpc-slider-display { text-align: center; font-family: var(--bp-font); font-weight: 700; font-size: 34px; color: var(--text-main); margin-bottom: 4px; }
@@ -1420,7 +1420,7 @@
             background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px 18px;
             transition: border-color 160ms ease, box-shadow 160ms ease;
         }
-        .bpc-text:focus { outline: none; border-color: var(--input-focus); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .bpc-text:focus { outline: none; border-color: var(--input-focus); box-shadow: none; }
 
         /* Riepilogo */
         .bpc-summary { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; }
@@ -1441,7 +1441,7 @@
         .bpc-back { flex: 1; min-width: 0; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--glass-border); }
         .bpc-back:active, .bpc-next:active { transform: scale(0.97); }
         .bpc-back[disabled] { opacity: 0.35; pointer-events: none; }
-        .bpc-next { flex: 1; min-width: 0; border: none; background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2)); color: var(--text-dark); box-shadow: 0 10px 26px -12px var(--accent-glow); }
+        .bpc-next { flex: 1; min-width: 0; border: none; background: var(--bp-accent); color: var(--text-dark); box-shadow: none; }
 
         /* Selettore lingua sulla schermata di benvenuto */
         .bpc-wlang { display: flex; justify-content: flex-end; margin-bottom: 2px; }
@@ -1462,7 +1462,7 @@
         }
         .bpc-choice:active { transform: scale(0.985); }
         @media (hover: hover) and (pointer: fine) { .bpc-choice:hover { border-color: var(--bp-accent-soft); } }
-        .bpc-choice.primary { border-color: var(--bp-accent-soft); box-shadow: 0 14px 36px -22px var(--accent-glow); }
+        .bpc-choice.primary { border-color: var(--bp-accent-soft); box-shadow: none; }
         .bpc-choice-mark { font-size: 22px; color: var(--accent-gold-1); line-height: 1.2; flex: 0 0 auto; }
         .bpc-choice-txt h3 { font-family: var(--bp-font); font-weight: 600; font-size: 18px; color: var(--text-main); margin: 0 0 5px; }
         .bpc-choice-txt p { font-family: var(--bp-font); font-size: 13.5px; line-height: 1.5; color: var(--text-muted); margin: 0; }
@@ -1497,7 +1497,7 @@
         .wizard-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
         .wizard-actions button { flex: 1 1 160px; min-height: 50px; border-radius: 13px; font-family: var(--bp-font); font-weight: 700; font-size: 14.5px; cursor: pointer; padding: 14px 16px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
         .wizard-actions button:active { transform: scale(0.98); }
-        .wizard-actions .wz-primary { border: none; background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2)); color: var(--text-dark); box-shadow: 0 10px 26px -12px var(--accent-glow); }
+        .wizard-actions .wz-primary { border: none; background: var(--bp-accent); color: var(--text-dark); box-shadow: none; }
         @media (hover: hover) and (pointer: fine) { .wizard-actions button:hover { border-color: var(--bp-accent-soft); } }
 
         /* ─── "I miei eventi" + checklist interattiva (Fase 3) ─── */
@@ -1517,7 +1517,7 @@
         .bpc-evbtns { display: flex; flex-wrap: wrap; gap: 8px; }
         .bpc-evbtns button { flex: 1 1 0; width: auto; min-width: 70px; font-family: var(--bp-font); font-weight: 700; font-size: 13px; padding: 10px 12px; border-radius: 10px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
         .bpc-evbtns button:active { transform: scale(0.97); }
-        .bpc-evbtns .ev-open { border: none; background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2)); color: var(--text-dark); }
+        .bpc-evbtns .ev-open { border: none; background: var(--bp-accent); color: var(--text-dark); }
         .bpc-evempty { text-align: center; padding: 44px 12px; }
         .bpc-evempty .mk { font-size: 36px; color: var(--accent-gold-2); }
         .bpc-evempty h3 { font-family: var(--bp-font); font-weight: 600; color: var(--text-main); margin: 14px 0 6px; font-size: 20px; }
@@ -1526,7 +1526,7 @@
         .bpc-chkhead .sub { font-family: var(--bp-font); font-size: 13px; color: var(--text-muted); }
         .bpc-chkprog { display: flex; align-items: center; gap: 12px; margin: 14px 0 20px; }
         .bpc-chkprog .bar { flex: 1; height: 6px; border-radius: 6px; background: var(--bp-sunken); overflow: hidden; }
-        .bpc-chkprog .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-gold-2), var(--accent-gold-1)); transition: width 260ms cubic-bezier(0.23,1,0.32,1); }
+        .bpc-chkprog .fill { height: 100%; width: 0%; background: var(--bp-accent); transition: width 260ms cubic-bezier(0.23,1,0.32,1); }
         .bpc-chkprog .lbl { font-family: var(--bp-font); font-size: 13px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
         .bpc-chkgroup { margin-bottom: 18px; }
         .bpc-chkgroup > .gt { font-family: var(--bp-font); font-weight: 800; font-size: 12px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 6px; }
@@ -1534,7 +1534,7 @@
         .bpc-chkgroup .bpc-chkitem:first-of-type { border-top: none; }
         .bpc-chkbox { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; border: 1.5px solid var(--input-border); display: flex; align-items: center; justify-content: center; color: var(--text-dark); font-size: 14px; transition: background-color 160ms ease, border-color 160ms ease; }
         .bpc-chkbox::after { content: '✓'; opacity: 0; transition: opacity 140ms ease; }
-        .bpc-chkitem.done .bpc-chkbox { background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2)); border-color: var(--accent-gold-1); }
+        .bpc-chkitem.done .bpc-chkbox { background: var(--bp-accent); border-color: var(--accent-gold-1); }
         .bpc-chkitem.done .bpc-chkbox::after { opacity: 1; }
         .bpc-chkitem .nm { flex: 1; font-family: var(--bp-font); font-size: 15px; color: var(--text-main); }
         .bpc-chkitem .qt { font-family: var(--bp-font); font-size: 13px; color: var(--text-muted); white-space: nowrap; text-align: right; }
@@ -1699,9 +1699,6 @@
         /* — 9. HOME · gerarchia griglia —
            "Impostazioni" è una preferenza, non un contenuto: resa più
            sobria così l'occhio va prima alle scorciatoie ai contenuti. */
-        .bph-card.bph-card-wide { opacity: 0.9; }
-        .bph-card.bph-card-wide .bph-card-ic { background: var(--bp-accent-soft); }
-        .bph-card.bph-card-wide:hover { opacity: 1; }
 
         /* — 10. EMPTY STATE del builder —
            Le schede del menu, da vuote, erano bianche: l'utente non sapeva
@@ -1901,8 +1898,8 @@
         .bpset-switch::before { content:none; }
         .bpset-switch:hover { transform:none; background:var(--input-bg); border-color:var(--accent-gold-2); }
         .bpset-switch-knob { position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:var(--text-muted); transition:transform .2s cubic-bezier(0.23,1,0.32,1), background-color .2s ease; }
-        .bpset-switch[aria-checked="true"] { background:linear-gradient(135deg,var(--accent-gold-1),var(--accent-gold-2)); border-color:var(--accent-gold-1); }
-        .bpset-switch[aria-checked="true"]:hover { background:linear-gradient(135deg,var(--accent-gold-1),var(--accent-gold-2)); }
+        .bpset-switch[aria-checked="true"] { background: var(--bp-accent); border-color:var(--accent-gold-1); }
+        .bpset-switch[aria-checked="true"]:hover { background: var(--bp-accent); }
         .bpset-switch[aria-checked="true"] .bpset-switch-knob { transform:translateX(24px); background:var(--bp-panel); }
 
 /* ═══ blocco 6 di 9 (era riga 2184 di index.html) ═══ */
@@ -1919,8 +1916,8 @@
         .bph-hero, .bph-resume, .bph-card { justify-content: flex-start; text-transform: none; letter-spacing: 0; text-align: left; cursor: pointer; }
         .bph-hero::before, .bph-resume::before, .bph-card::before { content: none; }
 
-        .bph-hero { display: flex; align-items: center; gap: 18px; width: 100%; padding: 26px; border-radius: 20px; border: 1px solid var(--bp-accent-soft); background: linear-gradient(135deg, var(--bp-accent-soft), var(--bp-accent-soft)); margin-bottom: 14px; transition: transform .2s cubic-bezier(0.16,1,0.3,1), border-color .2s ease; }
-        .bph-hero:hover { transform: translateY(-2px); border-color: var(--bp-accent-soft); background: linear-gradient(135deg, var(--bp-accent-soft), var(--bp-accent-soft)); }
+        .bph-hero { display: flex; align-items: center; gap: 18px; width: 100%; padding: 26px; border-radius: 20px; border: 1px solid var(--bp-accent-soft); background: var(--bp-accent-soft); margin-bottom: 14px; transition: transform .2s cubic-bezier(0.16,1,0.3,1), border-color .2s ease; }
+        .bph-hero:hover { transform: translateY(-2px); border-color: var(--bp-accent-soft); background: var(--bp-accent-soft); }
         .bph-hero-ic { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 60px; height: 60px; border-radius: 16px; background: var(--bp-accent-soft); color: var(--accent-gold-1); font-size: 27px; }
         .bph-hero-tx { display: flex; flex-direction: column; min-width: 0; }
         .bph-hero-title { font-family: var(--bp-font); font-weight: 700; font-size: 23px; color: var(--text-main); line-height: 1.15; }
@@ -1943,7 +1940,6 @@
         .bph-resume-arrow { margin-left: auto; flex: 0 0 auto; color: var(--accent-gold-1); font-size: 22px; }
 
         .bph-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-bottom: 36px; }
-        .bph-card.bph-card-wide { grid-column: 1 / -1; justify-self: center; width: calc(50% - 6px); }
         .bph-card { display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 20px 18px; border-radius: 16px; border: 1px solid var(--glass-border); background: var(--glass-bg); transition: transform .2s cubic-bezier(0.16,1,0.3,1), border-color .2s ease; }
         .bph-card:hover { transform: translateY(-2px); border-color: var(--bp-accent-soft); background: var(--glass-bg); }
         .bph-card-ic { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 46px; height: 46px; border-radius: 13px; background: var(--bp-accent-soft); color: var(--accent-gold-1); font-size: 20px; }
@@ -1953,7 +1949,6 @@
 
         @media (max-width: 560px) {
             .bph-grid { grid-template-columns: 1fr; }
-            .bph-card.bph-card-wide { width: 100%; justify-self: stretch; }
             .bph-hero { padding: 20px; gap: 14px; }
             .bph-hero-ic { width: 50px; height: 50px; font-size: 23px; }
             .bph-hero-title { font-size: 20px; }
@@ -1977,56 +1972,30 @@
         }
 
         /* — HERO · la "vetrina": glow, bordo oro vivo, sheen, icona scolpita — */
+        /* Azione principale della home.
+           Aveva sopra quattro strati di decorazione: una sfumatura verde
+           dall'angolo, un bordo sfumato ottenuto con una maschera, un
+           riflesso che attraversava la card e un alone verde nell'ombra.
+           Nessuno diceva niente all'utente. Quello che rende primaria
+           un'azione e' che sia l'unica con una superficie piena e un bordo
+           d'accento, non la quantita' di effetti sopra. */
         body.bp-home .bph-hero {
-            position: relative; isolation: isolate; overflow: hidden;
-            gap: 20px; padding: 34px 30px; border-radius: 24px;
-            border: 1px solid var(--bp-accent-soft);
-            background:
-                radial-gradient(130% 150% at 0% 0%, var(--bp-accent-soft), transparent 55%),
-                linear-gradient(135deg, var(--bp-panel), var(--bp-panel));
-            box-shadow:
-                0 26px 64px -26px var(--bp-shadow-color),
-                0 0 70px -28px var(--bp-accent-soft),
-                inset 0 1px 0 var(--bp-line);
-            transition: transform .25s cubic-bezier(0.16,1,0.3,1), border-color .25s ease, box-shadow .3s ease;
-        }
-        body.bp-home .bph-hero > * { position: relative; z-index: 2; }
-        /* bordo oro a gradiente (statico: niente ridisegno continuo) */
-        body.bp-home .bph-hero::before {
-            content: ''; position: absolute; inset: 0; z-index: 0; border-radius: inherit;
-            padding: 1.5px; pointer-events: none;
-            background: linear-gradient(135deg,
-                var(--bp-accent-soft), var(--bp-accent-soft) 38%,
-                var(--bp-accent-soft) 62%, var(--bp-accent-soft));
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor; mask-composite: exclude;
-        }
-        /* riflesso che attraversa l'hero: una volta all'ingresso + replay all'hover
-           (nessuna animazione idle continua → niente carico GPU costante) */
-        body.bp-home .bph-hero::after {
-            content: ''; position: absolute; z-index: 1; top: 0; left: 0;
-            width: 55%; height: 100%; pointer-events: none;
-            background: linear-gradient(100deg, transparent, var(--bp-line), transparent);
-            transform: translateX(-200%) skewX(-18deg);
-        }
-        body.bp-home .bph-hero:hover::after { }
-        @keyframes bphSheen {
-            from { transform: translateX(-200%) skewX(-18deg); }
-            to   { transform: translateX(360%) skewX(-18deg); }
+            gap: 20px; padding: 34px 30px; border-radius: 20px;
+            border: 1px solid var(--bp-accent);
+            background: var(--bp-accent-soft);
+            box-shadow: none;
+            transition: border-color var(--bp-slow) var(--bp-ease),
+                        background var(--bp-slow) var(--bp-ease);
         }
         body.bp-home .bph-hero:hover {
-            transform: translateY(-3px);
-            border-color: var(--bp-accent-soft);
-            box-shadow:
-                0 34px 72px -24px var(--bp-shadow-color),
-                0 0 100px -26px var(--bp-accent-soft),
-                inset 0 1px 0 var(--bp-line);
+            background: var(--bp-panel);
+            border-color: var(--bp-accent-hover);
         }
         body.bp-home .bph-hero-ic {
-            width: 66px; height: 66px; border-radius: 18px; font-size: 28px;
-            background: linear-gradient(135deg, var(--accent-gold-1), var(--accent-gold-2));
-            color: var(--bp-panel);
-            box-shadow: 0 12px 28px -10px var(--accent-glow), inset 0 1px 0 var(--bp-line);
+            width: 60px; height: 60px; border-radius: 16px;
+            background: var(--bp-accent);
+            color: var(--bp-on-accent);
+            box-shadow: none;
         }
         body.bp-home .bph-hero-title { font-size: 26px; letter-spacing: 0.01em; }
         body.bp-home .bph-hero-desc  { font-size: 14px; margin-top: 5px; }
@@ -2040,38 +2009,38 @@
             background: var(--accent-gold-1); color: var(--bp-panel); transform: translateX(4px);
         }
 
-        /* — CARD scorciatoia · profondità + glow oro all'hover — */
+        /* — Le quattro scorciatoie —
+           Superficie piatta e bordo sottile. I gradienti che c'erano andavano
+           da un colore a se stesso: erano tinte piatte travestite, e ognuna
+           costava al browser un passaggio di composizione in piu' per
+           disegnare esattamente lo stesso pixel. */
         body.bp-home .bph-card {
-            position: relative; padding: 22px 20px; border-radius: 18px;
-            border: 1px solid var(--bp-accent-soft);
-            background: linear-gradient(160deg, var(--bp-panel), var(--bp-panel));
-            box-shadow: 0 14px 34px -22px var(--bp-shadow-color), inset 0 1px 0 var(--bp-line);
-            transition: transform .22s cubic-bezier(0.16,1,0.3,1), border-color .22s ease, box-shadow .22s ease;
+            padding: 22px 20px; border-radius: 16px;
+            border: 1px solid var(--bp-line);
+            background: var(--bp-panel);
+            box-shadow: none;
+            transition: border-color var(--bp-fast) var(--bp-ease),
+                        background var(--bp-fast) var(--bp-ease);
         }
         body.bp-home .bph-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--bp-accent-soft);
-            box-shadow: 0 22px 46px -20px var(--bp-shadow-color), 0 0 54px -26px var(--bp-accent-soft);
+            border-color: var(--bp-accent);
+            background: var(--bp-accent-soft);
         }
         body.bp-home .bph-card-ic {
-            width: 48px; height: 48px; border-radius: 14px; font-size: 21px;
-            background: radial-gradient(120% 120% at 30% 20%, var(--bp-accent-soft), var(--bp-accent-soft));
-            border: 1px solid var(--bp-accent-soft);
-            transition: background .22s ease, transform .22s ease;
-        }
-        body.bp-home .bph-card:hover .bph-card-ic {
-            transform: scale(1.07);
-            background: radial-gradient(120% 120% at 30% 20%, var(--bp-accent-soft), var(--bp-accent-soft));
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--bp-accent-soft);
+            color: var(--bp-accent);
+            border: none;
         }
         body.bp-home .bph-card-title { font-size: 17px; }
 
         /* — RESUME · accento oro caldo — */
         body.bp-home .bph-resume {
             border-color: var(--bp-accent-soft);
-            background: linear-gradient(135deg, var(--bp-accent-soft), var(--bp-panel));
+            background: var(--bp-accent-soft);
         }
         body.bp-home .bph-resume-ic {
-            background: linear-gradient(135deg, var(--bp-accent-soft), var(--bp-accent-soft));
+            background: var(--bp-accent-soft);
             border: 1px solid var(--bp-accent-soft);
         }
 
@@ -2167,18 +2136,18 @@
 
         /* CTA primaria: glow + lucentezza */
         .btn-primary-gold.btn-grande {
-            box-shadow: 0 18px 44px -18px var(--accent-glow), inset 0 1px 0 var(--bp-line);
+            box-shadow: none;
         }
         .btn-primary-gold.btn-grande:hover { box-shadow: 0 22px 54px -16px var(--bp-accent-soft), inset 0 1px 0 var(--bp-line); }
 
         /* Tab attiva: glow oro più deciso */
         .builder-tabs { background: var(--bp-panel); border-color: var(--bp-accent-soft); }
-        .builder-tab.active { box-shadow: 0 8px 22px -8px var(--accent-glow), inset 0 1px 0 var(--bp-line); }
+        .builder-tab.active { box-shadow: none; }
 
         /* Stepper più "designed": barra premium + alone sullo step attivo */
         .app-stepper { border-bottom: 1px solid var(--bp-accent-soft); }
         .app-stepper .step.active .num {
-            box-shadow: 0 0 0 4px var(--bp-accent-soft), 0 10px 22px -8px var(--accent-glow);
+            box-shadow: none;
         }
 
         /* Header del wizard più scenografico: alone oro dietro al titolo.
@@ -2442,3 +2411,10 @@
 @media print {
     .pagina-testo .topnav, .pagina-testo .cta, .pagina-testo .related { display: none; }
 }
+
+
+/* ─── Icone SVG nelle card della home ───────────────────────────
+   I caratteri tipografici prendevano la misura da font-size; un SVG no,
+   e senza una dimensione esplicita collassa o riempie il contenitore. */
+.bph-card-ic svg { width: 22px; height: 22px; }
+.bph-hero-ic svg { width: 26px; height: 26px; }

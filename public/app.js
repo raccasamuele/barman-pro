@@ -108,7 +108,7 @@
                 
                 
                 // Esportazione testo
-                copyHeader: '❦  LISTA DELLA SPESA — EVENTO',
+                copyHeader: 'LISTA DELLA SPESA · EVENTO',
                 copyAlcolici: 'ALCOLICI (Litri)',
                 copyAnalcolici: 'ANALCOLICI & FILLER (Litri)',
                 copyAttrezzatura: 'ATTREZZATURA',
@@ -235,7 +235,7 @@
                 toastInstallata: 'App installed',
                 
                 
-                copyHeader: '❦  SHOPPING LIST — EVENT',
+                copyHeader: 'SHOPPING LIST · EVENT',
                 copyAlcolici: 'SPIRITS (Litres)',
                 copyAnalcolici: 'MIXERS & FILLERS (Litres)',
                 copyAttrezzatura: 'EQUIPMENT',
@@ -361,7 +361,7 @@
                 toastInstallata: 'App instalada',
                 
                 
-                copyHeader: '❦  LISTA DE COMPRA — EVENTO',
+                copyHeader: 'LISTA DE COMPRA · EVENTO',
                 copyAlcolici: 'DESTILADOS (Litros)',
                 copyAnalcolici: 'MIXERS Y RELLENOS (Litros)',
                 copyAttrezzatura: 'EQUIPAMIENTO',
@@ -487,7 +487,7 @@
                 toastInstallata: 'App installée',
                 
                 
-                copyHeader: '❦  LISTE DE COURSES — ÉVÉNEMENT',
+                copyHeader: 'LISTE DE COURSES · ÉVÉNEMENT',
                 copyAlcolici: 'ALCOOLS (Litres)',
                 copyAnalcolici: 'SOFTS & REMPLISSEURS (Litres)',
                 copyAttrezzatura: 'ÉQUIPEMENT',
@@ -613,7 +613,7 @@
                 toastInstallata: 'App installiert',
                 
                 
-                copyHeader: '❦  EINKAUFSLISTE — VERANSTALTUNG',
+                copyHeader: 'EINKAUFSLISTE · VERANSTALTUNG',
                 copyAlcolici: 'SPIRITUOSEN (Liter)',
                 copyAnalcolici: 'MISCHGETRÄNKE & FÜLLER (Liter)',
                 copyAttrezzatura: 'AUSRÜSTUNG',
@@ -739,7 +739,7 @@
                 toastInstallata: 'App instalado',
                 
                 
-                copyHeader: '❦  LISTA DE COMPRAS — EVENTO',
+                copyHeader: 'LISTA DE COMPRAS · EVENTO',
                 copyAlcolici: 'BEBIDAS ALCOÓLICAS (Litros)',
                 copyAnalcolici: 'MIXERS & COMPLEMENTOS (Litros)',
                 copyAttrezzatura: 'EQUIPAMENTO',
@@ -865,7 +865,7 @@
                 toastInstallata: 'App geïnstalleerd',
                 
                 
-                copyHeader: '❦  BOODSCHAPPENLIJST — EVENEMENT',
+                copyHeader: 'BOODSCHAPPENLIJST · EVENEMENT',
                 copyAlcolici: 'ALCOHOL (Liter)',
                 copyAnalcolici: 'MIXERS & VULLERS (Liter)',
                 copyAttrezzatura: 'MATERIAAL',
@@ -1810,7 +1810,7 @@
             const bsArr = document.querySelectorAll('.btn-secondary');
             if (bsArr[0]) bsArr[0].textContent = '' + tr.btnCrea;
             if (bsArr[1]) bsArr[1].textContent = '' + tr.btnCreaShot;
-            false && _i18nHTML('.btn-grande', '❦  ' + tr.btnGenera + '  ❦');
+            false && _i18nHTML('.btn-grande', '' + tr.btnGenera + '  ');
             const rh3 = document.querySelectorAll('.result-section h3');
             if (rh3[0]) rh3[0].textContent = '' + tr.risultatiAlcolici;
             if (rh3[1]) rh3[1].textContent = '' + tr.risultatiAnalcolici;
@@ -4027,16 +4027,33 @@
                             '<span class="bph-reset-lbl">' + esc(T('btnReset')) + '</span></button>' +
                      '</div>';
             }
+            /* Icone dell'interfaccia.
+               Sostituiscono i caratteri tipografici usati prima (&#10070;
+               &#10049; &#10059; &#9881;): quelli dipendono dai font
+               installati, cambiano forma e spessore da un sistema all'altro
+               e non si possono ne' allineare al testo ne' colorare con i
+               token. Tratto 1.7 come il bottone Home, cosi' l'app ha una
+               sola famiglia visiva invece di due. */
+            const _svg = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
+                + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+
+            const ICONE = {
+                eventi:   _svg('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/><path d="m9 16 2 2 4-4"/>'),
+                cocktail: _svg('<path d="M4 4h16l-8 9v7"/><path d="M8 20h8"/><path d="M7.5 8.5h9"/>'),
+                amari:    _svg('<path d="M9 3h6v3l2 4v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-9l2-4z"/><path d="M7 14h10"/>'),
+                settings: _svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
+            };
+
             const gcard = (act, icon, title, desc, extra) =>
                 '<button type="button" class="bph-card' + (extra ? ' ' + extra : '') + '" data-home="' + act + '">' +
                     '<span class="bph-card-ic">' + icon + '</span>' +
                     '<span class="bph-card-tx"><span class="bph-card-title">' + esc(title) + '</span>' +
                     '<span class="bph-card-desc">' + esc(desc) + '</span></span></button>';
             h += '<div class="bph-grid">' +
-                    gcard('events',     '&#10070;', T('evHeaderBtn'),  T('homeEventsDesc')) +
-                    gcard('cocktail',   '&#10049;', T('navCocktail'),  T('homeCocktailDesc')) +
-                    gcard('amari',      '&#10059;', T('navAmari'),     T('homeAmariDesc')) +
-                    gcard('settings',   '&#9881;',  T('homeSettingsTitle'), T('homeSettingsDesc'), 'bph-card-wide') +
+                    gcard('events',     ICONE.eventi, T('evHeaderBtn'),  T('homeEventsDesc')) +
+                    gcard('cocktail',   ICONE.cocktail, T('navCocktail'),  T('homeCocktailDesc')) +
+                    gcard('amari',      ICONE.amari, T('navAmari'),     T('homeAmariDesc')) +
+                    gcard('settings',   ICONE.settings, T('homeSettingsTitle'), T('homeSettingsDesc')) +
                  '</div>';
             wrap.innerHTML = h;
         }
