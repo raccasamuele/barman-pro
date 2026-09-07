@@ -2649,18 +2649,8 @@
             const ss = document.getElementById('storage-status');
             if (ss) ss.textContent = '' + (bpAutoSave ? T('storageStatus') : T('storageStatusOff'));
         }
-        function bpSettingsOpen() {
-            const o = document.getElementById('bp-settings'); if (!o) return;
-            const sel = document.getElementById('lang-selector'); if (sel) sel.value = linguaCorrente;
-            aggiornaThemeButtons(bpTemaScelto);
-            bpSyncAutoSaveUI();
-            o.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function bpSettingsClose() {
-            const o = document.getElementById('bp-settings'); if (o) o.classList.remove('show');
-            document.body.style.overflow = '';
-        }
+        function bpSettingsOpen() { bpVaiA('altro/impostazioni'); }
+        function bpSettingsClose() { bpVaiA('altro'); }
         function bpSyncAutoSaveUI() {
             const b = document.getElementById('bp-autosave'); if (!b) return;
             b.setAttribute('aria-checked', bpAutoSave ? 'true' : 'false');
@@ -2901,7 +2891,10 @@
         function vaiAStep(id) {
             // Arrivando alla lista, (ri)calcola: se manca il menu resta dove sei
             if (id === 'risultati' && calcolaSpesa() === false) return;
-            document.body.classList.remove('bp-home');   // entrare in uno step esce dalla home
+            // Entrare in un passo vuol dire essere nella sezione "Evento". Prima
+            // qui si toglieva bp-home a mano, cioe' si decideva la visibilita'
+            // da un secondo posto; adesso lo dice al router e basta.
+            if (bpSezioneCorrente !== 'evento') bpApplicaRotta('evento', true);
             // Mostra solo il pannello scelto
             document.querySelectorAll('.step-panel').forEach(p => {
                 p.classList.toggle('active', p.dataset.stepid === id);
@@ -3271,6 +3264,20 @@
             nl: { toastSalvataggioFallito:"Opslaan mislukt", toastSpazioEsaurito:"Opslag vol: verwijder een paar opgeslagen evenementen" }
         };
         Object.keys(_storageI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _storageI18n[lg]); });
+
+        /* ── i18n della navigazione — 7 lingue ──
+           Etichette corte per scelta: a 320px quattro voci devono starci senza
+           troncare, e il tedesco e' il vincolo. */
+        const _navI18n = {
+            it: { navHome:"Home", navEvento:"Evento", navSalvati:"Salvati", navAltro:"Altro", ariaNavigazione:"Navigazione principale", altroRicette:"I miei cocktail", altroAmari:"I miei amari e liquori", altroImpostazioni:"Impostazioni", footPrivacy:"Privacy", footLicenza:"Licenza MIT" },
+            en: { navHome:"Home", navEvento:"Event", navSalvati:"Saved", navAltro:"More", ariaNavigazione:"Main navigation", altroRicette:"My cocktails", altroAmari:"My bitters & liqueurs", altroImpostazioni:"Settings", footPrivacy:"Privacy", footLicenza:"MIT licence" },
+            es: { navHome:"Inicio", navEvento:"Evento", navSalvati:"Guardados", navAltro:"Más", ariaNavigazione:"Navegación principal", altroRicette:"Mis cócteles", altroAmari:"Mis amargos y licores", altroImpostazioni:"Ajustes", footPrivacy:"Privacidad", footLicenza:"Licencia MIT" },
+            fr: { navHome:"Accueil", navEvento:"Événement", navSalvati:"Enregistrés", navAltro:"Plus", ariaNavigazione:"Navigation principale", altroRicette:"Mes cocktails", altroAmari:"Mes amers et liqueurs", altroImpostazioni:"Réglages", footPrivacy:"Confidentialité", footLicenza:"Licence MIT" },
+            de: { navHome:"Start", navEvento:"Event", navSalvati:"Gespeichert", navAltro:"Mehr", ariaNavigazione:"Hauptnavigation", altroRicette:"Meine Cocktails", altroAmari:"Meine Bitter & Liköre", altroImpostazioni:"Einstellungen", footPrivacy:"Datenschutz", footLicenza:"MIT-Lizenz" },
+            pt: { navHome:"Início", navEvento:"Evento", navSalvati:"Guardados", navAltro:"Mais", ariaNavigazione:"Navegação principal", altroRicette:"Os meus cocktails", altroAmari:"Os meus amargos e licores", altroImpostazioni:"Definições", footPrivacy:"Privacidade", footLicenza:"Licença MIT" },
+            nl: { navHome:"Start", navEvento:"Event", navSalvati:"Opgeslagen", navAltro:"Meer", ariaNavigazione:"Hoofdnavigatie", altroRicette:"Mijn cocktails", altroAmari:"Mijn bitters & likeuren", altroImpostazioni:"Instellingen", footPrivacy:"Privacy", footLicenza:"MIT-licentie" }
+        };
+        Object.keys(_navI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _navI18n[lg]); });
 
         const _ariaI18n = {
             it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
@@ -3677,8 +3684,10 @@
             }
         }
 
-        function bpEventsOpen(){
-            const o=document.getElementById('bp-events'); if(!o) return;
+        /* Aggancia una volta sola la delega dei click sulla lista eventi.
+           Era dentro bpEventsOpen, che ora non esiste piu': la sezione la
+           disegna il router. */
+        function bpEventsMount(){
             const mount=document.getElementById('bp-ev-mount');
             if (mount && !mount._bound){
                 mount._bound = true;
@@ -3707,9 +3716,10 @@
                     mount.querySelectorAll('.bpc-evmenu.show').forEach(m => m.classList.remove('show'));
                 });
             }
-            o.classList.add('show'); document.body.style.overflow='hidden'; bpEventsList();
-        }
-        function bpEventsClose(){ const o=document.getElementById('bp-events'); if(!o) return; o.classList.remove('show'); document.body.style.overflow=''; }
+                    }
+
+        function bpEventsOpen(){ bpVaiA('salvati'); }
+        function bpEventsClose(){ bpVaiA('home'); }
 
         function bpEventsList(){
             const _T = _bpT();
@@ -4024,21 +4034,8 @@
 
         function _bplMl(ml){ return (''+ml).replace('.', (linguaCorrente === 'en') ? '.' : ',') + ' ml'; }
 
-        function bpLibraryOpen(mode){
-            bpLibMode = (mode === 'amari') ? 'amari' : 'cocktail';
-            bpLibQuery = '';
-            const o = document.getElementById('bp-library'); if (!o) return;
-            const wrap = document.getElementById('bpl-wrap');
-            if (wrap && !wrap._bound){ wrap._bound = true; wrap.addEventListener('click', bpLibClick); }
-            bpLibShowList();
-            o.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function bpLibraryClose(){
-            const o = document.getElementById('bp-library'); if (!o) return;
-            o.classList.remove('show');
-            document.body.style.overflow = document.querySelector('.bpc-overlay.show, .bpm-overlay.show') ? 'hidden' : '';
-        }
+        function bpLibraryOpen(mode){ bpVaiA(mode === 'amari' ? 'altro/amari' : 'altro/ricette'); }
+        function bpLibraryClose(){ bpVaiA('altro'); }
 
         function bpLibClick(e){
             const b = e.target.closest('[data-act]'); if (!b) return;
@@ -4309,16 +4306,145 @@
                    || bpSetupModificato());
         }
 
-        function bpGoHome(){
-            // chiudi eventuali overlay aperti
-            ['bp-menu','bp-library','bp-events','bp-ricettario','bp-welcome','bp-config','bp-settings'].forEach(id => {
-                const o = document.getElementById(id); if (o) o.classList.remove('show');
+        /* ════════════════════════════════════════════════════════════
+           ROUTER DI SEZIONE · l'unica autorita' sulla visibilita'
+           ════════════════════════════════════════════════════════════
+           Prima decidevano in due, e non erano d'accordo. `body.bp-home`
+           nascondeva i pannelli del flusso; gli overlay a schermo intero si
+           mostravano da soli con `.show` e si bloccavano lo scroll del body a
+           testa. Il bottone Home flottante non sapeva dove si trovava, e
+           restava li' anche in home.
+
+           Adesso c'e' un attributo solo — body[data-sezione] piu'
+           body[data-sotto] per l'albero di "Altro" — e il CSS ci si appende.
+           I dialoghi VERI (welcome, wizard, menu' da esporre, suggeritore)
+           restano fuori: si sovrappongono a una sezione, non la sostituiscono,
+           e sono l'unica cosa che ha ancora il diritto di bloccare lo scroll.
+
+           Il tasto Indietro del browser risale di un livello, perche' su un
+           telefono e' il gesto con cui si torna indietro davvero. */
+
+        const BP_SEZIONI = ['home', 'evento', 'salvati', 'altro'];
+        const BP_SOTTOROTTE = { 'ricette':1, 'amari':1, 'impostazioni':1 };
+        let bpSezioneCorrente = 'home';
+        let bpSottoCorrente = '';
+
+        function bpRottaCorrente() {
+            return bpSezioneCorrente + (bpSottoCorrente ? '/' + bpSottoCorrente : '');
+        }
+
+        /* Applica la rotta. `storia` a false quando siamo NOI a rispondere a un
+           popstate: rimettere uno stato mentre si torna indietro creerebbe un
+           anello da cui non si esce piu'. */
+        function bpApplicaRotta(rotta, storia) {
+            const parti = String(rotta || 'home').split('/');
+            let sez = BP_SEZIONI.indexOf(parti[0]) !== -1 ? parti[0] : 'home';
+            let sotto = (sez === 'altro' && BP_SOTTOROTTE[parti[1]]) ? parti[1] : '';
+
+            bpSezioneCorrente = sez;
+            bpSottoCorrente = sotto;
+            document.body.dataset.sezione = sez;
+            if (sotto) document.body.dataset.sotto = sotto;
+            else delete document.body.dataset.sotto;
+
+            /* La classe storica resta, ma come stile e basta: chi comanda e'
+               data-sezione. Tenerla autoritativa accanto al router vorrebbe
+               dire due sorgenti di verita' che possono contraddirsi. */
+            document.body.classList.toggle('bp-home', sez === 'home');
+
+            document.querySelectorAll('.bp-tab').forEach(t => {
+                const on = t.dataset.sezione === sez;
+                t.classList.toggle('attiva', on);
+                if (on) t.setAttribute('aria-current', 'page');
+                else t.removeAttribute('aria-current');
+            });
+
+            // Contenuto della sezione, quando va ricostruito.
+            if (sez === 'home' && typeof bpHomeRender === 'function') bpHomeRender();
+            if (sez === 'salvati') { bpEventsMount(); if (typeof bpEventsList === 'function') bpEventsList(); }
+            if (sotto === 'ricette' || sotto === 'amari') {
+                bpLibMode = (sotto === 'amari') ? 'amari' : 'cocktail';
+                bpLibQuery = '';
+                const wrap = document.getElementById('bpl-wrap');
+                if (wrap && !wrap._bound) { wrap._bound = true; wrap.addEventListener('click', bpLibClick); }
+                if (typeof bpLibShowList === 'function') bpLibShowList();
+            }
+            if (sotto === 'impostazioni') {
+                const sel = document.getElementById('lang-selector');
+                if (sel) sel.value = linguaCorrente;
+                if (typeof aggiornaThemeButtons === 'function') aggiornaThemeButtons(bpTemaScelto);
+                if (typeof bpSyncAutoSaveUI === 'function') bpSyncAutoSaveUI();
+            }
+
+            if (storia !== false) {
+                const stato = { bpRotta: bpRottaCorrente() };
+                try { history.pushState(stato, '', location.pathname + location.search); } catch(e) {}
+            }
+
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            bpFocusSezione();
+        }
+
+        /* Il focus va sull'intestazione della sezione, non resta sul tasto che
+           si e' premuto: con uno screen reader, restare sulla barra vuol dire
+           non sapere che la pagina e' cambiata. */
+        function bpFocusSezione() {
+            const contenitori = { home:'#bp-home', evento:'.step-panel.active',
+                                  salvati:'#bp-events', altro:'#bp-altro' };
+            const sel = bpSottoCorrente === 'impostazioni' ? '#bp-settings'
+                      : (bpSottoCorrente ? '#bp-library' : contenitori[bpSezioneCorrente]);
+            const cont = document.querySelector(sel);
+            if (!cont) return;
+            const tit = cont.querySelector('h1, h2, [role="heading"]');
+            const bersaglio = tit || cont;
+            if (!bersaglio.hasAttribute('tabindex')) bersaglio.setAttribute('tabindex', '-1');
+            try { bersaglio.focus({ preventScroll: true }); } catch(e) {}
+        }
+
+        /* Punto d'ingresso unico. Toccare la voce in cui sei gia', stando in una
+           sottorotta, riporta alla landing: e' il comportamento che tutti si
+           aspettano da un tab bar. */
+        function bpVaiA(rotta) {
+            if (rotta === bpSezioneCorrente && bpSottoCorrente) rotta = bpSezioneCorrente;
+            else if (rotta === bpRottaCorrente()) return;
+            bpChiudiDialoghi();
+            bpApplicaRotta(rotta, true);
+        }
+
+        /* Cambiare sezione con un dialogo aperto lascerebbe una finestra
+           sospesa sopra una pagina che non e' piu' la sua. */
+        function bpChiudiDialoghi() {
+            ['bp-menu', 'bp-welcome', 'bp-config', 'suggeritore-modal'].forEach(id => {
+                const o = document.getElementById(id);
+                if (o) o.classList.remove('show');
             });
             document.body.style.overflow = '';
-            document.body.classList.add('bp-home');
-            bpHomeRender();
-            window.scrollTo({ top: 0, behavior: 'instant' });
         }
+
+        window.addEventListener('popstate', ev => {
+            const r = (ev.state && ev.state.bpRotta) ? ev.state.bpRotta : 'home';
+            bpApplicaRotta(r, false);
+        });
+
+        /* Tastiera virtuale: sotto l'85% dell'altezza la barra si toglie di
+           mezzo, altrimenti copre il campo su cui stai scrivendo. Dove
+           visualViewport non esiste non si fa niente — meglio una barra di
+           troppo che una navigazione che sparisce per un falso positivo. */
+        function bpOsservaTastiera() {
+            const vv = window.visualViewport;
+            if (!vv) return;
+            const guarda = () => {
+                const aperta = vv.height < window.innerHeight * 0.85;
+                document.body.classList.toggle('bp-tastiera', aperta);
+            };
+            vv.addEventListener('resize', guarda);
+            guarda();
+        }
+
+        /* Resta perche' mezza app la chiama, ma non decide piu' niente:
+           chiudere gli overlay a mano era proprio il meccanismo che il router
+           sostituisce. */
+        function bpGoHome(){ bpVaiA('home'); }
 
         function bpHomeRender(){
             const wrap = document.getElementById('bph-inner'); if (!wrap) return;
@@ -5073,6 +5199,11 @@
             // parte dal chiaro.
             if (!bpTemaApplicato) bpApplicaTema('light');
             aggiornaThemeButtons(bpTemaScelto);
+            // Rotta iniziale: la Home. Uno stato in history da subito, cosi' il
+            // primo Indietro non esce dall'app.
+            try { history.replaceState({ bpRotta: 'home' }, '', location.pathname + location.search); } catch(e) {}
+            bpApplicaRotta('home', false);
+            bpOsservaTastiera();
             aggiornaPctBevitori();
             renderizzaMenu();
             aggiungiRigaIngrediente();

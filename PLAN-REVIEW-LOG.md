@@ -696,3 +696,46 @@ vecchie intatte, idempotenza (una seconda esecuzione non sovrascrive dati piu' r
 ricette della bozza non perse, conflitto di nome conservato con suffisso, nessun doppione
 per contenuti identici, bozza nuova senza ricette, e ricette migrate davvero utilizzabili
 dal calcolo. Cache a v3.5.0.
+
+### Round 5 — Claude build · Fase 1, fetta 1 (barra, router, sezioni)
+
+La navigazione che l'utente aveva chiesto, piu' il secondo dei due difetti riportati.
+
+**Una barra, quattro voci, due layout.** `#bp-tabbar` e' nel markup e non generata dal
+JavaScript: deve esserci al primo disegno, come `data-theme`. Sotto i 900px sta in fondo;
+sopra la stessa `<nav>` diventa una colonna di 240px a sinistra. Un solo elemento — due
+componenti da tenere allineati divergono sempre. `viewport-fit=cover` aggiunto al meta
+viewport, senza il quale `env(safe-area-inset-bottom)` vale 0 e la barra finisce sotto la
+barretta home dell'iPhone.
+
+**Il bottone Home flottante e il menu modale `.bp-nav` sono stati eliminati**, non
+nascosti. Il difetto riportato — il bottone che resta visibile anche quando sei gia' in
+home — spariva solo cambiando meccanismo: una barra con lo stato attivo lo risolve per
+costruzione.
+
+**Un router, una autorita'.** `body[data-sezione]` piu' `body[data-sotto]`. Prima
+decidevano in due: `body.bp-home` nascondeva i pannelli del flusso, e gli overlay si
+mostravano da soli con `.show` bloccandosi lo scroll del body a testa. `bpGoHome`,
+`bpEventsOpen`, `bpLibraryOpen`, `bpSettingsOpen` e le rispettive chiusure sono diventate
+alias del router; `bpEventsMount` estrae la delega dei click che stava dentro l'apertura.
+`body.bp-home` resta, ma come stile e basta.
+
+**"Altro" ha un albero**, non tre overlay riciclati dietro una voce: landing con le voci,
+ogni voce una sottorotta, Indietro del browser che risale di un livello, e toccare la voce
+in cui sei gia' che riporta alla landing. Scala di z-index dichiarata in cima al blocco
+(10 barra / 100 intestazioni / 1000 dialoghi / 2000 toast), al posto dei 1310, 1400, 9000
+e 100000 che convivevano senza un ordine. Politica della tastiera virtuale con soglia
+all'85% e ricaduta dove `visualViewport` non esiste.
+
+**Trovato lavorando:** `footPrivacy` e `footLicenza` erano **usate nel footer ma non
+definite in nessuna lingua** — quei due link restavano in italiano ovunque. Definite.
+
+**I quattro test che Codex aveva previsto si sarebbero rotti si sono rotti**, e sono stati
+riscritti nella stessa fetta come chiedeva il piano: `ui-css` non guarda piu' la posizione
+del burger ma quella della barra; `ui-smoke` e `ui-csp` navigano con le voci.
+
+**Prova.** **112 test verdi** (68 preesistenti + 44 nuovi), `npm run check` verde, 42
+golden invariati. Dodici test nuovi sulla sola navigazione, compresi i due layout misurati
+davvero, il bersaglio da 44px, lo stato attivo che non e' solo colore, e il fatto che una
+sezione non blocchi lo scroll del body. Verifica manuale su 390px: una sola sezione
+visibile per volta, sottorotte, ri-tap e Indietro. Zero errori in console. Cache a v3.6.0.

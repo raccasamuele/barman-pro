@@ -2437,3 +2437,187 @@
    e senza una dimensione esplicita collassa o riempie il contenitore. */
 .bph-card-ic svg { width: 22px; height: 22px; }
 .bph-hero-ic svg { width: 26px; height: 26px; }
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGAZIONE · una <nav>, due layout
+   ═══════════════════════════════════════════════════════════
+   Sotto i 900px sta in fondo, dove arriva il pollice. Sopra diventa una
+   colonna a sinistra: una barra in fondo a un monitor da 27" e' a 40 cm
+   dallo sguardo e il pollice non c'entra niente. Stesso markup, perche'
+   due componenti da tenere allineati divergono sempre.
+
+   ── Scala z-index, dichiarata ──
+   Prima convivevano 1310, 1400, 9000 e 100000 senza un ordine scritto, e
+   ogni aggiunta era una scommessa. D'ora in poi:
+       10   barra di navigazione
+       100  intestazioni appiccicose dentro una sezione
+       1000 dialoghi veri (welcome, wizard, menu' da esporre, suggeritore)
+       2000 toast
+   La barra sta SOTTO i dialoghi di proposito: mentre un dialogo e' aperto
+   non si cambia sezione. */
+
+.bp-tabbar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 10;
+    display: flex;
+    align-items: stretch;
+    background: var(--bp-panel);
+    border-top: 1px solid var(--bp-line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.bp-tab {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 4px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    color: var(--bp-ink-faint);
+    font-family: var(--bp-font);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    cursor: pointer;
+    transition: color 160ms var(--bp-ease);
+}
+.bp-tab:hover { transform: none; background: none; border-color: transparent; }
+.bp-tab-ic { width: 22px; height: 22px; flex: 0 0 auto; }
+.bp-tab-tx {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Lo stato attivo non e' solo colore: il tratto dell'icona si ingrossa e
+   l'etichetta pesa di piu'. Chi non distingue i colori deve poterlo vedere
+   lo stesso. */
+.bp-tab[aria-current="page"] { color: var(--bp-accent); }
+.bp-tab[aria-current="page"] .bp-tab-ic { stroke-width: 2.4; }
+.bp-tab[aria-current="page"] .bp-tab-tx { font-weight: 800; }
+
+/* Il contenuto non deve finire sotto la barra. */
+body { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+
+/* Tastiera virtuale aperta: la barra sparisce, altrimenti copre il campo su
+   cui stai scrivendo o si stacca a meta' schermo. La classe la mette il
+   JavaScript guardando visualViewport; dove quell'API non c'e', la barra
+   resta dov'e' — meglio una barra di troppo che una navigazione che sparisce
+   per un falso positivo. */
+body.bp-tastiera .bp-tabbar { display: none; }
+body.bp-tastiera { padding-bottom: 0; }
+
+@media (min-width: 900px) {
+    .bp-tabbar {
+        inset: 0 auto 0 0;
+        width: 240px;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 4px;
+        padding: 24px 12px;
+        border-top: none;
+        border-right: 1px solid var(--bp-line);
+    }
+    .bp-tab {
+        flex: 0 0 auto;
+        height: 46px;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 14px;
+        padding: 0 14px;
+        border-radius: var(--r-md);
+        font-size: 14px;
+    }
+    .bp-tab[aria-current="page"] { background: var(--bp-accent-soft); color: var(--bp-accent-ink); }
+    body { padding-bottom: 0; padding-left: 240px; }
+    body.bp-tastiera { padding-left: 240px; }
+    body.bp-tastiera .bp-tabbar { display: flex; }
+}
+
+/* ── Sezioni: una sola autorita' sulla visibilita' ──
+   Prima decidevano in due, e non erano d'accordo: body.bp-home nascondeva i
+   pannelli del flusso, mentre gli overlay a schermo intero si mostravano da
+   soli con .show. Adesso comanda body[data-sezione], e basta.
+   Restano fuori da questo meccanismo i dialoghi VERI (welcome, wizard,
+   menu' da esporre, suggeritore): quelli si sovrappongono a una sezione, non
+   la sostituiscono. */
+body[data-sezione] #bp-home,
+body[data-sezione] .app-stepper,
+body[data-sezione] .step-panel,
+body[data-sezione] #bp-events,
+body[data-sezione] #bp-library,
+body[data-sezione] #bp-settings { display: none; }
+
+body[data-sezione] #bp-altro { display: none; }
+
+body[data-sezione="home"]    #bp-home      { display: block; }
+body[data-sezione="evento"]  .app-stepper  { display: flex; }
+body[data-sezione="evento"]  .step-panel.active { display: block; }
+body[data-sezione="salvati"] #bp-events    { display: block; }
+
+/* "Altro" ha un suo albero: la landing elenca le voci, e ogni voce e' una
+   sottorotta. Senza, tre pannelli diversi dovrebbero convivere dietro la
+   stessa voce senza un modo per dire a quale sei. */
+body[data-sezione="altro"]                     #bp-altro    { display: block; }
+body[data-sezione="altro"][data-sotto]         #bp-altro    { display: none; }
+body[data-sezione="altro"][data-sotto="ricette"]      #bp-library  { display: block; }
+body[data-sezione="altro"][data-sotto="impostazioni"] #bp-settings { display: block; }
+
+/* Le tre sezioni promosse non sono piu' finestre sopra la pagina: sono la
+   pagina. Niente position:fixed, niente sfondo che copre, niente scroll
+   bloccato sul body. */
+body[data-sezione] #bp-events,
+body[data-sezione] #bp-library,
+body[data-sezione] #bp-settings {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    background: none;
+    overflow: visible;
+}
+body[data-sezione] #bp-events .bpc-shell,
+body[data-sezione] #bp-library .bpc-shell,
+body[data-sezione] #bp-settings .bpc-shell {
+    min-height: 0;
+    padding-top: 8px;
+}
+/* Il tasto chiudi di una sezione non ha piu' senso: non c'e' niente da
+   chiudere, si cambia voce nella barra. */
+body[data-sezione] #bp-events .bpc-close,
+body[data-sezione] #bp-library .bpc-close,
+body[data-sezione] #bp-settings .bpc-close { display: none; }
+
+@media print {
+    .bp-tabbar { display: none !important; }
+    body { padding-bottom: 0 !important; padding-left: 0 !important; }
+}
+
+/* ── "Altro": la landing ──
+   Un elenco, non una griglia di card: sono voci di servizio, non azioni
+   principali, e devono somigliare a un indice. */
+.bp-altro { max-width: 640px; margin: 0 auto; padding: 24px 20px 40px; }
+.bp-altro-tit { font-family: var(--bp-font); font-size: var(--t-xl); font-weight: 800; color: var(--bp-ink); margin: 0 0 20px; }
+.bp-altro-lista { display: flex; flex-direction: column; border: 1px solid var(--bp-line); border-radius: var(--r-lg); overflow: hidden; background: var(--bp-panel); }
+.bp-altro-lista + .bp-altro-lista { margin-top: 20px; }
+.bp-altro-voce {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    width: 100%; min-height: 54px; padding: 14px 18px;
+    background: none; border: none; border-radius: 0; text-align: left; text-decoration: none;
+    color: var(--bp-ink); font-family: var(--bp-font); font-size: var(--t-base);
+    font-weight: 600; text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+.bp-altro-voce + .bp-altro-voce { border-top: 1px solid var(--bp-line); }
+.bp-altro-voce:hover { transform: none; background: var(--bp-sunken); border-color: transparent; }
+.bp-altro-ar { color: var(--bp-ink-faint); font-size: 20px; line-height: 1; }
+.bp-altro-esterni .bp-altro-voce { font-weight: 500; color: var(--bp-ink-soft); }

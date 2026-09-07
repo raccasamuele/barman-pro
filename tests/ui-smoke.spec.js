@@ -39,24 +39,28 @@ test.describe('UI · azioni per delega', () => {
     ).toEqual([]);
   });
 
-  test('il bottone Home reagisce al clic', async ({ page }) => {
+  /* Il bottone Home flottante e il menu modale non esistono piu': li ha
+     sostituiti la barra. Il difetto che avevano — restare visibili anche
+     quando eri gia' li' — spariva solo cambiando meccanismo, e questi test
+     sono cambiati con lui. */
+  test('la barra riporta alla Home', async ({ page }) => {
     await openApp(page);
-    await page.evaluate(() => document.body.classList.remove('bp-home'));
+    await page.evaluate(() => window.bpVaiA('salvati'));
 
-    await page.locator('#bp-burger').click();
+    await page.locator('.bp-tab[data-sezione="home"]').click();
 
     await expect
-      .poll(() => page.evaluate(() => document.body.classList.contains('bp-home')), { timeout: 5000 })
-      .toBe(true);
+      .poll(() => page.evaluate(() => document.body.dataset.sezione), { timeout: 5000 })
+      .toBe('home');
   });
 
-  test('la card "eventi" della home apre il pannello', async ({ page }) => {
+  test('la card "eventi" della home porta ai salvati', async ({ page }) => {
     await openApp(page);
     await page.locator('[data-home="events"]').first().click();
 
     await expect
-      .poll(() => page.evaluate(() => document.getElementById('bp-events')?.classList.contains('show')), { timeout: 5000 })
-      .toBe(true);
+      .poll(() => page.evaluate(() => document.body.dataset.sezione), { timeout: 5000 })
+      .toBe('salvati');
   });
 
   test('i controlli non nativi rispondono anche da tastiera', async ({ page }) => {

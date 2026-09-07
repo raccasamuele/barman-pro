@@ -15,7 +15,10 @@
 <html lang="it" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- viewport-fit=cover serve a env(safe-area-inset-*): senza, quelle
+         funzioni valgono 0 e la barra in basso finisce sotto la barretta
+         home dell'iPhone. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Barman PRO &middot; Calcolatore Eventi</title>
     <meta name="description" content="Calcolatore gratuito per feste ed eventi: quante bottiglie comprare, quanto ghiaccio e quanto spendi. Nessun account, funziona offline.">
     <meta name="author" content="Samuele Racca">
@@ -73,16 +76,13 @@
 <body>
 
     <!-- ════ MENU A PANINO · navigazione rapida ════ -->
-    <button type="button" class="bp-burger bp-homebtn" id="bp-burger" aria-label="Home" data-i18n-aria="ariaHome" data-do="bpGoHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.6 12 3l9 7.6"></path><path d="M5.2 9.4V20a1 1 0 0 0 1 1h3.3v-5.4h5V21h3.3a1 1 0 0 0 1-1V9.4"></path></svg></button>
-    <div class="bp-nav" id="bp-nav" role="dialog" aria-modal="true" aria-label="Menu">
-        <div class="bp-nav-inner">
-            <div class="bp-nav-eyebrow" data-i18n="uiMenu">Menu</div>
-            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="nuovo"><span class="ic">&#10010;</span><span class="tx" data-i18n="uiNuovoEvento">Crea nuovo evento</span><span class="ar">&rsaquo;</span></button>
-            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="eventi"><span class="ic">&#10070;</span><span class="tx" data-i18n="evHeaderBtn">I miei eventi</span><span class="ar">&rsaquo;</span></button>
-            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="cocktail"><span class="ic">&#10049;</span><span class="tx" data-i18n="navCocktail">I miei cocktail</span><span class="ar">&rsaquo;</span></button>
-            <button type="button" class="bp-nav-item" data-do="bpNavGo" data-arg="amari"><span class="ic">&#10059;</span><span class="tx" data-i18n="navAmari">I miei amari</span><span class="ar">&rsaquo;</span></button>
-        </div>
-    </div>
+    <!-- Il bottone Home flottante e il menu modale che stavano qui sono
+         stati sostituiti dalla barra di navigazione in fondo al documento.
+         Il bottone non sapeva dove si trovava: restava visibile anche in home,
+         perche' nessuna regola lo legava a body.bp-home. Una barra con lo stato
+         attivo risolve il problema per costruzione, invece che con una regola
+         display:none in piu'. -->
+    
 
     <!-- ════ MENÙ DA ESPORRE · 4 stili, modificabile inline, stampabile/PDF ════ -->
     <div class="bpm-overlay" id="bp-menu" role="dialog" aria-modal="true" aria-label="Menù da esporre" data-i18n-aria="ariaMenuEsporre">
@@ -529,6 +529,62 @@
     </div>
 
     <!-- ─── FOOTER ─── -->
+    <!-- ════ ALTRO · landing con sottorotte ════
+         Tre pannelli diversi non possono convivere dietro una sola voce senza
+         un modo per dire a quale sei. Qui c'e' l'elenco; ogni voce e' una
+         sottorotta, e il tasto Indietro del browser risale di un livello. -->
+    <section id="bp-altro" class="bp-altro" aria-labelledby="bp-altro-tit">
+        <h2 id="bp-altro-tit" class="bp-altro-tit" data-i18n="navAltro">Altro</h2>
+        <div class="bp-altro-lista">
+            <button type="button" class="bp-altro-voce" data-do="bpVaiA" data-arg="altro/ricette">
+                <span class="bp-altro-tx" data-i18n="altroRicette">I miei cocktail</span>
+                <span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="bp-altro-voce" data-do="bpVaiA" data-arg="altro/amari">
+                <span class="bp-altro-tx" data-i18n="altroAmari">I miei amari e liquori</span>
+                <span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="bp-altro-voce" data-do="bpVaiA" data-arg="altro/impostazioni">
+                <span class="bp-altro-tx" data-i18n="altroImpostazioni">Impostazioni</span>
+                <span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="bp-altro-voce" data-do="bpMenuOpenFromList">
+                <span class="bp-altro-tx" data-i18n="menuOpenBtn">Crea men&ugrave; da esporre</span>
+                <span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span>
+            </button>
+        </div>
+        <div class="bp-altro-lista bp-altro-esterni">
+            <a class="bp-altro-voce" href="privacy"><span class="bp-altro-tx" data-i18n="footPrivacy">Privacy</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></a>
+            <a class="bp-altro-voce" href="https://github.com/raccasamuele/barman-pro/blob/main/LICENSE" rel="noopener"><span class="bp-altro-tx" data-i18n="footLicenza">Licenza MIT</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></a>
+            <a class="bp-altro-voce" href="https://github.com/raccasamuele/barman-pro" rel="noopener"><span class="bp-altro-tx">GitHub</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></a>
+        </div>
+    </section>
+
+    <!-- ════ NAVIGAZIONE · una sola, per tutte le larghezze ════
+         Sotto i 900px sta in fondo, dove arriva il pollice. Sopra, la stessa
+         <nav> diventa una colonna a sinistra: un solo markup e due layout,
+         perche' due componenti da tenere allineati divergono sempre.
+         E' nel markup e non generata dal JavaScript, come data-theme: deve
+         esserci al primo disegno, senza un salto. -->
+    <nav class="bp-tabbar" id="bp-tabbar" aria-label="Navigazione principale" data-i18n-aria="ariaNavigazione">
+        <button type="button" class="bp-tab" data-sezione="home" aria-current="page" data-do="bpVaiA" data-arg="home">
+            <svg class="bp-tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.6 12 3l9 7.6"></path><path d="M5.2 9.4V20a1 1 0 0 0 1 1h3.3v-5.4h5V21h3.3a1 1 0 0 0 1-1V9.4"></path></svg>
+            <span class="bp-tab-tx" data-i18n="navHome">Home</span>
+        </button>
+        <button type="button" class="bp-tab" data-sezione="evento" data-do="bpVaiA" data-arg="evento">
+            <svg class="bp-tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16l-8 9v7"></path><path d="M8 20h8"></path><path d="M7.5 8.5h9"></path></svg>
+            <span class="bp-tab-tx" data-i18n="navEvento">Evento</span>
+        </button>
+        <button type="button" class="bp-tab" data-sezione="salvati" data-do="bpVaiA" data-arg="salvati">
+            <svg class="bp-tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 11h18"></path><path d="m9 16 2 2 4-4"></path></svg>
+            <span class="bp-tab-tx" data-i18n="navSalvati">Salvati</span>
+        </button>
+        <button type="button" class="bp-tab" data-sezione="altro" data-do="bpVaiA" data-arg="altro">
+            <svg class="bp-tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg>
+            <span class="bp-tab-tx" data-i18n="navAltro">Altro</span>
+        </button>
+    </nav>
+
     <footer class="bp-footer">
         <nav class="bp-footer-link" aria-label="Collegamenti" data-i18n-aria="ariaCollegamenti">
             <a href="https://github.com/raccasamuele/barman-pro" rel="noopener">GitHub</a>

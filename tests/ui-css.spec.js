@@ -89,14 +89,14 @@ test.describe('CSS · il foglio di stile viene interpretato per intero', () => {
         bg: cs.getPropertyValue('--bp-bg').trim(),
         accento: cs.getPropertyValue('--bp-accent').trim(),
         font: cs.getPropertyValue('--bp-font').trim(),
-        // il burger deve essere fisso: se il foglio si rompe torna "static"
-        burger: getComputedStyle(document.getElementById('bp-burger')).position,
+        // la barra dev'essere fissa: se il foglio si rompe torna "static"
+        barra: getComputedStyle(document.getElementById('bp-tabbar')).position,
       };
     });
 
     expect(t.bg, 'token --bp-bg mancante').toMatch(/oklch/);
     expect(t.accento, 'token --bp-accent mancante').toMatch(/oklch/);
     expect(t.font, 'la famiglia tipografica non e\' quella nuova').toMatch(/Manrope/);
-    expect(t.burger, 'il bottone Home non e\' posizionato: il foglio non e\' applicato').toBe('fixed');
+    expect(t.barra, "la barra di navigazione non e' posizionata: il foglio non e' applicato").toBe("fixed");
   });
 });
