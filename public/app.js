@@ -2291,6 +2291,342 @@
         const BP_AMARI_DEFAULT = ['Amaro Montenegro','Amaro Nonino','Amaro del Capo','Fernet Branca','Jägermeister','Mirto','Amaretto','Baileys','Liquore al Caffè','Limoncello','Sambuca','Grappa'];
         let bpRecipes = { mods:{}, custom:[], amari:null };
         /* ════════════════════════════════════════════════════════════
+           ESPORTA / IMPORTA · il backup, e il passaggio fra dispositivi
+           ════════════════════════════════════════════════════════════
+           Nasce da una domanda dell'utente: "ha senso un database con account
+           per ritrovare sempre i propri eventi?". Il problema e' vero —
+           localStorage e' legato all'origine e sparisce con una pulizia del
+           browser, e chi prepara la lista sul portatile la usa poi sul telefono
+           — ma la risposta scelta e' un file, non un account: copre backup e
+           multi-dispositivo senza far uscire i dati dal dispositivo, senza
+           rendere l'autore titolare del trattamento, e senza legare gli eventi
+           di qualcuno alla sopravvivenza del progetto.
+
+           ── Manifest, esplicito ──
+           bp_events_v2       si   unione: id rimappati, mai sovrascrittura
+           bp_recipes_v2      si   unione: conflitto di nome -> suffisso
+           bp_settings_v2     si   solo in "sostituisci"
+           bp_menu_style      si   solo in "sostituisci"
+           barmanProState_v8  si   solo in "sostituisci" (la bozza)
+           bp_onboarded       NO   e' stato di QUESTO dispositivo, non un dato tuo
+           chiavi legacy      NO   sono solo sorgenti di migrazione: esportarle
+                                   rimetterebbe in circolo dati morti
+
+           ── Perche' due fasi e un marcatore ──
+           Sono cinque chiavi. Scriverle una dopo l'altra e' cinque occasioni
+           di fermarsi a meta': un crash, una quota piena, una scheda chiusa. E
+           una volta toccata la prima chiave viva, "annullare" non e' piu'
+           possibile senza copie. Quindi:
+
+             1. si scrive tutto in uno spazio di staging PER TRANSAZIONE, e si
+                PRENOTA lo spazio con una scrittura di prova — durante lo
+                scambio il valore vecchio e il nuovo coesistono, e una stima
+                dello spazio libero non garantisce che il commit riesca;
+             2. si scrive il marcatore con l'elenco delle chiavi;
+             3. dopo il marcatore si puo' solo COMPLETARE: ogni valore di
+                staging si cancella solo dopo che la scrittura viva e' stata
+                riletta e confrontata;
+             4. il recupero gira all'avvio PRIMA di qualunque lettura, e
+                spazza via anche le transazioni orfane — quelle senza
+                marcatore, che sono il crash avvenuto al punto 1 e che
+                altrimenti resterebbero li' a occupare quota senza che nessuno
+                sappia perche'.
+
+           E finche' il marcatore esiste, nessuno scrive: la guardia sta negli
+           scrittori dalla Fase 0, apposta perche' anche una scheda ferma a una
+           versione precedente la rispetti. */
+
+        const BP_BACKUP_VERSIONE = 1;
+        const BP_STAGING_PREFIX = 'bp_import_';
+        const BP_IMPORT_MAX_BYTES = 8 * 1024 * 1024;   // 8 MB: un backup vero sta in poche centinaia di KB
+        const BP_IMPORT_MAX_EVENTI = 2000;
+        const BP_IMPORT_MAX_STRINGA = 20000;
+        const BP_IMPORT_MAX_PROFONDITA = 12;
+
+        const BP_CHIAVI_BACKUP = [
+            { chiave: 'bp_events_v2',      nome: 'eventi',       unione: 'eventi' },
+            { chiave: 'bp_recipes_v2',     nome: 'ricette',      unione: 'ricette' },
+            { chiave: 'bp_settings_v2',    nome: 'impostazioni', unione: 'solo-sostituisci' },
+            { chiave: 'bp_menu_style',     nome: 'stileMenu',    unione: 'solo-sostituisci' },
+            { chiave: 'barmanProState_v8', nome: 'bozza',        unione: 'solo-sostituisci' }
+        ];
+
+        /* L'utente sceglie fra unire e sostituire PRIMA che si tocchi
+           qualcosa: "sostituisci" cancella il suo lavoro, e non e' una scelta
+           che si fa per sbaglio. */
+        document.addEventListener('change', function (e) {
+            if (!e.target || e.target.id !== 'bp-import-file') return;
+            const file = e.target.files && e.target.files[0];
+            e.target.value = '';   // cosi' riselezionare lo stesso file rifa' scattare l'evento
+            if (!file) return;
+            const sostituisci = confirm(
+                T('backupChiedi') + `
+
+OK = ` + T('backupSostituisci') + `
+Annulla = ` + T('backupUnisci'));
+            bpImportaFile(file, sostituisci ? 'sostituisci' : 'unione').then(esito => {
+                if (esito && esito.ok) { mostraToast(T('backupFatto')); location.reload(); }
+            });
+        });
+
+        /* ── Esporta ── */
+        function bpEsportaTutto() {
+            const dati = {};
+            BP_CHIAVI_BACKUP.forEach(k => {
+                const v = bpStorageRead(k.chiave, null);
+                if (v !== null) dati[k.nome] = v;
+            });
+            const pacchetto = {
+                app: 'barman-pro',
+                versione: BP_BACKUP_VERSIONE,
+                esportatoIl: new Date().toISOString(),
+                dati
+            };
+            const blob = new Blob([JSON.stringify(pacchetto, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const data = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = 'barman-pro-' + data + '.json';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            mostraToast(T('backupEsportato'));
+        }
+
+        /* ── Validazione: prima di costruire qualunque stato ──
+           Traversata ITERATIVA, non ricorsiva: un annidamento ostile mandava
+           in overflow proprio il controllo che deve difendere. E gli oggetti
+           nascono senza prototipo, cosi' una chiave "__proto__" nel file resta
+           una chiave e non diventa un'istruzione. */
+        function bpPulisciValore(radice) {
+            const problemi = [];
+            const senzaProto = (o) => Object.assign(Object.create(null), o);
+            const pila = [{ v: radice, prof: 0, metti: null }];
+            let risultato = null;
+            let nodi = 0;
+
+            while (pila.length) {
+                const { v, prof, metti } = pila.pop();
+                if (++nodi > 200000) { problemi.push('troppi elementi'); break; }
+                if (prof > BP_IMPORT_MAX_PROFONDITA) { problemi.push('annidamento troppo profondo'); break; }
+
+                let out;
+                if (v === null || typeof v === 'number' || typeof v === 'boolean') {
+                    out = v;
+                } else if (typeof v === 'string') {
+                    if (v.length > BP_IMPORT_MAX_STRINGA) { problemi.push('stringa troppo lunga'); break; }
+                    out = v;
+                } else if (Array.isArray(v)) {
+                    if (v.length > BP_IMPORT_MAX_EVENTI) { problemi.push('lista troppo lunga'); break; }
+                    out = [];
+                    for (let i = 0; i < v.length; i++) pila.push({ v: v[i], prof: prof + 1, metti: (x) => { out[i] = x; } });
+                } else if (typeof v === 'object') {
+                    out = senzaProto({});
+                    const chiavi = Object.keys(v);
+                    if (chiavi.length > BP_IMPORT_MAX_EVENTI) { problemi.push('oggetto troppo grande'); break; }
+                    for (const c of chiavi) {
+                        if (c === '__proto__' || c === 'constructor' || c === 'prototype') continue;
+                        pila.push({ v: v[c], prof: prof + 1, metti: (x) => { out[c] = x; } });
+                    }
+                } else {
+                    continue;   // funzioni e undefined: si scartano
+                }
+
+                if (metti) metti(out); else risultato = out;
+            }
+            return { ok: problemi.length === 0, valore: risultato, problemi };
+        }
+
+        /* ── Recupero all'avvio ──
+           Gira PRIMA di qualunque lettura: se l'app si idratasse da uno stato
+           misto e poi lo salvasse, il danno diventerebbe permanente. */
+        function bpRecuperaImport() {
+            let chiavi = [];
+            try { chiavi = Object.keys(localStorage); } catch(e) { return; }
+
+            const marcatore = bpStorageLetturaGrezza(BP_IMPORT_LOCK);
+            if (marcatore && marcatore.transazione && Array.isArray(marcatore.chiavi)) {
+                // Dopo il marcatore si puo' solo completare. Idempotente.
+                bpCompletaImport(marcatore);
+                return;
+            }
+
+            // Nessun marcatore valido: quello che resta in staging e' un crash
+            // avvenuto PRIMA del commit. Non c'e' niente da completare, e
+            // lasciarlo li' sarebbe quota persa che nessuno sa spiegare.
+            chiavi.filter(k => k.indexOf(BP_STAGING_PREFIX) === 0 && k !== BP_IMPORT_LOCK)
+                  .forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
+            try { localStorage.removeItem(BP_IMPORT_LOCK); } catch(e){}
+        }
+
+        /* Legge saltando la guardia: il recupero deve poter leggere il
+           marcatore proprio mentre il marcatore blocca tutti gli altri. */
+        function bpStorageLetturaGrezza(chiave) {
+            try { const r = localStorage.getItem(chiave); return r === null ? null : JSON.parse(r); }
+            catch(e) { return null; }
+        }
+
+        function bpCompletaImport(marcatore) {
+            const t = marcatore.transazione;
+            for (const chiave of marcatore.chiavi) {
+                const staged = BP_STAGING_PREFIX + t + '__' + chiave;
+                const valore = localStorage.getItem(staged);
+                if (valore === null) continue;   // gia' completata: idempotente
+                try {
+                    localStorage.setItem(chiave, valore);
+                    // Si cancella lo staging SOLO dopo aver riletto e confrontato.
+                    if (localStorage.getItem(chiave) === valore) localStorage.removeItem(staged);
+                } catch(e) {
+                    console.warn('[import] completamento fallito su ' + chiave, e);
+                    return;   // si riprovera' al prossimo avvio: il marcatore resta
+                }
+            }
+            try {
+                localStorage.removeItem(BP_STAGING_PREFIX + t + '__prenotazione');
+                localStorage.removeItem(BP_IMPORT_LOCK);
+            } catch(e){}
+            bpStorageRiallineato();
+        }
+
+        /* ── Importa ── */
+        async function bpImportaFile(file, modalita) {
+            if (!file) return { ok:false, motivo:'nessun-file' };
+
+            // Si rifiuta PRIMA di leggere: un file enorme non deve nemmeno
+            // entrare in memoria per essere scartato.
+            if (file.size > BP_IMPORT_MAX_BYTES) {
+                alert(T('backupTroppoGrande'));
+                return { ok:false, motivo:'troppo-grande' };
+            }
+
+            let pacchetto;
+            try { pacchetto = JSON.parse(await file.text()); }
+            catch(e) { alert(T('backupNonValido')); return { ok:false, motivo:'json' }; }
+
+            if (!pacchetto || pacchetto.app !== 'barman-pro') {
+                alert(T('backupNonValido')); return { ok:false, motivo:'non-nostro' };
+            }
+            const v = parseInt(pacchetto.versione);
+            if (!isFinite(v) || v < 1) { alert(T('backupNonValido')); return { ok:false, motivo:'versione-assente' }; }
+            if (v > BP_BACKUP_VERSIONE) {
+                // Un formato piu' recente non si indovina: si rifiuta e lo si dice.
+                alert(T('backupTroppoNuovo'));
+                return { ok:false, motivo:'versione-futura' };
+            }
+
+            const pulito = bpPulisciValore(pacchetto.dati);
+            if (!pulito.ok) {
+                alert(T('backupNonValido') + ' (' + pulito.problemi.join(', ') + ')');
+                return { ok:false, motivo:'validazione', problemi: pulito.problemi };
+            }
+
+            return bpApplicaImport(pulito.valore, modalita === 'sostituisci' ? 'sostituisci' : 'unione');
+        }
+
+        function bpApplicaImport(dati, modalita) {
+            // Niente scritture in coda mentre si scambiano le chiavi.
+            clearTimeout(bpSaveTimer); bpSaveTimer = 0;
+
+            const t = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+            const daScrivere = {};
+
+            BP_CHIAVI_BACKUP.forEach(k => {
+                const entrante = dati[k.nome];
+                if (entrante === undefined) return;
+                if (modalita === 'sostituisci') { daScrivere[k.chiave] = entrante; return; }
+                if (k.unione === 'solo-sostituisci') return;   // in unione le tue restano
+                if (k.unione === 'eventi')  daScrivere[k.chiave] = bpUnisciEventi(bpGetEvents(), entrante);
+                if (k.unione === 'ricette') daScrivere[k.chiave] = bpUnisciRicette(bpStorageRead(BP_RECIPES_KEY, null), entrante);
+            });
+
+            const chiavi = Object.keys(daScrivere);
+            if (!chiavi.length) return { ok:false, motivo:'niente-da-importare' };
+
+            // 1. staging, con prenotazione dello spazio
+            const peso = chiavi.reduce((n, c) => n + JSON.stringify(daScrivere[c]).length, 0);
+            try {
+                for (const c of chiavi) {
+                    localStorage.setItem(BP_STAGING_PREFIX + t + '__' + c, JSON.stringify(daScrivere[c]));
+                }
+                // Durante lo scambio vecchio e nuovo coesistono: si prenota
+                // quello spazio adesso, invece di sperare che ci sia dopo.
+                localStorage.setItem(BP_STAGING_PREFIX + t + '__prenotazione', new Array(Math.max(1, peso)).join('.'));
+            } catch(e) {
+                chiavi.forEach(c => { try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__' + c); } catch(e2){} });
+                try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__prenotazione'); } catch(e2){}
+                alert(T('backupSpazioInsufficiente'));
+                return { ok:false, motivo:'quota' };
+            }
+
+            // 2. marcatore: da qui in poi si puo' solo completare
+            try { localStorage.setItem(BP_IMPORT_LOCK, JSON.stringify({ transazione: t, chiavi })); }
+            catch(e) {
+                chiavi.forEach(c => { try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__' + c); } catch(e2){} });
+                return { ok:false, motivo:'marcatore' };
+            }
+
+            // 3. la prenotazione si libera proprio ora che serve lo spazio
+            try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__prenotazione'); } catch(e){}
+
+            // 4. commit idempotente
+            bpCompletaImport({ transazione: t, chiavi });
+
+            return { ok:true, chiavi };
+        }
+
+        /* Eventi: mai sovrascrivere. Un id che collide prende un id nuovo, e
+           tutto quello che lo cita viene rimappato con la stessa tabella. */
+        function bpUnisciEventi(miei, entranti) {
+            if (!Array.isArray(entranti)) return miei;
+            const presenti = new Set((miei || []).map(e => e && e.id));
+            const uniti = (miei || []).slice();
+            entranti.forEach(ev => {
+                if (!ev || typeof ev !== 'object') return;
+                const copia = Object.assign({}, ev);
+                if (!copia.id || presenti.has(copia.id)) copia.id = bpNuovoId();
+                presenti.add(copia.id);
+                uniti.push(copia);
+            });
+            return uniti;
+        }
+
+        /* Ricette: stesso nome e contenuto identico si ignora; stesso nome e
+           contenuto diverso si conserva con un suffisso. Non si scarta mai il
+           lavoro di nessuno dei due. */
+        function bpUnisciRicette(mie, entranti) {
+            const base = (mie && typeof mie === 'object') ? mie : { mods:{}, custom:[], amari:null };
+            const out = {
+                mods: Object.assign({}, base.mods || {}),
+                custom: Array.isArray(base.custom) ? base.custom.slice() : [],
+                amari: Array.isArray(base.amari) ? base.amari.slice() : null
+            };
+            if (!entranti || typeof entranti !== 'object') return out;
+
+            Object.keys(entranti.mods || {}).forEach(nome => {
+                const nuova = entranti.mods[nome];
+                const gia = out.mods[nome];
+                if (!gia) {
+                    out.mods[nome] = nuova;
+                    if (out.custom.indexOf(nome) < 0 && (entranti.custom || []).indexOf(nome) >= 0) out.custom.push(nome);
+                    return;
+                }
+                if (JSON.stringify(gia) === JSON.stringify(nuova)) return;
+                let alt = nome + ' (2)', n = 2;
+                while (out.mods[alt]) { n++; alt = nome + ' (' + n + ')'; }
+                out.mods[alt] = nuova;
+                if (out.custom.indexOf(alt) < 0) out.custom.push(alt);
+            });
+
+            if (Array.isArray(entranti.amari)) {
+                if (!out.amari) out.amari = [];
+                entranti.amari.forEach(a => { if (out.amari.indexOf(a) < 0) out.amari.push(a); });
+            }
+            return out;
+        }
+
+        /* ════════════════════════════════════════════════════════════
            MIGRAZIONE · dalle chiavi vecchie a quelle nuove, una volta sola
            ════════════════════════════════════════════════════════════
            Gira PRIMA di qualunque lettura. Idempotente: se la chiave nuova
@@ -3298,6 +3634,18 @@
 
         /* ── i18n della stampa — 7 lingue ── */
         /* ── i18n dei modificatori — 7 lingue ── */
+        /* ── i18n di backup e ripristino — 7 lingue ── */
+        const _backupI18n = {
+            it: { backupEsporta:"Esporta tutto (backup)", backupImporta:"Importa da file", backupEsportato:"Backup scaricato", backupNonValido:"Questo file non e' un backup di Barman PRO", backupTroppoGrande:"File troppo grande: non sembra un backup", backupTroppoNuovo:"Backup creato da una versione piu' recente dell'app: aggiorna prima di importarlo", backupSpazioInsufficiente:"Spazio insufficiente per importare: libera qualche evento", backupChiedi:"Come vuoi importare?", backupUnisci:"Unisci ai miei dati", backupSostituisci:"Sostituisci tutto", backupFatto:"Importato" },
+            en: { backupEsporta:"Export everything (backup)", backupImporta:"Import from file", backupEsportato:"Backup downloaded", backupNonValido:"This file is not a Barman PRO backup", backupTroppoGrande:"File too large: it does not look like a backup", backupTroppoNuovo:"Backup from a newer version of the app: update before importing", backupSpazioInsufficiente:"Not enough space to import: delete a few events", backupChiedi:"How do you want to import?", backupUnisci:"Merge with my data", backupSostituisci:"Replace everything", backupFatto:"Imported" },
+            es: { backupEsporta:"Exportar todo (copia)", backupImporta:"Importar desde archivo", backupEsportato:"Copia descargada", backupNonValido:"Este archivo no es una copia de Barman PRO", backupTroppoGrande:"Archivo demasiado grande: no parece una copia", backupTroppoNuovo:"Copia de una versión más reciente: actualiza antes de importar", backupSpazioInsufficiente:"Espacio insuficiente: elimina algunos eventos", backupChiedi:"¿Cómo quieres importar?", backupUnisci:"Combinar con mis datos", backupSostituisci:"Reemplazar todo", backupFatto:"Importado" },
+            fr: { backupEsporta:"Tout exporter (sauvegarde)", backupImporta:"Importer un fichier", backupEsportato:"Sauvegarde téléchargée", backupNonValido:"Ce fichier n'est pas une sauvegarde Barman PRO", backupTroppoGrande:"Fichier trop volumineux : ce n'est pas une sauvegarde", backupTroppoNuovo:"Sauvegarde d'une version plus récente : mettez à jour avant d'importer", backupSpazioInsufficiente:"Espace insuffisant : supprimez quelques événements", backupChiedi:"Comment importer ?", backupUnisci:"Fusionner avec mes données", backupSostituisci:"Tout remplacer", backupFatto:"Importé" },
+            de: { backupEsporta:"Alles exportieren (Backup)", backupImporta:"Aus Datei importieren", backupEsportato:"Backup heruntergeladen", backupNonValido:"Diese Datei ist kein Barman-PRO-Backup", backupTroppoGrande:"Datei zu groß: sieht nicht nach einem Backup aus", backupTroppoNuovo:"Backup einer neueren Version: aktualisiere vor dem Import", backupSpazioInsufficiente:"Zu wenig Speicher: lösche ein paar Events", backupChiedi:"Wie möchtest du importieren?", backupUnisci:"Mit meinen Daten zusammenführen", backupSostituisci:"Alles ersetzen", backupFatto:"Importiert" },
+            pt: { backupEsporta:"Exportar tudo (cópia)", backupImporta:"Importar de ficheiro", backupEsportato:"Cópia transferida", backupNonValido:"Este ficheiro não é uma cópia do Barman PRO", backupTroppoGrande:"Ficheiro demasiado grande: não parece uma cópia", backupTroppoNuovo:"Cópia de uma versão mais recente: atualiza antes de importar", backupSpazioInsufficiente:"Espaço insuficiente: apaga alguns eventos", backupChiedi:"Como queres importar?", backupUnisci:"Juntar aos meus dados", backupSostituisci:"Substituir tudo", backupFatto:"Importado" },
+            nl: { backupEsporta:"Alles exporteren (back-up)", backupImporta:"Importeren uit bestand", backupEsportato:"Back-up gedownload", backupNonValido:"Dit bestand is geen Barman PRO-back-up", backupTroppoGrande:"Bestand te groot: dit lijkt geen back-up", backupTroppoNuovo:"Back-up van een nieuwere versie: werk eerst bij", backupSpazioInsufficiente:"Te weinig ruimte: verwijder een paar evenementen", backupChiedi:"Hoe wil je importeren?", backupUnisci:"Samenvoegen met mijn gegevens", backupSostituisci:"Alles vervangen", backupFatto:"Geïmporteerd" }
+        };
+        Object.keys(_backupI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _backupI18n[lg]); });
+
         const _modI18n = {
             it: { modHoGia:"Ho già", modPrezzoTuo:"Il tuo prezzo", modTitolo:"Correggi la lista", modDesc:"Dichiara cosa hai già in casa e correggi i prezzi del tuo supermercato.", modAttiva:"Correggi", modChiudi:"Fatto", modRisparmio:"già in casa" },
             en: { modHoGia:"Already have", modPrezzoTuo:"Your price", modTitolo:"Adjust the list", modDesc:"Say what you already have at home and correct your shop's prices.", modAttiva:"Adjust", modChiudi:"Done", modRisparmio:"already at home" },
@@ -5730,6 +6078,10 @@
             // PRIMA di ogni lettura: se sul disco c'e' ancora il formato
             // vecchio, lo si porta sulle chiavi nuove. Idempotente, e non
             // cancella niente.
+            // Prima di ogni altra cosa: se un import si e' fermato a meta',
+            // lo si completa o si spazza via lo staging orfano. Idratarsi da
+            // uno stato misto e poi salvarlo renderebbe il danno permanente.
+            bpRecuperaImport();
             bpMigraStorage();
             caricaStato();
             bpLoadSettings();   // preferenze (lingua/tema/auto-save): override sui default di caricaStato
