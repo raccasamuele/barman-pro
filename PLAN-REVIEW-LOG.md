@@ -739,3 +739,23 @@ golden invariati. Dodici test nuovi sulla sola navigazione, compresi i due layou
 davvero, il bersaglio da 44px, lo stato attivo che non e' solo colore, e il fatto che una
 sezione non blocchi lo scroll del body. Verifica manuale su 390px: una sola sezione
 visibile per volta, sottorotte, ri-tap e Indietro. Zero errori in console. Cache a v3.6.0.
+
+### Round 6 — Claude build · Fase 1, fetta 2 (Home-cruscotto)
+
+Le quattro card della Home — eventi, cocktail, amari, impostazioni — erano un menu, e
+adesso quel menu e' la barra: tenerle avrebbe voluto dire due strade per lo stesso posto e
+nessun modo per capire quale usare. Al loro posto c'e' quello che l'app sapeva e non
+diceva: nome dell'evento, ospiti, drink a testa, **costo stimato e a persona**, a che passo
+sei, "Riprendi da <passo>" e gli ultimi tre salvati.
+
+I numeri arrivano dal **modello canonico** della Fase 0, non da una seconda formula: se la
+Home dicesse un totale e la lista un altro, il primo a non crederci sarebbe l'utente. Il
+passo mostrato e' quello persistito nella fetta 2 della Fase 0 — senza, la Home non
+avrebbe avuto il dato da mostrare.
+
+I pallini del progresso sono `aria-hidden`: la stessa informazione e' scritta accanto in
+parole ("passo 2 di 3"), perche' tre puntini non si leggono con uno screen reader.
+
+Verificato dal vivo a 390px con un evento in corso: nome, 80 ospiti · 3 drink a testa,
+€ 371,50 stimato / € 4,64 a persona, passo 2 di 3, "Riprendi da Menu". Zero errori in
+console. **112 test verdi**, 42 golden invariati. Cache a v3.7.0.

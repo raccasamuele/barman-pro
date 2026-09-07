@@ -2621,3 +2621,38 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .bp-altro-voce:hover { transform: none; background: var(--bp-sunken); border-color: transparent; }
 .bp-altro-ar { color: var(--bp-ink-faint); font-size: 20px; line-height: 1; }
 .bp-altro-esterni .bp-altro-voce { font-weight: 500; color: var(--bp-ink-soft); }
+
+/* ── Home · cruscotto ──
+   Non piu' un menu di card: quelle erano una seconda strada per posti che
+   ora hanno la loro voce nella barra. Qui c'e' lo stato dell'evento in
+   corso, che l'app sapeva e non diceva. */
+.bph-cruscotto { text-align: left; }
+.bph-ev-nome { font-family: var(--bp-font); font-size: var(--t-lg); font-weight: 800; color: var(--bp-ink); margin: 0 0 4px; }
+.bph-ev-sub { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); margin: 0 0 20px; }
+.bph-cifre { display: flex; gap: 28px; margin-bottom: 20px; }
+.bph-cifra { display: flex; flex-direction: column; gap: 2px; }
+.bph-cifra-n { font-family: var(--bp-font); font-size: var(--t-xl); font-weight: 800; color: var(--bp-accent); font-variant-numeric: tabular-nums; }
+.bph-cifra-l { font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--bp-ink-faint); }
+.bph-passi { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.bph-passi-p { display: inline-flex; gap: 6px; }
+.bph-passi-p i { width: 9px; height: 9px; border-radius: 50%; background: var(--bp-line-strong); }
+.bph-passi-p i.on { background: var(--bp-accent); }
+.bph-passi-tx { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); }
+.bph-secondaria {
+    width: 100%; margin-top: 10px; padding: 13px 18px;
+    background: none; border: 1px solid var(--bp-line-control); border-radius: var(--r-md);
+    color: var(--bp-ink-soft); font-family: var(--bp-font); font-size: var(--t-sm);
+    font-weight: 600; text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+.bph-sez-tit { font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--bp-ink-faint); margin: 32px 0 12px; text-align: left; }
+.bph-salvati { display: flex; flex-direction: column; border: 1px solid var(--bp-line); border-radius: var(--r-lg); overflow: hidden; background: var(--bp-panel); }
+.bph-salvato {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    width: 100%; padding: 14px 18px; background: none; border: none; border-radius: 0;
+    text-align: left; text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+.bph-salvato + .bph-salvato { border-top: 1px solid var(--bp-line); }
+.bph-salvato:hover { transform: none; background: var(--bp-sunken); border-color: transparent; }
+.bph-salvato-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bph-salvato-nome { font-family: var(--bp-font); font-size: var(--t-base); font-weight: 700; color: var(--bp-ink); }
+.bph-salvato-meta { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); }

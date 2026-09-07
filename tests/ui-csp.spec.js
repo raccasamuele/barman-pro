@@ -56,8 +56,9 @@ test.describe('CSP · la policy reale non rompe l\'app', () => {
 
     // Un giro d'uso reale: e' cliccando che si scopre se la policy blocca
     // qualcosa, non stando fermi sulla home.
-    await page.locator('[data-home="events"]').first().click();
+    await page.locator('.bp-tab[data-sezione="salvati"]').click();
     await page.locator('.bp-tab[data-sezione="altro"]').click();
+    await page.locator('.bp-altro-voce').nth(2).click();
     await page.locator('.bp-tab[data-sezione="home"]').click();
     await page.waitForTimeout(400);
 

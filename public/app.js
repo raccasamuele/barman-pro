@@ -3268,6 +3268,18 @@
         /* ── i18n della navigazione — 7 lingue ──
            Etichette corte per scelta: a 320px quattro voci devono starci senza
            troncare, e il tedesco e' il vincolo. */
+        /* ── i18n della Home-cruscotto — 7 lingue ── */
+        const _homeI18n2 = {
+            it: { homeSenzaNome:"Evento senza nome", homeDrinkATesta:"drink a testa", homeStimato:"stimato", homePassoN:"passo {n} di {tot}", homeRiprendiDa:"Riprendi da “{passo}”", homeUltimiSalvati:"Ultimi salvati" },
+            en: { homeSenzaNome:"Untitled event", homeDrinkATesta:"drinks each", homeStimato:"estimated", homePassoN:"step {n} of {tot}", homeRiprendiDa:"Resume from “{passo}”", homeUltimiSalvati:"Recently saved" },
+            es: { homeSenzaNome:"Evento sin nombre", homeDrinkATesta:"copas por persona", homeStimato:"estimado", homePassoN:"paso {n} de {tot}", homeRiprendiDa:"Continuar desde “{passo}”", homeUltimiSalvati:"Guardados recientes" },
+            fr: { homeSenzaNome:"Événement sans nom", homeDrinkATesta:"verres par personne", homeStimato:"estimé", homePassoN:"étape {n} sur {tot}", homeRiprendiDa:"Reprendre à “{passo}”", homeUltimiSalvati:"Enregistrés récemment" },
+            de: { homeSenzaNome:"Event ohne Namen", homeDrinkATesta:"Drinks pro Person", homeStimato:"geschätzt", homePassoN:"Schritt {n} von {tot}", homeRiprendiDa:"Weiter bei „{passo}“", homeUltimiSalvati:"Zuletzt gespeichert" },
+            pt: { homeSenzaNome:"Evento sem nome", homeDrinkATesta:"bebidas por pessoa", homeStimato:"estimado", homePassoN:"passo {n} de {tot}", homeRiprendiDa:"Retomar em “{passo}”", homeUltimiSalvati:"Guardados recentemente" },
+            nl: { homeSenzaNome:"Naamloos evenement", homeDrinkATesta:"drankjes per persoon", homeStimato:"geschat", homePassoN:"stap {n} van {tot}", homeRiprendiDa:"Verder bij “{passo}”", homeUltimiSalvati:"Onlangs opgeslagen" }
+        };
+        Object.keys(_homeI18n2).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _homeI18n2[lg]); });
+
         const _navI18n = {
             it: { navHome:"Home", navEvento:"Evento", navSalvati:"Salvati", navAltro:"Altro", ariaNavigazione:"Navigazione principale", altroRicette:"I miei cocktail", altroAmari:"I miei amari e liquori", altroImpostazioni:"Impostazioni", footPrivacy:"Privacy", footLicenza:"Licenza MIT" },
             en: { navHome:"Home", navEvento:"Event", navSalvati:"Saved", navAltro:"More", ariaNavigazione:"Main navigation", altroRicette:"My cocktails", altroAmari:"My bitters & liqueurs", altroImpostazioni:"Settings", footPrivacy:"Privacy", footLicenza:"MIT licence" },
@@ -4446,58 +4458,91 @@
            sostituisce. */
         function bpGoHome(){ bpVaiA('home'); }
 
+        /* La Home non e' piu' uno smistatore.
+           Le quattro card che stavano qui — eventi, cocktail, amari,
+           impostazioni — erano un menu, e adesso quel menu e' la barra: tenerle
+           avrebbe voluto dire due strade per lo stesso posto, e nessun modo per
+           capire quale usare. Al loro posto c'e' quello che l'app sa e non
+           diceva: a che punto sei, quanto stai spendendo, cosa hai salvato.
+
+           I numeri arrivano dal modello canonico, non da una seconda formula:
+           se la Home dicesse un totale e la lista un altro, il primo a non
+           crederci sarebbe l'utente. */
         function bpHomeRender(){
             const wrap = document.getElementById('bph-inner'); if (!wrap) return;
             if (!wrap._bound){ wrap._bound = true; wrap.addEventListener('click', bpHomeClick); }
             const esc = _bpEsc;
+            const inCorso = bpHasInProgress();
+
             let h = '<div class="bph-eyebrow">' + esc(T('homeEyebrow')) + '</div>';
-            h += '<button type="button" class="bph-hero" data-home="new">' +
-                    '<span class="bph-hero-ic">&#10010;</span>' +
-                    '<span class="bph-hero-tx"><span class="bph-hero-title">' + esc(T('homeNewTitle')) + '</span>' +
-                    '<span class="bph-hero-desc">' + esc(T('homeNewDesc')) + '</span></span>' +
-                    '<span class="bph-hero-arrow">&rsaquo;</span></button>';
-            if (bpHasInProgress()){
-                // Card "Riprendi": area sinistra cliccabile = riprendi; a destra il reset
-                // (compare quindi SOLO quando c'è un evento in corso). Rosso all'hover.
-                h += '<div class="bph-resume">' +
-                        '<button type="button" class="bph-resume-main" data-home="resume">' +
-                            '<span class="bph-resume-ic">&#8635;</span>' +
-                            '<span class="bph-resume-tx"><span class="bph-resume-title">' + esc(T('homeResumeTitle')) + '</span>' +
-                            '<span class="bph-resume-desc">' + esc(T('homeResumeDesc')) + '</span></span>' +
-                            '<span class="bph-resume-arrow">&rsaquo;</span></button>' +
-                        '<button type="button" class="bph-resume-reset" data-home="reset" title="' + esc(T('btnReset')) + '" aria-label="' + esc(T('btnReset')) + '">' +
-                            '<span class="bph-reset-ic">&#10005;</span>' +
-                            '<span class="bph-reset-lbl">' + esc(T('btnReset')) + '</span></button>' +
-                     '</div>';
+
+            if (inCorso) {
+                const stima = stimaBudget(bpParametriDalForm());
+                const nome = (bpCfgNomeEvento && bpCfgNomeEvento.trim())
+                    ? bpCfgNomeEvento.trim() : T('homeSenzaNome');
+                const _n = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+                const ospiti = parseInt(_n('ospiti')) || 0;
+                const perTesta = _n('drink_testa');
+
+                const passi = ['step-setup', 'step-menu', 'risultati'];
+                const etichette = { 'step-setup': T('stepSetup'), 'step-menu': T('stepMenu'), 'risultati': T('stepLista') };
+                const iPasso = Math.max(0, passi.indexOf(bpPassoCorrente));
+
+                h += '<section class="bph-cruscotto" aria-labelledby="bph-ev-nome">';
+                h +=   '<h2 class="bph-ev-nome" id="bph-ev-nome">' + esc(nome) + '</h2>';
+                h +=   '<p class="bph-ev-sub">' + esc(ospiti + ' ' + T('evGuestsWord') + ' · ' + perTesta + ' ' + T('homeDrinkATesta')) + '</p>';
+
+                h +=   '<div class="bph-cifre">';
+                h +=     '<div class="bph-cifra"><span class="bph-cifra-n">' + esc(_bpMoney(stima.totale)) + '</span>'
+               +           '<span class="bph-cifra-l">' + esc(T('homeStimato')) + '</span></div>';
+                if (ospiti > 0) {
+                    h +=   '<div class="bph-cifra"><span class="bph-cifra-n">' + esc(_bpMoney(stima.totale / ospiti)) + '</span>'
+                   +         '<span class="bph-cifra-l">' + esc(T('perPersonaTxt')) + '</span></div>';
+                }
+                h +=   '</div>';
+
+                /* I pallini dicono a che punto sei. Sono decorativi: la stessa
+                   informazione e' scritta accanto, per chi non li vede. */
+                h +=   '<div class="bph-passi"><span class="bph-passi-p" aria-hidden="true">';
+                for (let i = 0; i < passi.length; i++) h += '<i class="' + (i <= iPasso ? 'on' : '') + '"></i>';
+                h +=   '</span><span class="bph-passi-tx">'
+               +         esc(T('homePassoN').replace('{n}', String(iPasso + 1)).replace('{tot}', String(passi.length)))
+               +       '</span></div>';
+
+                h +=   '<button type="button" class="bph-hero" data-home="resume">'
+               +         '<span class="bph-hero-ic">&#8635;</span>'
+               +         '<span class="bph-hero-tx"><span class="bph-hero-title">'
+               +           esc(T('homeRiprendiDa').replace('{passo}', etichette[bpPassoCorrente] || etichette['step-setup']))
+               +         '</span><span class="bph-hero-desc">' + esc(T('homeResumeDesc')) + '</span></span>'
+               +         '<span class="bph-hero-arrow">&rsaquo;</span></button>';
+
+                h +=   '<button type="button" class="bph-secondaria" data-home="new">' + esc(T('homeNewTitle')) + '</button>';
+                h += '</section>';
+            } else {
+                h += '<button type="button" class="bph-hero" data-home="new">' +
+                        '<span class="bph-hero-ic">&#10010;</span>' +
+                        '<span class="bph-hero-tx"><span class="bph-hero-title">' + esc(T('homeNewTitle')) + '</span>' +
+                        '<span class="bph-hero-desc">' + esc(T('homeNewDesc')) + '</span></span>' +
+                        '<span class="bph-hero-arrow">&rsaquo;</span></button>';
             }
-            /* Icone dell'interfaccia.
-               Sostituiscono i caratteri tipografici usati prima (&#10070;
-               &#10049; &#10059; &#9881;): quelli dipendono dai font
-               installati, cambiano forma e spessore da un sistema all'altro
-               e non si possono ne' allineare al testo ne' colorare con i
-               token. Tratto 1.7 come il bottone Home, cosi' l'app ha una
-               sola famiglia visiva invece di due. */
-            const _svg = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
-                + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
 
-            const ICONE = {
-                eventi:   _svg('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/><path d="m9 16 2 2 4-4"/>'),
-                cocktail: _svg('<path d="M4 4h16l-8 9v7"/><path d="M8 20h8"/><path d="M7.5 8.5h9"/>'),
-                amari:    _svg('<path d="M9 3h6v3l2 4v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-9l2-4z"/><path d="M7 14h10"/>'),
-                settings: _svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
-            };
+            /* Ultimi salvati: tre, non tutti. La lista completa e' una voce
+               della barra, e ripeterla qui la renderebbe due volte la stessa
+               cosa. */
+            const salvati = bpGetEvents().slice().sort((a, b) => (b.data || 0) - (a.data || 0)).slice(0, 3);
+            if (salvati.length) {
+                h += '<h2 class="bph-sez-tit">' + esc(T('homeUltimiSalvati')) + '</h2>';
+                h += '<div class="bph-salvati">';
+                salvati.forEach(ev => {
+                    const osp = (ev.config && ev.config.ospiti) ? ev.config.ospiti : '';
+                    h += '<button type="button" class="bph-salvato" data-home="apri" data-ev="' + esc(String(ev.id)) + '">'
+                       +   '<span class="bph-salvato-tx"><span class="bph-salvato-nome">' + esc(ev.nome || '') + '</span>'
+                       +   '<span class="bph-salvato-meta">' + esc((osp ? osp + ' ' + T('evGuestsWord') + ' · ' : '') + (ev.totale || '')) + '</span></span>'
+                       +   '<span class="bph-hero-arrow">&rsaquo;</span></button>';
+                });
+                h += '</div>';
+            }
 
-            const gcard = (act, icon, title, desc, extra) =>
-                '<button type="button" class="bph-card' + (extra ? ' ' + extra : '') + '" data-home="' + act + '">' +
-                    '<span class="bph-card-ic">' + icon + '</span>' +
-                    '<span class="bph-card-tx"><span class="bph-card-title">' + esc(title) + '</span>' +
-                    '<span class="bph-card-desc">' + esc(desc) + '</span></span></button>';
-            h += '<div class="bph-grid">' +
-                    gcard('events',     ICONE.eventi, T('evHeaderBtn'),  T('homeEventsDesc')) +
-                    gcard('cocktail',   ICONE.cocktail, T('navCocktail'),  T('homeCocktailDesc')) +
-                    gcard('amari',      ICONE.amari, T('navAmari'),     T('homeAmariDesc')) +
-                    gcard('settings',   ICONE.settings, T('homeSettingsTitle'), T('homeSettingsDesc')) +
-                 '</div>';
             wrap.innerHTML = h;
         }
 
@@ -4507,6 +4552,7 @@
             if (a === 'new') bpHomeNewEvent();
             else if (a === 'resume') bpHomeResume();
             else if (a === 'reset') bpHomeReset();
+            else if (a === 'apri') { bpVaiA('salvati'); if (typeof bpEventOpen === 'function') bpEventOpen(b.dataset.ev); }
             else if (a === 'events') bpEventsOpen();
             else if (a === 'cocktail') bpLibraryOpen('cocktail');
             else if (a === 'amari') bpLibraryOpen('amari');

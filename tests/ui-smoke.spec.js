@@ -54,9 +54,12 @@ test.describe('UI · azioni per delega', () => {
       .toBe('home');
   });
 
-  test('la card "eventi" della home porta ai salvati', async ({ page }) => {
+  /* Le quattro card della home (eventi, cocktail, amari, impostazioni) non ci
+     sono piu': erano un menu, e adesso quel menu e' la barra. Tenerle avrebbe
+     voluto dire due strade per lo stesso posto. */
+  test('dalla home si raggiungono i salvati con una voce', async ({ page }) => {
     await openApp(page);
-    await page.locator('[data-home="events"]').first().click();
+    await page.locator('.bp-tab[data-sezione="salvati"]').click();
 
     await expect
       .poll(() => page.evaluate(() => document.body.dataset.sezione), { timeout: 5000 })
