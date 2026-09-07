@@ -791,3 +791,45 @@ salvataggio con scrittura riuscita. Cache a v3.8.0.
 
 **Stato: Fase 0 e Fase 1 complete.** Restano Fase 2 (stampa), Fase 3 (funzionalita') e il
 cancello di fattibilita' della Fase 4, piu' il rinvio dichiarato degli id delle ricette.
+
+### Round 8 — Claude build · Fase 2 (stampa)
+
+Il primo dei due difetti riportati dall'utente.
+
+**La causa non erano i nove blocchi `@media print`.** Otto servono componenti specifici e
+le pagine SEO; il colpevole era **uno**, che lavorava per sottrazione:
+`footer, .btn-installa { display: none !important; }`. Una blocklist: tutto quello che
+nessuno aveva pensato di nascondere finiva sulla carta, e ogni elemento nuovo dell'app ci
+sarebbe finito da solo. Sostituito con l'**allowlist**
+`body.bp-stampa-lista > *:not(#print-sheet)`, lo stesso schema che il menu' da esporre
+usava gia' nello stesso foglio. Gli altri otto blocchi **non sono stati toccati**, come
+chiedeva il Round 2 della review.
+
+**Il foglio si compone dal modello canonico**, non rileggendo la pagina: lista a schermo,
+testo condiviso e foglio di stampa escono dalla stessa proiezione. `#print-sheet` e' figlio
+diretto del `<body>` — requisito, non dettaglio: dentro `.container` l'allowlist lo
+nasconderebbe insieme al contenitore.
+
+**Due formati**, scelti in un `<dialog>` nativo (niente script inline, niente dipendenze) e
+ricordati: **lista da spuntare** con caselle, quantita' d'acquisto in grande e reparti, e
+**preventivo** con prezzo unitario, totale per riga e spazio note. Interruzioni di pagina
+controllate per reparto, misure in `mm`.
+
+**Macchina a stati con la tabella di precedenza.** `bpBeginPrint` azzera sempre prima di
+impostare, imposta un solo bersaglio in modo sincrono prima di `window.print()`, e si
+ricalcola su `beforeprint` — l'unico aggancio su Ctrl+P, che non passa dai nostri bottoni.
+Precedenza: menu' aperto -> menu'; lista generata e sezione Evento -> lista; altrimenti
+**nessun bersaglio**, e si stampa la pagina normale invece di un foglio vecchio o vuoto.
+Lo smontaggio non si affida al solo `afterprint` (su Safari iOS non sempre arriva) **e non
+usa un timer cieco** (su mobile l'anteprima non e' bloccante): ascolta uscita dal media di
+stampa, ritorno del focus e cambio di visibilita'.
+
+**Prova.** **135 test verdi** (68 preesistenti + 67 nuovi), `npm run check` verde, 42
+golden invariati. Quattordici test nuovi sulla sola stampa: cosa e' visibile in
+`media: 'print'` (non il numero dei blocchi, che un test conterebbe anche se sbagliato),
+il percorso in cui `afterprint` non arriva mai, la precedenza di Ctrl+P dalla lista e dalla
+Home, i due formati, e il fatto che privacy e una pagina SEO restino stampabili.
+Cache a v3.9.0. CI verde sul push precedente.
+
+Resta da fare della Fase 2 il ridisegno dei quattro stili del menu' da esporre (colori e
+leggibilita'), che l'utente aveva segnalato a parte.

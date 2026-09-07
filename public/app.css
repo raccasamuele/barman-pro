@@ -1298,10 +1298,13 @@
             /* Force background colors and gradients to render in PDF/print output */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             body { background: #fff !important; color: #000 !important; filter: none !important; }
-            /* Hide everything that's not the shopping list */
-            footer, .btn-installa { display: none !important; }
-            .step-panel { display: block !important; animation: none; }
-            #risultati { display: block !important; margin: 0; animation: none; }
+            /* Qui c'era una BLOCKLIST: `footer, .btn-installa { display: none }`.
+               Nascondeva a mano due elementi e lasciava passare tutto il resto,
+               quindi stampando usciva l'intera pagina — ed era destinata a
+               peggiorare, perche' ogni elemento nuovo dell'app ci finiva da
+               solo. La sostituisce l'allowlist qui sotto, che e' lo stesso
+               schema gia' usato dal menu' da esporre. */
+            .btn-installa { display: none !important; }
             #risultati .grid { grid-template-columns: 1fr !important; }
             .result-section { background: #fff !important; border: 1px solid #ccc; color: #000; break-inside: avoid; overflow: hidden; }
             .result-section h3 { color: #000 !important; }
@@ -2671,3 +2674,82 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
     border: none; border-radius: var(--r-md); font-family: var(--bp-font);
     font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   FOGLIO DI STAMPA
+   ═══════════════════════════════════════════════════════════
+   A schermo non esiste. In stampa e' l'unica cosa che esiste. */
+.print-sheet { display: none; }
+
+@media print {
+    /* L'ALLOWLIST. Si dichiara cosa stampare e il resto sparisce, senza
+       doverlo elencare: e' l'opposto della blocklist che aveva causato il
+       difetto, e non peggiora quando all'app si aggiunge un elemento.
+       #print-sheet DEVE essere figlio diretto del body, altrimenti questo
+       selettore lo nasconde insieme al suo contenitore. */
+    body.bp-stampa-lista > *:not(#print-sheet) { display: none !important; }
+    body.bp-stampa-lista { padding: 0 !important; background: #fff !important; }
+    body.bp-stampa-lista .print-sheet { display: block !important; }
+
+    .print-sheet {
+        color: #000;
+        font-family: var(--bp-font);
+        font-size: 11pt;
+        line-height: 1.45;
+    }
+    .ps-testa { margin-bottom: 8mm; }
+    .ps-titolo { font-size: 18pt; font-weight: 800; margin: 0 0 1mm; }
+    .ps-meta { font-size: 10pt; color: #444; margin: 0; }
+
+    /* Un reparto non si spezza fra due pagine se ci sta intero. */
+    .ps-gruppo { margin-bottom: 6mm; break-inside: avoid; page-break-inside: avoid; }
+    .ps-gruppo-tit {
+        font-size: 9.5pt; font-weight: 800; letter-spacing: .08em;
+        text-transform: uppercase; color: #000;
+        margin: 0 0 2mm; padding-bottom: 1mm; border-bottom: 0.4mm solid #000;
+    }
+    .ps-voci { list-style: none; margin: 0; padding: 0; }
+    .ps-voce {
+        display: flex; align-items: baseline; gap: 3mm;
+        padding: 1.6mm 0; border-bottom: 0.15mm solid #ddd;
+        break-inside: avoid; page-break-inside: avoid;
+    }
+
+    /* Lista da spuntare: la casella e la quantita' vengono prima, perche' e'
+       cio' che si guarda scorrendo uno scaffale. */
+    .ps-box {
+        flex: 0 0 auto; width: 4.5mm; height: 4.5mm;
+        border: 0.35mm solid #000; border-radius: 0.8mm;
+    }
+    .ps-qta {
+        flex: 0 0 auto; min-width: 16mm;
+        font-weight: 800; font-size: 12pt; font-variant-numeric: tabular-nums;
+    }
+    .ps-nome { flex: 1 1 auto; min-width: 0; }
+    .ps-unit, .ps-tot { flex: 0 0 auto; font-variant-numeric: tabular-nums; text-align: right; }
+    .ps-unit { min-width: 20mm; color: #444; }
+    .ps-tot  { min-width: 22mm; font-weight: 700; }
+
+    .ps-piede { margin-top: 6mm; padding-top: 2mm; border-top: 0.4mm solid #000; break-inside: avoid; }
+    .ps-stima { font-size: 10pt; color: #333; margin: 0; }
+    .ps-totale { font-size: 13pt; font-weight: 800; margin: 0 0 3mm; text-align: right; }
+    .ps-note { font-size: 9pt; color: #666; margin: 0; padding-top: 12mm; border-top: 0.15mm dashed #999; }
+
+    @page { margin: 14mm 12mm; }
+}
+
+/* Dialogo di scelta del formato. */
+.bp-print-dialog { border: none; border-radius: var(--r-lg); padding: 0; max-width: 420px; width: calc(100vw - 32px); background: var(--bp-panel); color: var(--bp-ink); }
+.bp-print-dialog::backdrop { background: oklch(22% 0.004 250 / 0.45); }
+.bp-print-form { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.bp-print-tit { font-family: var(--bp-font); font-size: var(--t-md); font-weight: 800; margin: 0 0 4px; }
+.bp-print-op { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--bp-line-control); border-radius: var(--r-md); cursor: pointer; }
+.bp-print-op:has(input:checked) { border-color: var(--bp-accent); background: var(--bp-accent-soft); }
+.bp-print-op input { width: auto; margin: 3px 0 0; flex: 0 0 auto; }
+.bp-print-op-tx { display: flex; flex-direction: column; gap: 2px; }
+.bp-print-op-nome { font-family: var(--bp-font); font-size: var(--t-base); font-weight: 700; }
+.bp-print-op-desc { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); }
+.bp-print-azioni { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+.bp-print-annulla, .bp-print-ok { width: auto; padding: 11px 18px; border-radius: var(--r-md); font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer; }
+.bp-print-annulla { background: none; border: 1px solid var(--bp-line-control); color: var(--bp-ink-soft); }
+.bp-print-ok { background: var(--bp-accent); border: none; color: var(--bp-on-accent); }

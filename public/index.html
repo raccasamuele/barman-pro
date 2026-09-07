@@ -566,6 +566,41 @@
         </div>
     </section>
 
+    <!-- ════ FOGLIO DI STAMPA ════
+         Figlio DIRETTO del body, ed e' un requisito non un dettaglio: la
+         allowlist e' `body.bp-stampa-lista > *:not(#print-sheet)`, quindi se
+         questo elemento finisse dentro .container verrebbe nascosto da se'.
+         Lo popola bpComponiFoglio() dalle righe canoniche, non rileggendo la
+         pagina: e' lo stesso modello da cui escono lista a schermo, testo
+         condiviso e checklist. -->
+    <div id="print-sheet" class="print-sheet" aria-hidden="true"></div>
+
+    <!-- Scelta del formato. <dialog> nativo: niente script inline (la CSP li
+         vieta) e niente dipendenze. -->
+    <dialog id="bp-print-dialog" class="bp-print-dialog">
+        <form method="dialog" class="bp-print-form">
+            <h2 class="bp-print-tit" data-i18n="printTitolo">Come vuoi il foglio?</h2>
+            <label class="bp-print-op">
+                <input type="radio" name="bp-print-formato" value="lista" checked>
+                <span class="bp-print-op-tx">
+                    <span class="bp-print-op-nome" data-i18n="printListaNome">Lista da spuntare</span>
+                    <span class="bp-print-op-desc" data-i18n="printListaDesc">Caselle, quantit&agrave; in grande, raggruppata per reparto.</span>
+                </span>
+            </label>
+            <label class="bp-print-op">
+                <input type="radio" name="bp-print-formato" value="preventivo">
+                <span class="bp-print-op-tx">
+                    <span class="bp-print-op-nome" data-i18n="printPrevNome">Preventivo</span>
+                    <span class="bp-print-op-desc" data-i18n="printPrevDesc">Prezzo unitario e totale per riga, con spazio per le note.</span>
+                </span>
+            </label>
+            <div class="bp-print-azioni">
+                <button type="submit" value="annulla" class="bp-print-annulla" data-i18n="printAnnulla">Annulla</button>
+                <button type="submit" value="stampa" class="bp-print-ok" data-i18n="btnStampa">Stampa o salva in PDF</button>
+            </div>
+        </form>
+    </dialog>
+
     <!-- ════ NAVIGAZIONE · una sola, per tutte le larghezze ════
          Sotto i 900px sta in fondo, dove arriva il pollice. Sopra, la stessa
          <nav> diventa una colonna a sinistra: un solo markup e due layout,

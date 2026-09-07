@@ -3281,6 +3281,18 @@
         };
         Object.keys(_homeI18n2).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _homeI18n2[lg]); });
 
+        /* ── i18n della stampa — 7 lingue ── */
+        const _printI18n = {
+            it: { printTitolo:"Come vuoi il foglio?", printListaNome:"Lista da spuntare", printListaDesc:"Caselle, quantità in grande, raggruppata per reparto.", printPrevNome:"Preventivo", printPrevDesc:"Prezzo unitario e totale per riga, con spazio per le note.", printAnnulla:"Annulla", printNote:"Note", alertStampaFallita:"Non riesco ad aprire la stampa. Prova dal menu del browser." },
+            en: { printTitolo:"How do you want the sheet?", printListaNome:"Checklist", printListaDesc:"Tick boxes, large quantities, grouped by aisle.", printPrevNome:"Quote", printPrevDesc:"Unit price and line total, with room for notes.", printAnnulla:"Cancel", printNote:"Notes", alertStampaFallita:"Cannot open printing. Try from the browser menu." },
+            es: { printTitolo:"¿Cómo quieres la hoja?", printListaNome:"Lista para marcar", printListaDesc:"Casillas, cantidades grandes, agrupada por sección.", printPrevNome:"Presupuesto", printPrevDesc:"Precio unitario y total por línea, con espacio para notas.", printAnnulla:"Cancelar", printNote:"Notas", alertStampaFallita:"No se puede abrir la impresión. Prueba desde el menú del navegador." },
+            fr: { printTitolo:"Quelle feuille voulez-vous ?", printListaNome:"Liste à cocher", printListaDesc:"Cases, quantités en grand, groupée par rayon.", printPrevNome:"Devis", printPrevDesc:"Prix unitaire et total par ligne, avec place pour les notes.", printAnnulla:"Annuler", printNote:"Notes", alertStampaFallita:"Impossible d'ouvrir l'impression. Essayez depuis le menu du navigateur." },
+            de: { printTitolo:"Welches Blatt möchtest du?", printListaNome:"Abhakliste", printListaDesc:"Kästchen, große Mengen, nach Abteilung gruppiert.", printPrevNome:"Kostenvoranschlag", printPrevDesc:"Einzelpreis und Zeilensumme, mit Platz für Notizen.", printAnnulla:"Abbrechen", printNote:"Notizen", alertStampaFallita:"Drucken lässt sich nicht öffnen. Versuch es über das Browsermenü." },
+            pt: { printTitolo:"Como queres a folha?", printListaNome:"Lista para marcar", printListaDesc:"Caixas, quantidades em grande, agrupada por secção.", printPrevNome:"Orçamento", printPrevDesc:"Preço unitário e total por linha, com espaço para notas.", printAnnulla:"Cancelar", printNote:"Notas", alertStampaFallita:"Não consigo abrir a impressão. Tenta pelo menu do navegador." },
+            nl: { printTitolo:"Hoe wil je het blad?", printListaNome:"Afvinklijst", printListaDesc:"Vakjes, grote hoeveelheden, per afdeling gegroepeerd.", printPrevNome:"Offerte", printPrevDesc:"Stukprijs en regeltotaal, met ruimte voor notities.", printAnnulla:"Annuleren", printNote:"Notities", alertStampaFallita:"Afdrukken lukt niet. Probeer het via het browsermenu." }
+        };
+        Object.keys(_printI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _printI18n[lg]); });
+
         const _navI18n = {
             it: { navHome:"Home", navEvento:"Evento", navSalvati:"Salvati", navAltro:"Altro", ariaNavigazione:"Navigazione principale", altroRicette:"I miei cocktail", altroAmari:"I miei amari e liquori", altroImpostazioni:"Impostazioni", footPrivacy:"Privacy", footLicenza:"Licenza MIT" },
             en: { navHome:"Home", navEvento:"Event", navSalvati:"Saved", navAltro:"More", ariaNavigazione:"Main navigation", altroRicette:"My cocktails", altroAmari:"My bitters & liqueurs", altroImpostazioni:"Settings", footPrivacy:"Privacy", footLicenza:"MIT licence" },
@@ -5144,35 +5156,232 @@
            ESPORTAZIONE TESTO
            ════════════════════════════════════════════════════════════ */
         /* ════════════════════════════════════════════════════════════
-           STAMPA / SALVA PDF (con safety check)
+           STAMPA · si stampa quello che si e' scelto, e basta
            ════════════════════════════════════════════════════════════
-           Bug fix: prima il button chiamava window.print() direttamente.
-           Se l'utente cliccava PRIMA di "Genera lista", il dialog si
-           apriva su #risultati ancora display:none → pagina vuota. */
+           Il difetto riportato era che stampando usciva tutta la pagina invece
+           della sola lista. La causa non erano i nove blocchi @media print
+           sparsi nel foglio — otto servono componenti specifici e le pagine
+           SEO — ma UNO solo, che lavorava per sottrazione:
+
+               footer, .btn-installa { display: none !important; }
+
+           E' una blocklist: tutto quello che nessuno ha pensato di nascondere
+           finisce sulla carta, e ogni elemento nuovo aggiunto all'app ci
+           finisce da solo. Nello stesso foglio esisteva gia' lo schema giusto,
+           usato dal menu' da esporre:
+
+               body.bp-printing-menu > *:not(#bp-menu) { display: none }
+
+           Una allowlist: si dichiara cosa stampare, e il resto sparisce senza
+           doverlo elencare. Quella e' la forma che adotta anche la lista.
+
+           ── La macchina a stati, e perche' non basta afterprint ──
+           `bpBeginPrint(bersaglio)` azzera SEMPRE prima di impostare, e imposta
+           esattamente un bersaglio, in modo sincrono prima di window.print().
+           Si ricalcola su `beforeprint`, cosi' anche Ctrl+P — che non passa dai
+           nostri bottoni — trova lo stato giusto.
+
+           Lo smontaggio non si affida al solo `afterprint`, che su Safari iOS
+           non sempre arriva. Ma NON si usa nemmeno un timer cieco: su mobile
+           l'anteprima non e' bloccante, e un timeout la smonterebbe mentre sta
+           ancora disegnando. Si ascoltano invece eventi che dicono davvero che
+           e' finita: uscita dal media di stampa, ritorno del focus, cambio di
+           visibilita'.
+
+           Una classe rimasta attaccata NON rende l'app invisibile — il
+           selettore vive dentro @media print — ma avvelena le stampe
+           successive, che e' peggio perche' non si vede. */
+
+        const BP_BERSAGLI_STAMPA = { lista: 'bp-stampa-lista', menu: 'bp-printing-menu' };
+        let bpBersaglioStampa = null;
+
+        function bpAzzeraBersagliStampa() {
+            Object.values(BP_BERSAGLI_STAMPA).forEach(c => document.body.classList.remove(c));
+            bpBersaglioStampa = null;
+        }
+
+        /* Quale bersaglio ha senso adesso. Serve a Ctrl+P, che arriva senza
+           passare da un nostro bottone: senza una regola, stamperebbe il
+           foglio vecchio o uno vuoto. */
+        function bpBersaglioProbabile() {
+            const menu = document.getElementById('bp-menu');
+            if (menu && menu.classList.contains('show')) return 'menu';
+            const ris = document.getElementById('risultati');
+            if (bpSezioneCorrente === 'evento' && ris && ris.style.display !== 'none' && ris.offsetHeight) return 'lista';
+            return null;   // niente bersaglio: si stampa la pagina normale
+        }
+
+        function bpBeginPrint(bersaglio) {
+            bpAzzeraBersagliStampa();                       // prima azzera, sempre
+            if (!bersaglio || !BP_BERSAGLI_STAMPA[bersaglio]) return;
+            if (bersaglio === 'lista') bpComponiFoglio();
+            document.body.classList.add(BP_BERSAGLI_STAMPA[bersaglio]);
+            bpBersaglioStampa = bersaglio;
+        }
+
+        window.addEventListener('beforeprint', () => {
+            // Ctrl+P: nessuno ha ancora impostato niente.
+            if (!bpBersaglioStampa) bpBeginPrint(bpBersaglioProbabile());
+        });
+        window.addEventListener('afterprint', bpAzzeraBersagliStampa);
+
+        /* Le tre reti di sicurezza, tutte legate a un fatto osservabile e non
+           al passare del tempo. */
+        (function () {
+            const mm = window.matchMedia && window.matchMedia('print');
+            if (mm && mm.addEventListener) {
+                mm.addEventListener('change', e => { if (!e.matches) bpAzzeraBersagliStampa(); });
+            }
+            window.addEventListener('focus', () => { if (bpBersaglioStampa) bpAzzeraBersagliStampa(); });
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && bpBersaglioStampa) bpAzzeraBersagliStampa();
+            });
+        })();
+
+        /* ── Il foglio ──
+           Composto dalle righe canoniche, non rileggendo il DOM: la lista a
+           schermo, il testo condiviso, la checklist e questo foglio escono
+           tutti dalla stessa proiezione. */
+        function bpComponiFoglio() {
+            const foglio = document.getElementById('print-sheet');
+            if (!foglio) return;
+            const m = bpCalcolaModello(bpParametriDalForm());
+            if (!m.ok) { foglio.textContent = ''; return; }
+
+            const formato = bpFormatoStampa();
+            const el = (tag, cls, testo) => {
+                const e = document.createElement(tag);
+                if (cls) e.className = cls;
+                if (testo != null) e.textContent = testo;
+                return e;
+            };
+            foglio.textContent = '';
+            foglio.dataset.formato = formato;
+
+            // Intestazione: nome evento, data, ospiti.
+            const nomeEv = (bpCfgNomeEvento && bpCfgNomeEvento.trim()) ? bpCfgNomeEvento.trim() : '';
+            const testa = el('header', 'ps-testa');
+            if (nomeEv) testa.appendChild(el('h1', 'ps-titolo', nomeEv));
+            const meta = [new Date().toLocaleDateString(linguaCorrente || 'it', { day:'numeric', month:'long', year:'numeric' })];
+            if (m.contatori.ospiti > 0) meta.push(m.contatori.ospiti + ' ' + T('pdfGuests'));
+            testa.appendChild(el('p', 'ps-meta', meta.join(' · ')));
+            foglio.appendChild(testa);
+
+            const gruppi = [
+                ['alcolici',   'risultatiAlcolici'],
+                ['analcolici', 'risultatiAnalcolici'],
+                ['fermentati', 'risultatiFermentati'],
+                ['extra',      'risultatiAttrezzatura'],
+                ['garnish',    'risultatiGarnish']
+            ];
+            const money = n => '€ ' + n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+            gruppi.forEach(([g, chiaveTit]) => {
+                const righe = bpRighe(m, g);
+                if (!righe.length) return;
+                // Un reparto non si spezza fra due pagine se puo' evitarlo.
+                const sez = el('section', 'ps-gruppo');
+                sez.appendChild(el('h2', 'ps-gruppo-tit', T(chiaveTit)));
+                const ul = el('ul', 'ps-voci');
+
+                righe.forEach(r => {
+                    const li = el('li', 'ps-voce');
+                    if (formato === 'lista') li.appendChild(el('span', 'ps-box', ''));
+
+                    const qta = bpQuantitaMostrata(r);
+                    if (qta) li.appendChild(el('span', 'ps-qta', qta));
+                    li.appendChild(el('span', 'ps-nome', bpNomeRiga(r)));
+
+                    if (formato === 'preventivo' && r.unitPrice != null && r.costo > 0) {
+                        li.appendChild(el('span', 'ps-unit', money(r.unitPrice)));
+                        li.appendChild(el('span', 'ps-tot', money(r.costo)));
+                    }
+                    ul.appendChild(li);
+                });
+                sez.appendChild(ul);
+                foglio.appendChild(sez);
+            });
+
+            const piede = el('footer', 'ps-piede');
+            if (formato === 'preventivo') {
+                piede.appendChild(el('p', 'ps-totale', T('budgetLabel') + ' ' + money(m.totale)));
+                piede.appendChild(el('p', 'ps-note', T('printNote')));
+            } else {
+                const perP = m.perPersona != null ? ' · ' + money(m.perPersona) + ' ' + T('perPersonaTxt') : '';
+                piede.appendChild(el('p', 'ps-stima', money(m.totale) + perP));
+            }
+            foglio.appendChild(piede);
+        }
+
+        /* La quantita' che si legge sul foglio e' quella d'acquisto, non il
+           fabbisogno grezzo: al supermercato si comprano bottiglie, non
+           millilitri. */
+        function bpQuantitaMostrata(r) {
+            if (r.roundedPurchaseQty == null) return '';
+            if (r.baseUnit === 'ml') {
+                const v = r.roundedPurchaseQty;
+                return (v % 1 === 0 ? v.toString() : v.toFixed(1)) + ' L';
+            }
+            if (r.baseUnit === 'bottiglie') {
+                return r.roundedPurchaseQty + ' ' + T(r.roundedPurchaseQty === 1 ? 'bottigliaSing' : 'bottiglie');
+            }
+            return r.roundedPurchaseQty + ' ' + r.displayUnit;
+        }
+
+        function bpNomeRiga(r) {
+            if (r.gruppo === 'garnish') return traduciGarnish(r.garnish);
+            if (r.labelKey) return T(r.labelKey);
+            return tradIngrediente(r.ingrediente);
+        }
+
+        function bpFormatoStampa() {
+            const s = bpStorageRead(BP_SETTINGS_KEY, {});
+            return (s && s.formatoStampa === 'preventivo') ? 'preventivo' : 'lista';
+        }
+
+        function bpRicordaFormatoStampa(formato) {
+            const attuali = bpStorageRead(BP_SETTINGS_KEY, {});
+            const uniti = Object.assign({}, (attuali && typeof attuali === 'object') ? attuali : {},
+                                        { formatoStampa: formato });
+            bpStorageWrite(BP_SETTINGS_KEY, uniti);
+        }
+
+        /* Il bottone: chiede il formato, poi stampa. La scelta si ricorda,
+           cosi' chi ne usa sempre uno paga il dialogo una volta sola. */
         function stampaLista() {
             const ris = document.getElementById('risultati');
             if (!ris || ris.style.display === 'none' || !ris.offsetHeight) {
                 alert(T('alertNoListPrint') || 'Genera prima la lista della spesa, poi prova a stampare.');
                 return;
             }
-            // Intestazione documento (nome evento · data · n° ospiti) — appare solo nel PDF/stampa
-            const pm = document.getElementById('print-meta');
-            if (pm) {
-                const nomeEv = (bpCfgNomeEvento && bpCfgNomeEvento.trim()) ? bpCfgNomeEvento.trim() : '';
-                const nOspiti = parseInt((document.getElementById('ospiti') || {}).value) || 0;
-                const dataStr = new Date().toLocaleDateString(linguaCorrente || 'it', { day: 'numeric', month: 'long', year: 'numeric' });
-                const meta = [dataStr];
-                if (nOspiti > 0) meta.push(nOspiti + ' ' + T('pdfGuests'));
-                pm.innerHTML = (nomeEv ? '<span class="pm-ev">' + nomeEv.replace(/[<>&]/g, '') + '</span>' : '') + meta.join(' · ');
+            const dlg = document.getElementById('bp-print-dialog');
+            if (!dlg || typeof dlg.showModal !== 'function') { bpStampaOra('lista'); return; }
+
+            const scelto = bpFormatoStampa();
+            const radio = dlg.querySelector('input[name="bp-print-formato"][value="' + scelto + '"]');
+            if (radio) radio.checked = true;
+
+            if (!dlg._bpBound) {
+                dlg._bpBound = true;
+                dlg.addEventListener('close', () => {
+                    if (dlg.returnValue !== 'stampa') return;
+                    const sel = dlg.querySelector('input[name="bp-print-formato"]:checked');
+                    const formato = sel ? sel.value : 'lista';
+                    bpRicordaFormatoStampa(formato);
+                    bpStampaOra(formato);
+                });
             }
-            ris.scrollIntoView({ behavior: 'instant', block: 'start' });
-            setTimeout(function() {
-                try { window.print(); }
-                catch (e) {
-                    console.warn('[print] window.print() failed:', e);
-                    alert('Impossibile aprire il dialogo di stampa. Prova da Menu del browser → Stampa.');
-                }
-            }, 50);
+            dlg.showModal();
+        }
+
+        function bpStampaOra() {
+            bpBeginPrint('lista');
+            try { window.print(); }
+            catch (e) {
+                console.warn('[print] window.print() non disponibile:', e);
+                bpAzzeraBersagliStampa();
+                alert(T('alertStampaFallita'));
+            }
         }
 
         /* Costruisce il testo formattato della lista (usato da Copia e Condividi) */
