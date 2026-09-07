@@ -759,3 +759,35 @@ parole ("passo 2 di 3"), perche' tre puntini non si leggono con uno screen reade
 Verificato dal vivo a 390px con un evento in corso: nome, 80 ospiti · 3 drink a testa,
 € 371,50 stimato / € 4,64 a persona, passo 2 di 3, "Riprendi da Menu". Zero errori in
 console. **112 test verdi**, 42 golden invariati. Cache a v3.7.0.
+
+### Round 7 — Claude build · Fase 1, fetta 3 (azioni e dialoghi). FASE 1 COMPLETA.
+
+**Le azioni della schermata risultati: da otto a quattro.** Restano Condividi, Stampa,
+Salva evento, Modifica menu. "Copia testo" spariva dietro "Condividi", che gia' ricade
+sulla copia quando la condivisione nativa non c'e' — **e' uscito il bottone, non la
+funzione**, che sarebbe stata la ricaduta da desktop. "Nuovo evento" su una schermata di
+risultati invitava a buttare via il lavoro appena fatto. "Crea menu' da esporre" e' passato
+in "Altro". "Apri i miei eventi salvati" non e' piu' un bottone fisso che invitava ad
+aprire un elenco magari vuoto: e' una conferma che compare **solo dopo una scrittura
+verificata**, e sparisce appena si torna a modificare l'evento.
+
+**I dialoghi hanno finalmente quello che dichiaravano.** Avevano `aria-modal="true"` e non
+facevano niente di quello che quell'attributo promette: il focus non ci entrava, si usciva
+col Tab e si continuava a tabbare sulla pagina dietro, Escape non chiudeva, e alla chiusura
+il focus finiva sul body. Ora c'e' una **pila** `{dialogo, aprente}` — non un contatore,
+perche' un numero non sa dire quale dialogo e' in cima, chi lo ha aperto, quale superficie
+diventa `inert` e dove torna il focus. L'inventario e' quello completo trovato nel Round 2
+della review: welcome, wizard, **`#bp-menu`** (role="dialog" ma classe tutta sua) e
+**`#suggeritore-modal`** (che non aveva alcuna semantica).
+
+Il calcolo a mano del blocco scroll in `bpMenuClose` — che guardava se sotto ci fosse un
+altro overlay — e' sparito: lo sa la pila.
+
+**Prova.** **121 test verdi** (68 preesistenti + 53 nuovi), `npm run check` verde, 42
+golden invariati. Nove test nuovi sui dialoghi, compresi focus in entrata, Escape che
+chiude solo quello in cima, `inert` sulla pagina dietro, focus restituito all'aprente e
+scroll che si sblocca solo a pila vuota. Verificato dal vivo: quattro azioni, conferma post
+salvataggio con scrittura riuscita. Cache a v3.8.0.
+
+**Stato: Fase 0 e Fase 1 complete.** Restano Fase 2 (stampa), Fase 3 (funzionalita') e il
+cancello di fattibilita' della Fase 4, piu' il rinvio dichiarato degli id delle ricette.

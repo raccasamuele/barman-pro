@@ -2656,3 +2656,18 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .bph-salvato-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .bph-salvato-nome { font-family: var(--bp-font); font-size: var(--t-base); font-weight: 700; color: var(--bp-ink); }
 .bph-salvato-meta { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); }
+
+/* Conferma dopo un salvataggio verificato. Non e' un bottone fisso: esiste
+   solo quando c'e' davvero qualcosa da aprire. */
+.bp-post-salvataggio {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    flex-wrap: wrap; margin-top: 18px; padding: 14px 18px;
+    background: var(--bp-accent-soft); border: 1px solid var(--bp-accent-soft);
+    border-radius: var(--r-lg);
+}
+.bp-post-tx { font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 600; color: var(--bp-accent-ink); }
+.bp-post-vai {
+    width: auto; padding: 9px 16px; background: var(--bp-accent); color: var(--bp-on-accent);
+    border: none; border-radius: var(--r-md); font-family: var(--bp-font);
+    font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer;
+}

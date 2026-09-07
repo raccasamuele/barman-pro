@@ -2909,6 +2909,7 @@
             // Dove sono arrivato: serve a riprendere dal punto giusto invece
             // che dall'inizio, e alla Home per dire a che punto sei.
             if (BP_PASSI.indexOf(id) !== -1) { bpPassoCorrente = id; programmaSalvataggio(); }
+            if (id !== 'risultati') bpNascondiConfermaSalvataggio();
             // Riporta in alto il pannello attivo, sotto lo stepper sticky
             const panel = document.querySelector('.step-panel[data-stepid="' + id + '"]');
             if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3178,10 +3179,10 @@
         };
 
         function apriSuggeritore() {
-            document.getElementById('suggeritore-modal').classList.add('show');
+            bpApriModale('suggeritore-modal');
         }
         function chiudiSuggeritore() {
-            document.getElementById('suggeritore-modal').classList.remove('show');
+            bpChiudiModale('suggeritore-modal');
         }
         function applicaSuggerimento(evento) {
             const prof = PROFILI_EVENTO[evento];
@@ -3324,6 +3325,7 @@
 
         function bpShowWelcome(){
             const w = document.getElementById('bp-welcome');
+            if (w) { bpApriModale('bp-welcome'); }
             if (!w) return;
             const ls = document.getElementById('bp-welcome-lang');
             if (ls) ls.value = linguaCorrente;
@@ -3331,7 +3333,7 @@
             document.body.style.overflow = 'hidden';
         }
         function bpWelcomeManual(){
-            document.getElementById('bp-welcome').classList.remove('show');
+            bpChiudiModale('bp-welcome');
             document.body.style.overflow = '';
             vaiAStep('step-setup');   // entra nel wizard (esce dalla home)
             bpStorageWrite('bp_onboarded', '1');
@@ -3345,20 +3347,18 @@
             const fSel = document.getElementById('sel-fascia');
             if (fSel && ['bassa','media','alta'].includes(fSel.value)) bpCfg.fascia = fSel.value;
             if (bpCfgNomeEvento) bpCfg.nome = bpCfgNomeEvento;
-            const wel = document.getElementById('bp-welcome'); if (wel) wel.classList.remove('show');
-            document.getElementById('bp-config').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            bpChiudiModale('bp-welcome');
+            bpApriModale('bp-config');
             bpCfgIdx = 0; bpCfgDir = 1;
             bpCfgRender();
         }
         function bpCfgClose(){
-            document.getElementById('bp-config').classList.remove('show');
-            document.body.style.overflow = '';
+            bpChiudiModale('bp-config');
             bpStorageWrite('bp_onboarded', '1');
         }
         function bpCfgPrev(){
             if (bpCfgIdx > 0) { bpCfgIdx--; bpCfgDir = -1; bpCfgRender(); }
-            else { document.getElementById('bp-config').classList.remove('show'); bpShowWelcome(); }
+            else { bpChiudiModale('bp-config'); bpShowWelcome(); }
         }
         function bpCfgNext(){
             if (bpCfgIdx < BP_CFG_STEPS.length - 1) { bpCfgIdx++; bpCfgDir = 1; bpCfgRender(); }
@@ -3600,8 +3600,8 @@
             bpCfgNomeEvento = bpCfg.nome || '';
             bpEditingId = null;
             bpSyncNomeField();
-            document.getElementById('bp-config').classList.remove('show');
-            const wel = document.getElementById('bp-welcome'); if (wel) wel.classList.remove('show');
+            bpChiudiModale('bp-config');
+            bpChiudiModale('bp-welcome');
             document.body.style.overflow = '';
             bpStorageWrite('bp_onboarded', '1');
             inizializzaApp();
@@ -3688,6 +3688,7 @@
                 }
                 bpEditingId = null;
                 mostraToast(_T('toastEventoSalvato'));
+                bpMostraConfermaSalvataggio();
                 return esito;
             } catch(e){
                 console.warn('Salvataggio evento fallito:', e);
@@ -3699,6 +3700,36 @@
         /* Aggancia una volta sola la delega dei click sulla lista eventi.
            Era dentro bpEventsOpen, che ora non esiste piu': la sezione la
            disegna il router. */
+        /* "Apri i miei eventi salvati" era un bottone fisso in fondo alla lista:
+           invitava ad aprire un elenco che poteva essere ancora vuoto, ed era
+           una delle otto azioni che affollavano quella schermata. Adesso e' una
+           conferma, e compare solo DOPO una scrittura verificata — cioe' solo
+           quando quell'elenco contiene davvero qualcosa. */
+        function bpMostraConfermaSalvataggio(){
+            const box = document.getElementById('bp-post-salvataggio');
+            if (!box) return;
+            const _T = _bpT();
+            box.textContent = '';
+            const testo = document.createElement('span');
+            testo.className = 'bp-post-tx';
+            testo.textContent = _T('toastEventoSalvato');
+            const vai = document.createElement('button');
+            vai.type = 'button';
+            vai.className = 'bp-post-vai';
+            vai.textContent = _T('uiVaiEventi');
+            vai.addEventListener('click', () => bpVaiA('salvati'));
+            box.appendChild(testo);
+            box.appendChild(vai);
+            box.hidden = false;
+        }
+
+        /* Modificare di nuovo l'evento invalida la conferma: quello che c'e'
+           salvato non e' piu' quello che hai davanti. */
+        function bpNascondiConfermaSalvataggio(){
+            const box = document.getElementById('bp-post-salvataggio');
+            if (box) { box.hidden = true; box.textContent = ''; }
+        }
+
         function bpEventsMount(){
             const mount=document.getElementById('bp-ev-mount');
             if (mount && !mount._bound){
@@ -3979,16 +4010,14 @@
                     if (d){ const li = d.closest('.bpm-item'); if (li) li.remove(); }
                 });
             }
-            o.classList.add('show');
-            document.body.style.overflow = 'hidden';
+            bpApriModale('bp-menu');
         }
 
         function bpMenuClose(){
-            const o = document.getElementById('bp-menu');
-            if (!o) return;
-            o.classList.remove('show');
-            // Se sotto c'è ancora un overlay aperto (es. "I miei eventi"), tieni il blocco scroll.
-            document.body.style.overflow = document.querySelector('.bpc-overlay.show') ? 'hidden' : '';
+            /* Il blocco dello scroll non si calcola piu' qui guardando se sotto
+               c'e' un altro overlay: lo sa la pila, che e' l'unica a sapere
+               quanti dialoghi sono aperti e quale resta in cima. */
+            bpChiudiModale('bp-menu');
         }
 
         /* Apre il menù dallo stato live (step Lista). */
@@ -4335,6 +4364,93 @@
 
            Il tasto Indietro del browser risale di un livello, perche' su un
            telefono e' il gesto con cui si torna indietro davvero. */
+
+        /* ════════════════════════════════════════════════════════════
+           DIALOGHI · una pila, non un contatore
+           ════════════════════════════════════════════════════════════
+           I dialoghi dichiaravano aria-modal="true" e non facevano niente di
+           quello che quell'attributo promette: il focus non ci entrava, si
+           poteva uscire con il Tab e continuare a tabbare sulla pagina dietro,
+           Escape non chiudeva, e alla chiusura il focus finiva sul body invece
+           che sul comando che aveva aperto. Con uno screen reader era una
+           finestra che si apre e non ti ci porta dentro.
+
+           Serve una PILA, non un contatore. Un numero non sa dire quale
+           dialogo e' in cima, chi lo ha aperto, quale superficie diventa inert
+           e dove torna il focus: e qui i dialoghi si annidano davvero (dal
+           menu' da esporre si aprira' il dialogo di stampa in Fase 2).
+
+           L'inventario e' piu' lungo di quanto sembrasse: oltre a welcome e
+           wizard ci sono #bp-menu, che ha role="dialog" ma una classe tutta
+           sua, e #suggeritore-modal, che non aveva alcuna semantica. */
+        const bpPilaModali = [];
+
+        const BP_FOCUSABILI = 'a[href], button:not([disabled]), input:not([disabled]),' +
+            ' select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+        function bpModaleInCima() {
+            return bpPilaModali.length ? bpPilaModali[bpPilaModali.length - 1] : null;
+        }
+
+        function bpApriModale(id, aprente) {
+            const dialogo = document.getElementById(id);
+            if (!dialogo || bpPilaModali.some(v => v.id === id)) return;
+
+            bpPilaModali.push({ id, dialogo, aprente: aprente || document.activeElement });
+            dialogo.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            /* Tutto quello che non e' il dialogo in cima diventa inert: senza,
+               il Tab esce dalla finestra e continua sulla pagina dietro. */
+            bpAggiornaInert();
+
+            const primo = dialogo.querySelector(BP_FOCUSABILI);
+            const bersaglio = primo || dialogo;
+            if (!bersaglio.hasAttribute('tabindex') && bersaglio === dialogo) bersaglio.setAttribute('tabindex', '-1');
+            try { bersaglio.focus({ preventScroll: true }); } catch(e) {}
+        }
+
+        function bpChiudiModale(id) {
+            const i = id ? bpPilaModali.findIndex(v => v.id === id) : bpPilaModali.length - 1;
+            if (i < 0) return;
+            const voce = bpPilaModali.splice(i, 1)[0];
+            voce.dialogo.classList.remove('show');
+
+            if (!bpPilaModali.length) document.body.style.overflow = '';
+            bpAggiornaInert();
+
+            // Il focus torna da dove era partito, non sul body.
+            const a = voce.aprente;
+            if (a && document.contains(a)) { try { a.focus({ preventScroll: true }); } catch(e) {} }
+            else bpFocusSezione();
+        }
+
+        function bpAggiornaInert() {
+            const cima = bpModaleInCima();
+            Array.from(document.body.children).forEach(el => {
+                if (!cima) { el.removeAttribute('inert'); return; }
+                if (el === cima.dialogo || el.contains(cima.dialogo)) el.removeAttribute('inert');
+                else el.setAttribute('inert', '');
+            });
+        }
+
+        /* Escape chiude quello in cima, e la trappola del focus tiene il Tab
+           dentro la finestra. Sono le due cose che aria-modal promette e che
+           il browser non fa da solo su un <div>. */
+        document.addEventListener('keydown', function (e) {
+            const cima = bpModaleInCima();
+            if (!cima) return;
+
+            if (e.key === 'Escape') { e.preventDefault(); bpChiudiModale(cima.id); return; }
+            if (e.key !== 'Tab') return;
+
+            const dentro = Array.from(cima.dialogo.querySelectorAll(BP_FOCUSABILI))
+                .filter(el => el.offsetParent !== null || el === document.activeElement);
+            if (!dentro.length) { e.preventDefault(); return; }
+            const primo = dentro[0], ultimo = dentro[dentro.length - 1];
+            if (e.shiftKey && document.activeElement === primo) { e.preventDefault(); ultimo.focus(); }
+            else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primo.focus(); }
+        });
 
         const BP_SEZIONI = ['home', 'evento', 'salvati', 'altro'];
         const BP_SOTTOROTTE = { 'ricette':1, 'amari':1, 'impostazioni':1 };

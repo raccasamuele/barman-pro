@@ -505,24 +505,30 @@
             <ul id="lista_garnish"></ul>
         </div>
 
+        <!-- Quattro azioni, non otto. "Copia testo" spariva dietro
+             "Condividi", che gia' ricade sulla copia quando la condivisione
+             nativa non c'e'; "Nuovo evento" su una schermata di risultati
+             invitava a buttare via il lavoro appena fatto; "Crea menu' da
+             esporre" e' passato in "Altro". La funzione copiaListaTesto resta:
+             e' la ricaduta di condividiLista da desktop. -->
         <div class="action-buttons">
             <!-- U+279C, non U+27A4: e' la freccia che il JavaScript scriveva qui sopra
                  finche' traduceva per posizione. La Fase 0 non cambia nulla a schermo. -->
             <button data-do="condividiLista">&#10140; <span data-i18n="btnCondividi">Condividi</span></button>
-            <button data-do="copiaListaTesto"><span data-i18n="btnCopia">Copia testo</span></button>
             <button data-do="stampaLista"><span data-i18n="btnStampa">Stampa o salva in PDF</span></button>
-            <button data-do="bpMenuOpenFromList"><span data-i18n="menuOpenBtn">Crea menù da esporre</span></button>
         </div>
 
         <div class="wizard-actions">
             <button class="wz-primary" data-do="bpSalvaEvento"><span data-i18n="cfgSalvaEvento">Salva evento</span></button>
             <button data-do="vaiAStep" data-arg="step-menu">&#9998; <span data-i18n="cfgModificaMenu">Modifica menu</span></button>
-            <button data-do="resetCompleto">&#10010; <span data-i18n="cfgNuovoEvento">Nuovo evento</span></button>
         </div>
 
     </div>
 
-        <button type="button" class="btn-primary-gold btn-grande" style="margin-top:18px" data-do="bpEventsOpen">&#10070;&nbsp;&nbsp;<span data-i18n="uiVaiEventi">Apri i miei eventi salvati</span>&nbsp;&nbsp;&#8250;</button>
+        <!-- La conferma dopo il salvataggio la costruisce bpSalvaEvento, e solo
+             dopo una scrittura VERIFICATA. Prima qui c'era un bottone fisso:
+             invitava ad aprire un elenco che poteva essere ancora vuoto. -->
+        <div id="bp-post-salvataggio" class="bp-post-salvataggio" hidden></div>
     </div>
 
 
