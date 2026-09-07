@@ -585,3 +585,46 @@ cio' che si vedeva.
 preesistenti piu' 5 nuovi in `tests/ui-i18n.spec.js`. I 42 golden passano **senza che sia
 stato toccato un solo valore atteso**. I test nuovi sono stati verificati contro il codice
 non corretto: **4 su 5 falliscono**, quindi bloccano davvero il difetto.
+
+### Round 2 — Claude build · Fase 0, fetta 2 di 3 (storage)
+
+Punti 5, 8, 9, 10 e 13 della Fase 0. Non tocca il calcolo: si rilascia da sola.
+
+**Uno strato solo per scrivere.** Ogni funzione faceva il suo
+`try { localStorage.setItem } catch(e){}`, ingoiando l'errore. `bpStorageWrite` ora
+ritorna `{ok, motivo}` e tutte le sette scritture dirette passano di li'. Con la quota
+piena `bpSalvaEvento` mostrava "Evento salvato" su un salvataggio mai avvenuto: ora il
+messaggio di successo esce **solo dopo una scrittura verificata**, e in caso contrario
+esce il messaggio giusto (quota esaurita vs errore generico), tradotto in 7 lingue.
+
+**Impostazioni additive.** `bpSaveSettings` scriveva un oggetto nuovo di tre campi:
+qualunque preferenza aggiunta altrove spariva al primo cambio di tema. Ora rilegge,
+fonde e riscrive — che e' anche cio' che serve perche' una scheda ferma a questa
+versione non cancelli un campo scritto da una versione futura.
+
+**Guardia del marcatore di import, in anticipo e di proposito** (punto 5, aggiunto dopo
+il Round 5 di Codex). In Fase 0 non c'e' ancora un import da proteggere, ma il rilascio
+a fasi lascia vive le schede vecchie: se la guardia nascesse insieme all'import (Fase 3),
+quelle schede scriverebbero in mezzo a uno scambio di chiavi senza saperlo. Include il
+flag "stale": dopo un rifiuto la copia in memoria non viene piu' riversata finche'
+qualcuno non si e' ripreso dallo storage.
+
+**Passo corrente persistito** e **predicato della bozza esteso**: `bpHomeResume()`
+riapriva sempre `step-setup`, e `bpHasInProgress()` ignorava chi aveva impostato 120
+ospiti senza scegliere drink — per l'app non c'era "niente in corso" e il lavoro si
+perdeva senza nemmeno l'offerta di riprenderlo.
+
+**Cache del service worker** a v3.3.0 (copre anche la fetta 1, che aveva toccato file
+cache-first senza bump).
+
+**Prova.** `npm run check` verde, **84 test verdi** (68 preesistenti + 5 i18n + 6 storage
++ 5 bozza). I 42 golden passano senza che sia stato toccato un valore atteso. Nessun
+cambiamento a schermo, zero errori in console su primo caricamento con storage pulito.
+Gli 11 test nuovi di questa fetta sono stati provati contro il codice non corretto:
+**9 falliscono**.
+
+**Da segnalare, non corretto qui.** `tests/helpers.js` semina
+`bp_settings` con `autoSave: false`, ma `bpLoadSettings` legge `s.autosave` (minuscola):
+la chiave non combacia, quindi il salvataggio automatico resta **acceso** in tutti i test
+che usano `openApp`. La premessa di quei test e' falsa. Non l'ho toccato perche'
+sistemarlo cambia il comportamento di test che non riguardano questa fetta.

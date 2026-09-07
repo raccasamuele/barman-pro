@@ -2279,7 +2279,7 @@
             try { const r = JSON.parse(localStorage.getItem(BP_RECIPES_KEY)); if (r && typeof r === 'object'){ bpRecipes.mods = r.mods || {}; bpRecipes.custom = Array.isArray(r.custom) ? r.custom : []; bpRecipes.amari = Array.isArray(r.amari) ? r.amari : null; } } catch(e){}
             if (!bpRecipes.amari) bpRecipes.amari = BP_AMARI_DEFAULT.slice();
         }
-        function bpRecipesSave(){ try { localStorage.setItem(BP_RECIPES_KEY, JSON.stringify(bpRecipes)); } catch(e){} }
+        function bpRecipesSave(){ return bpStorageWrite(BP_RECIPES_KEY, bpRecipes); }
         function bpRecipesApply(){ Object.keys(bpRecipes.mods).forEach(n => { databaseDrink[n] = JSON.parse(JSON.stringify(bpRecipes.mods[n])); }); }
 
         let menuSerataDrink = {};
@@ -2301,8 +2301,75 @@
            riavvio, e le Impostazioni mostravano "Scuro" attivo comunque.
            Il default e' 'light': l'app e' pensata chiara, e "Auto" resta a un
            clic per chi vuole seguire il sistema. */
+        /* ════════════════════════════════════════════════════════════
+           STORAGE · un solo punto da cui si scrive
+           ════════════════════════════════════════════════════════════
+           Prima ogni funzione faceva il suo `try { localStorage.setItem }
+           catch(e){}`, ingoiando l'errore. Con la quota piena un salvataggio
+           fallito era indistinguibile da uno riuscito: l'utente vedeva il
+           messaggio "Evento salvato" e non aveva salvato niente.
+
+           Qui la scrittura RITORNA l'esito, e chi chiama decide cosa dire.
+
+           C'e' anche una guardia che in Fase 0 non serve ancora a niente, ed
+           e' voluto: l'import a due fasi arriva in Fase 3, ma il rilascio a
+           fasi lascia vive le schede ferme alle versioni precedenti. Se la
+           guardia nascesse insieme all'import, una scheda vecchia scriverebbe
+           in mezzo a uno scambio di chiavi senza sapere che sta succedendo.
+           Nasce adesso, cosi' quando servira' sara' gia' ovunque. */
+        const BP_IMPORT_LOCK = 'bp_import_lock';
+
+        /* Vero quando una scrittura e' stata rifiutata: da quel momento la
+           copia in memoria e' potenzialmente vecchia e non va riversata sopra
+           quello che ha scritto l'import. Chi si ricarica dallo storage
+           chiama bpStorageRiallineato(). */
+        let bpStorageStale = false;
+        function bpImportInCorso() {
+            try { return localStorage.getItem(BP_IMPORT_LOCK) !== null; } catch(e) { return false; }
+        }
+        function bpStorageRiallineato() { bpStorageStale = false; }
+
+        /* Ritorna { ok:true } oppure { ok:false, motivo }. I motivi sono
+           'import' (scambio in corso), 'stale' (la nostra copia e' vecchia),
+           'quota' (spazio esaurito) e 'errore'. */
+        function bpStorageWrite(chiave, valore) {
+            if (bpImportInCorso()) { bpStorageStale = true; return { ok:false, motivo:'import' }; }
+            if (bpStorageStale)    { return { ok:false, motivo:'stale' }; }
+            try {
+                localStorage.setItem(chiave, typeof valore === 'string' ? valore : JSON.stringify(valore));
+                return { ok:true };
+            } catch(e) {
+                // QuotaExceededError cambia nome fra i browser: si riconosce
+                // dal nome quando c'e', altrimenti resta un errore generico.
+                const quota = e && (e.name === 'QuotaExceededError'
+                                 || e.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+                                 || e.code === 22);
+                console.warn('[storage] scrittura fallita su ' + chiave + ':', e);
+                return { ok:false, motivo: quota ? 'quota' : 'errore', errore:e };
+            }
+        }
+
+        function bpStorageRead(chiave, fallback) {
+            try {
+                const raw = localStorage.getItem(chiave);
+                if (raw === null) return fallback;
+                return JSON.parse(raw);
+            } catch(e) {
+                console.warn('[storage] lettura fallita su ' + chiave + ':', e);
+                return fallback;
+            }
+        }
+
         let bpTemaScelto = 'light';
         let bpTemaApplicato = false;   // true quando una preferenza salvata ha gia' deciso
+
+        /* Il passo raggiunto nel flusso, persistito.
+           vaiAStep() non lo memorizzava e bpHomeResume() riapriva sempre
+           'step-setup': chi era arrivato alla lista veniva rispedito
+           all'inizio, e la Home non poteva dire "riprendi da Menu" perche' il
+           dato non esisteva. Serve alla Home-cruscotto della Fase 1. */
+        let bpPassoCorrente = 'step-setup';
+        const BP_PASSI = ['step-setup', 'step-menu', 'risultati'];
         let bpAutoSave = true;                   // salvataggio automatico dell'evento in corso (toggle Impostazioni, ON di default)
         let bpSaveTimer = 0;
         let bpCalcFrame = 0;
@@ -2345,12 +2412,17 @@
             if (!bpAutoSave) return;
             try {
                 const _get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+                /* Additiva: si parte da quello che c'e' gia' sul disco, cosi'
+                   un campo scritto da una versione piu' recente non viene
+                   cancellato da una scheda ferma a questa. */
+                const _esistente = bpStorageRead(STORAGE_KEY, {});
                 const state = {
                     menuSerataDrink: menuSerataDrink,
                     menuSerataMocktail: menuSerataMocktail,
                     menuSerataShot: menuSerataShot,
                     customShots: customShots,
                     customDrinks: customDrinks,
+                    passo: bpPassoCorrente,
                     lingua: linguaCorrente,
                     tema: bpTemaScelto,
                     config: {
@@ -2369,8 +2441,11 @@
                         nome_evento: bpCfgNomeEvento || ''
                     }
                 };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            } catch(e) { console.warn('Salvataggio fallito:', e); }
+                return bpStorageWrite(STORAGE_KEY, Object.assign({}, (_esistente && typeof _esistente === 'object') ? _esistente : {}, state));
+            } catch(e) {
+                console.warn('Salvataggio fallito:', e);
+                return { ok:false, motivo:'errore', errore:e };
+            }
         }
 
         function caricaStato() {
@@ -2384,6 +2459,8 @@
                 customShots = s.customShots || [];
                 customDrinks = s.customDrinks || {};
                 Object.assign(databaseDrink, customDrinks);
+                // Bozze salvate prima che il passo esistesse: default sicuro.
+                bpPassoCorrente = BP_PASSI.indexOf(s.passo) !== -1 ? s.passo : 'step-setup';
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
                 if (s.tema) {
                     bpApplicaTema(s.tema);
@@ -2413,20 +2490,25 @@
            Chiave separata da STORAGE_KEY: lingua/tema/auto-save si salvano
            SEMPRE qui, anche con auto-save OFF (sono "default" dell'app).
            ════════════════════════════════════════════════════════════ */
+        /* Scrittura ADDITIVA, non sostitutiva. Prima questa funzione scriveva
+           un oggetto nuovo di tre campi: qualunque preferenza aggiunta altrove
+           spariva al primo cambio di tema o di lingua. E una versione futura
+           dell'app che salvasse un campo in piu' se lo vedrebbe cancellare da
+           una scheda ferma a questa versione. Si rilegge, si fonde, si
+           riscrive. */
         function bpSaveSettings() {
-            try {
-                localStorage.setItem(BP_SETTINGS_KEY, JSON.stringify({
-                    lingua: linguaCorrente,
-                    tema: bpTemaScelto,
-                    autosave: bpAutoSave ? 1 : 0
-                }));
-            } catch(e) { console.warn('Salvataggio impostazioni fallito:', e); }
+            const attuali = bpStorageRead(BP_SETTINGS_KEY, {});
+            const uniti = Object.assign({}, (attuali && typeof attuali === 'object') ? attuali : {}, {
+                lingua: linguaCorrente,
+                tema: bpTemaScelto,
+                autosave: bpAutoSave ? 1 : 0
+            });
+            return bpStorageWrite(BP_SETTINGS_KEY, uniti);
         }
         function bpLoadSettings() {
             try {
-                const raw = localStorage.getItem(BP_SETTINGS_KEY);
-                if (!raw) return;
-                const s = JSON.parse(raw);
+                const s = bpStorageRead(BP_SETTINGS_KEY, null);
+                if (!s || typeof s !== 'object') return;
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
                 if (s.tema) {
                     bpApplicaTema(s.tema);
@@ -2703,6 +2785,9 @@
                 if (on) s.setAttribute('aria-current', 'step');           // a11y: passo corrente (additivo)
                 else s.removeAttribute('aria-current');
             });
+            // Dove sono arrivato: serve a riprendere dal punto giusto invece
+            // che dall'inizio, e alla Home per dire a che punto sei.
+            if (BP_PASSI.indexOf(id) !== -1) { bpPassoCorrente = id; programmaSalvataggio(); }
             // Riporta in alto il pannello attivo, sotto lo stepper sticky
             const panel = document.querySelector('.step-panel[data-stepid="' + id + '"]');
             if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3044,6 +3129,20 @@
            Erano tutte fisse in italiano nel markup: chi naviga con uno screen
            reader in un'altra lingua si sentiva leggere "Chiudi" e "Passi" in
            italiano in mezzo a un'interfaccia tradotta. */
+        /* ── i18n dei salvataggi che falliscono — 7 lingue ──
+           Prima non servivano perche' l'errore veniva ingoiato e usciva
+           comunque il messaggio di successo. */
+        const _storageI18n = {
+            it: { toastSalvataggioFallito:"Salvataggio non riuscito", toastSpazioEsaurito:"Spazio esaurito: libera qualche evento salvato" },
+            en: { toastSalvataggioFallito:"Save failed", toastSpazioEsaurito:"Storage full: delete a few saved events" },
+            es: { toastSalvataggioFallito:"No se ha podido guardar", toastSpazioEsaurito:"Espacio agotado: elimina algunos eventos guardados" },
+            fr: { toastSalvataggioFallito:"Échec de l'enregistrement", toastSpazioEsaurito:"Espace plein : supprimez quelques événements" },
+            de: { toastSalvataggioFallito:"Speichern fehlgeschlagen", toastSpazioEsaurito:"Speicher voll: lösche einige gespeicherte Events" },
+            pt: { toastSalvataggioFallito:"Não foi possível guardar", toastSpazioEsaurito:"Espaço esgotado: apaga alguns eventos guardados" },
+            nl: { toastSalvataggioFallito:"Opslaan mislukt", toastSpazioEsaurito:"Opslag vol: verwijder een paar opgeslagen evenementen" }
+        };
+        Object.keys(_storageI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _storageI18n[lg]); });
+
         const _ariaI18n = {
             it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
             en: { ariaAiuto:"Help", ariaChiudi:"Close", ariaHome:"Home", ariaPassi:"Steps", ariaTema:"Theme", ariaLingua:"Language", ariaCollegamenti:"Links", ariaEventi:"My events", ariaRicettario:"Recipe library", ariaMenuEsporre:"Menu to display", ariaStileMenu:"Menu style" },
@@ -3087,7 +3186,7 @@
             document.getElementById('bp-welcome').classList.remove('show');
             document.body.style.overflow = '';
             vaiAStep('step-setup');   // entra nel wizard (esce dalla home)
-            try { localStorage.setItem('bp_onboarded','1'); } catch(e){}
+            bpStorageWrite('bp_onboarded', '1');
         }
         function bpCfgStart(){
             // Precompila dai valori correnti, così la modalità guidata rispetta lo stato esistente
@@ -3107,7 +3206,7 @@
         function bpCfgClose(){
             document.getElementById('bp-config').classList.remove('show');
             document.body.style.overflow = '';
-            try { localStorage.setItem('bp_onboarded','1'); } catch(e){}
+            bpStorageWrite('bp_onboarded', '1');
         }
         function bpCfgPrev(){
             if (bpCfgIdx > 0) { bpCfgIdx--; bpCfgDir = -1; bpCfgRender(); }
@@ -3356,7 +3455,7 @@
             document.getElementById('bp-config').classList.remove('show');
             const wel = document.getElementById('bp-welcome'); if (wel) wel.classList.remove('show');
             document.body.style.overflow = '';
-            try { localStorage.setItem('bp_onboarded','1'); } catch(e){}
+            bpStorageWrite('bp_onboarded', '1');
             inizializzaApp();
             renderizzaMenu();
             aggiornaPctBevitori();   // aggiorna display % + ricalcolo-se-visibile + salva
@@ -3373,8 +3472,10 @@
            ════════════════════════════════════════════════════════════ */
         let bpEditingId = null;
         const _bpT = () => (typeof T === 'function' ? T : t);
-        function bpGetEvents(){ try { return JSON.parse(localStorage.getItem('bp_events') || '[]'); } catch(e){ return []; } }
-        function bpSetEvents(list){ try { localStorage.setItem('bp_events', JSON.stringify(list)); } catch(e){} }
+        function bpGetEvents(){ const l = bpStorageRead('bp_events', []); return Array.isArray(l) ? l : []; }
+        /* Ritorna l'esito invece di ingoiarlo: con la quota piena il chiamante
+           mostrava "Evento salvato" su un salvataggio che non era avvenuto. */
+        function bpSetEvents(list){ return bpStorageWrite('bp_events', list); }
         function _bpFmtDate(ts){ try { return new Date(ts).toLocaleDateString(linguaCorrente, {day:'2-digit', month:'short', year:'numeric'}); } catch(e){ return ''; } }
         function _bpParseCost(str){ if(!str) return 0; const m = String(str).replace(/[^\d.,]/g, ''); if(!m) return 0; const v = parseFloat(m.replace(/\./g, '').replace(',', '.')); return isNaN(v) ? 0 : v; }
         function _bpMoney(n){ return '€ ' + (Math.round(n * 100) / 100).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2}); }
@@ -3428,10 +3529,23 @@
                 } else {
                     list.push({ id:'ev_'+Date.now(), nome, data: Date.now(), config, menu, totale, lista, check:{} });
                 }
-                bpSetEvents(list);
+                /* Il toast di successo esce SOLO se la scrittura e' andata a
+                   buon fine. Prima bpSetEvents ingoiava l'errore e questo
+                   messaggio usciva comunque: con la quota piena l'utente
+                   leggeva "Evento salvato" e non aveva salvato niente. */
+                const esito = bpSetEvents(list);
+                if (!esito.ok) {
+                    mostraToast(_T(esito.motivo === 'quota' ? 'toastSpazioEsaurito' : 'toastSalvataggioFallito'));
+                    return esito;
+                }
                 bpEditingId = null;
                 mostraToast(_T('toastEventoSalvato'));
-            } catch(e){ console.warn('Salvataggio evento fallito:', e); }
+                return esito;
+            } catch(e){
+                console.warn('Salvataggio evento fallito:', e);
+                mostraToast(_T('toastSalvataggioFallito'));
+                return { ok:false, motivo:'errore', errore:e };
+            }
         }
 
         function bpEventsOpen(){
@@ -3696,7 +3810,7 @@
                 canvas.className = 'bpm-canvas bpm-' + style + (cols && cols !== '1' ? ' bpm-cols-' + cols : '');
             }
             document.querySelectorAll('.bpm-style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === style));
-            try { localStorage.setItem('bp_menu_style', style); } catch (e) {}
+            bpStorageWrite('bp_menu_style', style);
         }
 
         function bpMenuOpen(src){
@@ -4037,11 +4151,33 @@
            salvato) e mostra SEMPRE la scelta guidata/manuale.
            L'icona "home" in alto a sinistra (#bp-burger) ci riporta qui.
            ════════════════════════════════════════════════════════════ */
+        /* Valori con cui _bpEventResetCore lascia il form: se il form e'
+           ancora tutto cosi', non c'e' niente da riprendere. */
+        const BP_SETUP_DEFAULT = {
+            'ospiti':'50', 'drink_testa':'3', 'shot_testa':'1', 'scarto':'15',
+            'sel-nazione':'Italia', 'sel-fascia':'media', 'pct-bevitori':'80',
+            'ferm_vino_rosso':'0', 'ferm_vino_bianco':'0', 'ferm_bollicine':'0',
+            'ferm_birra':'0', 'sel-fascia-fermentati':'media'
+        };
+
+        /* Vero se il setup e' stato toccato, anche senza aver scelto un drink.
+           Prima contavano solo il menu e il nome dell'evento: chi impostava 120
+           ospiti e chiudeva l'app non aveva, per l'app, "niente in corso" — e
+           si ritrovava il lavoro perso senza nemmeno l'offerta di riprenderlo. */
+        function bpSetupModificato(){
+            for (const id in BP_SETUP_DEFAULT) {
+                const el = document.getElementById(id);
+                if (el && String(el.value) !== BP_SETUP_DEFAULT[id]) return true;
+            }
+            return false;
+        }
+
         function bpHasInProgress(){
             return !!(Object.keys(menuSerataDrink).length
                    || Object.keys(menuSerataMocktail).length
                    || Object.keys(menuSerataShot).length
-                   || (bpCfgNomeEvento && bpCfgNomeEvento.trim()));
+                   || (bpCfgNomeEvento && bpCfgNomeEvento.trim())
+                   || bpSetupModificato());
         }
 
         function bpGoHome(){
@@ -4139,7 +4275,10 @@
         }
 
         function bpHomeResume(){
-            vaiAStep('step-setup');   // rimuove bp-home ed entra nel wizard con i dati attuali
+            // Riprende dal passo raggiunto, non dall'inizio. Se la lista non
+            // e' piu' calcolabile, vaiAStep('risultati') rifiuta da solo e si
+            // resta dove si e': meglio del rimbalzo forzato al setup.
+            vaiAStep(bpPassoCorrente || 'step-setup');
         }
 
         /* ── Nome evento: campo Setup ↔ variabile bpCfgNomeEvento ── */
