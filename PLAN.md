@@ -513,6 +513,23 @@ rilasciabile solo se, tutte insieme:
   progetto. La Fase 4 fa comunque uscire dati verso Canva su richiesta esplicita: quella
   promessa va **riscritta con precisione lì**.
 
+### Rinviato in costruzione, con motivo
+
+- **Identita' delle ricette per id e definizioni incorporate nell'evento**
+  (parte del punto sulle ricette) e **politica per gli eventi con ricette
+  irrisolvibili**: spostati all'inizio della **Fase 3**, dove vivono i loro
+  consumatori (link condivisibile e import). Farli in Fase 0 significherebbe
+  cambiare la forma degli eventi salvati **due volte** — una adesso senza che
+  nessuno usi gli id, e una quando il consumatore arriva e ne scopre i
+  requisiti veri — e portarsi quella superficie in piu' per tutta la
+  riscrittura della navigazione. La parte di sicurezza dei dati e' stata fatta
+  qui per intero: chiavi versionate, migrazione dei due archivi vecchi con
+  precedenza dichiarata, e nessun dato buttato.
+  Il rischio che il rinvio lasciava scoperto — `calcolaSpesa()` che
+  dereferenziava `databaseDrink[nome]` **senza guardia** e andava in eccezione
+  su una ricetta mancante — e' gia' chiuso: il modello canonico usa
+  `(databaseDrink[nome] || [])`.
+
 ### Critiche respinte, con motivo
 
 - **[R1] Baseline PDF/screenshot per la stampa.** Respinta: artefatti binari da rigenerare

@@ -41,7 +41,7 @@ test.describe('Bozza · il passo raggiunto', () => {
 
     // Il passo deve essere finito su disco, non solo in memoria.
     await page.waitForFunction(
-      () => (JSON.parse(localStorage.getItem('barmanProState_v7') || '{}')).passo === 'step-menu',
+      () => (JSON.parse(localStorage.getItem('barmanProState_v8') || '{}')).passo === 'step-menu',
       null, { timeout: 4000 });
 
     await page.reload({ waitUntil: 'load' });
@@ -63,6 +63,7 @@ test.describe('Bozza · il passo raggiunto', () => {
       localStorage.setItem('bp_onboarded', '1');
       localStorage.setItem('bp_license', JSON.stringify({ key: 'X', instanceId: 'y', lastOk: Date.now() }));
       // Bozza scritta da una versione con un passo che qui non esiste.
+      // Chiave VECCHIA di proposito: cosi' il test passa anche dalla migrazione.
       localStorage.setItem('barmanProState_v7', JSON.stringify({ passo: 'step-inventato' }));
     });
     await page.goto('/index.html', { waitUntil: 'load' });

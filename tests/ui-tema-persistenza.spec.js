@@ -43,7 +43,7 @@ test.describe('Tema · cio che sopravvive al ricaricamento', () => {
     await page.evaluate(() => window.cambiaTema('dark'));
 
     const salvato = await page.evaluate(
-      () => JSON.parse(localStorage.getItem('bp_settings')).tema);
+      () => JSON.parse(localStorage.getItem('bp_settings_v2')).tema);
     expect(salvato, "la scelta non e' arrivata in bp_settings").toBe('dark');
 
     await page.reload({ waitUntil: 'load' });

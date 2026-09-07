@@ -53,7 +53,7 @@ test.describe('Storage · l\'esito della scrittura', () => {
     const esito = await page.evaluate(() => {
       const vero = Storage.prototype.setItem;
       Storage.prototype.setItem = function (k) {
-        if (k === 'bp_events') {
+        if (k === 'bp_events_v2') {
           const e = new Error('quota'); e.name = 'QuotaExceededError'; throw e;
         }
         return vero.apply(this, arguments);
@@ -116,15 +116,15 @@ test.describe('Storage · impostazioni additive', () => {
 
     // Simula una preferenza scritta da una versione futura dell'app.
     await page.evaluate(() => {
-      const s = JSON.parse(localStorage.getItem('bp_settings') || '{}');
+      const s = JSON.parse(localStorage.getItem('bp_settings_v2') || '{}');
       s.preferenzaDiDomani = 'non cancellarmi';
-      localStorage.setItem('bp_settings', JSON.stringify(s));
+      localStorage.setItem('bp_settings_v2', JSON.stringify(s));
     });
 
     await page.evaluate(() => window.cambiaTema('dark'));   // provoca bpSaveSettings
 
     const dopo = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem('bp_settings')));
+      JSON.parse(localStorage.getItem('bp_settings_v2')));
 
     expect(dopo.preferenzaDiDomani,
       'salvare il tema ha cancellato un campo sconosciuto').toBe('non cancellarmi');

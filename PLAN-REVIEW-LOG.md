@@ -665,3 +665,34 @@ piano poneva all'estrazione. **92 test verdi** in totale (68 preesistenti + 24 n
 `npm run check` verde. Verifica a schermo su un caso con fermentati: righe, totale, costo
 a persona, sottotitolo e le cinque intestazioni identici. Zero errori in console.
 Cache del service worker a v3.4.0.
+
+### Round 4 — Claude build · Fase 0, fetta 4 (chiavi e migrazione)
+
+Punti 4 e 6, piu' il consolidamento degli archivi del punto 3.
+
+**Chiavi nuove per tutto cio' che cambia schema**: `barmanProState_v8`,
+`bp_recipes_v2`, `bp_events_v2`, `bp_settings_v2`. Le vecchie restano intatte per una
+release, come rete e come sorgente. Cosi' una scheda ancora aperta sulla versione
+precedente continua a scrivere sulle sue e non puo' toccare le nuove.
+
+**I due archivi di ricette si fondono.** Vivevano in posti che non si parlavano —
+`bp_recipes` e i campi `customDrinks`/`customShots` dentro la bozza — e si riversavano
+entrambi su `databaseDrink` all'avvio. Precedenza applicata come deciso nel piano: vince
+`bp_recipes` con il suo nome; una ricetta vecchia con lo stesso nome ma contenuto diverso
+**si conserva** con un suffisso invece di essere scartata; gli shot orfani si uniscono.
+La bozza smette di portarsi dietro le ricette; `customDrinks`/`customShots` restano
+variabili di lavoro, derivate da `bpRecipes`.
+
+**Rinviato, con motivo scritto anche in PLAN.md:** identita' per id, definizioni
+incorporate nell'evento e politica per gli eventi con ricette irrisolvibili passano
+all'inizio della Fase 3, dove vivono i loro consumatori. Farli ora cambierebbe la forma
+degli eventi salvati due volte e porterebbe quella superficie attraverso tutta la
+riscrittura della navigazione. Il rischio che il rinvio lasciava scoperto — la
+dereferenza senza guardia di `databaseDrink[nome]` — e' gia' chiuso dal modello canonico.
+
+**Prova.** **100 test verdi** (68 preesistenti + 32 nuovi), `npm run check` verde, 42
+golden invariati. Otto test nuovi coprono la sola migrazione: chiavi nuove popolate,
+vecchie intatte, idempotenza (una seconda esecuzione non sovrascrive dati piu' recenti),
+ricette della bozza non perse, conflitto di nome conservato con suffisso, nessun doppione
+per contenuti identici, bozza nuova senza ricette, e ricette migrate davvero utilizzabili
+dal calcolo. Cache a v3.5.0.

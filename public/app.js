@@ -2272,14 +2272,135 @@
            Store persistente, separato da barmanProState_v7 (sopravvive al reset evento).
            mods: ricette modificate/create (riapplicate su databaseDrink al load)
            custom: nomi creati dall'utente (eliminabili); amari: lista nomi per gli shot. */
-        const BP_RECIPES_KEY = 'bp_recipes';
+        /* ════════════════════════════════════════════════════════════
+           CHIAVI DI STORAGE · nuove per tutto cio' che cambia schema
+           ════════════════════════════════════════════════════════════
+           La Fase 0 cambia la forma di quello che c'e' sul disco. Se
+           scrivesse sulle stesse chiavi, basterebbe una scheda ancora aperta
+           sulla versione precedente per riscriverci sopra il formato vecchio:
+           il bump della cache del service worker NON chiude i client gia'
+           attivi. Scrivendo su chiavi nuove, il codice vecchio continua a
+           scrivere sulle sue e non puo' piu' toccare le nostre. Nel peggiore
+           dei casi quella scheda perde il proprio lavoro — che e' gia' cio'
+           che succede oggi con due schede aperte.
+
+           Le chiavi vecchie restano intatte per una release, come rete e come
+           sorgente della migrazione. Non si cancellano qui. */
+        const BP_RECIPES_KEY_LEGACY = 'bp_recipes';
+        const BP_RECIPES_KEY = 'bp_recipes_v2';
         const BP_AMARI_DEFAULT = ['Amaro Montenegro','Amaro Nonino','Amaro del Capo','Fernet Branca','Jägermeister','Mirto','Amaretto','Baileys','Liquore al Caffè','Limoncello','Sambuca','Grappa'];
         let bpRecipes = { mods:{}, custom:[], amari:null };
+        /* ════════════════════════════════════════════════════════════
+           MIGRAZIONE · dalle chiavi vecchie a quelle nuove, una volta sola
+           ════════════════════════════════════════════════════════════
+           Gira PRIMA di qualunque lettura. Idempotente: se la chiave nuova
+           esiste gia', non tocca niente. Le chiavi vecchie non si cancellano —
+           restano come rete per una release.
+
+           Il pezzo che conta e' la fusione dei due archivi di ricette. Le
+           ricette dell'utente vivevano in due posti che non si parlavano:
+           `bp_recipes` (mods/custom/amari) e i campi `customDrinks` e
+           `customShots` dentro la bozza, ed entrambi si riversavano su
+           databaseDrink all'avvio. Chi ha usato l'app prima e dopo il
+           passaggio ha pezzi in tutti e due.
+
+           Precedenza, decisa e non lasciata all'implementazione:
+             · vince `bp_recipes` con il suo nome;
+             · una ricetta vecchia con lo STESSO nome ma contenuto diverso non
+               si scarta: si conserva con un suffisso;
+             · gli shot vecchi senza corrispondenza si aggiungono in unione.
+           Non si butta via il lavoro dell'utente, mai. */
+        function bpMigraStorage() {
+            const migrata = [];
+
+            // ── ricette: bp_recipes + i due campi della bozza vecchia ──
+            if (localStorage.getItem(BP_RECIPES_KEY) === null) {
+                const vecchie = bpStorageRead(BP_RECIPES_KEY_LEGACY, null);
+                const bozza   = bpStorageRead(STORAGE_KEY_LEGACY, null) || {};
+                const unito = {
+                    mods:   (vecchie && vecchie.mods) ? Object.assign({}, vecchie.mods) : {},
+                    custom: (vecchie && Array.isArray(vecchie.custom)) ? vecchie.custom.slice() : [],
+                    amari:  (vecchie && Array.isArray(vecchie.amari))  ? vecchie.amari.slice()  : null
+                };
+
+                const cd = (bozza && typeof bozza.customDrinks === 'object' && bozza.customDrinks) ? bozza.customDrinks : {};
+                Object.keys(cd).forEach(nome => {
+                    const gia = unito.mods[nome];
+                    if (!gia) {
+                        unito.mods[nome] = cd[nome];
+                        if (unito.custom.indexOf(nome) < 0) unito.custom.push(nome);
+                        return;
+                    }
+                    // Stesso nome: se il contenuto coincide non c'e' conflitto.
+                    if (JSON.stringify(gia) === JSON.stringify(cd[nome])) return;
+                    // Contenuto diverso: si conserva, con un nome che non collide.
+                    let alt = nome + ' (2)';
+                    let n = 2;
+                    while (unito.mods[alt]) { n++; alt = nome + ' (' + n + ')'; }
+                    unito.mods[alt] = cd[nome];
+                    if (unito.custom.indexOf(alt) < 0) unito.custom.push(alt);
+                });
+
+                const cs = Array.isArray(bozza.customShots) ? bozza.customShots : [];
+                if (cs.length) {
+                    if (!unito.amari) unito.amari = BP_AMARI_DEFAULT.slice();
+                    cs.forEach(nome => { if (unito.amari.indexOf(nome) < 0) unito.amari.push(nome); });
+                }
+
+                if (vecchie || Object.keys(cd).length || cs.length) {
+                    if (bpStorageWrite(BP_RECIPES_KEY, unito).ok) migrata.push('ricette');
+                }
+            }
+
+            // ── bozza: stessa roba, meno i due campi appena assorbiti ──
+            if (localStorage.getItem(STORAGE_KEY) === null) {
+                const bozza = bpStorageRead(STORAGE_KEY_LEGACY, null);
+                if (bozza && typeof bozza === 'object') {
+                    const copia = Object.assign({}, bozza);
+                    delete copia.customDrinks;
+                    delete copia.customShots;
+                    if (bpStorageWrite(STORAGE_KEY, copia).ok) migrata.push('bozza');
+                }
+            }
+
+            // ── eventi e impostazioni: cambia solo la chiave ──
+            [[BP_EVENTS_KEY, BP_EVENTS_KEY_LEGACY, 'eventi'],
+             [BP_SETTINGS_KEY, BP_SETTINGS_KEY_LEGACY, 'impostazioni']].forEach(([nuova, vecchia, nome]) => {
+                if (localStorage.getItem(nuova) !== null) return;
+                const dati = bpStorageRead(vecchia, null);
+                if (dati === null) return;
+                if (bpStorageWrite(nuova, dati).ok) migrata.push(nome);
+            });
+
+            if (migrata.length) console.info('[storage] migrato dalle chiavi vecchie: ' + migrata.join(', '));
+            return migrata;
+        }
+
         function bpRecipesLoad(){
-            try { const r = JSON.parse(localStorage.getItem(BP_RECIPES_KEY)); if (r && typeof r === 'object'){ bpRecipes.mods = r.mods || {}; bpRecipes.custom = Array.isArray(r.custom) ? r.custom : []; bpRecipes.amari = Array.isArray(r.amari) ? r.amari : null; } } catch(e){}
+            const r = bpStorageRead(BP_RECIPES_KEY, null);
+            if (r && typeof r === 'object'){
+                bpRecipes.mods = r.mods || {};
+                bpRecipes.custom = Array.isArray(r.custom) ? r.custom : [];
+                bpRecipes.amari = Array.isArray(r.amari) ? r.amari : null;
+            }
             if (!bpRecipes.amari) bpRecipes.amari = BP_AMARI_DEFAULT.slice();
         }
         function bpRecipesSave(){ return bpStorageWrite(BP_RECIPES_KEY, bpRecipes); }
+        /* customDrinks e customShots restano come variabili di lavoro — mezza
+           app le usa — ma non sono piu' un archivio: si ricavano da bpRecipes,
+           che e' l'unico posto dove le ricette dell'utente vivono davvero.
+           customShots sono gli amari che l'utente ha aggiunto, cioe' quelli che
+           non erano nella lista di partenza: e' esattamente cio' che conteneva
+           il campo vecchio, quindi la ricerca si comporta come prima. */
+        function bpDerivaRicetteUtente(){
+            customDrinks = {};
+            (bpRecipes.custom || []).forEach(nome => {
+                if (bpRecipes.mods[nome]) customDrinks[nome] = bpRecipes.mods[nome];
+            });
+            customShots = (bpRecipes.amari || []).filter(n => BP_AMARI_DEFAULT.indexOf(n) < 0);
+            Object.assign(databaseDrink, customDrinks);
+        }
+
         function bpRecipesApply(){ Object.keys(bpRecipes.mods).forEach(n => { databaseDrink[n] = JSON.parse(JSON.stringify(bpRecipes.mods[n])); }); }
 
         let menuSerataDrink = {};
@@ -2289,8 +2410,12 @@
         let customDrinks = {};
         let ingredientCounter = 0;
 
-        const STORAGE_KEY = 'barmanProState_v7';
-        const BP_SETTINGS_KEY = 'bp_settings';   // preferenze (lingua/tema/auto-save), chiave separata da STORAGE_KEY
+        const STORAGE_KEY_LEGACY = 'barmanProState_v7';
+        const STORAGE_KEY = 'barmanProState_v8';
+        const BP_SETTINGS_KEY_LEGACY = 'bp_settings';
+        const BP_SETTINGS_KEY = 'bp_settings_v2';   // preferenze (lingua/tema/auto-save), chiave separata da STORAGE_KEY
+        const BP_EVENTS_KEY_LEGACY = 'bp_events';
+        const BP_EVENTS_KEY = 'bp_events_v2';
 
         /* Il tema scelto vive qui, non nel DOM.
            Prima veniva riletto da document.body.getAttribute('data-theme') in
@@ -2420,8 +2545,10 @@
                     menuSerataDrink: menuSerataDrink,
                     menuSerataMocktail: menuSerataMocktail,
                     menuSerataShot: menuSerataShot,
-                    customShots: customShots,
-                    customDrinks: customDrinks,
+                    /* customDrinks e customShots NON stanno piu' qui: le
+                       ricette dell'utente vivono in bp_recipes_v2 e basta.
+                       Erano due archivi che si riversavano entrambi su
+                       databaseDrink all'avvio, senza una precedenza. */
                     passo: bpPassoCorrente,
                     lingua: linguaCorrente,
                     tema: bpTemaScelto,
@@ -2456,9 +2583,10 @@
                 menuSerataDrink = s.menuSerataDrink || {};
                 menuSerataMocktail = s.menuSerataMocktail || {};
                 menuSerataShot = s.menuSerataShot || {};
-                customShots = s.customShots || [];
-                customDrinks = s.customDrinks || {};
-                Object.assign(databaseDrink, customDrinks);
+                /* Le ricette non arrivano piu' dalla bozza: si derivano da
+                   bp_recipes_v2 in bpDerivaRicetteUtente(), chiamata dopo
+                   bpRecipesLoad(). Le bozze vecchie sono gia' state assorbite
+                   dalla migrazione, quindi qui non c'e' piu' niente da leggere. */
                 // Bozze salvate prima che il passo esistesse: default sicuro.
                 bpPassoCorrente = BP_PASSI.indexOf(s.passo) !== -1 ? s.passo : 'step-setup';
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
@@ -2918,9 +3046,10 @@
             let nome = document.getElementById('new_shot_name').value.trim();
             if(!nome) return alert(T('alertNomeShotVuoto'));
 
-            if(!customShots.includes(nome)) customShots.push(nome);
-            // Registra lo shot tra "I miei amari" (consultabile ed eliminabile dalla libreria).
+            // Un posto solo: "I miei amari". Prima lo stesso nome finiva anche
+            // in customShots dentro la bozza, e i due archivi divergevano.
             if (bpRecipes.amari.indexOf(nome) < 0) { bpRecipes.amari.push(nome); bpRecipesSave(); }
+            if(!customShots.includes(nome)) customShots.push(nome);   // copia di lavoro
             menuSerataShot[nome] = 1;
 
             document.getElementById('new_shot_name').value = '';
@@ -3472,10 +3601,10 @@
            ════════════════════════════════════════════════════════════ */
         let bpEditingId = null;
         const _bpT = () => (typeof T === 'function' ? T : t);
-        function bpGetEvents(){ const l = bpStorageRead('bp_events', []); return Array.isArray(l) ? l : []; }
+        function bpGetEvents(){ const l = bpStorageRead(BP_EVENTS_KEY, []); return Array.isArray(l) ? l : []; }
         /* Ritorna l'esito invece di ingoiarlo: con la quota piena il chiamante
            mostrava "Evento salvato" su un salvataggio che non era avvenuto. */
-        function bpSetEvents(list){ return bpStorageWrite('bp_events', list); }
+        function bpSetEvents(list){ return bpStorageWrite(BP_EVENTS_KEY, list); }
         function _bpFmtDate(ts){ try { return new Date(ts).toLocaleDateString(linguaCorrente, {day:'2-digit', month:'short', year:'numeric'}); } catch(e){ return ''; } }
         function _bpParseCost(str){ if(!str) return 0; const m = String(str).replace(/[^\d.,]/g, ''); if(!m) return 0; const v = parseFloat(m.replace(/\./g, '').replace(',', '.')); return isNaN(v) ? 0 : v; }
         function _bpMoney(n){ return '€ ' + (Math.round(n * 100) / 100).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2}); }
@@ -4924,10 +5053,15 @@
         }
 
         window.onload = async function() {
+            // PRIMA di ogni lettura: se sul disco c'e' ancora il formato
+            // vecchio, lo si porta sulle chiavi nuove. Idempotente, e non
+            // cancella niente.
+            bpMigraStorage();
             caricaStato();
             bpLoadSettings();   // preferenze (lingua/tema/auto-save): override sui default di caricaStato
             bpSyncNomeField();
             bpRecipesLoad();
+            bpDerivaRicetteUtente();   // customDrinks/customShots dalle ricette, non dalla bozza
             bpRecipesApply();
             inizializzaApp();
             try {
