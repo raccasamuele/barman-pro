@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+    Segnaposto di reindirizzamento.
+
+    Qui, fino ad agosto 2026, viveva la vecchia landing commerciale di Barman
+    PRO su GitHub Pages. Il progetto e' poi diventato open source e si e'
+    spostato su Cloudflare; Pages e' stato spento e questo indirizzo ha
+    iniziato a rispondere "Site not found", pur restando nell'indice dei
+    motori di ricerca con il vecchio testo a pagamento.
+
+    Questa pagina esiste per trasformare quel 404 in un rimando: chi arriva da
+    un vecchio link finisce sull'app, e il canonical dice ai motori qual e'
+    l'indirizzo buono. Volutamente NON c'e' un meta robots "noindex": con
+    quello i motori butterebbero via la pagina senza mai leggere il canonical,
+    e il vecchio indirizzo non verrebbe consolidato sul nuovo.
+
+    Non c'e' altro in questo branch, e non ci deve essere: il sito vero sta
+    sul branch main, in public/, e viene servito da Cloudflare.
+-->
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barman PRO &middot; il sito si e' spostato</title>
+<link rel="canonical" href="https://barman-pro.raccasamuele2004.workers.dev/">
+<meta http-equiv="refresh" content="0; url=https://barman-pro.raccasamuele2004.workers.dev/">
+<meta name="description" content="Barman PRO si e' spostato: calcolatore gratuito e open source per feste ed eventi.">
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: #f5f6f7; color: #191b1c;
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 24px;
+  }
+  main { max-width: 34rem; text-align: center; }
+  h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 .75rem; }
+  p { margin: 0 0 1.25rem; color: #66696c; }
+  a.go {
+    display: inline-block; padding: 12px 22px; border-radius: 10px;
+    background: #2e558f; color: #fafcff; text-decoration: none; font-weight: 600;
+  }
+  a.go:hover { background: #24447a; }
+  .src { margin-top: 1.5rem; font-size: .875rem; }
+  .src a { color: #2e558f; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #111213; color: #e6e8ea; }
+    p { color: #848689; }
+    a.go { background: #7fa6e0; color: #07101c; }
+    a.go:hover { background: #9bbaea; }
+    .src a { color: #7fa6e0; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Barman PRO si &egrave; spostato</h1>
+  <p>Il calcolatore per feste ed eventi &egrave; ora gratuito e open source, e vive a un altro indirizzo. Se il browser non ti porta l&igrave; da solo:</p>
+  <p><a class="go" href="https://barman-pro.raccasamuele2004.workers.dev/">Apri Barman PRO</a></p>
+  <p class="src">Codice sorgente: <a href="https://github.com/raccasamuele/barman-pro">github.com/raccasamuele/barman-pro</a></p>
+</main>
+</body>
+</html>
