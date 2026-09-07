@@ -527,3 +527,61 @@ Chiusura dell'Atto 2: 5 round, ~40 rilievi, 5 respinti con motivo (4 dei quali C
 accettato), 3 errori miei corretti da Codex (formula delle scorte, `viewport-fit=cover`,
 i18n a runtime) e 2 errori miei trovati da me durante il grill (la CSP di Canva, il manifest
 che esportava la bozza morta).
+
+## Act 3 — Build
+
+### Round 0 — passaggio di consegne
+
+Il lancio di `codex exec` con accesso in scrittura e' stato **bloccato dal classificatore
+della modalita' auto di Claude Code**, sia con `--yolo`
+(`--dangerously-bypass-approvals-and-sandbox`) sia con la variante piu' stretta
+`--full-auto` (`-s workspace-write`). Le run in sola lettura dei cinque round di review
+erano passate: e' la capacita' di scrittura a essere rifiutata, non la singola bandiera.
+
+Nessun tentativo di aggiramento. La cosa e' stata portata all'utente con tre strade
+(costruisco io / lancia lui il comando / sblocca il permesso in settings). **Ha scelto che
+costruisca Claude.** Il valore dell'Atto 2 resta acquisito: cinque round, ~40 rilievi, e la
+specifica congelata che ne e' uscita.
+
+Cancello di verifica invariato rispetto a quello che sarebbe stato chiesto a Codex:
+42 golden **senza toccare un solo valore atteso**, 68 test preesistenti verdi,
+`npm run check` verde, nessun cambiamento a schermo, niente commit senza approvazione.
+
+### Round 1 — Claude build · Fase 0, fetta 1 di 3 (i18n per chiave)
+
+Punti 11 e 12 della Fase 0. Fetta autoconsistente: non tocca calcolo ne' storage, quindi si
+rilascia da sola.
+
+**Difetto trovato durante il lavoro, non previsto dal piano.** `cambiaLingua()` traduceva
+per posizione non solo i 4 bottoni azione (`abtn[0..3]`, gia' noto dal Round 1 di Codex) ma
+anche `bsArr[0..1]` sui `.btn-secondary` e `rh3[0..2]` sulle `.result-section h3`. Le
+sezioni dei risultati pero' sono **cinque**, e la terza e' l'intestazione dei fermentati:
+`rh3[2]` la sovrascriveva con "Attrezzatura". Due sezioni si chiamavano uguale, in tutte e
+7 le lingue. Verificato dal vivo prima di correggere:
+
+    i=2  chiave risultatiFermentati  -> mostrato "Equipment"
+    i=3  chiave risultatiAttrezzatura -> mostrato "Equipment"
+
+Invisibile per mesi perche' `#block_fermentati` resta `display:none` finche' non metti vino
+o birra nel menu, e nessun test guardava quel testo.
+
+Tutti quegli elementi avevano gia' il proprio `data-i18n` nel markup: il blocco manuale era
+ridondante, arrivava dopo il ciclo generico e ne cancellava il risultato insieme agli
+`<span data-i18n>` figli. Rimosso per intero. Aggiunte le due chiavi mancanti alle
+intestazioni alcolici/analcolici.
+
+**Etichette di accessibilita'.** Zero `data-i18n-aria` nel progetto e 25 `aria-label` fissi
+in italiano: chi naviga con uno screen reader in un'altra lingua si sentiva leggere
+"Chiudi", "Passi", "Tema" in italiano. Aggiunto il ciclo runtime in `cambiaLingua()`, un
+blocco `_ariaI18n` con 11 chiavi x 7 lingue, e agganciate le 25 etichette.
+
+**Nulla cambia a schermo**, verificato: le cinque intestazioni tornano distinte e corrette,
+i bottoni azione identici. Un dettaglio scoperto e sistemato: il markup del bottone
+Condividi aveva `&#10148;` (U+27A4) mentre il JavaScript scriveva U+279C, e vinceva il
+JavaScript; togliendo il blocco sarebbe comparsa una freccia diversa. Markup allineato a
+cio' che si vedeva.
+
+**Prova.** `npm run check` verde (363 chiavi x 7 lingue in parita'), **73 test verdi**: i 68
+preesistenti piu' 5 nuovi in `tests/ui-i18n.spec.js`. I 42 golden passano **senza che sia
+stato toccato un solo valore atteso**. I test nuovi sono stati verificati contro il codice
+non corretto: **4 su 5 falliscono**, quindi bloccano davvero il difetto.

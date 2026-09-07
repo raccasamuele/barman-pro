@@ -1801,25 +1801,34 @@
                 if (tr[k] !== undefined) el.placeholder = tr[k];
             });
 
+            /* Etichette di accessibilita' con data-i18n-aria.
+               Mancavano: si traducevano testo e placeholder, mai aria-label.
+               Chi usa uno screen reader in inglese o in tedesco si sentiva
+               leggere "Chiudi", "Passi", "Tema" in italiano. Il controllo
+               statico check-i18n conosceva gia' l'attributo (il suo regex e'
+               data-i18n(?:-[a-z]+)?): a mancare era solo l'applicazione. */
+            document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+                const k = el.dataset.i18nAria;
+                if (tr[k] !== undefined) el.setAttribute('aria-label', tr[k]);
+            });
+
             /* ── Elementi con icone — aggiornamento diretto ── */
             document.querySelectorAll('[href$=".pdf"][download]').forEach(a => { if (!a.dataset.i18nSkip) a.textContent = '↳ ' + tr.btnScarica; });
-            _i18nTxt('#h3-nuovo-cocktail',                  '' + tr.newCocktailH3);
-            _i18nTxt('#h3-bottiglia-shot',                  '' + tr.bottShotH3);
-            _i18nTxt('.btn-aggiungi-ing',                   '✚ ' + tr.btnAggiungiIng);
-            document.querySelectorAll('.search-add-row button').forEach(b => b.textContent = '✚ ' + tr.btnAggiungi);
-            const bsArr = document.querySelectorAll('.btn-secondary');
-            if (bsArr[0]) bsArr[0].textContent = '' + tr.btnCrea;
-            if (bsArr[1]) bsArr[1].textContent = '' + tr.btnCreaShot;
-            false && _i18nHTML('.btn-grande', '' + tr.btnGenera + '  ');
-            const rh3 = document.querySelectorAll('.result-section h3');
-            if (rh3[0]) rh3[0].textContent = '' + tr.risultatiAlcolici;
-            if (rh3[1]) rh3[1].textContent = '' + tr.risultatiAnalcolici;
-            if (rh3[2]) rh3[2].textContent = '' + tr.risultatiAttrezzatura;
-            const abtn = document.querySelectorAll('.action-buttons button');
-            if (abtn[0]) abtn[0].textContent = '➜ ' + (tr.btnCondividi || translations.it.btnCondividi);
-            if (abtn[1]) abtn[1].textContent = '' + tr.btnCopia;
-            if (abtn[2]) abtn[2].textContent = '' + tr.btnStampa;
-            if (abtn[3]) abtn[3].textContent = '' + (tr.menuOpenBtn || translations.it.menuOpenBtn);
+            /* Qui c'era un blocco di assegnazioni per POSIZIONE: abtn[0..3],
+               bsArr[0..1], rh3[0..2]. Tutti quegli elementi avevano gia' il loro
+               data-i18n nel markup, quindi il ciclo generico qui sopra li aveva
+               gia' tradotti bene: queste righe arrivavano dopo e li riscrivevano,
+               cancellando per giunta gli <span data-i18n> figli.
+
+               Non era solo ridondante. `.result-section h3` sono CINQUE, e la
+               terza e' l'intestazione dei fermentati: rh3[2] la sovrascriveva con
+               "Attrezzatura", cosi' due sezioni si chiamavano uguale in tutte e 7
+               le lingue. Non se n'era accorto nessuno perche' #block_fermentati
+               resta display:none finche' non metti vino o birra nel menu.
+
+               Chi aggiunge un bottone in mezzo a una di quelle liste non deve
+               poter spostare le etichette di tutti gli altri: ogni controllo si
+               traduce con la propria chiave, e basta. */
             // La home è costruita con T() al render (niente data-i18n): se è aperta, va ri-renderizzata.
             if (document.body.classList.contains('bp-home') && typeof bpHomeRender === 'function') bpHomeRender();
             // Storage status (riflette anche lo stato del salvataggio automatico)
@@ -3030,6 +3039,21 @@
             nl: { evHeaderBtn:"Mijn evenementen", evTitle:"Mijn evenementen", evEmpty:"Geen opgeslagen evenementen", evEmptySub:"Sla een evenement op vanuit de boodschappenlijst om het hier met zijn checklist terug te vinden.", evOpen:"Openen", evEdit:"Bewerken", evDup:"Dupliceren", evDelete:"Verwijderen", evGuestsWord:"gasten", evConfirmDelete:"Dit evenement verwijderen? Kan niet ongedaan worden.", evToastDeleted:"Evenement verwijderd", evToastDuplicated:"Evenement gedupliceerd", evToastLoaded:"Evenement geladen: bewerk en sla opnieuw op", evCopySuffix:"(kopie)", chkTitle:"Boodschappenlijst", chkBought:"gekocht" }
         };
         Object.keys(_extraI18nEv).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _extraI18nEv[lg]); });
+
+        /* ── i18n delle etichette di accessibilita' (data-i18n-aria) — 7 lingue ──
+           Erano tutte fisse in italiano nel markup: chi naviga con uno screen
+           reader in un'altra lingua si sentiva leggere "Chiudi" e "Passi" in
+           italiano in mezzo a un'interfaccia tradotta. */
+        const _ariaI18n = {
+            it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
+            en: { ariaAiuto:"Help", ariaChiudi:"Close", ariaHome:"Home", ariaPassi:"Steps", ariaTema:"Theme", ariaLingua:"Language", ariaCollegamenti:"Links", ariaEventi:"My events", ariaRicettario:"Recipe library", ariaMenuEsporre:"Menu to display", ariaStileMenu:"Menu style" },
+            es: { ariaAiuto:"Ayuda", ariaChiudi:"Cerrar", ariaHome:"Inicio", ariaPassi:"Pasos", ariaTema:"Tema", ariaLingua:"Idioma", ariaCollegamenti:"Enlaces", ariaEventi:"Mis eventos", ariaRicettario:"Biblioteca de recetas", ariaMenuEsporre:"Menú para exponer", ariaStileMenu:"Estilo del menú" },
+            fr: { ariaAiuto:"Aide", ariaChiudi:"Fermer", ariaHome:"Accueil", ariaPassi:"Étapes", ariaTema:"Thème", ariaLingua:"Langue", ariaCollegamenti:"Liens", ariaEventi:"Mes événements", ariaRicettario:"Bibliothèque de recettes", ariaMenuEsporre:"Menu à afficher", ariaStileMenu:"Style du menu" },
+            de: { ariaAiuto:"Hilfe", ariaChiudi:"Schließen", ariaHome:"Startseite", ariaPassi:"Schritte", ariaTema:"Design", ariaLingua:"Sprache", ariaCollegamenti:"Links", ariaEventi:"Meine Events", ariaRicettario:"Rezeptbibliothek", ariaMenuEsporre:"Menü zum Aushängen", ariaStileMenu:"Menüstil" },
+            pt: { ariaAiuto:"Ajuda", ariaChiudi:"Fechar", ariaHome:"Início", ariaPassi:"Passos", ariaTema:"Tema", ariaLingua:"Idioma", ariaCollegamenti:"Ligações", ariaEventi:"Os meus eventos", ariaRicettario:"Biblioteca de receitas", ariaMenuEsporre:"Menu para expor", ariaStileMenu:"Estilo do menu" },
+            nl: { ariaAiuto:"Help", ariaChiudi:"Sluiten", ariaHome:"Start", ariaPassi:"Stappen", ariaTema:"Thema", ariaLingua:"Taal", ariaCollegamenti:"Links", ariaEventi:"Mijn evenementen", ariaRicettario:"Receptenbibliotheek", ariaMenuEsporre:"Menu om op te hangen", ariaStileMenu:"Menustijl" }
+        };
+        Object.keys(_ariaI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _ariaI18n[lg]); });
 
         /* ── i18n menu a panino + totali checklist (UX-2) — 7 lingue ── */
         const _extraI18nUi = {
