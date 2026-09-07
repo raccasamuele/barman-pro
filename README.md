@@ -113,14 +113,6 @@ Il font Manrope è distribuito sotto SIL Open Font License, e il database
 delle ricette è un adattamento delle ricette IBA: i dettagli sono in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Il ricettario PDF che accompagnava la versione a pagamento **non fa parte**
-di questo repository.
-
-## Storia
-
-Barman PRO è stato un prodotto a pagamento. Ha avuto un cliente. Da agosto
-2026 è gratuito e open source: il codice è più utile a qualcuno così che
-chiuso in un archivio.
 
 ---
 
