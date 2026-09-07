@@ -897,3 +897,81 @@ partenza, non perche' la duplicazione le azzerasse. Corretto qui e in `ui-link`
 
 **Prova.** **179 test verdi** (68 preesistenti + 111 nuovi), `npm run check` verde, 42
 golden invariati. Cache a v3.13.0.
+
+### Round 13 — chiusura dei rilievi della review finale di Codex
+
+Verdetto di Codex: REVISE, 7 bloccanti + una lista di rilievi minori. I bloccanti
+erano gia' chiusi nel round 12; qui si chiude il resto.
+
+**Il bloccante rimasto — markup iniettabile dagli id importati.**
+`bpEventsList()` incollava `ev.id` dentro `data-id="..."` in quattro punti senza
+sfuggirlo. Nome e totale erano sfuggiti, l'id no — ed e' proprio il campo che
+arriva grezzo da un file di backup o da un link. La CSP ferma l'esecuzione di
+script, non l'iniezione di markup. Sfuggito con `_bpEsc`; l'attributo torna
+decodificato da `dataset.id`, quindi il confronto per uguaglianza con l'id
+salvato non cambia. Due test nuovi in `ui-backup.spec.js`, entrambi provati
+rossi sul codice non corretto.
+
+**I tre test che promettevano piu' di quanto provassero.**
+
+1. `ui-dialoghi.spec.js` — il test della navigazione guardava `.show`, la rotta e
+   lo scroll, e passava mentre l'app restava incliccabile. Ora guarda anche la
+   pila dei modali e gli `inert` residui, barra di navigazione compresa.
+   Scrivendolo ho ripetuto l'errore che avevo gia' fatto con `bpScorte`: la pila
+   e' un `const` a livello di script e NON e' una proprieta' di `window`, quindi
+   `window.bpPilaModali` era `undefined` e l'asserzione leggeva un ripiego.
+   Aggiunta `bpModaliAperti()` — una `function`, che su window ci finisce.
+2. `ui-stampa.spec.js` — il test intitolato "uscita dal media di stampa"
+   lanciava un evento `focus`, che e' una rete di sicurezza diversa. Il primo
+   tentativo di correzione dispacciava `change` su `window.matchMedia('print')`
+   e non funzionava lo stesso: `matchMedia` restituisce un oggetto NUOVO a ogni
+   chiamata, e l'ascoltatore dell'app sta su quello creato all'avvio. Ora il
+   media cambia davvero via `emulateMedia`. Provato: togliendo l'ascoltatore
+   `mm.addEventListener('change', ...)` il test diventa rosso.
+3. `package.json` — `test:golden` elencava `golden-wizard.spec.js`, che non
+   esiste, e ometteva `golden-db.spec.js`: non era il cancello a 42 test che
+   dichiarava. Ora e' `playwright test --project=golden`, che si mantiene da
+   solo. Verificato: 42 passati.
+
+**I rilievi non urgenti, chiusi tutti.**
+
+- **Le due stime "in tempo reale" ignoravano scorte e prezzi.** Costruivano i
+  parametri a mano e si dimenticavano i modificatori: la stima diceva un numero
+  e la lista finale, sugli stessi dati, ne diceva un altro. Chi dichiarava mezza
+  cassa di gin in casa se lo vedeva scontato solo alla fine. Estratto
+  `bpModificatoriCorrenti()`, usato da tutti e tre i chiamanti.
+- **Unita' che si contano, comprate a meta'.** Bottiglie e pezzi passavano
+  `null` come arrotondamento perche' il fabbisogno era gia' intero — ma la
+  scorta la scrive l'utente, o arriva da un file: con 3 bottiglie necessarie e
+  2,5 dichiarate la lista diceva "compra 0,5 bottiglie". Ora arrotondano per
+  eccesso; il ghiaccio no, quello si pesa. Il prezzo resta sulla quantita' che
+  serve davvero, come dice il contratto. I 42 golden invariati.
+- **La corsa fra ricalcolo differito e salvataggio.** `programmaRicalcoloLista`
+  rimanda il conto al frame dopo; salvare o condividere nello stesso giro
+  leggeva il DOM ancora fermo alla lista precedente. Aggiunto
+  `flushRicalcoloLista()`, gemello di `flushSalvataggio`. La stampa non ne
+  soffriva perche' ricalcola dal modello — un motivo in piu' per cui il modello
+  canonico esiste.
+  Qui il primo test che ho scritto era sbagliato: muoveva `#ospiti`, che non
+  pianifica nessun ricalcolo, e passava o falliva a seconda di cosa era rimasto
+  in coda dal passo precedente. Riscritto sull'unico vero innesco, lo slider
+  "% che beve alcolici", con un'asserzione che il ricalcolo sia davvero in coda.
+  Riscritto cosi', ha trovato un secondo difetto che il primo non vedeva:
+  `bpSalvaEvento` legge `#budget-amount` PRIMA di chiamare `bpSnapshotLista`,
+  quindi salvava il totale vecchio insieme alle righe nuove. Il flush e' passato
+  in cima alla funzione.
+- **`bpEditingId` viveva solo in memoria.** Chi apriva un evento salvato, lo
+  modificava e ricaricava la pagina si ritrovava la bozza giusta e l'id perduto:
+  il salvataggio dopo creava un DOPPIONE invece di aggiornare l'originale. Ora
+  viaggia con la bozza, e si riprende solo se quell'evento esiste ancora.
+- **Rotte che si dichiaravano ancora dialoghi.** Ricette, Impostazioni e I miei
+  eventi sono diventate rotte nella Fase 1, ma il markup continuava a dire
+  `role="dialog" aria-modal="true"`. `aria-modal="true"` dice al lettore di
+  schermo di nascondere tutto il resto — barra di navigazione compresa: la
+  stessa forma della fuga di `inert`, invisibile a schermo e vicolo cieco con
+  lo screen reader. Ora sono `role="region"`. Il test tiene l'invariante nei due
+  versi: nessuna rotta si dichiara modale, e chi resta `aria-modal` passa
+  davvero dalla pila.
+
+**Stato:** 187 test verdi, due corse di fila senza flake; 42 golden invarianti;
+`npm run check` verde; cache del service worker a v3.14.0.

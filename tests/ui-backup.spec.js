@@ -35,6 +35,15 @@ async function importa(page, contenuto, modalita = 'unione') {
 
 test.describe('Backup · il manifest', () => {
   test('esporta le chiavi giuste e non quelle di questo dispositivo', async ({ page }) => {
+    // Su un'app vuota quegli store non esistono ancora, e non esportarli e'
+    // corretto: il manifest si prova su un'app che ha davvero dei dati.
+    await semina(page, {
+      bp_events_v2: [EV('ev_1', 'Uno')],
+      bp_recipes_v2: { mods: {}, custom: [], amari: ['Amaro'] },
+      bp_settings_v2: { lingua: 'it' },
+      bp_menu_style: 'minimal',
+      barmanProState_v8: { passo: 'step-setup' },
+    });
     await openApp(page);
     const dati = await page.evaluate(() => {
       let catturato = null;
@@ -51,6 +60,12 @@ test.describe('Backup · il manifest', () => {
     const p = JSON.parse(dati);
     expect(p.app).toBe('barman-pro');
     expect(p.versione).toBe(1);
+    // Il test guardava solo le esclusioni, e cosi' non si era accorto che
+    // bp_menu_style non veniva esportato affatto: era scritto come testo
+    // grezzo e riletto con JSON.parse. Ora si verifica anche l'inclusione.
+    for (const atteso of ['eventi', 'ricette', 'impostazioni', 'stileMenu', 'bozza']) {
+      expect(Object.keys(p.dati), `lo store "${atteso}" non e' nel backup`).toContain(atteso);
+    }
     // bp_onboarded e' stato di QUESTO dispositivo, non un dato dell'utente.
     expect(Object.keys(p.dati)).not.toContain('bp_onboarded');
     // Le chiavi legacy sono solo sorgenti di migrazione: esportarle
@@ -103,17 +118,22 @@ test.describe('Backup · cosa rifiuta', () => {
     expect(r.motivo).toBe('validazione');
   });
 
-  test('una chiave __proto__ resta una chiave, non un\'istruzione', async ({ page }) => {
+  test("una chiave __proto__ resta una chiave, non un'istruzione", async ({ page }) => {
     await openApp(page);
-    page.on('dialog', (d) => d.accept());
+    page.on("dialog", (d) => d.accept());
 
+    // Attenzione: scrivere __proto__ dentro un letterale NON crea una
+    // proprieta' enumerabile, cambia il prototipo di quell'oggetto — e
+    // JSON.stringify non la mette mai nel file. Il test di prima faceva
+    // cosi' e non provava niente: qui la chiave si scrive nel JSON a mano.
     const inquinato = await page.evaluate(async () => {
-      const c = { app: 'barman-pro', versione: 1, dati: { eventi: [{ id: 'x', nome: 'n', __proto__: { avvelenato: true } }] } };
-      const file = new File([JSON.stringify(c)], 'b.json', { type: 'application/json' });
-      await window.bpImportaFile(file, 'unione');
-      return ({}).avvelenato;
+      const json = '{"app":"barman-pro","versione":1,"dati":{"eventi":[{"id":"x","__proto__":{"avvelenato":true}}]}}';
+      const file = new File([json], "b.json", { type: "application/json" });
+      await window.bpImportaFile(file, "unione");
+      return { suOggetto: ({}).avvelenato, suArray: [].avvelenato };
     });
-    expect(inquinato, 'un oggetto qualunque e\' stato avvelenato dal file importato').toBeUndefined();
+    expect(inquinato.suOggetto, "un oggetto qualunque e' stato avvelenato dal file").toBeUndefined();
+    expect(inquinato.suArray).toBeUndefined();
   });
 });
 
@@ -208,7 +228,10 @@ test.describe('Backup · la transazione', () => {
       localStorage.setItem('bp_onboarded', '1');
       localStorage.setItem('bp_license', JSON.stringify({ key: 'X', instanceId: 'y', lastOk: Date.now() }));
       localStorage.setItem('bp_import_t1__bp_events_v2', JSON.stringify([{ id: 'ev_recuperato', nome: 'Recuperato', data: 1, config: {}, menu: {}, check: {} }]));
-      localStorage.setItem('bp_import_lock', JSON.stringify({ transazione: 't1', chiavi: ['bp_events_v2'] }));
+      // fase "commit": qualche chiave viva puo' essere gia' cambiata, quindi
+      // si puo' solo completare. In fase "preparazione" nessuna chiave viva e'
+      // stata toccata e si butta via tutto senza perdere niente.
+      localStorage.setItem('bp_import_lock', JSON.stringify({ transazione: 't1', fase: 'commit', chiavi: ['bp_events_v2'] }));
     });
     await openApp(page);
 
@@ -235,5 +258,53 @@ test.describe('Backup · la transazione', () => {
     });
     expect(esito.ok).toBe(false);
     expect(esito.motivo).toBe('import');
+  });
+});
+
+test.describe("Backup . cio che entra dal file e testo di qualcun altro", () => {
+  test("un id ostile in un evento importato non diventa markup", async ({ page }) => {
+    await openApp(page);
+
+    // bpEventsList incollava ev.id dentro data-id="..." senza sfuggirlo, in
+    // quattro punti. Il nome e il totale erano sfuggiti, l'id no: eppure e'
+    // esattamente il campo che arriva grezzo da un file o da un link. La CSP
+    // ferma l'esecuzione di script, non l'iniezione di markup nel DOM.
+    const ID = '"><img src=x onerror=alert(1)><b id=bp-intruso>';
+    await page.evaluate((id) => {
+      localStorage.setItem("bp_events_v2", JSON.stringify([
+        { id, nome: "Festa", data: 1, config: {}, menu: {}, lista: [], check: {}, scorte: {} },
+      ]));
+      window.bpEventsOpen();
+    }, ID);
+    await page.waitForTimeout(200);
+
+    const esito = await page.evaluate(() => ({
+      intrusi: document.querySelectorAll("#bp-ev-mount img, #bp-intruso").length,
+      schede: document.querySelectorAll("#bp-ev-mount .bpc-evcard").length,
+      idLetto: (document.querySelector("#bp-ev-mount .bpc-evcard-main") || {}).dataset?.id,
+    }));
+    expect(esito.intrusi, "l'id ha piantato elementi nuovi nella pagina").toBe(0);
+    expect(esito.schede, "la scheda dell'evento non e' stata disegnata").toBe(1);
+    // Sfuggire non deve rompere il round-trip: l'attributo torna decodificato.
+    expect(esito.idLetto, "l'id riletto non e' piu' quello salvato").toBe(ID);
+  });
+
+  test("l'evento con id ostile resta apribile e cancellabile", async ({ page }) => {
+    await openApp(page);
+    // Sfuggire l'attributo sarebbe inutile se poi l'evento non si potesse piu'
+    // toccare: e' il confronto per uguaglianza in bpEventOpen che deve reggere.
+    const ID = 'a"b'+'<c';
+    await page.evaluate((id) => {
+      localStorage.setItem("bp_events_v2", JSON.stringify([
+        { id, nome: "Festa", data: 1, config: {}, menu: {}, lista: [], check: {}, scorte: {} },
+      ]));
+      window.bpEventsOpen();
+    }, ID);
+    await page.waitForTimeout(200);
+    await page.click("#bp-ev-mount .bpc-evcard-main");
+    await page.waitForTimeout(200);
+
+    const aperto = await page.evaluate(() => document.getElementById("bp-ev-mount")._evId);
+    expect(aperto, "l'evento non si apre piu' dopo lo sfuggimento").toBe(ID);
   });
 });

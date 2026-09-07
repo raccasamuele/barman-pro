@@ -202,3 +202,57 @@ test.describe('Modificatori · dove vivono', () => {
     expect(new Set(ids).size, 'due id generati di fila sono uguali').toBe(ids.length);
   });
 });
+
+test.describe("Il ricalcolo differito . chi salva non si porta via numeri vecchi", () => {
+  /* L'unico ingresso che rimanda il conto al frame dopo e' lo slider "% che
+     beve alcolici": aggiornaPctBevitori -> ricalcolaSeVisibile ->
+     programmaRicalcoloLista -> requestAnimationFrame. Gli altri campi del
+     form ricalcolano subito, o non ricalcolano affatto. La prima versione di
+     questo test muoveva #ospiti — che non pianifica proprio niente — e quindi
+     non provava il difetto: passava e falliva a seconda di cosa era rimasto
+     in coda dal passo precedente. Qui si usa il vero innesco. */
+  const suiRisultati = async (page) => {
+    await openApp(page);
+    await page.evaluate(() => {
+      // eslint-disable-next-line no-undef
+      menuSerataDrink = { Negroni: 3 };
+      document.getElementById("ospiti").value = 100;
+      window.vaiAStep("risultati");
+    });
+    await page.waitForTimeout(400);
+  };
+
+  // Muove lo slider e restituisce, SENZA lasciar passare un frame, cio' che
+  // l'app produrrebbe adesso.
+  const senzaAspettareIlFrame = (page, azione) => page.evaluate((a) => {
+    const prima = document.getElementById("budget-amount").textContent.trim();
+    const r = document.getElementById("pct-bevitori");
+    r.value = 20;                       // da 80 a 20: il totale deve crollare
+    window.aggiornaPctBevitori();       // pianifica il ricalcolo, non lo esegue
+    const inCoda = window.bpRicalcoloInCoda();
+    let dopo;
+    if (a === "salva") {
+      window.bpSalvaEvento();
+      dopo = window.bpGetEvents().slice(-1)[0].totale;
+    } else {
+      dopo = document.getElementById("budget-amount").textContent.trim();
+      window.costruisciTestoLista();
+      dopo = document.getElementById("budget-amount").textContent.trim();
+    }
+    return { prima, dopo, inCoda };
+  }, azione);
+
+  test("salvare subito dopo lo slider fotografa la lista nuova", async ({ page }) => {
+    await suiRisultati(page);
+    const e = await senzaAspettareIlFrame(page, "salva");
+    expect(e.inCoda, "lo slider non ha pianificato nessun ricalcolo: il test non prova niente").toBe(true);
+    expect(e.dopo, "l'evento ha salvato il totale di prima dello slider").not.toBe(e.prima);
+  });
+
+  test("condividere subito dopo lo slider non copia la lista vecchia", async ({ page }) => {
+    await suiRisultati(page);
+    const e = await senzaAspettareIlFrame(page, "condividi");
+    expect(e.inCoda).toBe(true);
+    expect(e.dopo, "il testo condiviso e' rimasto quello di prima dello slider").not.toBe(e.prima);
+  });
+});

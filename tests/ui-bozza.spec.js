@@ -105,3 +105,78 @@ test.describe('Bozza · c\'e\' qualcosa da riprendere?', () => {
     await contesto.close();
   });
 });
+
+test.describe("Bozza . quale evento stai modificando", () => {
+  test("dopo un ricaricamento il salvataggio aggiorna, non duplica", async ({ browser }) => {
+    const { contesto, page } = await apri(browser);
+
+    // bpEditingId viveva solo in memoria. La bozza sopravviveva al
+    // ricaricamento, l'id no: si riapriva un evento salvato, si cambiava un
+    // numero, il telefono ricaricava la scheda e il salvataggio successivo
+    // creava un SECONDO evento con lo stesso nome invece di aggiornare il
+    // primo. Il difetto si vede solo con un ricaricamento vero.
+    await page.evaluate(() => {
+      // eslint-disable-next-line no-undef
+      menuSerataDrink = { Negroni: 3 };
+      document.getElementById("ospiti").value = 50;
+      window.vaiAStep("risultati");
+      window.bpSalvaEvento();
+    });
+    await page.waitForTimeout(300);
+
+    const id = await page.evaluate(() => {
+      const ev = window.bpGetEvents()[0];
+      window.bpEventEdit(ev.id);        // entra in modifica
+      return ev.id;
+    });
+    await page.waitForTimeout(300);
+
+    // L'id deve essere finito su disco insieme alla bozza.
+    await page.waitForFunction(
+      (atteso) => (JSON.parse(localStorage.getItem("barmanProState_v8") || "{}")).modifica === atteso,
+      id, { timeout: 4000 });
+
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => typeof window.bpSalvaEvento === "function");
+    await page.waitForTimeout(400);
+
+    const dopo = await page.evaluate(() => {
+      document.getElementById("ospiti").value = 120;
+      window.vaiAStep("risultati");
+      window.bpSalvaEvento();
+      return window.bpGetEvents();
+    });
+
+    expect(dopo.length, "il salvataggio ha creato un doppione invece di aggiornare").toBe(1);
+    expect(dopo[0].id, "l'evento aggiornato ha cambiato identita'").toBe(id);
+    expect(dopo[0].config.ospiti).toBe("120");
+
+    await contesto.close();
+  });
+
+  test("se l'evento e' stato cancellato nel frattempo, si riparte da capo", async ({ browser }) => {
+    const { contesto, page } = await apri(browser);
+    // Un id che non punta piu' a niente non deve far fallire il salvataggio:
+    // ricade su "aggiungi", ed e' giusto cosi'.
+    await page.evaluate(() => {
+      localStorage.setItem("barmanProState_v8", JSON.stringify({ modifica: "fantasma", config: {} }));
+      localStorage.setItem("bp_events_v2", JSON.stringify([]));
+    });
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => typeof window.bpSalvaEvento === "function");
+    await page.waitForTimeout(400);
+
+    const stato = await page.evaluate(() => {
+      // eslint-disable-next-line no-undef
+      menuSerataDrink = { Negroni: 3 };
+      document.getElementById("ospiti").value = 60;
+      window.vaiAStep("risultati");
+      window.bpSalvaEvento();
+      return window.bpGetEvents().map((e) => e.id);
+    });
+    expect(stato.length).toBe(1);
+    expect(stato[0], "ha riusato l'id di un evento che non esiste piu'").not.toBe("fantasma");
+
+    await contesto.close();
+  });
+});

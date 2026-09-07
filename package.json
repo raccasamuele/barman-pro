@@ -11,7 +11,7 @@
   "scripts": {
     "serve": "npx --yes http-server public -p 8099 -c-1 --ext html --silent",
     "test": "playwright test",
-    "test:golden": "playwright test tests/golden-calc.spec.js tests/golden-wizard.spec.js",
+    "test:golden": "playwright test --project=golden",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:forbidden": "node scripts/check-forbidden.mjs",
     "check": "npm run check:i18n && npm run check:forbidden",

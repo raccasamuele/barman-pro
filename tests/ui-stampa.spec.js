@@ -97,7 +97,17 @@ test.describe('Stampa · lo smontaggio', () => {
     await page.evaluate(() => window.bpBeginPrint('lista'));
     expect(await page.evaluate(() => document.body.className)).toContain('bp-stampa-lista');
 
-    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    // Prima questo test lanciava un evento `focus`: e' una rete di sicurezza
+    // DIVERSA, quindi la ricaduta su matchMedia restava non provata. Il
+    // secondo tentativo dispacciava 'change' su `window.matchMedia('print')`
+    // — e nemmeno quello funzionava: matchMedia restituisce un oggetto NUOVO
+    // a ogni chiamata, e l'ascoltatore dell'app sta su quello creato
+    // all'avvio. Si dispacciava a un oggetto che non ascoltava nessuno.
+    // Qui il media cambia davvero: e' l'unico modo di far scattare
+    // l'ascoltatore vero.
+    await page.emulateMedia({ media: 'print' });
+    await page.emulateMedia({ media: 'screen' });
+    await page.waitForTimeout(100);
     expect(await page.evaluate(() => document.body.className),
       'il bersaglio e\' rimasto attaccato e avvelena le stampe successive')
       .not.toContain('bp-stampa-lista');

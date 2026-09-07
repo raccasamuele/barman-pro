@@ -2469,10 +2469,82 @@
                         bo: num(st.fe && st.fe.bo, 0, 20, 0), bi: num(st.fe && st.fe.bi, 0, 20, 0)
                     },
                     menu,
-                    ricette: (st.rc && typeof st.rc === 'object') ? st.rc : {}
+                    ricette: bpValidaRicette(st.rc)
                 },
                 quanti
             };
+        }
+
+        /* ── Lo slot di recupero ──
+           Ce n'e' UNO solo. Una seconda bozza da parcheggiare chiede conferma
+           prima di sostituire quella che c'e', e lo slot si svuota solo quando
+           l'utente riprende o scarta: mai da solo, mai a tempo. */
+        const BP_SLOT_RECUPERO = 'bp_bozza_parcheggiata';
+
+        function bpParcheggiaBozza() {
+            if (!bpHasInProgress()) return true;   // niente da salvare
+            const gia = bpStorageRead(BP_SLOT_RECUPERO, null);
+            if (gia && !confirm(T('bozzaSostituisciParcheggio'))) return false;
+
+            const attuale = bpStorageRead(STORAGE_KEY, null);
+            const istantanea = Object.assign({}, attuale && typeof attuale === 'object' ? attuale : {}, {
+                nome: bpCfgNomeEvento || '',
+                parcheggiataIl: Date.now()
+            });
+            const esito = bpStorageWrite(BP_SLOT_RECUPERO, istantanea);
+            if (!esito.ok) mostraToast(T('toastSalvataggioFallito'));
+            return esito.ok;
+        }
+
+        function bpBozzaParcheggiata() { return bpStorageRead(BP_SLOT_RECUPERO, null); }
+
+        function bpRiprendiParcheggio() {
+            const b = bpBozzaParcheggiata();
+            if (!b) return;
+            // Riprendere e' a sua volta uno spostamento: quello che c'e' adesso
+            // prende il posto nello slot, invece di sparire.
+            const corrente = bpStorageRead(STORAGE_KEY, null);
+            const daRipristinare = Object.assign({}, b);
+            delete daRipristinare.parcheggiataIl;
+            if (!bpStorageWrite(STORAGE_KEY, daRipristinare).ok) { mostraToast(T('toastSalvataggioFallito')); return; }
+            if (corrente && bpHasInProgress()) {
+                bpStorageWrite(BP_SLOT_RECUPERO, Object.assign({}, corrente, { nome: bpCfgNomeEvento || '', parcheggiataIl: Date.now() }));
+            } else {
+                try { localStorage.removeItem(BP_SLOT_RECUPERO); } catch(e){}
+            }
+            location.reload();
+        }
+
+        function bpScartaParcheggio() {
+            if (!confirm(T('bozzaScartaConferma'))) return;
+            try { localStorage.removeItem(BP_SLOT_RECUPERO); } catch(e){}
+            if (typeof bpHomeRender === 'function') bpHomeRender();
+            mostraToast(T('bozzaScartata'));
+        }
+
+        /* Una ricetta che arriva da fuori non e' "un oggetto qualunque":
+           deve essere una lista di ingredienti con nome, dose e tipo. Prima si
+           accettava `rc` cosi' com'era, e una stringa al posto della lista
+           faceva esplodere il calcolo su .forEach(). */
+        function bpValidaRicette(rc) {
+            const out = Object.create(null);
+            if (!rc || typeof rc !== 'object') return out;
+            for (const nome of Object.keys(rc)) {
+                if (typeof nome !== 'string' || !nome.trim() || nome.length > 120) continue;
+                const ings = rc[nome];
+                if (!Array.isArray(ings) || !ings.length || ings.length > 40) continue;
+                const puliti = [];
+                let valida = true;
+                for (const ing of ings) {
+                    if (!ing || typeof ing !== 'object') { valida = false; break; }
+                    const n = typeof ing.nome === 'string' ? ing.nome.slice(0, 120) : '';
+                    const ml = parseFloat(ing.ml);
+                    if (!n || !isFinite(ml) || ml < 0 || ml > 5000) { valida = false; break; }
+                    puliti.push({ nome: n, ml, tipo: ing.tipo === 'alcolico' ? 'alcolico' : 'analcolico' });
+                }
+                if (valida) out[nome] = puliti;
+            }
+            return out;
         }
 
         function bpChiediApriLink(payload) {
@@ -2496,12 +2568,18 @@
         }
 
         function bpApriLinkComeCopia(st) {
-            /* Le ricette del link valgono per questa copia e basta: non
-               entrano in bp_recipes, cosi' la libreria di chi riceve non viene
-               riscritta da un link ricevuto per messaggio. */
-            Object.keys(st.ricette).forEach(nome => {
-                if (!databaseDrink[nome]) databaseDrink[nome] = st.ricette[nome];
-            });
+            /* La promessa nel messaggio e' "quello che stai preparando non
+               viene toccato", e prima era falsa: si sovrascriveva la bozza e si
+               programmava un salvataggio sulla sua unica chiave. O si cambiava
+               il testo, o si manteneva la promessa. Si mantiene: la bozza in
+               corso viene PARCHEGGIATA, e la si puo' riprendere dalla Home. */
+            bpParcheggiaBozza();
+
+            /* Le ricette del link valgono per questo evento e basta: non
+               entrano in databaseDrink — che e' cio' che la libreria "I miei
+               cocktail" enumera — quindi un link ricevuto per messaggio non
+               riscrive le ricette di chi lo apre. */
+            bpRicetteEvento = Object.assign(Object.create(null), st.ricette);
 
             bpEditingId = null;          // e' una copia: salvandola nasce un evento nuovo
             bpScorte = {};               // le scorte erano di chi ha condiviso
@@ -2685,11 +2763,14 @@ Annulla = ` + T('backupUnisci'));
             try { chiavi = Object.keys(localStorage); } catch(e) { return; }
 
             const marcatore = bpStorageLetturaGrezza(BP_IMPORT_LOCK);
-            if (marcatore && marcatore.transazione && Array.isArray(marcatore.chiavi)) {
-                // Dopo il marcatore si puo' solo completare. Idempotente.
+            if (marcatore && marcatore.fase === 'commit' && Array.isArray(marcatore.chiavi)) {
+                // Fase commit: qualche chiave viva puo' essere gia' cambiata,
+                // quindi si puo' solo completare. Idempotente.
                 bpCompletaImport(marcatore);
                 return;
             }
+            // Fase "preparazione" interrotta: nessuna chiave viva e' stata
+            // toccata, quindi si butta via tutto e non si e' perso niente.
 
             // Nessun marcatore valido: quello che resta in staging e' un crash
             // avvenuto PRIMA del commit. Non c'e' niente da completare, e
@@ -2698,6 +2779,15 @@ Annulla = ` + T('backupUnisci'));
                   .forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
             try { localStorage.removeItem(BP_IMPORT_LOCK); } catch(e){}
         }
+
+        /* Un'altra scheda ha finito un import: quello che abbiamo in memoria
+           e' vecchio. Senza questo, quella scheda restava bloccata in "stale"
+           per sempre, perche' solo chi importa riazzera il flag. */
+        window.addEventListener('storage', function (e) {
+            if (e.key !== BP_IMPORT_LOCK || e.newValue !== null) return;
+            bpStorageRiallineato();
+            location.reload();
+        });
 
         /* Legge saltando la guardia: il recupero deve poter leggere il
            marcatore proprio mentre il marcatore blocca tutti gli altri. */
@@ -2763,24 +2853,92 @@ Annulla = ` + T('backupUnisci'));
             return bpApplicaImport(pulito.valore, modalita === 'sostituisci' ? 'sostituisci' : 'unione');
         }
 
+        /* La forma attesa di ogni store. Senza, un file sintatticamente
+           valido ma della forma sbagliata poteva sostituire dati buoni. */
+        function bpFormaValida(nome, v) {
+            if (v === null || v === undefined) return false;
+            switch (nome) {
+                case 'eventi':
+                    return Array.isArray(v) && v.every(e => e && typeof e === 'object' && typeof e.id === 'string');
+                case 'ricette':
+                    return typeof v === 'object' && !Array.isArray(v)
+                        && (v.mods === undefined || (typeof v.mods === 'object' && !Array.isArray(v.mods)))
+                        && (v.custom === undefined || Array.isArray(v.custom))
+                        && (v.amari === undefined || v.amari === null || Array.isArray(v.amari));
+                case 'impostazioni':
+                case 'bozza':
+                    return typeof v === 'object' && !Array.isArray(v);
+                case 'stileMenu':
+                    return typeof v === 'string' && v.length < 40;
+                default:
+                    return false;
+            }
+        }
+
         function bpApplicaImport(dati, modalita) {
             // Niente scritture in coda mentre si scambiano le chiavi.
             clearTimeout(bpSaveTimer); bpSaveTimer = 0;
 
             const t = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+            /* Il marcatore si prende PRIMA di leggere lo stato, non dopo aver
+               preparato lo staging. Prendendolo dopo restava una finestra in
+               cui un'altra scheda poteva salvare un evento fra la nostra
+               lettura e il commit: quell'evento veniva poi sovrascritto. In
+               fase "preparazione" non e' stata toccata nessuna chiave viva,
+               quindi si puo' ancora annullare. */
+            const gia = bpStorageLetturaGrezza(BP_IMPORT_LOCK);
+            if (gia && gia.transazione && gia.transazione !== t) {
+                return { ok:false, motivo:'import-gia-in-corso' };
+            }
+            try { localStorage.setItem(BP_IMPORT_LOCK, JSON.stringify({ transazione: t, fase: 'preparazione' })); }
+            catch(e) { return { ok:false, motivo:'marcatore' }; }
+
+            const annulla = (motivo) => {
+                try { localStorage.removeItem(BP_IMPORT_LOCK); } catch(e){}
+                bpStorageRiallineato();
+                return { ok:false, motivo };
+            };
+
             const daScrivere = {};
+            /* Le ricette in conflitto vengono rinominate: se i menu degli
+               eventi importati non seguissero il rinomino, quegli eventi
+               calcolerebbero con la ricetta di CHI RICEVE invece che con la
+               propria — silenziosamente, e con numeri diversi. */
+            let rinomini = {};
 
             BP_CHIAVI_BACKUP.forEach(k => {
                 const entrante = dati[k.nome];
                 if (entrante === undefined) return;
-                if (modalita === 'sostituisci') { daScrivere[k.chiave] = entrante; return; }
+                if (modalita === 'sostituisci') {
+                    /* Non basta che sia JSON pulito: deve essere della FORMA
+                       giusta. `eventi: {}` passava la validazione strutturale,
+                       sostituiva una lista valida e veniva poi letto come
+                       "nessun evento": un backup malformato cancellava dati
+                       veri riportando successo. */
+                    if (!bpFormaValida(k.nome, entrante)) return;
+                    daScrivere[k.chiave] = entrante;
+                    return;
+                }
                 if (k.unione === 'solo-sostituisci') return;   // in unione le tue restano
-                if (k.unione === 'eventi')  daScrivere[k.chiave] = bpUnisciEventi(bpGetEvents(), entrante);
-                if (k.unione === 'ricette') daScrivere[k.chiave] = bpUnisciRicette(bpStorageRead(BP_RECIPES_KEY, null), entrante);
+                if (!bpFormaValida(k.nome, entrante)) return;
+                if (k.unione === 'eventi')  daScrivere[k.chiave] = entrante;   // rimappati sotto
+                if (k.unione === 'ricette') {
+                    const u = bpUnisciRicette(bpStorageRead(BP_RECIPES_KEY, null), entrante);
+                    daScrivere[k.chiave] = u.ricette;
+                    rinomini = u.rinomini;   // servono ai menu degli eventi
+                }
             });
 
+            // I menu si rimappano DOPO aver saputo quali ricette sono state
+            // rinominate: una tabella sola, applicata a ogni riferimento.
+            if (daScrivere[BP_EVENTS_KEY] !== undefined) {
+                daScrivere[BP_EVENTS_KEY] = bpUnisciEventi(
+                    bpGetEvents(), bpRimappaMenu(daScrivere[BP_EVENTS_KEY], rinomini));
+            }
+
             const chiavi = Object.keys(daScrivere);
-            if (!chiavi.length) return { ok:false, motivo:'niente-da-importare' };
+            if (!chiavi.length) return annulla('niente-da-importare');
 
             // 1. staging, con prenotazione dello spazio
             const peso = chiavi.reduce((n, c) => n + JSON.stringify(daScrivere[c]).length, 0);
@@ -2795,14 +2953,14 @@ Annulla = ` + T('backupUnisci'));
                 chiavi.forEach(c => { try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__' + c); } catch(e2){} });
                 try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__prenotazione'); } catch(e2){}
                 alert(T('backupSpazioInsufficiente'));
-                return { ok:false, motivo:'quota' };
+                return annulla('quota');
             }
 
-            // 2. marcatore: da qui in poi si puo' solo completare
-            try { localStorage.setItem(BP_IMPORT_LOCK, JSON.stringify({ transazione: t, chiavi })); }
+            // 2. il marcatore passa a "commit": da qui si puo' solo completare
+            try { localStorage.setItem(BP_IMPORT_LOCK, JSON.stringify({ transazione: t, fase: 'commit', chiavi })); }
             catch(e) {
                 chiavi.forEach(c => { try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__' + c); } catch(e2){} });
-                return { ok:false, motivo:'marcatore' };
+                return annulla('marcatore');
             }
 
             // 3. la prenotazione si libera proprio ora che serve lo spazio
@@ -2833,14 +2991,17 @@ Annulla = ` + T('backupUnisci'));
         /* Ricette: stesso nome e contenuto identico si ignora; stesso nome e
            contenuto diverso si conserva con un suffisso. Non si scarta mai il
            lavoro di nessuno dei due. */
+        /* Ritorna anche la tabella dei rinomini: chi unisce gli eventi deve
+           poterla applicare ai loro menu. */
         function bpUnisciRicette(mie, entranti) {
+            const rinomini = {};
             const base = (mie && typeof mie === 'object') ? mie : { mods:{}, custom:[], amari:null };
             const out = {
                 mods: Object.assign({}, base.mods || {}),
                 custom: Array.isArray(base.custom) ? base.custom.slice() : [],
                 amari: Array.isArray(base.amari) ? base.amari.slice() : null
             };
-            if (!entranti || typeof entranti !== 'object') return out;
+            if (!entranti || typeof entranti !== 'object') return { ricette: out, rinomini };
 
             Object.keys(entranti.mods || {}).forEach(nome => {
                 const nuova = entranti.mods[nome];
@@ -2855,13 +3016,31 @@ Annulla = ` + T('backupUnisci'));
                 while (out.mods[alt]) { n++; alt = nome + ' (' + n + ')'; }
                 out.mods[alt] = nuova;
                 if (out.custom.indexOf(alt) < 0) out.custom.push(alt);
+                rinomini[nome] = alt;
             });
 
             if (Array.isArray(entranti.amari)) {
                 if (!out.amari) out.amari = [];
                 entranti.amari.forEach(a => { if (out.amari.indexOf(a) < 0) out.amari.push(a); });
             }
-            return out;
+            return { ricette: out, rinomini };
+        }
+
+        /* Applica la tabella dei rinomini a ogni riferimento nei menu. */
+        function bpRimappaMenu(eventi, rinomini) {
+            if (!Array.isArray(eventi) || !Object.keys(rinomini).length) return eventi;
+            return eventi.map(ev => {
+                if (!ev || !ev.menu) return ev;
+                const menu = {};
+                ['drink', 'mocktail', 'shot'].forEach(campo => {
+                    const m = ev.menu[campo];
+                    if (!m || typeof m !== 'object') { menu[campo] = m; return; }
+                    const nuovo = {};
+                    Object.keys(m).forEach(nome => { nuovo[rinomini[nome] || nome] = m[nome]; });
+                    menu[campo] = nuovo;
+                });
+                return Object.assign({}, ev, { menu });
+            });
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -3077,6 +3256,12 @@ Annulla = ` + T('backupUnisci'));
            costa il gin al tuo supermercato non cambia da una festa all'altra. */
         let bpPrezziUtente = {};
 
+        /* Ricette arrivate con l'evento e non presenti nella libreria di chi lo
+           apre: da un link condiviso o da un import. Vivono qui e si salvano
+           con l'evento, cosi' il menu resta calcolabile anche dopo un
+           ricaricamento — e la libreria di chi riceve non viene toccata. */
+        let bpRicetteEvento = {};
+
         let bpPassoCorrente = 'step-setup';
         const BP_PASSI = ['step-setup', 'step-menu', 'risultati'];
         let bpAutoSave = true;                   // salvataggio automatico dell'evento in corso (toggle Impostazioni, ON di default)
@@ -3107,6 +3292,25 @@ Annulla = ` + T('backupUnisci'));
             });
         }
 
+        /* Il gemello di flushSalvataggio, per il ricalcolo.
+           programmaRicalcoloLista rimanda il conto al frame dopo: chi cambia
+           una scorta e tocca subito "Salva" o "Condividi" leggeva il DOM
+           ancora fermo alla lista PRECEDENTE, e si portava via numeri vecchi
+           dentro un evento salvato. La stampa non ne soffriva perche' ricalcola
+           dal modello — motivo in piu' per cui il modello canonico esiste. */
+        /* Serve ai test per dire "c'e' davvero qualcosa in coda": senza,
+           un test del ricalcolo differito passa anche quando non e' stato
+           pianificato niente, cioe' proprio quando non sta provando nulla. */
+        function bpRicalcoloInCoda() { return !!bpCalcFrame; }
+
+        function flushRicalcoloLista() {
+            if (!bpCalcFrame) return;
+            cancelAnimationFrame(bpCalcFrame);
+            bpCalcFrame = 0;
+            calcolaSpesa(true);
+            programmaSalvataggio();
+        }
+
         window.addEventListener('pagehide', flushSalvataggio);
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') flushSalvataggio();
@@ -3135,8 +3339,15 @@ Annulla = ` + T('backupUnisci'));
                        databaseDrink all'avvio, senza una precedenza. */
                     passo: bpPassoCorrente,
                     scorte: bpScorte,
+                    ricetteEvento: bpRicetteEvento,
                     lingua: linguaCorrente,
                     tema: bpTemaScelto,
+                    /* Quale evento si sta modificando. Viveva solo in memoria:
+                       chi apriva un evento salvato, cambiava qualcosa e
+                       ricaricava la pagina si ritrovava la bozza giusta ma
+                       l'id perduto, e il salvataggio successivo creava un
+                       DOPPIONE invece di aggiornare l'originale. */
+                    modifica: bpEditingId,
                     config: {
                         ospiti: _get('ospiti'),
                         drink_testa: _get('drink_testa'),
@@ -3175,6 +3386,16 @@ Annulla = ` + T('backupUnisci'));
                 // Bozze salvate prima che il passo esistesse: default sicuro.
                 bpPassoCorrente = BP_PASSI.indexOf(s.passo) !== -1 ? s.passo : 'step-setup';
                 bpScorte = (s.scorte && typeof s.scorte === 'object') ? s.scorte : {};
+                // Senza, dopo un ricaricamento il menu conserva il nome della
+                // ricetta arrivata col link ma ne perde la definizione.
+                bpRicetteEvento = bpValidaRicette(s.ricetteEvento);
+                /* Solo se quell'evento esiste davvero: nel frattempo puo'
+                   essere stato cancellato, magari da un'altra scheda. Un id
+                   che non punta piu' a niente farebbe ricadere il salvataggio
+                   su "aggiungi", che e' il comportamento giusto — ma lo si
+                   dice qui, invece di lasciarlo capitare. */
+                bpEditingId = (typeof s.modifica === 'string'
+                    && bpGetEvents().some(e => e.id === s.modifica)) ? s.modifica : null;
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
                 if (s.tema) {
                     bpApplicaTema(s.tema);
@@ -3267,6 +3488,7 @@ Annulla = ` + T('backupUnisci'));
             menuSerataMocktail = {};
             menuSerataShot = {};
             bpScorte = {};   // una scorta si consuma con la sua spesa: un evento nuovo riparte da zero
+            bpRicetteEvento = {};
             customShots = [];
             customDrinks = {};
             // ricostruisco databaseDrink rimuovendo i custom
@@ -3872,6 +4094,21 @@ Annulla = ` + T('backupUnisci'));
 
         /* ── i18n della stampa — 7 lingue ── */
         /* ── i18n dei modificatori — 7 lingue ── */
+        /* ── i18n dello slot di recupero — 7 lingue ──
+           Serve a mantenere una promessa che prima era solo scritta: aprire un
+           link condiviso sovrascriveva la bozza in corso mentre il messaggio
+           diceva che non veniva toccata. */
+        const _bozzaI18n = {
+            it: { bozzaParcheggiata:"“{nome}” è stato messo da parte quando hai aperto un link condiviso.", bozzaRiprendi:"Riprendi", bozzaScarta:"Scarta", bozzaSostituisciParcheggio:"C'è già una bozza messa da parte. Sostituirla con quella attuale?", bozzaScartaConferma:"Scartare definitivamente la bozza messa da parte?", bozzaScartata:"Bozza scartata" },
+            en: { bozzaParcheggiata:"“{nome}” was set aside when you opened a shared link.", bozzaRiprendi:"Resume", bozzaScarta:"Discard", bozzaSostituisciParcheggio:"There is already a draft set aside. Replace it with the current one?", bozzaScartaConferma:"Permanently discard the draft you set aside?", bozzaScartata:"Draft discarded" },
+            es: { bozzaParcheggiata:"“{nome}” se apartó cuando abriste un enlace compartido.", bozzaRiprendi:"Continuar", bozzaScarta:"Descartar", bozzaSostituisciParcheggio:"Ya hay un borrador apartado. ¿Sustituirlo por el actual?", bozzaScartaConferma:"¿Descartar definitivamente el borrador apartado?", bozzaScartata:"Borrador descartado" },
+            fr: { bozzaParcheggiata:"« {nome} » a été mis de côté quand vous avez ouvert un lien partagé.", bozzaRiprendi:"Reprendre", bozzaScarta:"Abandonner", bozzaSostituisciParcheggio:"Un brouillon est déjà mis de côté. Le remplacer par l'actuel ?", bozzaScartaConferma:"Abandonner définitivement le brouillon mis de côté ?", bozzaScartata:"Brouillon abandonné" },
+            de: { bozzaParcheggiata:"„{nome}“ wurde beiseitegelegt, als du einen geteilten Link geöffnet hast.", bozzaRiprendi:"Fortsetzen", bozzaScarta:"Verwerfen", bozzaSostituisciParcheggio:"Es liegt schon ein Entwurf beiseite. Durch den aktuellen ersetzen?", bozzaScartaConferma:"Den beiseitegelegten Entwurf endgültig verwerfen?", bozzaScartata:"Entwurf verworfen" },
+            pt: { bozzaParcheggiata:"“{nome}” foi posto de lado quando abriste um link partilhado.", bozzaRiprendi:"Retomar", bozzaScarta:"Descartar", bozzaSostituisciParcheggio:"Já existe um rascunho posto de lado. Substituí-lo pelo atual?", bozzaScartaConferma:"Descartar definitivamente o rascunho posto de lado?", bozzaScartata:"Rascunho descartado" },
+            nl: { bozzaParcheggiata:"“{nome}” is opzijgezet toen je een gedeelde link opende.", bozzaRiprendi:"Hervatten", bozzaScarta:"Weggooien", bozzaSostituisciParcheggio:"Er staat al een concept opzij. Vervangen door het huidige?", bozzaScartaConferma:"Het opzijgezette concept definitief weggooien?", bozzaScartata:"Concept weggegooid" }
+        };
+        Object.keys(_bozzaI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _bozzaI18n[lg]); });
+
         /* ── i18n del link condivisibile — 7 lingue ──
            La domanda e la nota stanno in due chiavi separate, e le unisce il
            codice con un a capo vero: una sola stringa con "\n" dentro e' il
@@ -4111,7 +4348,8 @@ Annulla = ` + T('backupUnisci'));
                     ospiti: bpCfg.ospiti, drinkTesta: d.drinkTesta, shotTesta: d.shotTesta, scarto: bpCfg.scarto,
                     pct: bpCfg.pct, fascia: bpCfg.fascia, nazione: (document.getElementById('sel-nazione') || {}).value || '',
                     drink: d.drink, mocktail: d.mocktail, shot: d.shot,
-                    ferm: { rosso: d.ferm.rosso, bianco: d.ferm.bianco, bollicine: d.ferm.bollicine, birra: d.ferm.birra }
+                    ferm: { rosso: d.ferm.rosso, bianco: d.ferm.bianco, bollicine: d.ferm.bollicine, birra: d.ferm.birra },
+                    ...bpModificatoriCorrenti()
                 });
                 const totStr = '€ ' + est.totale.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 const ppStr = (bpCfg.ospiti > 0) ? '≈ € ' + (est.totale / bpCfg.ospiti).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + T('perPersonaTxt') : '';
@@ -4276,6 +4514,7 @@ Annulla = ` + T('backupUnisci'));
 
         /* Fotografa la lista della spesa renderizzata (gruppi + voci, snapshot nella lingua attuale) */
         function bpSnapshotLista(){
+            flushRicalcoloLista();   // niente fotografie di una lista gia' scaduta
             const groups = [
                 {key:'alcolici', ul:'lista_alcolici'},
                 {key:'analcolici', ul:'lista_analcolici'},
@@ -4307,6 +4546,12 @@ Annulla = ` + T('backupUnisci'));
         /* Salva (o aggiorna, se bpEditingId è impostato) un evento in localStorage 'bp_events'. */
         function bpSalvaEvento(){
             const _T = _bpT();
+            /* Prima di leggere QUALSIASI cosa dalla pagina. Metterlo dentro
+               bpSnapshotLista non bastava: il totale si legge da
+               #budget-amount qualche riga piu' su, e restava quello vecchio
+               mentre le righe erano gia' quelle nuove. Un evento salvato con
+               dentro due liste diverse e' peggio di uno salvato vecchio. */
+            flushRicalcoloLista();
             try {
                 const _g = id => { const e = document.getElementById(id); return e ? e.value : ''; };
                 const nome = (bpCfgNomeEvento && bpCfgNomeEvento.trim())
@@ -4315,14 +4560,15 @@ Annulla = ` + T('backupUnisci'));
                 const config = { ospiti:_g('ospiti'), drink_testa:_g('drink_testa'), shot_testa:_g('shot_testa'), scarto:_g('scarto'), nazione:_g('sel-nazione'), fascia:_g('sel-fascia'), pct_bevitori:_g('pct-bevitori'), ferm_vino_rosso:_g('ferm_vino_rosso'), ferm_vino_bianco:_g('ferm_vino_bianco'), ferm_bollicine:_g('ferm_bollicine'), ferm_birra:_g('ferm_birra'), fascia_fermentati:_g('sel-fascia-fermentati') };
                 const menu = { drink: Object.assign({}, menuSerataDrink), mocktail: Object.assign({}, menuSerataMocktail), shot: Object.assign({}, menuSerataShot) };
                 const scorte = Object.assign({}, bpScorte);
+                const ricetteEvento = Object.assign({}, bpRicetteEvento);
                 const totale = (function(){ const b = document.getElementById('budget-amount'); return b ? b.textContent.trim() : ''; })();
                 const lista = bpSnapshotLista();
                 const list = bpGetEvents();
                 const idx = bpEditingId ? list.findIndex(e => e.id === bpEditingId) : -1;
                 if (idx >= 0) {
-                    list[idx] = Object.assign({}, list[idx], { nome, data: Date.now(), config, menu, totale, lista, scorte, check: list[idx].check || {} });
+                    list[idx] = Object.assign({}, list[idx], { nome, data: Date.now(), config, menu, totale, lista, scorte, ricetteEvento, check: list[idx].check || {} });
                 } else {
-                    list.push({ id: bpNuovoId(), nome, data: Date.now(), config, menu, totale, lista, scorte, check:{} });
+                    list.push({ id: bpNuovoId(), nome, data: Date.now(), config, menu, totale, lista, scorte, ricetteEvento, check:{} });
                 }
                 /* Il toast di successo esce SOLO se la scrittura e' andata a
                    buon fine. Prima bpSetEvents ingoiava l'errore e questo
@@ -4421,11 +4667,18 @@ Annulla = ` + T('backupUnisci'));
                 mount.innerHTML = '<div class="bpc-evempty"><div class="mk">&#10070;</div><h3>'+_T('evEmpty')+'</h3><p>'+_T('evEmptySub')+'</p></div>';
                 return;
             }
+            /* L'id finisce dentro un attributo: va sfuggito come tutto il resto.
+               Un id arrivato da un file importato o da un link e' testo di
+               qualcun altro, non un numero che abbiamo generato noi: senza
+               virgolette sfuggite chiude l'attributo e inietta markup. La CSP
+               ferma gli script, non un <div> o un onclick piantato nel DOM.
+               L'attributo torna decodificato da dataset.id, quindi il confronto
+               per uguaglianza con l'id salvato resta identico. */
             let h = '<div class="bpc-evhead"><h2>'+_T('evTitle')+'</h2><span class="cnt">'+list.length+'</span></div><div class="bpc-evlist">';
             list.forEach(ev => {
                 const osp = ev.config && ev.config.ospiti ? ev.config.ospiti : '';
                 h += '<div class="bpc-evcard">'+
-                     '<div class="bpc-evcard-main" data-id="'+ev.id+'">'+
+                     '<div class="bpc-evcard-main" data-id="'+_bpEsc(ev.id)+'">'+
                        '<h3>'+_bpEsc(ev.nome)+'</h3>'+
                        '<div class="bpc-evmeta">'+
                          '<span>'+_bpFmtDate(ev.data)+'</span>'+
@@ -4435,9 +4688,9 @@ Annulla = ` + T('backupUnisci'));
                      '</div>'+
                      '<button type="button" class="bpc-evkebab" aria-label="•••">&#8942;</button>'+
                      '<div class="bpc-evmenu">'+
-                       '<button data-act="edit" data-id="'+ev.id+'"><span class="mi">&#9998;</span>'+_T('evEdit')+'</button>'+
-                       '<button data-act="dup" data-id="'+ev.id+'"><span class="mi">&#10697;</span>'+_T('evDup')+'</button>'+
-                       '<button data-act="del" data-id="'+ev.id+'"><span class="mi">&times;</span>'+_T('evDelete')+'</button>'+
+                       '<button data-act="edit" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&#9998;</span>'+_T('evEdit')+'</button>'+
+                       '<button data-act="dup" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&#10697;</span>'+_T('evDup')+'</button>'+
+                       '<button data-act="del" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&times;</span>'+_T('evDelete')+'</button>'+
                      '</div>'+
                      '</div>';
             });
@@ -4486,7 +4739,9 @@ Annulla = ` + T('backupUnisci'));
             const list = bpGetEvents(); const ev = list.find(e => e.id === id); if (!ev) return;
             ev.check = ev.check || {};
             if (ev.check[key]) delete ev.check[key]; else ev.check[key] = 1;
-            bpSetEvents(list);
+            /* Spuntare una voce e' una scrittura come le altre: se fallisce,
+               segnare la casella e' una bugia che si scopre al ricaricamento. */
+            if (!bpSetEvents(list).ok) { mostraToast(_bpT()('toastSalvataggioFallito')); return; }
             el.classList.toggle('done');
             // ricalcola progresso + costi dallo stato dell'evento (singola fonte di verità)
             let tot = 0, done = 0, cTot = 0, cDone = 0;
@@ -4507,6 +4762,7 @@ Annulla = ` + T('backupUnisci'));
             // Le scorte fanno parte dell'evento: chi lo riapre per modificarlo
             // deve ritrovare quello che aveva gia' dichiarato di avere in casa.
             bpScorte = (ev.scorte && typeof ev.scorte === 'object') ? Object.assign({}, ev.scorte) : {};
+            bpRicetteEvento = bpValidaRicette(ev.ricetteEvento);
             const c = ev.config || {};
             const _s = (eid, v) => { const e = document.getElementById(eid); if (e && v != null && v !== '') e.value = v; };
             _s('ospiti', c.ospiti); _s('drink_testa', c.drink_testa); _s('shot_testa', c.shot_testa); _s('scarto', c.scarto);
@@ -4538,14 +4794,20 @@ Annulla = ` + T('backupUnisci'));
             copy.id = bpNuovoId(); copy.data = Date.now();
             copy.nome = (ev.nome || '') + ' ' + _T('evCopySuffix');
             copy.check = {}; copy.scorte = {};
-            list.push(copy); bpSetEvents(list); bpEventsList();
+            list.push(copy);
+            if (!bpSetEvents(list).ok) { mostraToast(_T('toastSalvataggioFallito')); return; }
+            bpEventsList();
             mostraToast(_T('evToastDuplicated'));
         }
 
         function bpEventDelete(id){
             const _T = _bpT();
             if (!confirm(_T('evConfirmDelete'))) return;
-            bpSetEvents(bpGetEvents().filter(e => e.id !== id));
+            if (!bpSetEvents(bpGetEvents().filter(e => e.id !== id)).ok) {
+                // Dire "eliminato" su una cancellazione fallita e' peggio che
+                // non dire niente: l'evento riappare al ricaricamento.
+                mostraToast(_T('toastSalvataggioFallito')); return;
+            }
             bpEventsList();
             mostraToast(_T('evToastDeleted'));
         }
@@ -4647,7 +4909,7 @@ Annulla = ` + T('backupUnisci'));
                 canvas.className = 'bpm-canvas bpm-' + style + (cols && cols !== '1' ? ' bpm-cols-' + cols : '');
             }
             document.querySelectorAll('.bpm-style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === style));
-            bpStorageWrite('bp_menu_style', style);
+            bpStorageWrite('bp_menu_style', style);   // JSON, come tutto il resto: prima era testo grezzo e l'export non lo vedeva
         }
 
         function bpMenuOpen(src){
@@ -4655,7 +4917,7 @@ Annulla = ` + T('backupUnisci'));
             if (!o) return;
             bpMenuRender(src);
             let st = 'elegant';
-            try { st = localStorage.getItem('bp_menu_style') || 'elegant'; } catch (e) {}
+            st = bpStorageRead('bp_menu_style', 'elegant') || 'elegant';
             bpMenuSetStyle(st);
             const canvas = document.getElementById('bpm-canvas');
             if (canvas && !canvas._bpmBound){
@@ -5197,12 +5459,32 @@ Annulla = ` + T('backupUnisci'));
         /* Cambiare sezione con un dialogo aperto lascerebbe una finestra
            sospesa sopra una pagina che non e' piu' la sua. */
         function bpChiudiDialoghi() {
+            /* Passa dalla PILA, non dalle classi. Toglieva `.show` a mano e
+               lasciava la pila piena e gli attributi `inert` attaccati: dopo
+               una navigazione a codice restavano dodici elementi inerti, barra
+               di navigazione compresa, e l'app diventava incliccabile.
+               Un test lo dichiarava sicuro guardando `.show`, la rotta e lo
+               scroll — e non `inert`. Passava per il motivo sbagliato. */
+            while (bpPilaModali.length) bpChiudiModale(bpModaleInCima().id);
+
+            // Rete: se qualcosa fosse rimasto aperto fuori dalla pila.
             ['bp-menu', 'bp-welcome', 'bp-config', 'suggeritore-modal'].forEach(id => {
                 const o = document.getElementById(id);
                 if (o) o.classList.remove('show');
             });
+            Array.from(document.body.children).forEach(el => el.removeAttribute('inert'));
             document.body.style.overflow = '';
         }
+
+        /* La pila e' un `const` a livello di script: NON e' una proprieta' di
+           window, quindi da fuori non si vede. Serviva un modo onesto di
+           chiedere "cosa c'e' aperto adesso" — senza esporre l'array, che
+           chiunque potrebbe poi modificare. Le `function` invece finiscono su
+           window: e' con questo che i test guardano l'invariante. */
+        function bpModaliAperti() {
+            return bpPilaModali.map(v => v.id);
+        }
+
 
         window.addEventListener('popstate', ev => {
             const r = (ev.state && ev.state.bpRotta) ? ev.state.bpRotta : 'home';
@@ -5297,6 +5579,21 @@ Annulla = ` + T('backupUnisci'));
                         '<span class="bph-hero-arrow">&rsaquo;</span></button>';
             }
 
+            /* La bozza messa da parte quando si e' aperto un link: e' il modo
+               in cui la promessa "il tuo lavoro non viene toccato" si mantiene
+               invece di essere solo scritta. */
+            const parcheggiata = bpBozzaParcheggiata();
+            if (parcheggiata) {
+                h += '<div class="bph-parcheggio">'
+                   +   '<span class="bph-parcheggio-tx">'
+                   +     esc(T('bozzaParcheggiata').replace('{nome}', parcheggiata.nome || T('homeSenzaNome')))
+                   +   '</span>'
+                   +   '<span class="bph-parcheggio-az">'
+                   +     '<button type="button" data-home="riprendi-parcheggio">' + esc(T('bozzaRiprendi')) + '</button>'
+                   +     '<button type="button" class="bph-scarta" data-home="scarta-parcheggio">' + esc(T('bozzaScarta')) + '</button>'
+                   +   '</span></div>';
+            }
+
             /* Ultimi salvati: tre, non tutti. La lista completa e' una voce
                della barra, e ripeterla qui la renderebbe due volte la stessa
                cosa. */
@@ -5323,6 +5620,8 @@ Annulla = ` + T('backupUnisci'));
             if (a === 'new') bpHomeNewEvent();
             else if (a === 'resume') bpHomeResume();
             else if (a === 'reset') bpHomeReset();
+            else if (a === 'riprendi-parcheggio') bpRiprendiParcheggio();
+            else if (a === 'scarta-parcheggio') bpScartaParcheggio();
             else if (a === 'apri') { bpVaiA('salvati'); if (typeof bpEventOpen === 'function') bpEventOpen(b.dataset.ev); }
             else if (a === 'events') bpEventsOpen();
             else if (a === 'cocktail') bpLibraryOpen('cocktail');
@@ -5390,7 +5689,8 @@ Annulla = ` + T('backupUnisci'));
                     pct: (document.getElementById('pct-bevitori') ? parseInt(document.getElementById('pct-bevitori').value) : 80),
                     fascia: selV('sel-fascia') || 'media', nazione: selV('sel-nazione'), fasciaFerm: selV('sel-fascia-fermentati'),
                     drink: menuSerataDrink, mocktail: menuSerataMocktail, shot: menuSerataShot,
-                    ferm: { rosso: num('ferm_vino_rosso'), bianco: num('ferm_vino_bianco'), bollicine: num('ferm_bollicine'), birra: num('ferm_birra') }
+                    ferm: { rosso: num('ferm_vino_rosso'), bianco: num('ferm_vino_bianco'), bollicine: num('ferm_bollicine'), birra: num('ferm_birra') },
+                    ...bpModificatoriCorrenti()
                 });
                 document.getElementById('stima-live-tot').textContent = '€ ' + r.totale.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 const ppEl = document.getElementById('stima-live-pp');
@@ -5462,6 +5762,15 @@ Annulla = ` + T('backupUnisci'));
            richiesti, 1 L arrotondato e 200 ml di scorte faceva pagare 480 ml
            quando ne restano 400. Isolata, si puo' provare con dei numeri
            invece che a occhio. */
+        /* Le cose che si contano si comprano intere.
+           Il fabbisogno era gia' intero, quindi passare `null` sembrava
+           innocuo — ma la scorta la scrive l'utente, o arriva da un file: con
+           3 bottiglie necessarie e 2,5 dichiarate la lista diceva "compra 0,5
+           bottiglie". Il prezzo resta sulla quantita' che serve davvero,
+           com'e' scritto nel contratto: si compra al taglio, si paga al
+           bisogno. Il ghiaccio no: quello si pesa. */
+        const BP_INTERO = n => Math.ceil(n);
+
         function bpQuantitaRiga(requiredBaseQty, stockBaseQty, arrotonda) {
             const req = Math.max(0, requiredBaseQty || 0);
             const stock = Math.max(0, stockBaseQty || 0);
@@ -5473,6 +5782,16 @@ Annulla = ` + T('backupUnisci'));
                 roundedPurchaseQty: arrotonda ? arrotonda(remainingBaseQty) : remainingBaseQty,  // poi si arrotonda
                 pricingQty: remainingBaseQty
             };
+        }
+
+        /* I modificatori attivi, in un posto solo.
+           Le due stime "in tempo reale" costruivano i parametri a mano e si
+           dimenticavano scorte e prezzi: la stima diceva un numero e la lista
+           finale, sugli stessi identici dati, ne diceva un altro. Chi ha
+           dichiarato mezza cassa di gin in casa se lo vedeva scontato solo
+           alla fine. */
+        function bpModificatoriCorrenti() {
+            return { scorte: bpScorte, prezzi: bpPrezziUtente, ricetteEvento: bpRicetteEvento };
         }
 
         function bpParametriDalForm() {
@@ -5490,8 +5809,7 @@ Annulla = ` + T('backupUnisci'));
                 drink: menuSerataDrink, mocktail: menuSerataMocktail, shot: menuSerataShot,
                 /* Le scorte stanno nell'evento (si consumano con quella spesa),
                    i prezzi nelle impostazioni (valgono per i prossimi eventi). */
-                scorte: bpScorte,
-                prezzi: bpPrezziUtente
+                ...bpModificatoriCorrenti()
             };
         }
 
@@ -5517,6 +5835,19 @@ Annulla = ` + T('backupUnisci'));
             const mocktailTotali = Math.ceil((ospitiAnalcolici * drinkTesta) * mult);
 
             const drink = p.drink || {}, mocktail = p.mocktail || {}, shot = p.shot || {};
+            /* Le ricette che arrivano con un evento (link condiviso, import)
+               NON entrano in databaseDrink: la libreria "I miei cocktail"
+               enumera proprio le sue chiavi, e installarle li' vorrebbe dire
+               che un link ricevuto per messaggio riscrive la libreria di chi lo
+               apre. Vivono accanto all'evento, e il calcolo le consulta come
+               ripiego. Una ricetta locale con lo stesso nome vince: e' la tua. */
+            const ricetteEvento = (p.ricetteEvento && typeof p.ricetteEvento === 'object') ? p.ricetteEvento : {};
+            const _ricetta = nome => {
+                const locale = databaseDrink[nome];
+                if (Array.isArray(locale)) return locale;
+                const ospite = ricetteEvento[nome];
+                return Array.isArray(ospite) ? ospite : [];
+            };
             let pesoTotDrink = 0; Object.keys(drink).forEach(k => pesoTotDrink += drink[k]);
             let pesoTotMock  = 0; Object.keys(mocktail).forEach(k => pesoTotMock += mocktail[k]);
             let pesoTotShot  = 0; Object.keys(shot).forEach(k => pesoTotShot += shot[k]);
@@ -5547,7 +5878,7 @@ Annulla = ` + T('backupUnisci'));
             const spesaAlcolici = {}, spesaAnalcolici = {};
             if (pesoTotDrink > 0 && drinkTotali > 0) Object.keys(drink).forEach(nome => {
                 const qty = Math.ceil(drinkTotali * (drink[nome] / pesoTotDrink));
-                (databaseDrink[nome] || []).forEach(ing => {
+                _ricetta(nome).forEach(ing => {
                     const k = normalizzaIngrediente(ing.nome);
                     if (ing.tipo === 'alcolico') spesaAlcolici[k] = (spesaAlcolici[k] || 0) + (ing.ml * qty);
                     else spesaAnalcolici[k] = (spesaAnalcolici[k] || 0) + (ing.ml * qty);
@@ -5555,7 +5886,7 @@ Annulla = ` + T('backupUnisci'));
             });
             if (pesoTotMock > 0 && mocktailTotali > 0) Object.keys(mocktail).forEach(nome => {
                 const qty = Math.ceil(mocktailTotali * (mocktail[nome] / pesoTotMock));
-                (databaseDrink[nome] || []).forEach(ing => {
+                _ricetta(nome).forEach(ing => {
                     // Anche un ingrediente classificato alcolico, dentro un
                     // mocktail resta analcolico: coerenza con quello che si legge.
                     const k = normalizzaIngrediente(ing.nome);
@@ -5624,7 +5955,7 @@ Annulla = ` + T('backupUnisci'));
                 const id = 'ferm:' + d.k;
                 const pr = prezziBase[d.k];
                 const prezzoBt = pr ? pr[fasciaFerm] : 8;
-                const q = bpQuantitaRiga(bt, _scorta(id), null);   // bottiglie: gia' intere
+                const q = bpQuantitaRiga(bt, _scorta(id), BP_INTERO);   // bottiglie: si contano
                 const pz = _prezzo(id, prezzoBt * geoMult);
                 const costo = pz.tuo
                     ? BP_ARR_COSTO(q.pricingQty * pz.valore)
@@ -5648,7 +5979,7 @@ Annulla = ` + T('backupUnisci'));
             const aggiungiExtra = (id, labelKey, qta, baseUnit, chiavePrezzo, prezzoDefault) => {
                 const pr = prezziBase[chiavePrezzo];
                 const prezzo = pr ? pr[fascia] : prezzoDefault;
-                const q = bpQuantitaRiga(qta, _scorta(id), null);
+                const q = bpQuantitaRiga(qta, _scorta(id), baseUnit === 'pz' ? BP_INTERO : null);
                 const pz = _prezzo(id, prezzo * geoMult);
                 const costo = pz.tuo
                     ? BP_ARR_COSTO(q.pricingQty * pz.valore)
@@ -6163,6 +6494,7 @@ Annulla = ` + T('backupUnisci'));
 
         /* Costruisce il testo formattato della lista (usato da Copia e Condividi) */
         function costruisciTestoLista() {
+            flushRicalcoloLista();   // idem: si condivide cio' che si vede adesso
             let testo = '';
             const _nomeEv = (bpCfgNomeEvento && bpCfgNomeEvento.trim()) ? bpCfgNomeEvento.trim() : '';
             testo += T('copyHeader') + (_nomeEv ? '\n' + _nomeEv : '') + "\n\n";

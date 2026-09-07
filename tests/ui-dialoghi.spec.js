@@ -135,21 +135,75 @@ test.describe('Dialoghi · l\'inventario e\' completo', () => {
 
   test("navigare a codice chiude i dialoghi invece di lasciarli sospesi", async ({ page }) => {
     await openApp(page);
-    await apri(page, 'bp-welcome');
+    await apri(page, "bp-welcome");
 
-    // Le scorciatoie interne (una card, un link) navigano senza passare dalla
-    // barra: li' il dialogo va chiuso, altrimenti resta una finestra sopra una
-    // sezione che non e' piu' la sua.
-    await page.evaluate(() => window.bpVaiA('salvati'));
+    // Questo test guardava solo .show, la rotta e lo scroll — e passava
+    // mentre l'app restava INCLICCABILE: bpChiudiDialoghi toglieva la classe
+    // ma lasciava la pila piena e gli attributi inert attaccati, barra di
+    // navigazione compresa. Un test che passa per il motivo sbagliato e' peggio
+    // di nessun test.
+    await page.evaluate(() => window.bpVaiA("salvati"));
     await page.waitForTimeout(200);
 
     const s = await page.evaluate(() => ({
-      aperto: document.getElementById('bp-welcome').classList.contains('show'),
+      aperto: document.getElementById("bp-welcome").classList.contains("show"),
       sezione: document.body.dataset.sezione,
       scroll: document.body.style.overflow,
+      pila: window.bpModaliAperti().length,
+      inertRimasti: [...document.body.children].filter((e) => e.hasAttribute("inert")).map((e) => e.id || e.tagName),
+      barraUsabile: !document.getElementById("bp-tabbar").hasAttribute("inert"),
     }));
     expect(s.aperto, "il dialogo e' rimasto sospeso sopra un'altra sezione").toBe(false);
-    expect(s.sezione).toBe('salvati');
-    expect(s.scroll, "lo scroll e' rimasto bloccato").toBe('');
+    expect(s.sezione).toBe("salvati");
+    expect(s.scroll, "lo scroll e' rimasto bloccato").toBe("");
+    expect(s.pila, "la pila dei modali non e' stata svuotata").toBe(0);
+    expect(s.inertRimasti, `elementi rimasti inert: ${s.inertRimasti.join(", ")}`).toEqual([]);
+    expect(s.barraUsabile, "la barra di navigazione e' rimasta inerte: l'app e' incliccabile").toBe(true);
+  });
+});
+
+test.describe("Dialoghi . chi dice di essere un dialogo lo deve essere", () => {
+  test("nessuna sezione di rotta si dichiara aria-modal", async ({ page }) => {
+    await openApp(page);
+
+    // Ricette, Impostazioni e I miei eventi sono diventate ROTTE nella Fase 1:
+    // stanno sempre nel documento e si raggiungono dalla barra in basso. Il
+    // markup pero' continuava a dichiararle role="dialog" aria-modal="true" —
+    // e aria-modal="true" dice al lettore di schermo di NASCONDERE tutto il
+    // resto, barra di navigazione compresa. La stessa forma della fuga di
+    // inert: a schermo tutto funziona, con lo screen reader l'app e' un vicolo
+    // cieco.
+    const rotte = ["bp-library", "bp-settings", "bp-events"];
+    const stato = await page.evaluate((ids) => ids.map((id) => {
+      const e = document.getElementById(id);
+      return { id, modal: e && e.getAttribute("aria-modal"), ruolo: e && e.getAttribute("role"),
+               nome: !!(e && (e.getAttribute("aria-label") || e.getAttribute("aria-labelledby"))) };
+    }), rotte);
+
+    for (const s of stato) {
+      expect(s.modal, `${s.id} si dichiara ancora aria-modal`).toBeNull();
+      expect(s.ruolo, `${s.id} si dichiara ancora un dialogo`).not.toBe("dialog");
+      expect(s.nome, `${s.id} ha perso il nome accessibile`).toBe(true);
+    }
+  });
+
+  test("chi resta aria-modal passa davvero dalla pila", async ({ page }) => {
+    await openApp(page);
+    // L'invariante che tiene: se il markup promette il comportamento modale,
+    // deve esserci il codice che lo mette e lo toglie.
+    const dichiarati = await page.evaluate(() =>
+      [...document.querySelectorAll('[aria-modal="true"]')].map((e) => e.id));
+    expect(dichiarati.length, "nessun dialogo dichiarato: il test non prova nulla").toBeGreaterThan(0);
+
+    for (const id of dichiarati) {
+      const ok = await page.evaluate((i) => {
+        window.bpApriModale(i);
+        const dentro = window.bpModaliAperti().includes(i);
+        window.bpChiudiModale(i);
+        return { dentro, fuori: !window.bpModaliAperti().includes(i) };
+      }, id);
+      expect(ok.dentro, `${id} si dichiara modale ma non entra nella pila`).toBe(true);
+      expect(ok.fuori, `${id} non esce dalla pila quando si chiude`).toBe(true);
+    }
   });
 });

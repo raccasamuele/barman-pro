@@ -160,27 +160,34 @@ test.describe('Link · ricevere', () => {
     expect(s.scorte, 'la copia si e\' portata dietro le scorte di chi ha condiviso').toEqual([]);
   });
 
-  test('le ricette del link non entrano nella libreria di chi riceve', async ({ page }) => {
+  test("le ricette del link non entrano nella libreria di chi riceve", async ({ page }) => {
     await openApp(page);
-    page.on('dialog', (d) => d.accept());
+    page.on("dialog", (d) => d.accept());
 
+    // Il test di prima guardava bpRecipes.mods, ma la libreria "I miei
+    // cocktail" enumera databaseDrink: la ricetta ci finiva dentro e il test
+    // passava lo stesso. Adesso si guarda proprio quello.
     const dopo = await page.evaluate(async () => {
-      const st = { o: 50, d: 3, s: 0, sc: 15, p: 80, n: 'Italia', f: 'media',
-                   dr: { 'Drink Altrui': 2 }, mo: {}, sh: {},
-                   rc: { 'Drink Altrui': [{ nome: 'Gin', ml: 50, tipo: 'alcolico' }] } };
+      const st = { o: 50, d: 3, s: 0, sc: 15, p: 80, n: "Italia", f: "media",
+                   dr: { "Drink Altrui": 2 }, mo: {}, sh: {},
+                   rc: { "Drink Altrui": [{ nome: "Gin", ml: 50, tipo: "alcolico" }] } };
       const enc = btoa(unescape(encodeURIComponent(JSON.stringify(st))))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      window.bpChiediApriLink('v1.' + enc);
-      await new Promise((r) => setTimeout(r, 300));
+        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      window.bpChiediApriLink("v1." + enc);
+      await new Promise((r) => setTimeout(r, 400));
+      const m = window.bpCalcolaModello(window.bpParametriDalForm());
       return {
+        // Calcolabile: il modello la trova fra le ricette dell'evento.
+        calcolabile: m.ok && m.righe.some((r) => r.id === "ing:Gin"),
         // eslint-disable-next-line no-undef
-        calcolabile: Array.isArray(databaseDrink['Drink Altrui']),
-        nellaLibreria: !!(bpRecipes.mods || {})['Drink Altrui'],
+        nelDatabaseGlobale: Object.prototype.hasOwnProperty.call(databaseDrink, "Drink Altrui"),
+        nellaLibreria: !!(bpRecipes.mods || {})["Drink Altrui"],
       };
     });
-    expect(dopo.calcolabile, 'la ricetta del link non e\' utilizzabile dal calcolo').toBe(true);
-    expect(dopo.nellaLibreria,
-      'un link ricevuto ha riscritto la libreria di ricette di chi lo apre').toBe(false);
+    expect(dopo.calcolabile, "la ricetta del link non e' utilizzabile dal calcolo").toBe(true);
+    expect(dopo.nelDatabaseGlobale,
+      "la ricetta del link e' finita in databaseDrink, che e' cio' che la libreria mostra").toBe(false);
+    expect(dopo.nellaLibreria).toBe(false);
   });
 });
 

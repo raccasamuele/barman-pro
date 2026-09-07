@@ -2826,3 +2826,20 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .mod-prezzo-tuo { border-color: var(--bp-accent) !important; color: var(--bp-accent-ink); font-weight: 700; }
 
 @media print { .bp-modifica-btn, .riga-mod { display: none !important; } }
+
+/* Bozza messa da parte: e' il modo in cui la promessa "il tuo lavoro non
+   viene toccato" si mantiene, invece di essere solo scritta nel messaggio. */
+.bph-parcheggio {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap; margin: 20px 0 0; padding: 14px 16px; text-align: left;
+    background: var(--bp-sunken); border: 1px solid var(--bp-line); border-radius: var(--r-lg);
+}
+.bph-parcheggio-tx { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-soft); }
+.bph-parcheggio-az { display: flex; gap: 8px; }
+.bph-parcheggio-az button {
+    width: auto; padding: 8px 14px; border-radius: var(--r-md);
+    background: var(--bp-accent); border: none; color: var(--bp-on-accent);
+    font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 700;
+    text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+.bph-parcheggio-az .bph-scarta { background: none; border: 1px solid var(--bp-line-control); color: var(--bp-ink-faint); }
