@@ -1133,3 +1133,31 @@ dei pezzi, non hanno spostato un centesimo dei totali gia' fotografati.
 **Stato:** 223 test verdi su due corse (erano 187 a inizio giornata); il
 progetto golden e' passato da 42 a 60 test; `npm run check` verde; cache del
 service worker a v3.16.0. Nessun rilievo di Codex resta aperto.
+
+### Round 16 - trovato verificando la preview, prima di pubblicare
+
+Caricata la preview e aperta nel browser: **markup nuovo e codice vecchio**.
+Tutte le funzioni `bp*` mancavano da `window`, mentre `calcolaSpesa` e
+`stimaBudget` - che esistono da prima del ridisegno - c'erano. La barra in
+basso nel DOM, il tema chiaro, e un'app che a schermo sembra a posto e non
+risponde a niente.
+
+Causa: il service worker fa gia' `skipWaiting()` e `clients.claim()`, quindi la
+versione nuova si attiva subito - ma attivarsi NON ricarica la pagina che sta
+gia' girando. L'HTML e' network-first e il JS cache-first: alla visita in cui
+l'aggiornamento atterra, il browser prende l'`index.html` nuovo dalla rete e
+l'`app.js` vecchio dal service worker ancora in carica. Una visita rotta per
+ogni utente che ha gia' aperto il sito almeno una volta - cioe' tutti quelli
+che ce l'hanno installato come app.
+
+Non e' un difetto della preview: e' esattamente cio' che sarebbe successo in
+produzione. La verifica prima di promuovere e' servita a questo.
+
+Correzione: `bpSorvegliaAggiornamentoSW`, che ricarica la pagina UNA volta
+quando un service worker nuovo prende il controllo. Solo se un controller
+c'era gia': alla primissima visita non c'e' niente di misto da sistemare, e
+ricaricare li' vorrebbe dire ricaricare a ogni prima visita. Una guardia
+impedisce il ciclo se il controller cambia di nuovo. Due test, uno per ramo.
+
+**Stato:** 225 test verdi; `npm run check` verde; cache del service worker a
+v3.17.0.

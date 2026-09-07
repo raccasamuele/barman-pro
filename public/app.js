@@ -6922,9 +6922,37 @@ Annulla = ` + T('backupUnisci'));
            ════════════════════════════════════════════════════════════ */
         let installPromptEvent = null;
 
+        /* Quando arriva una versione nuova, la pagina aperta va ricaricata UNA
+           volta.
+
+           Il service worker fa gia' skipWaiting + clients.claim, quindi si
+           attiva subito - ma "attivarsi" non ricarica la pagina che sta gia'
+           girando. L'HTML e' network-first e il JS e' cache-first: alla visita
+           in cui l'aggiornamento atterra, il browser prende l'index.html NUOVO
+           dalla rete e l'app.js VECCHIO dal service worker ancora in carica.
+           Risultato: markup nuovo e codice vecchio, cioe' un'app che a schermo
+           sembra a posto e non risponde. L'ho vista con i miei occhi sulla
+           preview di questo rilascio, prima di promuoverlo.
+
+           Si ricarica solo se un controller c'era GIA': alla primissima
+           registrazione non c'e' niente di misto da sistemare, e ricaricare
+           li' vorrebbe dire ricaricare a ogni prima visita. La guardia
+           `ricaricato` evita il ciclo se il controller cambia di nuovo. */
+        function bpSorvegliaAggiornamentoSW(sw, ricarica) {
+            if (!sw || !sw.controller) return false;   // prima visita: niente da ricaricare
+            let ricaricato = false;
+            sw.addEventListener('controllerchange', () => {
+                if (ricaricato) return;
+                ricaricato = true;
+                ricarica();
+            });
+            return true;
+        }
+
         function registraServiceWorker() {
             if(!('serviceWorker' in navigator)) return;
             if(location.protocol !== 'https:' && location.protocol !== 'http:') return;
+            bpSorvegliaAggiornamentoSW(navigator.serviceWorker, () => location.reload());
             navigator.serviceWorker.register('sw.js')
                 .then(reg => console.log('[PWA] Service worker registrato:', reg.scope))
                 .catch(err => console.warn('[PWA] Registrazione fallita:', err));

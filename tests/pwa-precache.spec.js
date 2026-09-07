@@ -220,3 +220,44 @@ test.describe("PWA . offline davvero", () => {
     }
   });
 });
+
+test.describe("PWA . quando arriva una versione nuova", () => {
+  test("con un controller gia' presente la pagina si ricarica una volta sola", async ({ page }) => {
+    await page.goto("/index.html", { waitUntil: "load" });
+
+    // Il service worker fa skipWaiting + clients.claim, ma attivarsi non
+    // ricarica la pagina che gira: l'HTML e' network-first e il JS
+    // cache-first, quindi alla visita dell'aggiornamento si prende markup
+    // nuovo e codice vecchio. Vista sulla preview di questo rilascio.
+    const r = await page.evaluate(() => {
+      const finto = {
+        controller: {},                      // c'era gia' un service worker
+        _h: [],
+        addEventListener(t, f) { if (t === "controllerchange") this._h.push(f); },
+      };
+      let ricariche = 0;
+      const attivo = window.bpSorvegliaAggiornamentoSW(finto, () => { ricariche++; });
+      finto._h.forEach((f) => f());
+      finto._h.forEach((f) => f());          // un secondo cambio non deve riciclare
+      return { attivo, ricariche, ascoltatori: finto._h.length };
+    });
+    expect(r.attivo, "la sorveglianza non si e' attivata").toBe(true);
+    expect(r.ascoltatori).toBe(1);
+    expect(r.ricariche, "ha ricaricato piu' di una volta: e' un ciclo").toBe(1);
+  });
+
+  test("alla prima visita non si ricarica niente", async ({ page }) => {
+    await page.goto("/index.html", { waitUntil: "load" });
+    // Senza un controller precedente non c'e' nessun misto da sistemare, e
+    // ricaricare qui vorrebbe dire ricaricare a ogni prima visita.
+    const r = await page.evaluate(() => {
+      const finto = { controller: null, _h: [], addEventListener(t, f) { this._h.push(f); } };
+      let ricariche = 0;
+      const attivo = window.bpSorvegliaAggiornamentoSW(finto, () => { ricariche++; });
+      return { attivo, ricariche, ascoltatori: finto._h.length };
+    });
+    expect(r.attivo).toBe(false);
+    expect(r.ascoltatori, "ha messo un ascoltatore dove non serviva").toBe(0);
+    expect(r.ricariche).toBe(0);
+  });
+});
