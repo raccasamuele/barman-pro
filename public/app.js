@@ -2813,8 +2813,22 @@ Annulla = ` + T('backupUnisci'));
             catch(e) { return null; }
         }
 
+        /* Il marcatore su disco e' ancora NOSTRO?
+           Il lock e' un leggi-poi-scrivi: fra la lettura e la scrittura due
+           schede possono passare entrambe, e la seconda vince. Non si puo'
+           rendere atomico con localStorage, ma si puo' smettere di scrivere
+           appena si scopre di aver perso: prima di ogni fase e prima del
+           commit si verifica che il token sia ancora il proprio. Chi ha perso
+           si ferma senza toccare le chiavi vive. */
+        function bpPossiedeImport(t) {
+            const m = bpStorageLetturaGrezza(BP_IMPORT_LOCK);
+            return !!(m && m.transazione === t);
+        }
+
         function bpCompletaImport(marcatore) {
             const t = marcatore.transazione;
+            if (!bpPossiedeImport(t)) return { ok:false, motivo:'transazione-persa' };
+
             for (const chiave of marcatore.chiavi) {
                 const staged = BP_STAGING_PREFIX + t + '__' + chiave;
                 const valore = localStorage.getItem(staged);
@@ -2825,14 +2839,24 @@ Annulla = ` + T('backupUnisci'));
                     if (localStorage.getItem(chiave) === valore) localStorage.removeItem(staged);
                 } catch(e) {
                     console.warn('[import] completamento fallito su ' + chiave, e);
-                    return;   // si riprovera' al prossimo avvio: il marcatore resta
+                    // Si riprovera' al prossimo avvio: il marcatore resta. E chi
+                    // ha chiamato lo viene a sapere, invece di credere che sia
+                    // andato tutto bene.
+                    return { ok:false, motivo:'quota-in-commit' };
                 }
+            }
+            /* Le cancellazioni di "sostituisci" fanno parte del commit, non
+               sono un ritocco dopo: se si interrompesse qui, il recupero
+               all'avvio le rifarebbe leggendo il marcatore. */
+            for (const chiave of (marcatore.cancellare || [])) {
+                try { localStorage.removeItem(chiave); } catch(e){}
             }
             try {
                 localStorage.removeItem(BP_STAGING_PREFIX + t + '__prenotazione');
                 localStorage.removeItem(BP_IMPORT_LOCK);
             } catch(e){}
             bpStorageRiallineato();
+            return { ok:true };
         }
 
         /* ── Importa ── */
@@ -2853,7 +2877,13 @@ Annulla = ` + T('backupUnisci'));
             if (!pacchetto || pacchetto.app !== 'barman-pro') {
                 alert(T('backupNonValido')); return { ok:false, motivo:'non-nostro' };
             }
-            const v = parseInt(pacchetto.versione);
+            /* parseInt("1junk") vale 1: un file con una versione inventata
+               passava per un backup v1. Qui la versione dev'essere un intero
+               vero, non qualcosa che ci somiglia in testa. */
+            const v = (typeof pacchetto.versione === 'number' && Number.isInteger(pacchetto.versione))
+                ? pacchetto.versione
+                : (typeof pacchetto.versione === 'string' && /^[0-9]+$/.test(pacchetto.versione.trim())
+                    ? parseInt(pacchetto.versione, 10) : NaN);
             if (!isFinite(v) || v < 1) { alert(T('backupNonValido')); return { ok:false, motivo:'versione-assente' }; }
             if (v > BP_BACKUP_VERSIONE) {
                 // Un formato piu' recente non si indovina: si rifiuta e lo si dice.
@@ -2871,17 +2901,48 @@ Annulla = ` + T('backupUnisci'));
         }
 
         /* La forma attesa di ogni store. Senza, un file sintatticamente
-           valido ma della forma sbagliata poteva sostituire dati buoni. */
+           valido ma della forma sbagliata poteva sostituire dati buoni.
+
+           E non basta guardare il primo strato: `{ id: 'x', lista: {} }`
+           passava come evento valido, e poi bpEventOpen ci faceva sopra un
+           forEach e sollevava. Un file rifiutato e' un fastidio; un file
+           accettato che fa esplodere l'app dopo, mentre i dati veri sono gia'
+           stati sostituiti, e' un'altra cosa. */
+        const _oggPiano = x => x !== null && typeof x === 'object' && !Array.isArray(x);
+        const _opz = (x, prova) => x === undefined || x === null || prova(x);
+
+        function bpEventoValido(e) {
+            if (!_oggPiano(e)) return false;
+            if (typeof e.id !== 'string' || !e.id) return false;
+            if (!_opz(e.nome, x => typeof x === 'string')) return false;
+            if (!_opz(e.data, x => typeof x === 'number' && isFinite(x))) return false;
+            if (!_opz(e.totale, x => typeof x === 'string' || typeof x === 'number')) return false;
+            if (!_opz(e.config, _oggPiano)) return false;
+            if (!_opz(e.menu, _oggPiano)) return false;
+            if (!_opz(e.check, _oggPiano)) return false;
+            if (!_opz(e.scorte, _oggPiano)) return false;
+            if (!_opz(e.ricetteEvento, _oggPiano)) return false;
+            // `lista` e' cio' che la checklist percorre: se non e' un array di
+            // gruppi con items, l'evento e' inapribile.
+            if (!_opz(e.lista, x => Array.isArray(x) && x.every(g =>
+                    _oggPiano(g) && (g.items === undefined || Array.isArray(g.items))))) return false;
+            return true;
+        }
+
         function bpFormaValida(nome, v) {
             if (v === null || v === undefined) return false;
             switch (nome) {
                 case 'eventi':
-                    return Array.isArray(v) && v.every(e => e && typeof e === 'object' && typeof e.id === 'string');
+                    return Array.isArray(v) && v.every(bpEventoValido);
                 case 'ricette':
                     return typeof v === 'object' && !Array.isArray(v)
-                        && (v.mods === undefined || (typeof v.mods === 'object' && !Array.isArray(v.mods)))
-                        && (v.custom === undefined || Array.isArray(v.custom))
-                        && (v.amari === undefined || v.amari === null || Array.isArray(v.amari));
+                        && (v.mods === undefined || (_oggPiano(v.mods)
+                            // ogni modifica e' una lista di ingredienti
+                            && Object.keys(v.mods).every(k => Array.isArray(v.mods[k]))))
+                        && (v.custom === undefined || (Array.isArray(v.custom)
+                            && v.custom.every(c => typeof c === 'string' || _oggPiano(c))))
+                        && (v.amari === undefined || v.amari === null || (Array.isArray(v.amari)
+                            && v.amari.every(a => typeof a === 'string')));
                 case 'impostazioni':
                 case 'bozza':
                 case 'bozzaParcheggiata':
@@ -2911,6 +2972,11 @@ Annulla = ` + T('backupUnisci'));
             }
             try { localStorage.setItem(BP_IMPORT_LOCK, JSON.stringify({ transazione: t, fase: 'preparazione' })); }
             catch(e) { return { ok:false, motivo:'marcatore' }; }
+            /* E si rilegge: fra il controllo qui sopra e questa scrittura
+               un'altra scheda puo' essersi presa il marcatore e averlo
+               sovrascritto subito dopo. Se non e' piu' il nostro, ci si ferma
+               PRIMA di aver toccato qualsiasi chiave viva. */
+            if (!bpPossiedeImport(t)) return { ok:false, motivo:'import-gia-in-corso' };
 
             const annulla = (motivo) => {
                 try { localStorage.removeItem(BP_IMPORT_LOCK); } catch(e){}
@@ -2925,21 +2991,39 @@ Annulla = ` + T('backupUnisci'));
                propria — silenziosamente, e con numeri diversi. */
             let rinomini = {};
 
+            /* Prima si valida TUTTO, poi si scrive.
+               Prima gli store non validi venivano saltati in silenzio: si
+               finiva con un import a meta' dichiarato riuscito — meta' del
+               backup dentro, meta' fuori, e nessuno a dirlo. Un pacchetto e'
+               una cosa sola: o entra tutto o non entra niente. */
+            const nonValidi = [];
             BP_CHIAVI_BACKUP.forEach(k => {
                 const entrante = dati[k.nome];
                 if (entrante === undefined) return;
+                if (!bpFormaValida(k.nome, entrante)) nonValidi.push(k.nome);
+            });
+            if (nonValidi.length) {
+                alert(T('backupNonValido') + ' (' + nonValidi.join(', ') + ')');
+                return annulla('forma');
+            }
+
+            /* Chiavi da CANCELLARE: in "sostituisci" il risultato dev'essere
+               una copia del backup, non una fusione mascherata. Uno store che
+               nel file non c'e' non deve sopravvivere dal vecchio stato. */
+            const daCancellare = [];
+
+            BP_CHIAVI_BACKUP.forEach(k => {
+                const entrante = dati[k.nome];
                 if (modalita === 'sostituisci') {
-                    /* Non basta che sia JSON pulito: deve essere della FORMA
-                       giusta. `eventi: {}` passava la validazione strutturale,
-                       sostituiva una lista valida e veniva poi letto come
-                       "nessun evento": un backup malformato cancellava dati
-                       veri riportando successo. */
-                    if (!bpFormaValida(k.nome, entrante)) return;
+                    if (entrante === undefined) {
+                        if (localStorage.getItem(k.chiave) !== null) daCancellare.push(k.chiave);
+                        return;
+                    }
                     daScrivere[k.chiave] = entrante;
                     return;
                 }
+                if (entrante === undefined) return;
                 if (k.unione === 'solo-sostituisci') return;   // in unione le tue restano
-                if (!bpFormaValida(k.nome, entrante)) return;
                 if (k.unione === 'eventi')  daScrivere[k.chiave] = entrante;   // rimappati sotto
                 if (k.unione === 'ricette') {
                     const u = bpUnisciRicette(bpStorageRead(BP_RECIPES_KEY, null), entrante);
@@ -2948,15 +3032,21 @@ Annulla = ` + T('backupUnisci'));
                 }
             });
 
-            // I menu si rimappano DOPO aver saputo quali ricette sono state
-            // rinominate: una tabella sola, applicata a ogni riferimento.
-            if (daScrivere[BP_EVENTS_KEY] !== undefined) {
+            /* I menu si rimappano DOPO aver saputo quali ricette sono state
+               rinominate: una tabella sola, applicata a ogni riferimento.
+               Solo in UNIONE, pero': questo blocco girava in tutte e due le
+               modalita', quindi "sostituisci" fondeva gli eventi entranti con
+               quelli gia' presenti invece di sostituirli. Chi sceglieva
+               "sostituisci" per ripartire pulito si ritrovava le due liste
+               insieme. E i rinomini non esistono in sostituzione: le ricette
+               entranti prendono il posto delle proprie, non convivono. */
+            if (modalita !== 'sostituisci' && daScrivere[BP_EVENTS_KEY] !== undefined) {
                 daScrivere[BP_EVENTS_KEY] = bpUnisciEventi(
                     bpGetEvents(), bpRimappaMenu(daScrivere[BP_EVENTS_KEY], rinomini));
             }
 
             const chiavi = Object.keys(daScrivere);
-            if (!chiavi.length) return annulla('niente-da-importare');
+            if (!chiavi.length && !daCancellare.length) return annulla('niente-da-importare');
 
             // 1. staging, con prenotazione dello spazio
             const peso = chiavi.reduce((n, c) => n + JSON.stringify(daScrivere[c]).length, 0);
@@ -2974,8 +3064,15 @@ Annulla = ` + T('backupUnisci'));
                 return annulla('quota');
             }
 
-            // 2. il marcatore passa a "commit": da qui si puo' solo completare
-            try { localStorage.setItem(BP_IMPORT_LOCK, JSON.stringify({ transazione: t, fase: 'commit', chiavi })); }
+            // 2. il marcatore passa a "commit": da qui si puo' solo completare.
+            //    Ma solo se e' ancora nostro: se un'altra scheda ce l'ha
+            //    portato via mentre preparavamo, si molla senza scrivere.
+            if (!bpPossiedeImport(t)) {
+                chiavi.forEach(c => { try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__' + c); } catch(e2){} });
+                try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__prenotazione'); } catch(e2){}
+                return { ok:false, motivo:'import-gia-in-corso' };
+            }
+            try { localStorage.setItem(BP_IMPORT_LOCK, JSON.stringify({ transazione: t, fase: 'commit', chiavi, cancellare: daCancellare })); }
             catch(e) {
                 chiavi.forEach(c => { try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__' + c); } catch(e2){} });
                 return annulla('marcatore');
@@ -2985,22 +3082,59 @@ Annulla = ` + T('backupUnisci'));
             try { localStorage.removeItem(BP_STAGING_PREFIX + t + '__prenotazione'); } catch(e){}
 
             // 4. commit idempotente
-            bpCompletaImport({ transazione: t, chiavi });
+            const esitoCommit = bpCompletaImport({ transazione: t, chiavi, cancellare: daCancellare });
 
-            return { ok:true, chiavi };
+            /* L'esito del commit si PROPAGA. Prima bpCompletaImport
+               intercettava un errore di quota, tornava senza dire niente e
+               l'import risultava riuscito lo stesso: si ricaricava la pagina
+               su uno stato mezzo scritto, convinti che fosse andato bene. */
+            if (!esitoCommit || !esitoCommit.ok) {
+                return { ok:false, motivo: (esitoCommit && esitoCommit.motivo) || 'commit',
+                         inSospeso:true, chiavi };
+            }
+            return { ok:true, chiavi, cancellate: daCancellare };
         }
 
         /* Eventi: mai sovrascrivere. Un id che collide prende un id nuovo, e
            tutto quello che lo cita viene rimappato con la stessa tabella. */
+        /* Due eventi sono lo STESSO evento se, tolto cio' che cambia a ogni
+           salvataggio, dicono la stessa cosa. Serve per non moltiplicare la
+           libreria reimportando lo stesso backup. */
+        function _bpImprontaEvento(ev) {
+            const e = Object.assign({}, ev);
+            delete e.data;      // il momento del salvataggio, non l'evento
+            delete e.id;        // l'identita' e' cio' che stiamo decidendo
+            const ordina = x => {
+                if (Array.isArray(x)) return x.map(ordina);
+                if (x && typeof x === 'object') {
+                    const o = {};
+                    Object.keys(x).sort().forEach(k => { o[k] = ordina(x[k]); });
+                    return o;
+                }
+                return x;
+            };
+            try { return JSON.stringify(ordina(e)); } catch(err) { return null; }
+        }
+
         function bpUnisciEventi(miei, entranti) {
             if (!Array.isArray(entranti)) return miei;
-            const presenti = new Set((miei || []).map(e => e && e.id));
-            const uniti = (miei || []).slice();
+            const base = miei || [];
+            const presenti = new Set(base.map(e => e && e.id));
+            /* Impronte di cio' che c'e' gia': reimportare lo stesso file due
+               volte rinominava ogni collisione di id e creava un doppione a
+               ogni giro. Il contenuto non era mai guardato. */
+            const impronte = new Map();
+            base.forEach(e => { const f = _bpImprontaEvento(e); if (f) impronte.set(f, true); });
+
+            const uniti = base.slice();
             entranti.forEach(ev => {
                 if (!ev || typeof ev !== 'object') return;
                 const copia = Object.assign({}, ev);
+                const impronta = _bpImprontaEvento(copia);
+                if (impronta && impronte.has(impronta)) return;   // gia' presente: si ignora
                 if (!copia.id || presenti.has(copia.id)) copia.id = bpNuovoId();
                 presenti.add(copia.id);
+                if (impronta) impronte.set(impronta, true);
                 uniti.push(copia);
             });
             return uniti;
@@ -3150,6 +3284,15 @@ Annulla = ` + T('backupUnisci'));
         function bpRecipesLoad(){
             const r = bpStorageRead(BP_RECIPES_KEY, null);
             if (r && typeof r === 'object'){
+                /* Additivo: si tengono anche i campi che questa versione non
+                   conosce. Prima si leggevano solo mods/custom/amari e si
+                   riscriveva l'oggetto intero, quindi una scheda ferma a
+                   questa versione CANCELLAVA i campi scritti da una piu'
+                   recente. Il resto della persistenza e' additivo da sempre
+                   (vedi salvaStato); le ricette erano rimaste indietro. */
+                Object.keys(r).forEach(k => {
+                    if (k !== 'mods' && k !== 'custom' && k !== 'amari') bpRecipes[k] = r[k];
+                });
                 bpRecipes.mods = r.mods || {};
                 bpRecipes.custom = Array.isArray(r.custom) ? r.custom : [];
                 bpRecipes.amari = Array.isArray(r.amari) ? r.amari : null;
@@ -5884,14 +6027,23 @@ Annulla = ` + T('backupUnisci'));
                NON entrano in databaseDrink: la libreria "I miei cocktail"
                enumera proprio le sue chiavi, e installarle li' vorrebbe dire
                che un link ricevuto per messaggio riscrive la libreria di chi lo
-               apre. Vivono accanto all'evento, e il calcolo le consulta come
-               ripiego. Una ricetta locale con lo stesso nome vince: e' la tua. */
+               apre. Vivono accanto all'evento.
+
+               PRECEDENZA: dentro QUESTO evento vince la ricetta dell'evento.
+               Prima vinceva quella locale, e sembrava la scelta gentile ("e'
+               la tua"), ma faceva una cosa che nessuno aveva chiesto: chi
+               riceveva un evento con un Negroni diverso dal proprio vedeva
+               ingredienti e costo del PROPRIO Negroni, sotto il nome di un
+               evento che qualcun altro aveva preparato. Numeri diversi da
+               quelli mandati, senza un avviso. La ricetta incorporata fa parte
+               della definizione dell'evento; la libreria resta comunque
+               intatta, che e' la garanzia separata. */
             const ricetteEvento = (p.ricetteEvento && typeof p.ricetteEvento === 'object') ? p.ricetteEvento : {};
             const _ricetta = nome => {
-                const locale = databaseDrink[nome];
-                if (Array.isArray(locale)) return locale;
                 const ospite = ricetteEvento[nome];
-                return Array.isArray(ospite) ? ospite : [];
+                if (Array.isArray(ospite)) return ospite;
+                const locale = databaseDrink[nome];
+                return Array.isArray(locale) ? locale : [];
             };
             let pesoTotDrink = 0; Object.keys(drink).forEach(k => pesoTotDrink += drink[k]);
             let pesoTotMock  = 0; Object.keys(mocktail).forEach(k => pesoTotMock += mocktail[k]);

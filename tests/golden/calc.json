@@ -437,5 +437,176 @@
       "Menta fresca",
       "Oliva"
     ]
+  },
+  "paese economico (Messico 0.60)": {
+    "budgetAmount": "€ 161,50",
+    "perPersona": "≈ € 2,69 a persona",
+    "righeCount": 16,
+    "righe": [
+      "Aperol5 L≈ € 40,50",
+      "Bitter Campari1.5 L≈ € 15,50",
+      "Gin1.5 L≈ € 13,50",
+      "Prosecco7.5 L≈ € 36,00",
+      "Rum Bianco2 L≈ € 12,00",
+      "Vermouth Rosso1.5 L≈ € 9,00",
+      "Soda4 L≈ € 3,50",
+      "Succo di Lime1 L≈ € 2,00",
+      "Ghiaccio a cubi17 kg≈ € 15,50",
+      "Bicchieri da cocktail166 pz≈ € 10,00",
+      "Bicchierini da shot0 pz",
+      "Cannucce166 pz≈ € 4,00",
+      "Fetta d'arancia",
+      "Lime fresco",
+      "Menta fresca",
+      "Oliva"
+    ]
+  },
+  "paese caro (Islanda 3.39)": {
+    "budgetAmount": "€ 904,00",
+    "perPersona": "≈ € 15,07 a persona",
+    "righeCount": 16,
+    "righe": [
+      "Aperol5 L≈ € 228,00",
+      "Bitter Campari1.5 L≈ € 86,50",
+      "Gin1.5 L≈ € 74,00",
+      "Prosecco7.5 L≈ € 203,00",
+      "Rum Bianco2 L≈ € 67,50",
+      "Vermouth Rosso1.5 L≈ € 48,50",
+      "Soda4 L≈ € 20,00",
+      "Succo di Lime1 L≈ € 10,50",
+      "Ghiaccio a cubi17 kg≈ € 86,50",
+      "Bicchieri da cocktail166 pz≈ € 56,50",
+      "Bicchierini da shot0 pz",
+      "Cannucce166 pz≈ € 23,00",
+      "Fetta d'arancia",
+      "Lime fresco",
+      "Menta fresca",
+      "Oliva"
+    ]
+  },
+  "paese vicino (Francia 1.19) con fascia alta": {
+    "budgetAmount": "€ 607,50",
+    "perPersona": "≈ € 10,13 a persona",
+    "righeCount": 16,
+    "righe": [
+      "Aperol5 L≈ € 95,00",
+      "Bitter Campari1.5 L≈ € 35,00",
+      "Gin1.5 L≈ € 80,50",
+      "Prosecco7.5 L≈ € 196,00",
+      "Rum Bianco2 L≈ € 64,00",
+      "Vermouth Rosso1.5 L≈ € 50,00",
+      "Soda4 L≈ € 18,50",
+      "Succo di Lime1 L≈ € 10,00",
+      "Ghiaccio a cubi17 kg≈ € 30,50",
+      "Bicchieri da cocktail166 pz≈ € 20,00",
+      "Bicchierini da shot0 pz",
+      "Cannucce166 pz≈ € 8,00",
+      "Fetta d'arancia",
+      "Lime fresco",
+      "Menta fresca",
+      "Oliva"
+    ]
+  },
+  "solo vino rosso": {
+    "budgetAmount": "€ 200,00",
+    "perPersona": "≈ € 4,00 a persona",
+    "righeCount": 7,
+    "righe": [
+      "Nessun alcolico",
+      "Nessun analcolico",
+      "Vino Rosso: 100 calici · 15 L20 bottiglie (0,75 L)≈ € 200,00",
+      "Ghiaccio a cubi0 kg",
+      "Bicchieri da cocktail0 pz",
+      "Bicchierini da shot0 pz",
+      "Cannucce0 pz"
+    ]
+  },
+  "solo birra": {
+    "budgetAmount": "€ 300,00",
+    "perPersona": "≈ € 6,00 a persona",
+    "righeCount": 7,
+    "righe": [
+      "Nessun alcolico",
+      "Nessun analcolico",
+      "Birra: 150 consumazioni · 49,5 L150 bottiglie (0,33 L)≈ € 300,00",
+      "Ghiaccio a cubi0 kg",
+      "Bicchieri da cocktail0 pz",
+      "Bicchierini da shot0 pz",
+      "Cannucce0 pz"
+    ]
+  },
+  "tutti i fermentati insieme": {
+    "budgetAmount": "€ 783,00",
+    "perPersona": "≈ € 9,79 a persona",
+    "righeCount": 10,
+    "righe": [
+      "Nessun alcolico",
+      "Nessun analcolico",
+      "Vino Rosso: 72 calici · 11,25 L15 bottiglie (0,75 L)≈ € 150,00",
+      "Vino Bianco: 72 calici · 11,25 L15 bottiglie (0,75 L)≈ € 135,00",
+      "Bollicine: 72 calici · 11,25 L15 bottiglie (0,75 L)≈ € 210,00",
+      "Birra: 144 consumazioni · 47,52 L144 bottiglie (0,33 L)≈ € 288,00",
+      "Ghiaccio a cubi0 kg",
+      "Bicchieri da cocktail0 pz",
+      "Bicchierini da shot0 pz",
+      "Cannucce0 pz"
+    ]
+  },
+  "cocktail e fermentati insieme": {
+    "budgetAmount": "€ 751,50",
+    "perPersona": "≈ € 7,52 a persona",
+    "righeCount": 20,
+    "righe": [
+      "Aperol6 L≈ € 75,00",
+      "Bitter Campari2 L≈ € 29,00",
+      "Gin2 L≈ € 24,50",
+      "Prosecco8.5 L≈ € 66,50",
+      "Rum Bianco2 L≈ € 22,00",
+      "Sambuca1.5 L≈ € 16,50",
+      "Tequila2.5 L≈ € 46,00",
+      "Vermouth Rosso2 L≈ € 16,00",
+      "Soda4.5 L≈ € 6,50",
+      "Succo di Lime1 L≈ € 3,50",
+      "Vino Rosso: 80 calici · 12 L16 bottiglie (0,75 L)≈ € 160,00",
+      "Bollicine: 80 calici · 12 L16 bottiglie (0,75 L)≈ € 224,00",
+      "Ghiaccio a cubi19 kg≈ € 28,50",
+      "Bicchieri da cocktail184 pz≈ € 18,50",
+      "Bicchierini da shot92 pz≈ € 7,50",
+      "Cannucce184 pz≈ € 7,50",
+      "Fetta d'arancia",
+      "Lime fresco",
+      "Menta fresca",
+      "Oliva"
+    ]
+  },
+  "fermentati con fascia dedicata": {
+    "budgetAmount": "€ 660,00",
+    "perPersona": "≈ € 11,00 a persona",
+    "righeCount": 8,
+    "righe": [
+      "Nessun alcolico",
+      "Nessun analcolico",
+      "Vino Rosso: 60 calici · 9 L12 bottiglie (0,75 L)≈ € 360,00",
+      "Vino Bianco: 60 calici · 9 L12 bottiglie (0,75 L)≈ € 300,00",
+      "Ghiaccio a cubi0 kg",
+      "Bicchieri da cocktail0 pz",
+      "Bicchierini da shot0 pz",
+      "Cannucce0 pz"
+    ]
+  },
+  "fermentati in un paese caro": {
+    "budgetAmount": "€ 1.000,00",
+    "perPersona": "≈ € 16,67 a persona",
+    "righeCount": 8,
+    "righe": [
+      "Nessun alcolico",
+      "Nessun analcolico",
+      "Bollicine: 60 calici · 9 L12 bottiglie (0,75 L)≈ € 412,00",
+      "Birra: 120 consumazioni · 39,6 L120 bottiglie (0,33 L)≈ € 588,00",
+      "Ghiaccio a cubi0 kg",
+      "Bicchieri da cocktail0 pz",
+      "Bicchierini da shot0 pz",
+      "Cannucce0 pz"
+    ]
   }
 }

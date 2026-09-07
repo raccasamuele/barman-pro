@@ -1064,3 +1064,72 @@ decisi con l'utente prima di essere fatti.
 
 **Stato:** 196 test verdi, due corse di fila; 42 golden invarianti;
 `npm run check` verde; cache del service worker a v3.15.0.
+
+### Round 15 - chiusi tutti i rilievi rimasti
+
+L'utente ha chiesto di chiudere tutto e pubblicare. Ogni voce lasciata aperta
+nel Round 14, con la correzione e il test che la copre.
+
+**La ricetta di chi manda vale per l'evento di chi manda.** Vinceva quella
+locale, con un commento che la difendeva ("e' la tua"). Faceva pero' una cosa
+che nessuno aveva chiesto: chi riceveva un evento con un Negroni diverso dal
+proprio vedeva ingredienti e costo del PROPRIO Negroni, sotto il nome di un
+evento preparato da qualcun altro - numeri diversi da quelli mandati, senza un
+avviso. La ricetta incorporata fa parte della definizione dell'evento; la
+libreria di chi riceve resta comunque intatta, che e' la garanzia separata e
+continua a valere.
+
+**Scrittore additivo per le ricette.** `bpRecipesLoad` leggeva solo
+mods/custom/amari e `bpRecipesSave` riscriveva l'oggetto intero: una scheda
+ferma a questa versione cancellava i campi scritti da una piu' recente. Il
+resto della persistenza e' additivo da sempre; le ricette erano rimaste
+indietro.
+
+**L'import e' una cosa sola: o entra tutto o non entra niente.** Gli store non
+validi venivano saltati in silenzio, quindi si finiva con meta' backup dentro e
+meta' fuori, dichiarato riuscito. Ora si valida tutto prima di scrivere e si
+rifiuta l'intero pacchetto. La validazione e' anche diventata profonda:
+`{ id: 'x', lista: {} }` passava e poi faceva sollevare bpEventOpen. E la
+versione non si legge piu' con `parseInt`, che digeriva `"1junk"` come 1.
+
+**"Sostituisci" ora vuol dire copia.** Non cancellava gli store assenti dal
+file, quindi il risultato non era identico a nessuno dei due stati. Scrivendo
+il test e' emerso un difetto piu' grosso che nessuno aveva visto: il blocco di
+rimappatura dei menu girava in ENTRAMBE le modalita', quindi "sostituisci"
+FONDEVA gli eventi entranti con quelli gia' presenti. Chi sceglieva
+"sostituisci" per ripartire pulito si ritrovava le due liste insieme.
+
+**Reimportare lo stesso file non moltiplica piu' niente.** Ogni collisione di id
+veniva rinominata senza guardare il contenuto: lo stesso backup, riaperto,
+raddoppiava la libreria a ogni giro. Ora due eventi che, tolti id e istante di
+salvataggio, dicono la stessa cosa sono lo stesso evento. Un evento modificato
+entra comunque: c'e' un test apposta, perche' una deduplica troppo entusiasta
+farebbe un danno peggiore di quello che ripara.
+
+**Il lock, per quel che si puo'.** Resta un leggi-poi-scrivi e con localStorage
+non e' rendibile atomico. Si puo' pero' smettere di scrivere appena si scopre di
+aver perso: si verifica di possedere ancora il token dopo averlo preso, prima
+del commit e dentro `bpCompletaImport`. Chi ha perso si ferma senza toccare
+nessuna chiave viva. E l'esito del commit ora si PROPAGA: prima un errore di
+quota veniva intercettato dentro e l'import risultava riuscito lo stesso, con la
+pagina che si ricaricava su uno stato mezzo scritto.
+
+**I golden coprono finalmente cio' che dicevano di coprire.** Erano 20 casi,
+tutti Italia (moltiplicatore 1.00) e nessuno con vini o birre: il contratto
+congelava il calcolo col moltiplicatore neutro, e `indiciGeo` e la formula dei
+fermentati potevano cambiare senza che un solo test se ne accorgesse. Aggiunti 9
+casi: tre paesi presi agli estremi della tabella (Messico 0.60, Islanda 3.39,
+Francia 1.19 con fascia alta) e sei con i fermentati - ciascun tipo da solo,
+tutti insieme, insieme ai cocktail, con fascia dedicata e in un paese caro.
+L'helper `stima` non inoltrava `ferm`: sui casi nuovi avrebbe confrontato
+calcolaSpesa e stimaBudget su input DIVERSI, segnalando una divergenza
+inesistente o nascondendo quella vera.
+
+**Prova di invarianza:** rigenerato il fixture e confrontato caso per caso con
+quello di prima - 20 casi su 20 identici, zero cambiati, zero spariti. Tutte le
+correzioni di oggi, comprese quelle sulle unita' di misura e sull'arrotondamento
+dei pezzi, non hanno spostato un centesimo dei totali gia' fotografati.
+
+**Stato:** 223 test verdi su due corse (erano 187 a inizio giornata); il
+progetto golden e' passato da 42 a 60 test; `npm run check` verde; cache del
+service worker a v3.16.0. Nessun rilievo di Codex resta aperto.

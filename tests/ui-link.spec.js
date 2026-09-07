@@ -275,3 +275,52 @@ test.describe("Link . la bozza in corso, davvero al sicuro", () => {
     expect(dopo.parcheggio.config.ospiti, "il parcheggio non contiene i dati della bozza").toBe("77");
   });
 });
+
+test.describe("Link . la ricetta di chi manda vale per l'evento di chi manda", () => {
+  test("un omonimo locale non cambia i numeri dell'evento ricevuto", async ({ page }) => {
+    await openApp(page);
+
+    // Vinceva la ricetta locale, e sembrava la scelta gentile. Faceva pero'
+    // una cosa che nessuno aveva chiesto: chi riceveva un evento con un
+    // Negroni diverso dal proprio vedeva ingredienti e costo del PROPRIO
+    // Negroni, sotto il nome di un evento preparato da qualcun altro.
+    const base = {
+      ospiti: 100, drinkTesta: 3, shotTesta: 0, scarto: 15, pct: 80,
+      nazione: "Italia", fascia: "media", mocktail: {}, shot: {},
+      drink: { "Special Mio": 3 },
+    };
+    const r = await page.evaluate((b) => {
+      // Una ricetta con lo STESSO nome, in libreria e nell'evento, con dosi
+      // diverse: se i totali coincidono, l'evento non sta usando la sua.
+      // eslint-disable-next-line no-undef
+      databaseDrink["Special Mio"] = [{ nome: "Gin", ml: 30 }];
+      const locale = window.bpCalcolaModello(b);
+      const ospite = window.bpCalcolaModello(Object.assign({}, b, {
+        ricetteEvento: { "Special Mio": [{ nome: "Gin", ml: 90 }] },
+      }));
+      const gin = (m) => (m.righe.find((x) => x.id === "ing:Gin") || {}).requiredBaseQty;
+      return { locale: gin(locale), ospite: gin(ospite) };
+    }, base);
+
+    expect(r.locale, "il caso di prova non produce gin").toBeTruthy();
+    expect(r.ospite, "l'evento ha usato la ricetta locale invece della propria")
+      .toBeGreaterThan(r.locale);
+    expect(r.ospite).toBe(r.locale * 3);
+  });
+
+  test("senza ricetta nell'evento si usa comunque la libreria", async ({ page }) => {
+    await openApp(page);
+    // La precedenza non deve trasformarsi in "la libreria non conta piu'".
+    const r = await page.evaluate(() => {
+      // eslint-disable-next-line no-undef
+      databaseDrink["Solo Mio"] = [{ nome: "Gin", ml: 40 }];
+      const m = window.bpCalcolaModello({
+        ospiti: 100, drinkTesta: 3, shotTesta: 0, scarto: 15, pct: 80,
+        nazione: "Italia", fascia: "media", drink: { "Solo Mio": 3 }, mocktail: {}, shot: {},
+        ricetteEvento: { "Altro": [{ nome: "Rum", ml: 50 }] },
+      });
+      return (m.righe.find((x) => x.id === "ing:Gin") || {}).requiredBaseQty;
+    });
+    expect(r, "la ricetta della libreria non e' stata usata").toBeTruthy();
+  });
+});

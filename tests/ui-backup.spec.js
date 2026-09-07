@@ -358,3 +358,98 @@ test.describe("Backup . il codec, provato dallo scrittore vero", () => {
     expect(pacco.dati.stileMenu, "lo stile scelto non e' arrivato nel backup").toBe("minimal");
   });
 });
+
+test.describe("Backup . o entra tutto, o non entra niente", () => {
+  test("un evento con lista malformata fa rifiutare l'intero pacchetto", async ({ page }) => {
+    await semina(page, { bp_events_v2: [EV("mio", "Il mio")], bp_settings_v2: { lingua: "it" } });
+    await openApp(page);
+    page.on("dialog", (d) => d.accept());
+
+    // `lista: {}` passava: l'evento entrava e poi bpEventOpen ci faceva sopra
+    // un forEach e sollevava. E gli store non validi venivano SALTATI in
+    // silenzio, quindi il resto del pacchetto entrava lo stesso e l'import
+    // risultava riuscito: meta' dentro, meta' fuori, nessuno a dirlo.
+    const esito = await importa(page, pacchetto({
+      eventi: [{ id: "rotto", nome: "Rotto", lista: {} }],
+      impostazioni: { lingua: "en" },
+    }));
+
+    expect(esito.ok, "il pacchetto e' stato accettato").toBe(false);
+    const dopo = await page.evaluate(() => ({
+      eventi: window.bpGetEvents().map((e) => e.id),
+      lingua: (JSON.parse(localStorage.getItem("bp_settings_v2") || "{}")).lingua,
+    }));
+    expect(dopo.eventi, "un evento malformato e' entrato").toEqual(["mio"]);
+    expect(dopo.lingua, "uno store del pacchetto rifiutato e' entrato lo stesso").toBe("it");
+  });
+
+  test("una versione che somiglia a un numero non basta", async ({ page }) => {
+    await openApp(page);
+    page.on("dialog", (d) => d.accept());
+    // parseInt("1junk") vale 1: il file passava per un backup v1.
+    const esito = await page.evaluate(async () => {
+      const c = { app: "barman-pro", versione: "1junk", dati: { impostazioni: { lingua: "en" } } };
+      const f = new File([JSON.stringify(c)], "b.json", { type: "application/json" });
+      return window.bpImportaFile(f, "unione");
+    });
+    expect(esito.ok).toBe(false);
+    expect(esito.motivo).toBe("versione-assente");
+  });
+});
+
+test.describe("Backup . sostituisci vuol dire copia", () => {
+  test("uno store assente dal file non sopravvive", async ({ page }) => {
+    await semina(page, {
+      bp_events_v2: [EV("mio", "Il mio")],
+      bp_recipes_v2: { mods: {}, custom: [], amari: ["Amaro"] },
+      bp_menu_style: "minimal",
+    });
+    await openApp(page);
+    page.on("dialog", (d) => d.accept());
+
+    // "Sostituisci" prometteva una copia del backup e invece faceva una
+    // fusione mascherata: cio' che nel file non c'era restava dal vecchio
+    // stato, e il risultato non era identico a nessuno dei due.
+    const esito = await importa(page, pacchetto({ eventi: [EV("dal_file", "Dal file")] }), "sostituisci");
+    expect(esito.ok).toBe(true);
+
+    const dopo = await page.evaluate(() => ({
+      eventi: window.bpGetEvents().map((e) => e.id),
+      ricette: localStorage.getItem("bp_recipes_v2"),
+      stile: localStorage.getItem("bp_menu_style"),
+    }));
+    expect(dopo.eventi).toEqual(["dal_file"]);
+    expect(dopo.ricette, "le ricette sono sopravvissute a una sostituzione che non le conteneva").toBeNull();
+    expect(dopo.stile, "lo stile e' sopravvissuto a una sostituzione che non lo conteneva").toBeNull();
+  });
+});
+
+test.describe("Backup . lo stesso file due volte", () => {
+  test("reimportare non moltiplica gli eventi", async ({ page }) => {
+    await openApp(page);
+    page.on("dialog", (d) => d.accept());
+    const pacco = pacchetto({ eventi: [EV("ev_1", "Uno"), EV("ev_2", "Due")] });
+
+    await importa(page, pacco);
+    const dopoUno = await page.evaluate(() => window.bpGetEvents().length);
+    await importa(page, pacco);
+    const dopoDue = await page.evaluate(() => window.bpGetEvents().length);
+
+    // Ogni collisione di id veniva rinominata senza guardare il contenuto:
+    // lo stesso backup, riaperto, raddoppiava la libreria a ogni giro.
+    expect(dopoUno).toBe(2);
+    expect(dopoDue, "il secondo import ha creato doppioni").toBe(2);
+  });
+
+  test("un evento cambiato entra comunque, non viene scambiato per doppione", async ({ page }) => {
+    await openApp(page);
+    page.on("dialog", (d) => d.accept());
+    await importa(page, pacchetto({ eventi: [EV("ev_1", "Uno")] }));
+
+    const diverso = Object.assign(EV("ev_1", "Uno"), { config: { ospiti: "200" } });
+    await importa(page, pacchetto({ eventi: [diverso] }));
+
+    const nomi = await page.evaluate(() => window.bpGetEvents().map((e) => e.config && e.config.ospiti));
+    expect(nomi.length, "l'evento modificato e' stato scartato come doppione").toBe(2);
+  });
+});

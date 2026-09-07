@@ -131,3 +131,58 @@ test.describe('Storage · impostazioni additive', () => {
     expect(dopo.tema, 'il tema non e\' stato salvato').toBe('dark');
   });
 });
+
+test.describe("Persistenza . scrittori additivi", () => {
+  test("le ricette non perdono i campi di una versione piu' recente", async ({ page }) => {
+    await openApp(page);
+
+    // bpRecipesLoad leggeva solo mods/custom/amari e bpRecipesSave riscriveva
+    // l'oggetto intero: una scheda ferma a questa versione CANCELLAVA i campi
+    // scritti da una piu' recente. Il resto della persistenza e' additivo da
+    // sempre; le ricette erano rimaste indietro.
+    await page.evaluate(() => {
+      localStorage.setItem("bp_recipes_v2", JSON.stringify({
+        mods: {}, custom: [], amari: ["Amaro"],
+        preferite: ["Negroni"], schemaFuturo: 9,
+      }));
+    });
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => typeof window.bpRecipesSave === "function");
+
+    const dopo = await page.evaluate(() => {
+      window.bpRecipesSave();
+      return JSON.parse(localStorage.getItem("bp_recipes_v2"));
+    });
+    expect(dopo.preferite, "un campo sconosciuto e' stato cancellato dal salvataggio").toEqual(["Negroni"]);
+    expect(dopo.schemaFuturo).toBe(9);
+    expect(dopo.amari, "i campi noti non ci sono piu'").toEqual(["Amaro"]);
+  });
+});
+
+test.describe("Import . chi perde il marcatore si ferma", () => {
+  test("se un'altra scheda si prende la transazione, non si scrive", async ({ page }) => {
+    await openApp(page);
+
+    // Il lock e' un leggi-poi-scrivi: non si puo' rendere atomico con
+    // localStorage. Si puo' pero' smettere di scrivere appena si scopre di
+    // aver perso — ed e' cio' che bpCompletaImport ora verifica prima di
+    // toccare qualunque chiave viva.
+    const esito = await page.evaluate(() => {
+      localStorage.setItem("bp_events_v2", JSON.stringify([{ id: "mio" }]));
+      const t = "transazione_mia";
+      // staging pronto, ma il marcatore appartiene ormai a un'altra scheda
+      localStorage.setItem("bp_import_" + t + "__bp_events_v2", JSON.stringify([{ id: "intruso" }]));
+      localStorage.setItem("bp_import_lock", JSON.stringify({ transazione: "altra_scheda", fase: "commit" }));
+      const r = window.bpCompletaImport({ transazione: t, chiavi: ["bp_events_v2"] });
+      const eventi = JSON.parse(localStorage.getItem("bp_events_v2"));
+      localStorage.removeItem("bp_import_lock");
+      localStorage.removeItem("bp_import_" + t + "__bp_events_v2");
+      window.bpStorageRiallineato();
+      return { r, ids: eventi.map((e) => e.id) };
+    });
+
+    expect(esito.r.ok, "ha completato una transazione che non gli apparteneva piu'").toBe(false);
+    expect(esito.r.motivo).toBe("transazione-persa");
+    expect(esito.ids, "ha sovrascritto gli eventi con quelli di una transazione persa").toEqual(["mio"]);
+  });
+});

@@ -48,6 +48,27 @@ export const CASI = [
   // ── fascia di prezzo e paese (entrano in indiciGeo) ───────────────────
   { nome: 'fascia bassa', ospiti: 50, drinkTesta: 3, shotTesta: 1, scarto: 15, pct: 80, fascia: 'bassa', drink: CLASSICI },
   { nome: 'fascia alta', ospiti: 50, drinkTesta: 3, shotTesta: 1, scarto: 15, pct: 80, fascia: 'alta', drink: CLASSICI },
+
+  /* ── paesi diversi dall'Italia ────────────────────────────────────────
+     Tutti i casi precedenti usavano l'Italia, che ha moltiplicatore 1.00:
+     il golden fotografava quindi il calcolo CON il moltiplicatore neutro, e
+     indiciGeo poteva cambiare senza che un test se ne accorgesse. Tre paesi,
+     scelti agli estremi della tabella e non a caso: sotto 1, poco sopra, e
+     molto sopra. */
+  { nome: 'paese economico (Messico 0.60)', ospiti: 60, drinkTesta: 3, shotTesta: 1, scarto: 15, pct: 80, nazione: 'Messico', drink: CLASSICI },
+  { nome: 'paese caro (Islanda 3.39)', ospiti: 60, drinkTesta: 3, shotTesta: 1, scarto: 15, pct: 80, nazione: 'Islanda', drink: CLASSICI },
+  { nome: 'paese vicino (Francia 1.19) con fascia alta', ospiti: 60, drinkTesta: 3, shotTesta: 1, scarto: 15, pct: 80, nazione: 'Francia', fascia: 'alta', drink: CLASSICI },
+
+  /* ── vini e birre ─────────────────────────────────────────────────────
+     Nessun caso li conteneva: la formula dei fermentati (bottiglie per
+     ospite bevitore, divisori diversi per tipo) non era congelata da niente.
+     Qui c'e' ciascun tipo da solo, tutti insieme, e insieme ai cocktail. */
+  { nome: 'solo vino rosso', ospiti: 50, drinkTesta: 0, shotTesta: 0, scarto: 15, pct: 100, ferm: { rosso: 2 } },
+  { nome: 'solo birra', ospiti: 50, drinkTesta: 0, shotTesta: 0, scarto: 15, pct: 100, ferm: { birra: 3 } },
+  { nome: 'tutti i fermentati insieme', ospiti: 80, drinkTesta: 0, shotTesta: 0, scarto: 15, pct: 90, ferm: { rosso: 1, bianco: 1, bollicine: 1, birra: 2 } },
+  { nome: 'cocktail e fermentati insieme', ospiti: 100, drinkTesta: 2, shotTesta: 1, scarto: 15, pct: 80, drink: CLASSICI, shot: SHOT, ferm: { rosso: 1, bollicine: 1 } },
+  { nome: 'fermentati con fascia dedicata', ospiti: 60, drinkTesta: 0, shotTesta: 0, scarto: 15, pct: 100, fascia: 'bassa', fasciaFerm: 'alta', ferm: { rosso: 1, bianco: 1 } },
+  { nome: 'fermentati in un paese caro', ospiti: 60, drinkTesta: 0, shotTesta: 0, scarto: 15, pct: 100, nazione: 'Norvegia', ferm: { birra: 2, bollicine: 1 } },
 ];
 
 /** Casi che devono essere RIFIUTATI dal calcolo, non calcolati male. */

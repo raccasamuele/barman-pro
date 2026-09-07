@@ -88,6 +88,15 @@ export async function calcola(page, params) {
     const ff = document.getElementById('sel-fascia-fermentati');
     if (ff) ff.value = p.fasciaFerm ?? p.fascia ?? 'media';
 
+    // Vini e birre. Erano fuori da OGNI caso golden: la formula dei fermentati
+    // e i suoi prezzi non erano congelati da niente, e potevano cambiare senza
+    // che un solo test se ne accorgesse.
+    const f = p.ferm || {};
+    setVal('ferm_vino_rosso', f.rosso ?? 0);
+    setVal('ferm_vino_bianco', f.bianco ?? 0);
+    setVal('ferm_bollicine', f.bollicine ?? 0);
+    setVal('ferm_birra', f.birra ?? 0);
+
     // NB: assegnazione SENZA `window.`. `menuSerataDrink` & co. sono dichiarate
     // con `let` a livello di script, quindi vivono nel global lexical scope e
     // NON sono proprieta' di window: `window.menuSerataDrink = x` creerebbe una
@@ -139,6 +148,11 @@ export async function stima(page, params) {
       drink: p.drink || {},
       mocktail: p.mocktail || {},
       shot: p.shot || {},
+      /* Senza questo, sui casi con vini e birre il confronto fra
+         calcolaSpesa e stimaBudget metteva a paragone due input DIVERSI:
+         l'uno con i fermentati, l'altro senza. Il test avrebbe segnalato una
+         divergenza inesistente, o — peggio — nascosto quella vera. */
+      ferm: p.ferm || {},
     });
   }, params);
 }
