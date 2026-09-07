@@ -2796,3 +2796,33 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .bp-print-annulla, .bp-print-ok { width: auto; padding: 11px 18px; border-radius: var(--r-md); font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer; }
 .bp-print-annulla { background: none; border: 1px solid var(--bp-line-control); color: var(--bp-ink-soft); }
 .bp-print-ok { background: var(--bp-accent); border: none; color: var(--bp-on-accent); }
+
+/* ── Correggi la lista: "ho gia'" e "il tuo prezzo" ──
+   Compaiono solo in modalita' correzione. Con la modalita' spenta questi
+   elementi non esistono, ed e' voluto: la lista di default resta quella che
+   i golden fotografano. */
+.bp-modifica-btn {
+    width: auto; margin: 0 auto 14px; display: block; padding: 9px 18px;
+    background: none; border: 1px solid var(--bp-line-control); border-radius: 999px;
+    color: var(--bp-ink-soft); font-family: var(--bp-font); font-size: var(--t-sm);
+    font-weight: 600; text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+.bp-modifica-btn[aria-pressed="true"] { background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-on-accent); }
+
+.riga-mod {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px;
+    margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--bp-line);
+}
+.mod-lbl { font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 600; color: var(--bp-ink-faint); text-transform: uppercase; letter-spacing: .03em; }
+.riga-mod input {
+    width: 5.5rem; min-width: 0; padding: 6px 8px; text-align: right;
+    background: var(--bp-panel); border: 1px solid var(--bp-line-control);
+    border-radius: var(--r-sm); color: var(--bp-ink);
+    font-family: var(--bp-font); font-size: var(--t-sm); font-variant-numeric: tabular-nums;
+}
+.riga-mod input:focus { border-color: var(--bp-accent); outline: 2px solid var(--bp-accent-soft); outline-offset: 1px; }
+/* Un prezzo corretto a mano si vede: e' un dato tuo, non una stima. */
+.mod-prezzo-tuo { border-color: var(--bp-accent) !important; color: var(--bp-accent-ink); font-weight: 700; }
+
+@media print { .bp-modifica-btn, .riga-mod { display: none !important; } }

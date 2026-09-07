@@ -2493,6 +2493,16 @@
            'step-setup': chi era arrivato alla lista veniva rispedito
            all'inizio, e la Home non poteva dire "riprendi da Menu" perche' il
            dato non esisteva. Serve alla Home-cruscotto della Fase 1. */
+        /* "Ce l'ho gia'": quanto c'e' gia' in casa, per riga canonica. Vive
+           NELL'EVENTO, perche' una scorta si consuma con quella spesa: portarla
+           in un evento nuovo direbbe una bugia. Per questo duplicare un evento
+           la azzera. */
+        let bpScorte = {};
+
+        /* I prezzi corretti a mano. Vivono nelle IMPOSTAZIONI, perche' quanto
+           costa il gin al tuo supermercato non cambia da una festa all'altra. */
+        let bpPrezziUtente = {};
+
         let bpPassoCorrente = 'step-setup';
         const BP_PASSI = ['step-setup', 'step-menu', 'risultati'];
         let bpAutoSave = true;                   // salvataggio automatico dell'evento in corso (toggle Impostazioni, ON di default)
@@ -2550,6 +2560,7 @@
                        Erano due archivi che si riversavano entrambi su
                        databaseDrink all'avvio, senza una precedenza. */
                     passo: bpPassoCorrente,
+                    scorte: bpScorte,
                     lingua: linguaCorrente,
                     tema: bpTemaScelto,
                     config: {
@@ -2589,6 +2600,7 @@
                    dalla migrazione, quindi qui non c'e' piu' niente da leggere. */
                 // Bozze salvate prima che il passo esistesse: default sicuro.
                 bpPassoCorrente = BP_PASSI.indexOf(s.passo) !== -1 ? s.passo : 'step-setup';
+                bpScorte = (s.scorte && typeof s.scorte === 'object') ? s.scorte : {};
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
                 if (s.tema) {
                     bpApplicaTema(s.tema);
@@ -2629,7 +2641,8 @@
             const uniti = Object.assign({}, (attuali && typeof attuali === 'object') ? attuali : {}, {
                 lingua: linguaCorrente,
                 tema: bpTemaScelto,
-                autosave: bpAutoSave ? 1 : 0
+                autosave: bpAutoSave ? 1 : 0,
+                prezzi: bpPrezziUtente
             });
             return bpStorageWrite(BP_SETTINGS_KEY, uniti);
         }
@@ -2643,6 +2656,7 @@
                     bpTemaApplicato = true;
                 }
                 if (s.autosave != null) bpAutoSave = !!s.autosave;
+                if (s.prezzi && typeof s.prezzi === 'object') bpPrezziUtente = s.prezzi;
             } catch(e) { console.warn('Caricamento impostazioni fallito:', e); }
         }
         function bpUpdateStorageStatus() {
@@ -2678,6 +2692,7 @@
             menuSerataDrink = {};
             menuSerataMocktail = {};
             menuSerataShot = {};
+            bpScorte = {};   // una scorta si consuma con la sua spesa: un evento nuovo riparte da zero
             customShots = [];
             customDrinks = {};
             // ricostruisco databaseDrink rimuovendo i custom
@@ -3282,6 +3297,18 @@
         Object.keys(_homeI18n2).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _homeI18n2[lg]); });
 
         /* ── i18n della stampa — 7 lingue ── */
+        /* ── i18n dei modificatori — 7 lingue ── */
+        const _modI18n = {
+            it: { modHoGia:"Ho già", modPrezzoTuo:"Il tuo prezzo", modTitolo:"Correggi la lista", modDesc:"Dichiara cosa hai già in casa e correggi i prezzi del tuo supermercato.", modAttiva:"Correggi", modChiudi:"Fatto", modRisparmio:"già in casa" },
+            en: { modHoGia:"Already have", modPrezzoTuo:"Your price", modTitolo:"Adjust the list", modDesc:"Say what you already have at home and correct your shop's prices.", modAttiva:"Adjust", modChiudi:"Done", modRisparmio:"already at home" },
+            es: { modHoGia:"Ya tengo", modPrezzoTuo:"Tu precio", modTitolo:"Corrige la lista", modDesc:"Indica lo que ya tienes en casa y corrige los precios de tu supermercado.", modAttiva:"Corregir", modChiudi:"Listo", modRisparmio:"ya en casa" },
+            fr: { modHoGia:"J'ai déjà", modPrezzoTuo:"Votre prix", modTitolo:"Corriger la liste", modDesc:"Indiquez ce que vous avez déjà et corrigez les prix de votre magasin.", modAttiva:"Corriger", modChiudi:"Terminé", modRisparmio:"déjà chez vous" },
+            de: { modHoGia:"Schon da", modPrezzoTuo:"Dein Preis", modTitolo:"Liste anpassen", modDesc:"Sag, was du schon zu Hause hast, und korrigiere die Preise deines Ladens.", modAttiva:"Anpassen", modChiudi:"Fertig", modRisparmio:"schon zu Hause" },
+            pt: { modHoGia:"Já tenho", modPrezzoTuo:"O teu preço", modTitolo:"Corrigir a lista", modDesc:"Diz o que já tens em casa e corrige os preços do teu supermercado.", modAttiva:"Corrigir", modChiudi:"Pronto", modRisparmio:"já em casa" },
+            nl: { modHoGia:"Al in huis", modPrezzoTuo:"Jouw prijs", modTitolo:"Lijst bijstellen", modDesc:"Geef aan wat je al hebt en corrigeer de prijzen van jouw winkel.", modAttiva:"Bijstellen", modChiudi:"Klaar", modRisparmio:"al in huis" }
+        };
+        Object.keys(_modI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _modI18n[lg]); });
+
         const _printI18n = {
             it: { printTitolo:"Come vuoi il foglio?", printListaNome:"Lista da spuntare", printListaDesc:"Caselle, quantità in grande, raggruppata per reparto.", printPrevNome:"Preventivo", printPrevDesc:"Prezzo unitario e totale per riga, con spazio per le note.", printAnnulla:"Annulla", printNote:"Note", alertStampaFallita:"Non riesco ad aprire la stampa. Prova dal menu del browser." },
             en: { printTitolo:"How do you want the sheet?", printListaNome:"Checklist", printListaDesc:"Tick boxes, large quantities, grouped by aisle.", printPrevNome:"Quote", printPrevDesc:"Unit price and line total, with room for notes.", printAnnulla:"Cancel", printNote:"Notes", alertStampaFallita:"Cannot open printing. Try from the browser menu." },
@@ -3632,6 +3659,13 @@
            ════════════════════════════════════════════════════════════ */
         let bpEditingId = null;
         const _bpT = () => (typeof T === 'function' ? T : t);
+        /* Date.now() come id collide fra due eventi creati nello stesso
+           millisecondo — improbabile a mano, non importando un file. */
+        function bpNuovoId(){
+            try { if (crypto && crypto.randomUUID) return 'ev_' + crypto.randomUUID(); } catch(e){}
+            return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        }
+
         function bpGetEvents(){ const l = bpStorageRead(BP_EVENTS_KEY, []); return Array.isArray(l) ? l : []; }
         /* Ritorna l'esito invece di ingoiarlo: con la quota piena il chiamante
            mostrava "Evento salvato" su un salvataggio che non era avvenuto. */
@@ -3680,14 +3714,15 @@
                     : (_T('cfgSumNomeVuoto') + ' · ' + new Date().toLocaleDateString(linguaCorrente));
                 const config = { ospiti:_g('ospiti'), drink_testa:_g('drink_testa'), shot_testa:_g('shot_testa'), scarto:_g('scarto'), nazione:_g('sel-nazione'), fascia:_g('sel-fascia'), pct_bevitori:_g('pct-bevitori'), ferm_vino_rosso:_g('ferm_vino_rosso'), ferm_vino_bianco:_g('ferm_vino_bianco'), ferm_bollicine:_g('ferm_bollicine'), ferm_birra:_g('ferm_birra'), fascia_fermentati:_g('sel-fascia-fermentati') };
                 const menu = { drink: Object.assign({}, menuSerataDrink), mocktail: Object.assign({}, menuSerataMocktail), shot: Object.assign({}, menuSerataShot) };
+                const scorte = Object.assign({}, bpScorte);
                 const totale = (function(){ const b = document.getElementById('budget-amount'); return b ? b.textContent.trim() : ''; })();
                 const lista = bpSnapshotLista();
                 const list = bpGetEvents();
                 const idx = bpEditingId ? list.findIndex(e => e.id === bpEditingId) : -1;
                 if (idx >= 0) {
-                    list[idx] = Object.assign({}, list[idx], { nome, data: Date.now(), config, menu, totale, lista, check: list[idx].check || {} });
+                    list[idx] = Object.assign({}, list[idx], { nome, data: Date.now(), config, menu, totale, lista, scorte, check: list[idx].check || {} });
                 } else {
-                    list.push({ id:'ev_'+Date.now(), nome, data: Date.now(), config, menu, totale, lista, check:{} });
+                    list.push({ id: bpNuovoId(), nome, data: Date.now(), config, menu, totale, lista, scorte, check:{} });
                 }
                 /* Il toast di successo esce SOLO se la scrittura e' andata a
                    buon fine. Prima bpSetEvents ingoiava l'errore e questo
@@ -3869,6 +3904,9 @@
         function bpEventEdit(id){
             const _T = _bpT();
             const ev = bpGetEvents().find(e => e.id === id); if (!ev) return;
+            // Le scorte fanno parte dell'evento: chi lo riapre per modificarlo
+            // deve ritrovare quello che aveva gia' dichiarato di avere in casa.
+            bpScorte = (ev.scorte && typeof ev.scorte === 'object') ? Object.assign({}, ev.scorte) : {};
             const c = ev.config || {};
             const _s = (eid, v) => { const e = document.getElementById(eid); if (e && v != null && v !== '') e.value = v; };
             _s('ospiti', c.ospiti); _s('drink_testa', c.drink_testa); _s('shot_testa', c.shot_testa); _s('scarto', c.scarto);
@@ -3894,7 +3932,12 @@
             const _T = _bpT();
             const list = bpGetEvents(); const ev = list.find(e => e.id === id); if (!ev) return;
             const copy = JSON.parse(JSON.stringify(ev));
-            copy.id = 'ev_' + Date.now(); copy.data = Date.now(); copy.nome = (ev.nome || '') + ' ' + _T('evCopySuffix'); copy.check = {};
+            /* Una copia e' una spesa nuova: scorte e spunte descrivono un
+               acquisto gia' avvenuto, e portarsele dietro direbbe una bugia.
+               Deciso durante il grill, non lasciato all'implementazione. */
+            copy.id = bpNuovoId(); copy.data = Date.now();
+            copy.nome = (ev.nome || '') + ' ' + _T('evCopySuffix');
+            copy.check = {}; copy.scorte = {};
             list.push(copy); bpSetEvents(list); bpEventsList();
             mostraToast(_T('evToastDuplicated'));
         }
@@ -4844,7 +4887,11 @@
                 fasciaFerm: (_fascF && _fascF.value) ? _fascF.value : _v('sel-fascia'),
                 ferm: { rosso:_n('ferm_vino_rosso'), bianco:_n('ferm_vino_bianco'),
                         bollicine:_n('ferm_bollicine'), birra:_n('ferm_birra') },
-                drink: menuSerataDrink, mocktail: menuSerataMocktail, shot: menuSerataShot
+                drink: menuSerataDrink, mocktail: menuSerataMocktail, shot: menuSerataShot,
+                /* Le scorte stanno nell'evento (si consumano con quella spesa),
+                   i prezzi nelle impostazioni (valgono per i prossimi eventi). */
+                scorte: bpScorte,
+                prezzi: bpPrezziUtente
             };
         }
 
@@ -4924,18 +4971,40 @@
             const righe = [];
             let totale = 0;
 
+            /* I modificatori dell'utente: quanto ha gia' in casa, e i prezzi
+               che ha corretto a mano. Arrivano da fuori e per default NON ci
+               sono — ed e' quella modalita' senza modificatori che i 42 golden
+               misurano, e che deve restare identica per sempre. */
+            const scorte = (p.scorte && typeof p.scorte === 'object') ? p.scorte : {};
+            const prezziUtente = (p.prezzi && typeof p.prezzi === 'object') ? p.prezzi : {};
+            const _scorta = id => Math.max(0, parseFloat(scorte[id]) || 0);
+            const _prezzo = (id, predefinito) => {
+                const v = parseFloat(prezziUtente[id]);
+                // Un prezzo tuo e' il prezzo unitario FINALE locale: sostituisce
+                // fascia e moltiplicatore geografico, non ci si somma.
+                return (isFinite(v) && v >= 0) ? { valore: v, tuo: true } : { valore: predefinito, tuo: false };
+            };
+
             /* Una riga liquida: quantita' in ml, prezzo al litro. */
             const aggiungiLiquido = (gruppo, ingrediente, ml, prezzoDefault) => {
+                const id = 'ing:' + ingrediente;
                 const pr = prezziBase[ingrediente];
                 const prezzoLitro = pr ? pr[fascia] : prezzoDefault;
-                const q = bpQuantitaRiga(ml, 0 /* scorte: Fase 3 */, bpLitriArrotondati);
-                // Stessa associazione di prima: ((ml/1000) * prezzo) * geo.
-                const costo = BP_ARR_COSTO((q.pricingQty / 1000) * prezzoLitro * geoMult);
+                const q = bpQuantitaRiga(ml, _scorta(id), bpLitriArrotondati);
+                const pz = _prezzo(id, prezzoLitro * geoMult);
+                /* Senza prezzo tuo l'associazione resta quella di sempre —
+                   ((ml/1000) * prezzo) * geo — perche' in virgola mobile
+                   cambiare l'ordine puo' spostare un totale al limite
+                   dell'arrotondamento, cioe' rompere i golden. Con un prezzo
+                   tuo quel valore e' gia' finale e non va moltiplicato per geo. */
+                const costo = pz.tuo
+                    ? BP_ARR_COSTO((q.pricingQty / 1000) * pz.valore)
+                    : BP_ARR_COSTO((q.pricingQty / 1000) * prezzoLitro * geoMult);
                 totale += costo;
                 righe.push(Object.assign({
-                    id: 'ing:' + ingrediente, gruppo, ingrediente,
+                    id, gruppo, ingrediente,
                     baseUnit: 'ml', displayUnit: 'L', packSize: null,
-                    unitPrice: prezzoLitro * geoMult, costo
+                    unitPrice: pz.valore, prezzoTuo: pz.tuo, costo
                 }, q));
             };
             Object.keys(spesaAlcolici).sort().forEach(i => aggiungiLiquido('alcolici', i, spesaAlcolici[i], 15));
@@ -4952,17 +5021,21 @@
                 if (d.v <= 0) return;
                 const bt = (d.div === 1) ? Math.ceil(ospitiAlcolici * d.v)
                                          : Math.ceil((ospitiAlcolici * d.v) / d.div);
+                const id = 'ferm:' + d.k;
                 const pr = prezziBase[d.k];
                 const prezzoBt = pr ? pr[fasciaFerm] : 8;
-                const q = bpQuantitaRiga(bt, 0, null);   // bottiglie: gia' intere
-                const costo = BP_ARR_COSTO(q.pricingQty * prezzoBt * geoMult);
+                const q = bpQuantitaRiga(bt, _scorta(id), null);   // bottiglie: gia' intere
+                const pz = _prezzo(id, prezzoBt * geoMult);
+                const costo = pz.tuo
+                    ? BP_ARR_COSTO(q.pricingQty * pz.valore)
+                    : BP_ARR_COSTO(q.pricingQty * prezzoBt * geoMult);
                 totale += costo;
                 righe.push(Object.assign({
-                    id: 'ferm:' + d.k, gruppo:'fermentati', ingrediente: d.k,
+                    id, gruppo:'fermentati', ingrediente: d.k,
                     labelKey: d.labelKey, unitKey: d.unitKey,
                     baseUnit: 'bottiglie', displayUnit: 'bottiglie', packSize: d.taglia,
                     porzioni: Math.round(ospitiAlcolici * d.v),
-                    unitPrice: prezzoBt * geoMult, costo
+                    unitPrice: pz.valore, prezzoTuo: pz.tuo, costo
                 }, q));
             });
 
@@ -4975,13 +5048,16 @@
             const aggiungiExtra = (id, labelKey, qta, baseUnit, chiavePrezzo, prezzoDefault) => {
                 const pr = prezziBase[chiavePrezzo];
                 const prezzo = pr ? pr[fascia] : prezzoDefault;
-                const q = bpQuantitaRiga(qta, 0, null);
-                const costo = BP_ARR_COSTO(q.pricingQty * prezzo * geoMult);
+                const q = bpQuantitaRiga(qta, _scorta(id), null);
+                const pz = _prezzo(id, prezzo * geoMult);
+                const costo = pz.tuo
+                    ? BP_ARR_COSTO(q.pricingQty * pz.valore)
+                    : BP_ARR_COSTO(q.pricingQty * prezzo * geoMult);
                 totale += costo;
                 righe.push(Object.assign({
                     id, gruppo:'extra', labelKey, ingrediente: chiavePrezzo,
                     baseUnit, displayUnit: baseUnit, packSize: null,
-                    unitPrice: prezzo * geoMult, costo
+                    unitPrice: pz.valore, prezzoTuo: pz.tuo, costo
                 }, q));
             };
             aggiungiExtra('extra:ghiaccio',    'ghiaccio',          kgGhiaccio,        'kg', '_ghiaccio_kg',         1.5);
@@ -5048,6 +5124,7 @@
                     strong.textContent = litriTesto(r.roundedPurchaseQty) + ' L';
                     li.appendChild(s); li.appendChild(strong);
                     if (r.costo > 0) li.appendChild(costoSpan(r.costo));
+                    bpAggiungiEditor(li, r);
                     ul.appendChild(li);
                 });
             };
@@ -5070,6 +5147,7 @@
                     btStrong.textContent = r.roundedPurchaseQty + ' ' + T(r.roundedPurchaseQty === 1 ? 'bottigliaSing' : 'bottiglie') + ' (' + taglia_L + ' L)';
                     li.appendChild(nameSpan); li.appendChild(btStrong);
                     li.appendChild(costoSpan(r.costo));
+                    bpAggiungiEditor(li, r);
                     ulFerm.appendChild(li);
                 });
             } else if (blockFerm) {
@@ -5084,6 +5162,7 @@
                 const st = document.createElement('strong'); st.textContent = r.roundedPurchaseQty + ' ' + r.displayUnit;
                 li.appendChild(sp); li.appendChild(st);
                 if (r.costo > 0) li.appendChild(costoSpan(r.costo));
+                bpAggiungiEditor(li, r);
                 ulExtra.appendChild(li);
             });
 
@@ -5121,6 +5200,104 @@
                 m.meta.nazione + ' · ' + T('budgetFasciaWord') + ' ' + (T(_fasciaKey) || fascia).toLowerCase();
 
             document.getElementById('risultati').style.display = 'block';
+        }
+
+        /* ── "Ce l'ho gia'" e "il tuo prezzo" ──
+           Compaiono solo in modalita' modifica, e questo non e' un dettaglio:
+           con la modalita' spenta il DOM della lista e' identico a prima, ed e'
+           quella la proiezione che i 42 golden fotografano. Un campo in piu'
+           dentro ogni <li>, sempre presente, li avrebbe cambiati tutti pur non
+           cambiando un solo numero.
+
+           L'unita' e' quella della riga: litri per i liquidi, bottiglie per i
+           fermentati, kg o pezzi per l'attrezzatura. Chiedere millilitri a chi
+           guarda una bottiglia sarebbe una domanda scritta per il programma,
+           non per la persona. Le guarnizioni non hanno dose, quindi non hanno
+           scorte: la riga non mostra nulla. */
+        function bpAggiungiEditor(li, r) {
+            if (!document.body.classList.contains('bp-modifica-lista')) return;
+            if (!r.baseUnit) return;   // guarnizioni: niente quantita', niente scorte
+
+            const wrap = document.createElement('span');
+            wrap.className = 'riga-mod';
+
+            const passo = r.baseUnit === 'ml' ? 0.5 : 1;
+            const scortaMostrata = r.baseUnit === 'ml'
+                ? (r.stockBaseQty / 1000) : r.stockBaseQty;
+
+            const scorta = document.createElement('input');
+            scorta.type = 'number'; scorta.min = '0'; scorta.step = String(passo);
+            scorta.className = 'mod-scorta';
+            scorta.value = scortaMostrata ? String(scortaMostrata) : '';
+            scorta.placeholder = '0';
+            scorta.dataset.riga = r.id;
+            scorta.dataset.unita = r.baseUnit;
+            scorta.setAttribute('aria-label', T('modHoGia') + ' — ' + bpNomeRiga(r));
+
+            const lblS = document.createElement('span');
+            lblS.className = 'mod-lbl';
+            lblS.textContent = T('modHoGia') + ' (' + (r.baseUnit === 'ml' ? 'L' : r.displayUnit) + ')';
+
+            const prezzo = document.createElement('input');
+            prezzo.type = 'number'; prezzo.min = '0'; prezzo.step = '0.01';
+            prezzo.className = 'mod-prezzo' + (r.prezzoTuo ? ' mod-prezzo-tuo' : '');
+            prezzo.value = r.prezzoTuo ? String(r.unitPrice) : '';
+            prezzo.placeholder = (Math.round(r.unitPrice * 100) / 100).toString();
+            prezzo.dataset.riga = r.id;
+            prezzo.setAttribute('aria-label', T('modPrezzoTuo') + ' — ' + bpNomeRiga(r));
+
+            const lblP = document.createElement('span');
+            lblP.className = 'mod-lbl';
+            lblP.textContent = T('modPrezzoTuo');
+
+            wrap.appendChild(lblS); wrap.appendChild(scorta);
+            wrap.appendChild(lblP); wrap.appendChild(prezzo);
+            li.appendChild(wrap);
+        }
+
+        /* Delega, come tutto il resto dell'app: i campi nascono e muoiono a
+           ogni ricalcolo, quindi non si puo' agganciare il singolo elemento. */
+        document.addEventListener('input', function (e) {
+            const el = e.target;
+            if (el && el.dataset && el.dataset.riga &&
+                (el.classList.contains('mod-scorta') || el.classList.contains('mod-prezzo'))) {
+                bpModificatoreCambiato(el);
+            }
+        });
+
+        function bpAlternaModifica() {
+            const on = document.body.classList.toggle('bp-modifica-lista');
+            const b = document.getElementById('bp-modifica-btn');
+            if (b) b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            calcolaSpesa(true);
+        }
+
+        /* Un campo cambia -> si aggiorna il modificatore e si ricalcola. Il
+           ricalcolo rifa' il DOM, quindi il focus va rimesso dov'era:
+           altrimenti scrivere "2" farebbe saltare via il cursore. */
+        function bpModificatoreCambiato(el) {
+            const id = el.dataset.riga;
+            if (!id) return;
+            const v = el.value.trim();
+
+            if (el.classList.contains('mod-scorta')) {
+                const n = parseFloat(v);
+                if (!v || !isFinite(n) || n <= 0) delete bpScorte[id];
+                else bpScorte[id] = el.dataset.unita === 'ml' ? n * 1000 : n;   // in unita' base
+            } else {
+                const n = parseFloat(v);
+                if (!v || !isFinite(n) || n < 0) delete bpPrezziUtente[id];
+                else bpPrezziUtente[id] = n;
+                bpSaveSettings();   // i prezzi valgono per i prossimi eventi
+            }
+            programmaSalvataggio();
+
+            const classe = el.className.split(' ')[0];
+            const sel = '.' + classe + '[data-riga="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]';
+            const inizio = el.selectionStart;
+            calcolaSpesa(true);
+            const nuovo = document.querySelector(sel);
+            if (nuovo) { try { nuovo.focus(); nuovo.setSelectionRange(inizio, inizio); } catch(e) { nuovo.focus(); } }
         }
 
         /* Da fuori e' identica a prima: booleano, e l'avviso se manca il menu. */

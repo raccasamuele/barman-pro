@@ -505,6 +505,13 @@
             <ul id="lista_garnish"></ul>
         </div>
 
+        <!-- Modalita' correzione: fuori dalle azioni, perche' non e' un'azione
+             ma un modo di guardare la stessa lista. Con la modalita' spenta il
+             DOM della lista e' identico a prima. -->
+        <button type="button" id="bp-modifica-btn" class="bp-modifica-btn" aria-pressed="false" data-do="bpAlternaModifica">
+            <span data-i18n="modAttiva">Correggi</span>
+        </button>
+
         <!-- Quattro azioni, non otto. "Copia testo" spariva dietro
              "Condividi", che gia' ricade sulla copia quando la condivisione
              nativa non c'e'; "Nuovo evento" su una schermata di risultati
