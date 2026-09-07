@@ -166,3 +166,57 @@ test.describe('PWA · precache', () => {
     ).toBe(true);
   });
 });
+
+test.describe("PWA . offline davvero", () => {
+  test("senza rete, /index.html mai visitato prima serve ancora l'app", async ({ page, context }) => {
+    // Mancava un test offline vero: questo copre il buco. Il riscaldamento
+    // passa SOLO da '/', perche' visitando /index.html online il service
+    // worker se lo metterebbe in cache da solo e la richiesta offline non
+    // direbbe piu' niente sul percorso di ripiego.
+    //
+    // ONESTA' SU COSA PROVA: che l'app resti raggiungibile offline su
+    // entrambe le rotte. NON discrimina il ramo di ripiego di sw.js — l'ho
+    // verificato, resta verde anche con il ripiego vecchio, che cercava solo
+    // './index.html' mentre in cache c'e' './' (Cloudflare rimanda
+    // index.html a './' con un 307 e addAll() rifiuta i redirect). Il ripiego
+    // e' stato comunque corretto, ma qui non c'e' un test che lo dimostri:
+    // scriverlo richiede un ambiente che riproduca quel 307, e dirlo e'
+    // meglio che lasciar credere il contrario.
+    await page.goto("/", { waitUntil: "load" });
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.register("./sw.js");
+      await navigator.serviceWorker.ready;
+    });
+    await page.evaluate(async (cacheName) => {
+      for (let i = 0; i < 20; i++) {
+        if (await caches.has(cacheName)) {
+          const c = await caches.open(cacheName);
+          if ((await c.keys()).length > 0) return;
+        }
+        await new Promise((r) => setTimeout(r, 250));
+      }
+    }, ASSET_CACHE);
+
+    const inCache = await page.evaluate(async (cacheName) => {
+      const c = await caches.open(cacheName);
+      return (await c.keys()).map((r) => new URL(r.url).pathname);
+    }, ASSET_CACHE);
+    expect(inCache, "index.html e' gia' in cache: il ripiego non verrebbe mai usato")
+      .not.toContain("/index.html");
+
+    await context.setOffline(true);
+    try {
+      for (const rotta of ["/", "/index.html"]) {
+        await page.goto(rotta, { waitUntil: "load" });
+        const vivo = await page.evaluate(() => ({
+          titolo: document.title,
+          app: typeof window.calcolaSpesa === "function",
+        }));
+        expect(vivo.app, `offline, ${rotta} non ha servito l'app`).toBe(true);
+        expect(vivo.titolo.length, `offline, ${rotta} ha servito una pagina vuota`).toBeGreaterThan(0);
+      }
+    } finally {
+      await context.setOffline(false);
+    }
+  });
+});

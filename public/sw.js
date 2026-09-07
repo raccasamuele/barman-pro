@@ -9,8 +9,8 @@
  *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v3.14.0';
-const ASSET_CACHE = 'barman-pro-assets-v3.14.0';
+const CACHE_VERSION = 'barman-pro-v3.15.0';
+const ASSET_CACHE = 'barman-pro-assets-v3.15.0';
 
 // Asset da pre-cachare alla prima installazione.
 //
@@ -99,7 +99,14 @@ self.addEventListener('fetch', event => {
                     caches.open(ASSET_CACHE).then(c => c.put(req, clone));
                     return resp;
                 })
-                .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
+                // Il ripiego cercava SOLO './index.html' — che il precache non
+                // contiene apposta (Cloudflare lo rimanda a './' con un 307 e
+                // addAll() rifiuta i redirect). Una prima visita offline a
+                // /index.html non trovava quindi niente. Si prova anche './',
+                // che e' il documento davvero in cache.
+                .catch(() => caches.match(req)
+                    .then(r => r || caches.match('./index.html'))
+                    .then(r => r || caches.match('./')))
         );
         return;
     }

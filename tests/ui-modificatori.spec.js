@@ -89,7 +89,9 @@ test.describe('Modificatori · "ce l\'ho gia\'"', () => {
     expect(con.pricingQty, 'si paga una quantita\' diversa da quella che resta')
       .toBe(con.remainingBaseQty);
     // Si compra al taglio, si paga al bisogno: due numeri diversi, e va bene.
-    expect(con.roundedPurchaseQty).toBeGreaterThanOrEqual(con.remainingBaseQty / 1000);
+    // Entrambi in ml: il confronto prima divideva per 1000 perche' la
+    // quantita' d'acquisto era in litri, contro il requisito R3.
+    expect(con.roundedPurchaseQty).toBeGreaterThanOrEqual(con.remainingBaseQty);
     expect(con.costo).toBeLessThan(base.costo);
   });
 
@@ -254,5 +256,44 @@ test.describe("Il ricalcolo differito . chi salva non si porta via numeri vecchi
     const e = await senzaAspettareIlFrame(page, "condividi");
     expect(e.inCoda).toBe(true);
     expect(e.dopo, "il testo condiviso e' rimasto quello di prima dello slider").not.toBe(e.prima);
+  });
+});
+
+test.describe("Condividere . cosa esce dalla lista", () => {
+  test("in correzione il testo non porta fuori le etichette degli editor", async ({ page }) => {
+    await openApp(page);
+    await page.evaluate(() => {
+      // eslint-disable-next-line no-undef
+      menuSerataDrink = { Negroni: 3 };
+      document.getElementById("ospiti").value = 80;
+      window.vaiAStep("risultati");
+    });
+    await page.waitForTimeout(300);
+
+    // Il testo si costruiva da li.innerText, e in correzione dentro ogni <li>
+    // c'e' il blocco .riga-mod. NB: i VALORI digitati non trapelano — il
+    // valore di un <input> non fa parte di innerText, e la prima versione di
+    // questo test lo asseriva e passava anche senza la correzione, cioe' non
+    // provava niente. A trapelare sono le ETICHETTE: ogni voce della lista
+    // condivisa si portava dietro "Ce l'ho gia' (L)" e "Il tuo prezzo".
+    await page.evaluate(() => window.bpAlternaModifica());
+    await page.waitForTimeout(400);
+    const etichetta = await page.evaluate(() => {
+      const l = document.querySelector(".riga-mod .mod-lbl");
+      return l ? l.textContent : null;
+    });
+    expect(etichetta, "gli editor non sono aperti: il test non prova niente").toBeTruthy();
+
+    const testo = await page.evaluate(() => window.costruisciTestoLista());
+    // Confronto senza maiuscole/minuscole: le etichette hanno
+    // text-transform: uppercase, e innerText restituisce il testo RESO, cioe'
+    // "HO GIA' (L)". La versione precedente confrontava con textContent
+    // ("Ho gia' (L)") e per questo passava anche senza la correzione — un
+    // altro test verde per il motivo sbagliato, nello stesso giro in cui li
+    // stavo cercando.
+    expect(testo.toLowerCase(), `l'etichetta "${etichetta}" e' finita nel testo condiviso`)
+      .not.toContain(etichetta.toLowerCase());
+    // Ripulire non vuol dire svuotare: le voci devono esserci ancora.
+    expect(testo, "il testo condiviso ha perso le voci").toContain("Gin");
   });
 });

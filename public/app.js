@@ -2486,11 +2486,15 @@
             const gia = bpStorageRead(BP_SLOT_RECUPERO, null);
             if (gia && !confirm(T('bozzaSostituisciParcheggio'))) return false;
 
+            /* Dal vivo, non dal disco: con il salvataggio differito la bozza
+               su disco e' vecchia di qualche secondo, e con l'auto-save spento
+               non esiste affatto. Si parte comunque da cio' che c'e' gia'
+               salvato, per non perdere campi scritti da versioni piu' recenti. */
             const attuale = bpStorageRead(STORAGE_KEY, null);
-            const istantanea = Object.assign({}, attuale && typeof attuale === 'object' ? attuale : {}, {
-                nome: bpCfgNomeEvento || '',
-                parcheggiataIl: Date.now()
-            });
+            const istantanea = Object.assign({},
+                attuale && typeof attuale === 'object' ? attuale : {},
+                bpComponiBozza(),
+                { nome: bpCfgNomeEvento || '', parcheggiataIl: Date.now() });
             const esito = bpStorageWrite(BP_SLOT_RECUPERO, istantanea);
             if (!esito.ok) mostraToast(T('toastSalvataggioFallito'));
             return esito.ok;
@@ -2564,7 +2568,7 @@
 ` + T('linkRicevutoNota');
             if (!confirm(testo)) return;   // la bozza in corso resta intatta
 
-            bpApriLinkComeCopia(v.stato);
+            if (!bpApriLinkComeCopia(v.stato)) return;   // bozza non messa al sicuro: non si tocca niente
         }
 
         function bpApriLinkComeCopia(st) {
@@ -2573,7 +2577,15 @@
                programmava un salvataggio sulla sua unica chiave. O si cambiava
                il testo, o si manteneva la promessa. Si mantiene: la bozza in
                corso viene PARCHEGGIATA, e la si puo' riprendere dalla Home. */
-            bpParcheggiaBozza();
+            /* E si CONTROLLA che il parcheggio sia riuscito. bpParcheggiaBozza
+               torna false in due casi veri: l'utente rifiuta di sostituire una
+               bozza gia' messa da parte, oppure la scrittura fallisce per
+               spazio esaurito. Ignorare quel false rimetteva esattamente il
+               difetto che questa funzione esiste per evitare: si applicava il
+               link lo stesso e la bozza in corso spariva, mentre il messaggio
+               continuava a promettere che non veniva toccata. Se non si e'
+               potuta mettere al sicuro, non si prosegue. */
+            if (!bpParcheggiaBozza()) return false;
 
             /* Le ricette del link valgono per questo evento e basta: non
                entrano in databaseDrink — che e' cio' che la libreria "I miei
@@ -2604,6 +2616,7 @@
             bpVaiA('evento');
             vaiAStep('risultati');
             mostraToast(T('linkAperto'));
+            return true;
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -2664,7 +2677,11 @@
             { chiave: 'bp_recipes_v2',     nome: 'ricette',      unione: 'ricette' },
             { chiave: 'bp_settings_v2',    nome: 'impostazioni', unione: 'solo-sostituisci' },
             { chiave: 'bp_menu_style',     nome: 'stileMenu',    unione: 'solo-sostituisci' },
-            { chiave: 'barmanProState_v8', nome: 'bozza',        unione: 'solo-sostituisci' }
+            { chiave: 'barmanProState_v8', nome: 'bozza',        unione: 'solo-sostituisci' },
+            /* Da quando il parcheggio esiste, contiene una bozza intera che
+               l'utente puo' ancora riprendere: e' un suo dato, e finora un
+               backup lo perdeva senza dirlo. */
+            { chiave: 'bp_bozza_parcheggiata', nome: 'bozzaParcheggiata', unione: 'solo-sostituisci' }
         ];
 
         /* L'utente sceglie fra unire e sostituire PRIMA che si tocchi
@@ -2867,6 +2884,7 @@ Annulla = ` + T('backupUnisci'));
                         && (v.amari === undefined || v.amari === null || Array.isArray(v.amari));
                 case 'impostazioni':
                 case 'bozza':
+                case 'bozzaParcheggiata':
                     return typeof v === 'object' && !Array.isArray(v);
                 case 'stileMenu':
                     return typeof v === 'string' && v.length < 40;
@@ -3214,7 +3232,17 @@ Annulla = ` + T('backupUnisci'));
             if (bpImportInCorso()) { bpStorageStale = true; return { ok:false, motivo:'import' }; }
             if (bpStorageStale)    { return { ok:false, motivo:'stale' }; }
             try {
-                localStorage.setItem(chiave, typeof valore === 'string' ? valore : JSON.stringify(valore));
+                /* Un solo codec: si scrive SEMPRE JSON, perche' bpStorageRead
+                   fa sempre JSON.parse. L'eccezione per le stringhe sembrava
+                   innocua e non lo era: bpMenuSetStyle scriveva `minimal`
+                   grezzo, la rilettura ci provava JSON.parse sopra, falliva e
+                   ricadeva su 'elegant'. Lo stile scelto spariva a ogni
+                   ricaricamento e il backup non lo vedeva nemmeno. Il difetto
+                   e' sopravvissuto a un giro di correzione perche' avevo
+                   sistemato il chiamante e non il codec, e il test seminava un
+                   valore gia' serializzato: passava senza toccare lo
+                   scrittore vero. */
+                localStorage.setItem(chiave, JSON.stringify(valore));
                 return { ok:true };
             } catch(e) {
                 // QuotaExceededError cambia nome fra i browser: si riconosce
@@ -3319,51 +3347,53 @@ Annulla = ` + T('backupUnisci'));
         /* ════════════════════════════════════════════════════════════
            PERSISTENZA  (localStorage)
            ════════════════════════════════════════════════════════════ */
+        /* La bozza com'e' ADESSO, letta dal form e dalle variabili vive.
+           Estratta da salvaStato perche' serviva anche al parcheggio: quello
+           leggeva la bozza dal DISCO, e cosi' metteva da parte l'ultima
+           versione salvata invece di quella che l'utente sta preparando. Con
+           il salvataggio differito, o con l'auto-save spento, sono due cose
+           diverse — ed e' proprio la seconda che la promessa "non viene
+           toccata" riguarda. */
+        function bpComponiBozza() {
+            const _get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+            return {
+                menuSerataDrink: menuSerataDrink,
+                menuSerataMocktail: menuSerataMocktail,
+                menuSerataShot: menuSerataShot,
+                passo: bpPassoCorrente,
+                scorte: bpScorte,
+                ricetteEvento: bpRicetteEvento,
+                lingua: linguaCorrente,
+                tema: bpTemaScelto,
+                modifica: bpEditingId,
+                config: {
+                    ospiti: _get('ospiti'),
+                    drink_testa: _get('drink_testa'),
+                    shot_testa: _get('shot_testa'),
+                    scarto: _get('scarto'),
+                    nazione: _get('sel-nazione'),
+                    fascia: _get('sel-fascia'),
+                    pct_bevitori: _get('pct-bevitori'),
+                    ferm_vino_rosso: _get('ferm_vino_rosso'),
+                    ferm_vino_bianco: _get('ferm_vino_bianco'),
+                    ferm_bollicine: _get('ferm_bollicine'),
+                    ferm_birra: _get('ferm_birra'),
+                    fascia_fermentati: _get('sel-fascia-fermentati'),
+                    nome_evento: bpCfgNomeEvento || ''
+                }
+            };
+        }
+
         function salvaStato() {
             // Auto-save OFF: non persistere l'evento in corso. Le preferenze
             // (lingua/tema/auto-save) vivono in bp_settings e restano salvate a parte.
             if (!bpAutoSave) return;
             try {
-                const _get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
                 /* Additiva: si parte da quello che c'e' gia' sul disco, cosi'
                    un campo scritto da una versione piu' recente non viene
                    cancellato da una scheda ferma a questa. */
                 const _esistente = bpStorageRead(STORAGE_KEY, {});
-                const state = {
-                    menuSerataDrink: menuSerataDrink,
-                    menuSerataMocktail: menuSerataMocktail,
-                    menuSerataShot: menuSerataShot,
-                    /* customDrinks e customShots NON stanno piu' qui: le
-                       ricette dell'utente vivono in bp_recipes_v2 e basta.
-                       Erano due archivi che si riversavano entrambi su
-                       databaseDrink all'avvio, senza una precedenza. */
-                    passo: bpPassoCorrente,
-                    scorte: bpScorte,
-                    ricetteEvento: bpRicetteEvento,
-                    lingua: linguaCorrente,
-                    tema: bpTemaScelto,
-                    /* Quale evento si sta modificando. Viveva solo in memoria:
-                       chi apriva un evento salvato, cambiava qualcosa e
-                       ricaricava la pagina si ritrovava la bozza giusta ma
-                       l'id perduto, e il salvataggio successivo creava un
-                       DOPPIONE invece di aggiornare l'originale. */
-                    modifica: bpEditingId,
-                    config: {
-                        ospiti: _get('ospiti'),
-                        drink_testa: _get('drink_testa'),
-                        shot_testa: _get('shot_testa'),
-                        scarto: _get('scarto'),
-                        nazione: _get('sel-nazione'),
-                        fascia: _get('sel-fascia'),
-                        pct_bevitori: _get('pct-bevitori'),
-                        ferm_vino_rosso: _get('ferm_vino_rosso'),
-                        ferm_vino_bianco: _get('ferm_vino_bianco'),
-                        ferm_bollicine: _get('ferm_bollicine'),
-                        ferm_birra: _get('ferm_birra'),
-                        fascia_fermentati: _get('sel-fascia-fermentati'),
-                        nome_evento: bpCfgNomeEvento || ''
-                    }
-                };
+                const state = bpComponiBozza();
                 return bpStorageWrite(STORAGE_KEY, Object.assign({}, (_esistente && typeof _esistente === 'object') ? _esistente : {}, state));
             } catch(e) {
                 console.warn('Salvataggio fallito:', e);
@@ -4579,7 +4609,13 @@ Annulla = ` + T('backupUnisci'));
                     mostraToast(_T(esito.motivo === 'quota' ? 'toastSpazioEsaurito' : 'toastSalvataggioFallito'));
                     return esito;
                 }
+                /* Azzerato anche SU DISCO, non solo in memoria. La bozza
+                   porta con se' `modifica`: lasciandoci l'id di un evento
+                   appena salvato, un ricaricamento subito dopo rientrava in
+                   modifica su quell'evento, e il salvataggio seguente lo
+                   sovrascriveva invece di crearne uno nuovo. */
                 bpEditingId = null;
+                salvaStato();
                 mostraToast(_T('toastEventoSalvato'));
                 bpMostraConfermaSalvataggio();
                 return esito;
@@ -5753,7 +5789,16 @@ Annulla = ` + T('backupUnisci'));
         const BP_ARR_COSTO = c => Math.ceil(c * 2) / 2;
 
         /* Litri mostrati: mezzo litro per eccesso, come da sempre. */
-        function bpLitriArrotondati(ml) { return Math.ceil((ml / 1000) * 2) / 2; }
+        /* Arrotonda al mezzo litro ma RESTITUISCE MILLILITRI, perche' la
+           riga dichiara `baseUnit: 'ml'` e il piano lo chiede esplicitamente
+           (R3): "niente numeri in litri accanto a numeri in millilitri, che e'
+           esattamente l'errore in cui era caduta la rev. 2". Prima questa
+           tornava litri: la stessa riga portava requiredBaseQty in ml e
+           roundedPurchaseQty in litri, e il mio test del modello codificava
+           proprio quello — 400 ml -> 0.5 — cioe' bloccava la violazione invece
+           di impedirla. I litri restano una cosa da MOSTRARE, e si derivano
+           dove si disegna. */
+        function bpLitriArrotondati(ml) { return (Math.ceil((ml / 1000) * 2) / 2) * 1000; }
 
         /* Le tre quantita' di una riga, in un posto solo e verificabile.
            Sta qui fuori apposta: questa formula e' gia' stata scritta
@@ -6052,7 +6097,7 @@ Annulla = ` + T('backupUnisci'));
                     const s = document.createElement('span');
                     s.textContent = tradIngrediente(r.ingrediente);
                     const strong = document.createElement('strong');
-                    strong.textContent = litriTesto(r.roundedPurchaseQty) + ' L';
+                    strong.textContent = litriTesto(r.roundedPurchaseQty / 1000) + ' L';
                     li.appendChild(s); li.appendChild(strong);
                     if (r.costo > 0) li.appendChild(costoSpan(r.costo));
                     bpAggiungiEditor(li, r);
@@ -6427,7 +6472,7 @@ Annulla = ` + T('backupUnisci'));
         function bpQuantitaMostrata(r) {
             if (r.roundedPurchaseQty == null) return '';
             if (r.baseUnit === 'ml') {
-                const v = r.roundedPurchaseQty;
+                const v = r.roundedPurchaseQty / 1000;   // in riga sono ml, sul foglio si leggono litri
                 return (v % 1 === 0 ? v.toString() : v.toFixed(1)) + ' L';
             }
             if (r.baseUnit === 'bottiglie') {
@@ -6492,6 +6537,18 @@ Annulla = ` + T('backupUnisci'));
             }
         }
 
+        /* Il testo di UNA riga, senza gli editor.
+           In modalita' correzione bpAggiungiEditor infila un blocco .riga-mod
+           dentro ogni <li>: leggendo li.innerText finivano nel testo copiato
+           anche le etichette "Ce l'ho gia'" e "Il tuo prezzo" con i loro
+           valori. Chi condivideva la lista mentre stava correggendo mandava
+           agli altri i propri prezzi d'acquisto. */
+        function bpTestoRiga(li) {
+            const c = li.cloneNode(true);
+            c.querySelectorAll('.riga-mod').forEach(e => e.remove());
+            return c.innerText.replace(/\s*\n\s*/g, ' ').trim();
+        }
+
         /* Costruisce il testo formattato della lista (usato da Copia e Condividi) */
         function costruisciTestoLista() {
             flushRicalcoloLista();   // idem: si condivide cio' che si vede adesso
@@ -6502,32 +6559,32 @@ Annulla = ` + T('backupUnisci'));
 
             testo += T('copyAlcolici') + "\n";
             document.querySelectorAll('#lista_alcolici li').forEach(li => {
-                testo += "  • " + li.innerText + "\n";
+                testo += "  • " + bpTestoRiga(li) + "\n";
             });
 
             testo += "\n" + T('copyAnalcolici') + "\n";
             document.querySelectorAll('#lista_analcolici li').forEach(li => {
-                testo += "  • " + li.innerText + "\n";
+                testo += "  • " + bpTestoRiga(li) + "\n";
             });
 
             const _blockFerm = document.getElementById('block_fermentati');
             if (_blockFerm && _blockFerm.style.display !== 'none') {
                 testo += "\n" + T('copyFermentati') + "\n";
                 document.querySelectorAll('#lista_fermentati li').forEach(li => {
-                    testo += "  • " + li.innerText + "\n";
+                    testo += "  • " + bpTestoRiga(li) + "\n";
                 });
             }
 
             testo += "\n" + T('copyAttrezzatura') + "\n";
             document.querySelectorAll('#lista_extra li').forEach(li => {
-                testo += "  • " + li.innerText + "\n";
+                testo += "  • " + bpTestoRiga(li) + "\n";
             });
 
             const _blockGarnish = document.getElementById('block_garnish');
             if (_blockGarnish && _blockGarnish.style.display !== 'none') {
                 testo += "\n" + T('copyGarnish') + "\n";
                 document.querySelectorAll('#lista_garnish li').forEach(li => {
-                    testo += "  • " + li.innerText + "\n";
+                    testo += "  • " + bpTestoRiga(li) + "\n";
                 });
             }
 

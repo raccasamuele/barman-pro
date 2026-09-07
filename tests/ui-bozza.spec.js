@@ -180,3 +180,34 @@ test.describe("Bozza . quale evento stai modificando", () => {
     await contesto.close();
   });
 });
+
+test("dopo un salvataggio riuscito la modifica finisce anche su disco", async ({ browser }) => {
+  const { contesto, page } = await apri(browser);
+
+  // bpEditingId veniva azzerato solo in memoria: sul disco la bozza
+  // continuava a dire "stai modificando quell'evento" finche' il salvataggio
+  // differito non passava. Ricaricare dentro quella finestra faceva rientrare
+  // in modifica, e il salvataggio dopo sovrascriveva l'evento gia' salvato.
+  // La finestra e' quella del debounce, quindi il test la guarda dove e'
+  // davvero osservabile: SUBITO dopo il salvataggio, nello stesso giro, prima
+  // che il timer possa scattare. Aspettare qualche centinaio di millisecondi
+  // la chiude da sola e fa passare il test anche senza la correzione.
+  await page.evaluate(() => {
+    // eslint-disable-next-line no-undef
+    menuSerataDrink = { Negroni: 3 };
+    document.getElementById("ospiti").value = 50;
+    window.vaiAStep("risultati");
+    window.bpSalvaEvento();
+  });
+  await page.waitForTimeout(300);
+  await page.evaluate(() => window.bpEventEdit(window.bpGetEvents()[0].id));
+  await page.waitForTimeout(300);
+
+  const suDisco = await page.evaluate(() => {
+    window.bpSalvaEvento();           // chiude la modifica
+    return (JSON.parse(localStorage.getItem("barmanProState_v8") || "{}")).modifica;
+  });
+  expect(suDisco, "la bozza su disco dice ancora di essere in modifica").toBeFalsy();
+
+  await contesto.close();
+});

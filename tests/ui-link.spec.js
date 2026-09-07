@@ -214,3 +214,64 @@ test.describe('Link · il fragment non resta in giro', () => {
       'il fragment e\' rimasto nell\'indirizzo').toBe('');
   });
 });
+
+test.describe("Link . la bozza in corso, davvero al sicuro", () => {
+  const conBozzaEParcheggioPieno = async (page) => {
+    await openApp(page);
+    await page.evaluate(() => {
+      localStorage.setItem("bp_bozza_parcheggiata", JSON.stringify({ nome: "Vecchia", parcheggiataIl: 1 }));
+      // eslint-disable-next-line no-undef
+      menuSerataDrink = { Negroni: 3 };
+      bpCfgNomeEvento = "In corso";
+      document.getElementById("ospiti").value = 77;
+    });
+  };
+
+  const stato = (page) => page.evaluate(() => ({
+    // eslint-disable-next-line no-undef
+    menu: Object.keys(menuSerataDrink),
+    ospiti: document.getElementById("ospiti").value,
+    parcheggio: JSON.parse(localStorage.getItem("bp_bozza_parcheggiata") || "null"),
+  }));
+
+  test("se rifiuti di sostituire il parcheggio, il link non viene applicato", async ({ page }) => {
+    await conBozzaEParcheggioPieno(page);
+    const prima = await stato(page);
+
+    // bpParcheggiaBozza torna false quando l'utente dice no al secondo prompt.
+    // Il valore veniva buttato via: si applicava il link lo stesso e la bozza
+    // in corso spariva, mentre il messaggio prometteva che non si toccava.
+    page.on("dialog", (d) => d.dismiss());
+    const esito = await page.evaluate(() => window.bpApriLinkComeCopia({
+      nome: "Dal link", menu: { dr: { Spritz: 1 }, mo: {}, sh: {} }, ricette: {},
+      ospiti: 10, drinkTesta: 2, shotTesta: 0, scarto: 15, pct: 80,
+      nazione: "Italia", fascia: "media", ferm: { r: 0, b: 0, bo: 0, bi: 0 },
+    }));
+    await page.waitForTimeout(200);
+
+    const dopo = await stato(page);
+    expect(esito, "ha aperto il link nonostante il rifiuto").toBe(false);
+    expect(dopo.menu, "il menu in corso e' stato sostituito da quello del link").toEqual(prima.menu);
+    expect(dopo.ospiti, "gli ospiti in corso sono stati sovrascritti").toBe(prima.ospiti);
+    expect(dopo.parcheggio.nome, "il parcheggio e' stato sostituito comunque").toBe("Vecchia");
+  });
+
+  test("se accetti, la bozza finisce nel parcheggio e il link si apre", async ({ page }) => {
+    await conBozzaEParcheggioPieno(page);
+    page.on("dialog", (d) => d.accept());
+    const esito = await page.evaluate(() => window.bpApriLinkComeCopia({
+      nome: "Dal link", menu: { dr: { Spritz: 1 }, mo: {}, sh: {} }, ricette: {},
+      ospiti: 10, drinkTesta: 2, shotTesta: 0, scarto: 15, pct: 80,
+      nazione: "Italia", fascia: "media", ferm: { r: 0, b: 0, bo: 0, bi: 0 },
+    }));
+    await page.waitForTimeout(300);
+
+    const dopo = await stato(page);
+    expect(esito).toBe(true);
+    expect(dopo.menu, "il link non e' stato applicato").toEqual(["Spritz"]);
+    // E la bozza di prima deve essere DAVVERO recuperabile, non solo
+    // dichiarata tale: e' la promessa del messaggio.
+    expect(dopo.parcheggio.nome, "la bozza in corso non e' finita nel parcheggio").toBe("In corso");
+    expect(dopo.parcheggio.config.ospiti, "il parcheggio non contiene i dati della bozza").toBe("77");
+  });
+});

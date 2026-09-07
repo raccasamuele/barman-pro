@@ -43,6 +43,10 @@ test.describe('Backup · il manifest', () => {
       bp_settings_v2: { lingua: 'it' },
       bp_menu_style: 'minimal',
       barmanProState_v8: { passo: 'step-setup' },
+      // Da quando il parcheggio esiste contiene una bozza intera che si
+      // puo' ancora riprendere: se un backup non la porta con se', la
+      // perde in silenzio.
+      bp_bozza_parcheggiata: { nome: 'Messa da parte', parcheggiataIl: 1 },
     });
     await openApp(page);
     const dati = await page.evaluate(() => {
@@ -61,9 +65,11 @@ test.describe('Backup · il manifest', () => {
     expect(p.app).toBe('barman-pro');
     expect(p.versione).toBe(1);
     // Il test guardava solo le esclusioni, e cosi' non si era accorto che
-    // bp_menu_style non veniva esportato affatto: era scritto come testo
-    // grezzo e riletto con JSON.parse. Ora si verifica anche l'inclusione.
-    for (const atteso of ['eventi', 'ricette', 'impostazioni', 'stileMenu', 'bozza']) {
+    // bp_menu_style non veniva esportato affatto. NB: qui gli store sono
+    // seminati gia' serializzati, quindi questo test prova il MANIFEST e non
+    // il codec di scrittura — ed e' per questo che non aveva visto il difetto.
+    // Il codec e' provato dal test che segue, che passa dallo scrittore vero.
+    for (const atteso of ['eventi', 'ricette', 'impostazioni', 'stileMenu', 'bozza', 'bozzaParcheggiata']) {
       expect(Object.keys(p.dati), `lo store "${atteso}" non e' nel backup`).toContain(atteso);
     }
     // bp_onboarded e' stato di QUESTO dispositivo, non un dato dell'utente.
@@ -306,5 +312,49 @@ test.describe("Backup . cio che entra dal file e testo di qualcun altro", () => 
 
     const aperto = await page.evaluate(() => document.getElementById("bp-ev-mount")._evId);
     expect(aperto, "l'evento non si apre piu' dopo lo sfuggimento").toBe(ID);
+  });
+});
+
+test.describe("Backup . il codec, provato dallo scrittore vero", () => {
+  test("lo stile del menu sopravvive al ricaricamento", async ({ page }) => {
+    await openApp(page);
+
+    // Il difetto era sopravvissuto a un giro di correzione: avevo sistemato il
+    // chiamante (bpMenuSetStyle -> bpStorageWrite) ma non il codec, e
+    // bpStorageWrite aveva un'eccezione per le stringhe che le scriveva
+    // grezze. bpStorageRead pero' fa sempre JSON.parse: la rilettura falliva e
+    // ricadeva su 'elegant'. Lo stile scelto spariva a ogni ricaricamento.
+    // Il test di prima seminava un valore GIA' serializzato, quindi lo
+    // scrittore vero non veniva mai eseguito e il difetto restava invisibile.
+    // Qui si passa dalla funzione che usa l'utente.
+    await page.evaluate(() => window.bpMenuSetStyle("minimal"));
+
+    const grezzo = await page.evaluate(() => localStorage.getItem("bp_menu_style"));
+    expect(grezzo, "lo stile e' stato scritto in un formato che il lettore non sa leggere")
+      .toBe(JSON.stringify("minimal"));
+
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => typeof window.bpStorageRead === "function");
+    const riletto = await page.evaluate(() => window.bpStorageRead("bp_menu_style", "elegant"));
+    expect(riletto, "dopo il ricaricamento lo stile e' tornato al predefinito").toBe("minimal");
+  });
+
+  test("uno stile scelto davvero finisce nel backup", async ({ page }) => {
+    await openApp(page);
+    await page.evaluate(() => window.bpMenuSetStyle("minimal"));
+
+    const dati = await page.evaluate(() => {
+      let catturato = null;
+      const vero = URL.createObjectURL;
+      URL.createObjectURL = (blob) => { catturato = blob; return "blob:finto"; };
+      const veroClick = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function () {};
+      window.bpEsportaTutto();
+      URL.createObjectURL = vero;
+      HTMLAnchorElement.prototype.click = veroClick;
+      return catturato ? catturato.text() : null;
+    });
+    const pacco = JSON.parse(dati);
+    expect(pacco.dati.stileMenu, "lo stile scelto non e' arrivato nel backup").toBe("minimal");
   });
 });

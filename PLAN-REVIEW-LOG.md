@@ -975,3 +975,92 @@ rossi sul codice non corretto.
 
 **Stato:** 187 test verdi, due corse di fila senza flake; 42 golden invarianti;
 `npm run check` verde; cache del service worker a v3.14.0.
+
+### Round 14 - seconda review di Codex, e cosa ha trovato
+
+Verdetto: REVISE. Codex non ha potuto eseguire la suite (Playwright non riesce
+a creare profili temporanei in sola lettura: EPERM), quindi i suoi rilievi sui
+test sono letture statiche - verificate una per una prima di agire.
+
+**Il difetto piu' istruttivo: una correzione che avevo dichiarato chiusa.**
+`bp_menu_style` era stato "sistemato" nel round 12 cambiando il CHIAMANTE
+(`bpMenuSetStyle` -> `bpStorageWrite`) e non il codec: `bpStorageWrite` aveva
+un'eccezione che scriveva le stringhe grezze, mentre `bpStorageRead` fa sempre
+`JSON.parse`. Verificato nel browser: scelto "minimal", su disco finiva
+`minimal` e la rilettura tornava `elegant`. Lo stile spariva a ogni
+ricaricamento e il backup non lo vedeva. Il mio test passava perche' seminava
+un valore gia' serializzato: non eseguiva mai lo scrittore vero. Ora il codec
+e' uno solo, e il test passa dalla funzione che usa l'utente.
+
+**La promessa sulla bozza, di nuovo rotta.** `bpApriLinkComeCopia` chiamava
+`bpParcheggiaBozza()` e buttava via il risultato. Quella torna `false` in due
+casi veri - l'utente rifiuta di sostituire una bozza gia' messa da parte, o la
+scrittura fallisce - e in entrambi il link veniva applicato lo stesso, con la
+bozza in corso persa e il messaggio che continuava a prometterne l'incolumita'.
+E' lo stesso difetto che questa funzione esiste per evitare, rientrato dalla
+porta di servizio. Scoprendolo e' emerso anche che il parcheggio fotografava la
+bozza dal DISCO: con il salvataggio differito, o con l'auto-save spento, metteva
+da parte una versione vecchia. Estratto `bpComponiBozza()`, usato da entrambi.
+
+**Il requisito R3 violato dal codice E dal test che doveva proteggerlo.**
+`bpLitriArrotondati` tornava LITRI su righe che dichiarano `baseUnit: 'ml'`:
+nella stessa riga `requiredBaseQty` in ml e `roundedPurchaseQty` in litri -
+esattamente "l'errore in cui era caduta la rev. 2" che il piano nomina. Il mio
+test del modello codificava la violazione (400 -> 0.5) invece di impedirla. Ora
+la quantita' resta in unita' base e i litri si derivano dove si disegna; c'e' un
+test che gira su OGNI riga del modello, non su un caso solo. I 42 golden
+invarianti: il testo a schermo non cambia.
+
+**Gli altri rilievi verificati e chiusi:** il ripiego offline del service worker
+cercava `./index.html`, che il precache non contiene apposta; il testo
+copiato/condiviso in modalita' correzione si portava dietro le etichette degli
+editor; lo slot di recupero non era nel manifest di backup, pur contenendo
+ormai una bozza intera dell'utente; `bpEditingId` veniva azzerato solo in
+memoria, e un ricaricamento dentro la finestra del debounce faceva rientrare in
+modifica sull'evento appena salvato.
+
+**Tre volte, scrivendo i test di questo round, ho scritto test che non
+provavano niente** - nello stesso giro in cui il compito era eliminarli:
+il primo sul testo condiviso asseriva sui VALORI digitati, che non compaiono in
+`innerText`; il secondo confrontava l'etichetta con `textContent` mentre
+`innerText` restituisce il testo reso, cioe' maiuscolo per via di
+`text-transform`; il terzo aspettava 300 ms e cosi' lasciava chiudere da sola la
+finestra che voleva misurare. Tutti e tre sono stati riscritti solo dopo averli
+visti fallire sul codice non corretto. E' la regola che vale per ogni test di
+questo progetto, e va applicata ai test che scrivo per correggere test.
+
+**Un test che NON discrimina, e lo dice.** Il nuovo test offline copre un buco
+vero (non ce n'era nessuno), ma resta verde anche col ripiego vecchio: nel
+banco di prova non si riproduce il 307 di Cloudflare che e' la ragione per cui
+`./index.html` non sta nel precache. Il ripiego e' stato corretto lo stesso; il
+commento nel test dice a chiare lettere cosa prova e cosa no, invece di lasciar
+credere il contrario.
+
+**Rilievi di Codex NON chiusi in questo round**, elencati qui perche' restino
+visibili invece di sparire:
+
+- La validazione dell'import e' strutturale, non profonda: accetta un evento con
+  `lista:{}` o modificatori di tipo sbagliato, e `parseInt` digerisce versioni
+  come `"1junk"`. Uno store non valido viene saltato, quindi si puo' ottenere un
+  import parziale dichiarato riuscito.
+- "Sostituisci" non cancella gli store assenti dal backup, quindi non produce una
+  copia identica; e due import dello stesso file creano doppioni, perche' ogni
+  collisione di id viene rinominata senza confrontare il contenuto.
+- Il lock di importazione e' un leggi-poi-scrivi non atomico: due schede possono
+  passare entrambe.
+- Il salvataggio delle ricette ricostruisce l'oggetto dai soli campi noti, quindi
+  puo' cancellare campi scritti da versioni future - viola la regola degli
+  scrittori additivi che il resto della persistenza rispetta.
+- Una ricetta arrivata da un link perde contro una ricetta locale omonima:
+  il destinatario puo' vedere ingredienti e costo diversi da quelli inviati.
+  E' la conseguenza degli id stabili di ricetta, gia' rinviati nel piano.
+- I 42 golden usano tutti l'Italia e nessuno contiene fermentati: il contratto
+  congela i casi che fotografa, non i moltiplicatori geografici ne' la formula
+  dei fermentati.
+
+Sono lavori di progettazione, non ritocchi: farli di corsa in coda a questo
+round significherebbe ripetere l'errore delle correzioni apparenti. Vanno
+decisi con l'utente prima di essere fatti.
+
+**Stato:** 196 test verdi, due corse di fila; 42 golden invarianti;
+`npm run check` verde; cache del service worker a v3.15.0.
