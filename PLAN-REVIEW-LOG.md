@@ -833,3 +833,33 @@ Cache a v3.9.0. CI verde sul push precedente.
 
 Resta da fare della Fase 2 il ridisegno dei quattro stili del menu' da esporre (colori e
 leggibilita'), che l'utente aveva segnalato a parte.
+
+### Round 9 — Claude build · Fase 2, fetta 2 (stili del menu'). FASE 2 COMPLETA.
+
+L'utente aveva detto "i colori non vanno bene, spesso non si legge bene la lista". Non era
+una questione di gusto: era una **regressione**, e misurata fa impressione.
+
+Tre stili su quattro prendevano il fondo — o il colore del titolo — da `var(--bp-panel)`,
+che nel vecchio tema notte era **scuro**. Quando il chiaro e' diventato il default quel
+token e' passato a quasi-bianco e i testi chiari ci sono rimasti sopra:
+
+    Elegante · nome del drink   1.24:1
+    Lavagna  · nome del drink   1.24:1
+    Minimal  · titolo           1.09:1
+    Festa    · nome del drink  14.16:1   (l'unico gia' autonomo, e l'unico leggibile)
+
+Crema su crema. I quattro stili sono stati riscritti come **quadri chiusi**: ognuno porta il
+proprio fondo e i propri colori, e non tocca nessun token dell'interfaccia. Soglie applicate
+e misurate: ogni testo almeno 4.5:1, i nomi dei drink almeno 7:1. Raggiunti 15.9 / 14.7 /
+13.8 / 14.2 sui nomi.
+
+**Scala di z-index applicata davvero.** L'avevo dichiarata in Fase 1 e poi lasciata sulla
+carta: convivevano ancora 9000, 1400 e 100000. Ora dialoghi a 1000, toast a 2000, barra a
+10. Rimosse anche le regole morte di `.bp-burger` e `.bp-nav`, i cui elementi non esistono
+piu'.
+
+**Prova.** **141 test verdi** (68 preesistenti + 73 nuovi), `npm run check` verde, 42 golden
+invariati. Sei test nuovi che calcolano il contrasto sui colori **risolti dal browser**, non
+sui valori scritti nel foglio: se qualcuno rimette un token dell'app li' dentro, il difetto
+torna e il test lo dice. Provati contro gli stili vecchi: **3 su 6 falliscono**. Verificato a
+schermo lo stile Elegante. Cache a v3.10.0.

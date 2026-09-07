@@ -246,7 +246,7 @@
         }
         .btn-suggerisci:hover { filter: brightness(1.06); }
         .suggeritore-modal {
-            display: none; position: fixed; inset: 0; z-index: 9000;
+            display: none; position: fixed; inset: 0; z-index: 1000;   /* dialogo: scala dichiarata in cima alla navigazione */
             background: var(--bp-panel);
             align-items: center; justify-content: center; padding: 20px;
         }
@@ -1045,7 +1045,7 @@
             box-shadow: 0 10px 30px var(--bp-shadow-color);
             opacity: 0;
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 1000;
+            z-index: 2000;   /* toast: sopra ogni dialogo */
             pointer-events: none;
         }
 
@@ -1332,7 +1332,7 @@
            Palette nero/oro coerente. Solo transform/opacity in animazione.
            ════════════════════════════════════════════════════════════ */
         .bpc-overlay {
-            position: fixed; inset: 0; z-index: 1400; display: none;
+            position: fixed; inset: 0; z-index: 1000;   /* dialogo */ display: none;
             background: radial-gradient(120% 80% at 50% -10%, var(--bp-panel), var(--bp-panel));
             /* niente backdrop-filter: lo sfondo è già opaco, il blur non si vedeva
                ma costava un re-campionamento dell'intera pagina sotto al wizard. */
@@ -1592,7 +1592,7 @@
         .bpc-valinput:focus { outline: none; border-bottom-color: var(--accent-gold-1); }
 
         /* ─── Menu a panino (hamburger) → X + overlay nav ─── */
-        .bp-burger { position: fixed; top: 14px; left: 14px; z-index: 1320; width: 46px; height: 46px; border-radius: 14px; background: var(--glass-bg); border: 1px solid var(--bp-line-control); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; touch-action: manipulation; transition: transform 200ms cubic-bezier(0.23,1,0.32,1), border-color 200ms ease, opacity 180ms ease; }
+        /* rimosso con il bottone Home flottante e il menu modale (Fase 1) */
         .bp-burger:active { transform: scale(0.92); }
         /* Il burger sparisce quando è aperto un overlay modale (resta durante il nav, che è il suo menu) */
         body:has(.bpc-overlay.show) .bp-burger { opacity: 0; pointer-events: none; transform: scale(0.8); }
@@ -1601,7 +1601,7 @@
         .bp-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
         .bp-burger.open span:nth-child(2) { opacity: 0; }
         .bp-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-        .bp-nav { position: fixed; inset: 0; z-index: 1310; display: none; background: radial-gradient(130% 90% at 0% 0%, var(--bp-panel), var(--bp-panel)); backdrop-filter: blur(12px); }
+        /* rimosso con il bottone Home flottante e il menu modale (Fase 1) */
         .bp-nav.show { display: block; }
         .bp-nav-inner { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 14px; max-width: 520px; margin: 0 auto; padding: 88px 24px calc(40px + env(safe-area-inset-bottom, 0px)); }
         .bp-nav-eyebrow { font-family: var(--bp-font); font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 6px; padding-left: 4px; }
@@ -1750,7 +1750,7 @@
         @media print { .bph-stage { display: none !important; } }
 
 /* ═══ blocco 3 di 9 (era riga 1850 di index.html) ═══ */
-        .bpm-overlay { position: fixed; inset: 0; z-index: 100000; display: none; background: var(--bp-panel); backdrop-filter: blur(2px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .bpm-overlay { position: fixed; inset: 0; z-index: 1000;   /* dialogo */ display: none; background: var(--bp-panel); backdrop-filter: blur(2px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .bpm-overlay.show { display: block; }
         .bpm-shell { min-height: 100%; display: flex; flex-direction: column; }
         .bpm-toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 13px 18px; background: var(--bp-panel); border-bottom: 1px solid var(--glass-border); }
@@ -1787,56 +1787,99 @@
         .bpm-item:hover .bpm-del, .bpm-del:focus { opacity: 0.9; }
         .bpm-foot { margin-top: 36px; text-align: center; font-family: var(--bp-font); font-size: 12px; letter-spacing: .06em; min-height: 14px; }
 
-        /* ── Stile 1 · Elegante (nero + oro, brand) ── */
-        /* I quattro stili del menu' da stampare sono quadri chiusi, con una loro
-           direzione artistica: NON seguono l'accento dell'interfaccia. Prima l'oro
-           qui dentro era var(--bp-accent); da quando l'accento e' blu ardesia,
-           tenerlo agganciato avrebbe messo blu e oro caldo sullo stesso foglio.
-           L'oro ora e' un valore locale di questo stile. */
-        .bpm-elegant { --bpm-gold: #c8a862; --bpm-gold-dim: #8c7a55;
-                       background: var(--bp-panel); border: 1px solid rgba(200,168,98,0.32); }
-        .bpm-elegant .bpm-eyebrow { color: var(--bpm-gold); }
-        .bpm-elegant .bpm-title { color: var(--bpm-gold); }
-        .bpm-elegant .bpm-date { color: var(--bpm-gold-dim); }
-        .bpm-elegant .bpm-headrule { color: var(--bpm-gold); }
-        .bpm-elegant .bpm-cat-title { color: var(--bpm-gold); }
-        .bpm-elegant .bpm-cat-title::before, .bpm-elegant .bpm-cat-title::after { content: "\2726"; color: var(--bpm-gold); font-size: 0.62em; vertical-align: middle; margin: 0 0.7em; }
-        .bpm-elegant .bpm-name { color: #efe3cd; }
-        .bpm-elegant .bpm-foot { color: var(--bpm-gold-dim); }
+        /* ── I quattro stili del menu' da esporre ──────────────────────
+           Sono quadri chiusi, con una loro direzione artistica: ognuno porta
+           il PROPRIO fondo e i PROPRI colori di testo, e non tocca nessun
+           token dell'interfaccia.
 
-        /* ── Stile 2 · Minimal (carta chiara, editoriale, ottimo in stampa) ── */
-        .bpm-minimal { background: #f7f2e8; border: 1px solid #e3d9c5; color: var(--bp-panel); }
-        .bpm-minimal .bpm-eyebrow { color: #9a8f78; }
-        .bpm-minimal .bpm-title { color: var(--bp-panel); font-weight: 600; }
-        .bpm-minimal .bpm-date { color: #9a8f78; }
+           Prima non era cosi', e il risultato e' stato un difetto vero, non
+           una questione di gusto. Tre stili su quattro prendevano il fondo (o
+           il colore del titolo) da var(--bp-panel), che nel vecchio tema notte
+           era SCURO. Quando il chiaro e' diventato il default, quel token e'
+           passato a quasi-bianco e i testi chiari ci sono rimasti sopra:
+
+               Elegante · nome del drink   1.24:1
+               Lavagna  · nome del drink   1.24:1
+               Minimal  · titolo           1.09:1
+
+           Crema su crema. Ecco perche' "spesso non si legge bene la lista".
+
+           Soglie applicate qui, misurate una per una: ogni testo almeno
+           4.5:1 sul proprio fondo, e i nomi dei drink — che sono il contenuto
+           — almeno 7:1. I valori raggiunti stanno nel commento di ogni stile.
+           Un token dell'interfaccia qui dentro non deve piu' entrare: se
+           qualcuno lo rimette, questo difetto torna. */
+
+        /* Stile 1 · Elegante — nero caldo e oro.
+           nome 15.9:1 · oro 9.1:1 · secondario 5.7:1 */
+        .bpm-elegant {
+            --bpm-fondo: #14120f; --bpm-oro: #d4b06a; --bpm-oro-dim: #a08c62; --bpm-testo: #f2ece0;
+            background: var(--bpm-fondo);
+            border: 1px solid rgba(212,176,106,0.38);
+        }
+        .bpm-elegant .bpm-eyebrow   { color: var(--bpm-oro); }
+        .bpm-elegant .bpm-title     { color: var(--bpm-oro); }
+        .bpm-elegant .bpm-date      { color: var(--bpm-oro-dim); }
+        .bpm-elegant .bpm-headrule  { color: var(--bpm-oro); }
+        .bpm-elegant .bpm-cat-title { color: var(--bpm-oro); }
+        .bpm-elegant .bpm-cat-title::before,
+        .bpm-elegant .bpm-cat-title::after { content: "\2726"; color: var(--bpm-oro); font-size: 0.62em; vertical-align: middle; margin: 0 0.7em; }
+        .bpm-elegant .bpm-name      { color: var(--bpm-testo); }
+        .bpm-elegant .bpm-foot      { color: var(--bpm-oro-dim); }
+
+        /* Stile 2 · Minimal — carta calda e inchiostro. Il migliore in stampa.
+           nome 14.7:1 · secondario 5.4:1 */
+        .bpm-minimal {
+            --bpm-fondo: #f7f2e8; --bpm-inchiostro: #241f18; --bpm-dim: #6b6152; --bpm-filo: #d9cdb8;
+            background: var(--bpm-fondo);
+            border: 1px solid var(--bpm-filo);
+            color: var(--bpm-inchiostro);
+        }
+        .bpm-minimal .bpm-eyebrow  { color: var(--bpm-dim); }
+        .bpm-minimal .bpm-title    { color: var(--bpm-inchiostro); font-weight: 600; }
+        .bpm-minimal .bpm-date     { color: var(--bpm-dim); }
         .bpm-minimal .bpm-headrule { font-size: 0; margin: 20px auto 8px; }
-        .bpm-minimal .bpm-headrule::after { content: ""; display: block; width: 48px; height: 1px; background: #cdbfa6; margin: 0 auto; }
-        .bpm-minimal .bpm-cat-title { font-family: var(--bp-font); font-weight: 600; font-size: 12.5px; letter-spacing: .26em; color: #5b5141; margin-bottom: 4px; }
-        .bpm-minimal .bpm-cat-rule { display: block; width: 100%; height: 1px; background: #ddd0b8; margin: 0 0 14px; }
-        .bpm-minimal .bpm-name { color: #2c261d; }
-        .bpm-minimal .bpm-foot { color: #9a8f78; }
+        .bpm-minimal .bpm-headrule::after { content: ""; display: block; width: 48px; height: 1px; background: var(--bpm-filo); margin: 0 auto; }
+        .bpm-minimal .bpm-cat-title { font-family: var(--bp-font); font-weight: 700; font-size: 12.5px; letter-spacing: .26em; color: var(--bpm-dim); margin-bottom: 4px; }
+        .bpm-minimal .bpm-cat-rule { display: block; width: 100%; height: 1px; background: var(--bpm-filo); margin: 0 0 14px; }
+        .bpm-minimal .bpm-name     { color: var(--bpm-inchiostro); }
+        .bpm-minimal .bpm-foot     { color: var(--bpm-dim); }
 
-        /* ── Stile 3 · Lavagna (chalkboard) ── */
-        .bpm-chalk { background: var(--bp-panel); border: 1px solid rgba(243,239,227,0.28); box-shadow: 0 0 0 6px var(--bp-panel), 0 0 0 7px rgba(243,239,227,0.34), 0 30px 80px -30px var(--bp-shadow-color); }
-        .bpm-chalk .bpm-eyebrow { color: rgba(243,239,227,0.72); }
-        .bpm-chalk .bpm-title { color: #f4f0e4; text-shadow: 0 0 1px var(--bp-line); }
-        .bpm-chalk .bpm-date { color: rgba(243,239,227,0.6); }
-        .bpm-chalk .bpm-headrule { color: rgba(243,239,227,0.7); }
-        .bpm-chalk .bpm-cat-title { color: #f4f0e4; }
-        .bpm-chalk .bpm-cat-rule { display: block; width: 70%; margin: 0 auto 14px; border-top: 1.5px dashed rgba(243,239,227,0.5); }
-        .bpm-chalk .bpm-name { color: #e9e4d5; }
-        .bpm-chalk .bpm-foot { color: rgba(243,239,227,0.55); }
+        /* Stile 3 · Lavagna — ardesia e gesso.
+           nome 13.8:1 · secondario 8.7:1 */
+        .bpm-chalk {
+            --bpm-fondo: #1c2420; --bpm-gesso: #eef0ea; --bpm-gesso-dim: #b9c2b6;
+            background: var(--bpm-fondo);
+            border: 1px solid rgba(238,240,234,0.30);
+            /* La cornice e' fatta con il fondo dello stile, non con quello
+               dell'app: su tema chiaro diventava un alone bianco. */
+            box-shadow: 0 0 0 6px var(--bpm-fondo), 0 0 0 7px rgba(238,240,234,0.34), 0 30px 80px -30px rgba(0,0,0,0.45);
+        }
+        .bpm-chalk .bpm-eyebrow   { color: var(--bpm-gesso-dim); }
+        .bpm-chalk .bpm-title     { color: var(--bpm-gesso); }
+        .bpm-chalk .bpm-date      { color: var(--bpm-gesso-dim); }
+        .bpm-chalk .bpm-headrule  { color: var(--bpm-gesso-dim); }
+        .bpm-chalk .bpm-cat-title { color: var(--bpm-gesso); }
+        .bpm-chalk .bpm-cat-rule  { display: block; width: 70%; margin: 0 auto 14px; border-top: 1.5px dashed rgba(238,240,234,0.5); }
+        .bpm-chalk .bpm-name      { color: var(--bpm-gesso); }
+        .bpm-chalk .bpm-foot      { color: var(--bpm-gesso-dim); }
 
-        /* ── Stile 4 · Festa (bacca scura + accenti vivaci) ── */
-        .bpm-festa { background: #34102c; border: 1px solid rgba(240,138,106,0.55); }
-        .bpm-festa .bpm-eyebrow { color: #f08a6a; }
-        .bpm-festa .bpm-title { color: #ffd9a0; }
-        .bpm-festa .bpm-date { color: #e3a7c8; }
-        .bpm-festa .bpm-headrule { color: #f08a6a; }
-        .bpm-festa .bpm-cat-title { color: #ffd9a0; }
-        .bpm-festa .bpm-cat-title::before, .bpm-festa .bpm-cat-title::after { content: "\2766"; color: #f08a6a; font-size: 0.66em; vertical-align: middle; margin: 0 0.7em; }
-        .bpm-festa .bpm-name { color: #f7eadf; }
-        .bpm-festa .bpm-foot { color: #e3a7c8; }
+        /* Stile 4 · Festa — bacca scura e accenti caldi. Era gia' autonomo, ed
+           era l'unico leggibile: nome 14.2:1 · accento 12.5:1 · secondario 8.9:1 */
+        .bpm-festa {
+            --bpm-fondo: #34102c; --bpm-caldo: #ffd9a0; --bpm-rosa: #f0a8c6; --bpm-testo: #f7eadf;
+            background: var(--bpm-fondo);
+            border: 1px solid rgba(255,217,160,0.45);
+        }
+        .bpm-festa .bpm-eyebrow   { color: var(--bpm-rosa); }
+        .bpm-festa .bpm-title     { color: var(--bpm-caldo); }
+        .bpm-festa .bpm-date      { color: var(--bpm-rosa); }
+        .bpm-festa .bpm-headrule  { color: var(--bpm-caldo); }
+        .bpm-festa .bpm-cat-title { color: var(--bpm-caldo); }
+        .bpm-festa .bpm-cat-title::before,
+        .bpm-festa .bpm-cat-title::after { content: "\2766"; color: var(--bpm-rosa); font-size: 0.66em; vertical-align: middle; margin: 0 0.7em; }
+        .bpm-festa .bpm-name      { color: var(--bpm-testo); }
+        .bpm-festa .bpm-foot      { color: var(--bpm-rosa); }
 
         /* ── Pulsante "Visualizza il menù" nel dettaglio evento salvato ── */
         .bpm-evbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: max-content; max-width: 100%; margin: 2px auto 18px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--bp-accent); background: transparent; color: var(--accent-gold-1); font-family: var(--bp-font); font-weight: 600; font-size: 13.5px; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
