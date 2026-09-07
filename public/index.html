@@ -13,10 +13,15 @@
     <title>Barman PRO &middot; Calcolatore Eventi</title>
     <meta name="description" content="Calcolatore gratuito per feste ed eventi: quante bottiglie comprare, quanto ghiaccio e quanto spendi. Nessun account, funziona offline.">
     <meta name="author" content="Samuele Racca">
-    <!-- Il colore della barra del browser segue il tema: carta di giorno,
-         quasi-nero caldo di notte. Gli stessi valori dei token in app.css. -->
-    <meta name="theme-color" content="#f7f2e9" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#191714" media="(prefers-color-scheme: dark)">
+    <!-- La stessa home risponde su piu' hostname (il dominio proprio e quello
+         workers.dev): senza questo, per i motori sono due pagine distinte con
+         lo stesso contenuto. Tutte le altre pagine il canonical ce l'avevano. -->
+    <link rel="canonical" href="https://barman-pro.raccasamuele2004.workers.dev/">
+    <!-- Il colore della barra del browser segue il tema: grigio chiarissimo
+         di giorno, quasi-nero di notte. Sono i valori di --bp-bg in app.css,
+         convertiti in sRGB: se cambiano li', vanno cambiati anche qui. -->
+    <meta name="theme-color" content="#f5f6f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111213" media="(prefers-color-scheme: dark)">
 
     <!-- ─── Favicon e icone ─── -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">

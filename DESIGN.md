@@ -5,12 +5,17 @@ sotto il 10% della superficie).
 
 ## Strategia
 
-Carta e inchiostro, con un solo accento verde bottiglia. La superficie è una lista della
+Grigio e inchiostro, con un solo accento blu ardesia. La superficie è una lista della
 spesa, non una vetrina: il colore marca **azione, selezione e stato**, mai decorazione.
 
-Due tinte, non una. I neutri sono tinti **caldi** (hue 85), non verso il verde: tingere i
-grigi di verde li fa sembrare malati, e la metà "editoriale calda" dell'identità sta
-proprio nella carta. Il verde resta l'accento, e resta raro.
+Una tinta sola. I neutri sono **veri** (hue 250, croma quasi nullo): non tirano né al
+caldo né al freddo, così l'unico colore della pagina è l'accento e la gerarchia la fanno
+tipografia e spazio. L'accento è raro, sotto il 10% della superficie.
+
+> Fino a settembre 2026 i neutri erano tinti caldi (hue 85) e l'accento era verde
+> bottiglia (hue 162): una direzione più "editoriale". È stata abbandonata perché in
+> tema scuro il verde su grigio caldo leggeva acceso, più da terminale che da strumento
+> di lavoro. Se qualcuno rimette in discussione la scelta, il punto è quello.
 
 ## Colore
 
@@ -21,19 +26,19 @@ supermercato abbaglia, e il nero puro su carta sbava.
 
 | Token | Valore | Uso |
 |---|---|---|
-| `--bg` | `oklch(97.2% 0.008 85)` | fondo pagina, carta |
-| `--panel` | `oklch(99% 0.005 85)` | superfici rialzate: schede, pannelli |
-| `--sunken` | `oklch(94.5% 0.010 85)` | campi, barre, aree incassate |
-| `--ink` | `oklch(23% 0.012 85)` | testo primario |
-| `--ink-soft` | `oklch(43% 0.010 85)` | testo secondario |
-| `--ink-faint` | `oklch(52% 0.009 85)` | etichette, metadati (AA su `--bg`) |
-| `--line` | `oklch(88% 0.010 85)` | bordi |
-| `--line-strong` | `oklch(78% 0.012 85)` | bordi enfatizzati, separatori |
-| `--accent` | `oklch(43% 0.088 162)` | azione primaria, selezione, focus |
-| `--accent-hover` | `oklch(36% 0.090 162)` | hover dell'azione primaria |
-| `--accent-soft` | `oklch(94% 0.024 162)` | fondo di stati selezionati |
-| `--accent-ink` | `oklch(31% 0.072 162)` | testo su `--accent-soft` |
-| `--on-accent` | `oklch(98% 0.012 162)` | testo su `--accent` |
+| `--bg` | `oklch(97.2% 0.002 250)` | fondo pagina |
+| `--panel` | `oklch(99% 0.001 250)` | superfici rialzate: schede, pannelli |
+| `--sunken` | `oklch(94.5% 0.003 250)` | campi, barre, aree incassate |
+| `--ink` | `oklch(22% 0.004 250)` | testo primario |
+| `--ink-soft` | `oklch(43% 0.005 250)` | testo secondario |
+| `--ink-faint` | `oklch(52% 0.006 250)` | etichette, metadati (AA su `--bg`) |
+| `--line` | `oklch(88% 0.004 250)` | bordi |
+| `--line-strong` | `oklch(78% 0.005 250)` | bordi enfatizzati, separatori |
+| `--accent` | `oklch(45% 0.105 258)` | azione primaria, selezione, focus |
+| `--accent-hover` | `oklch(38% 0.108 258)` | hover dell'azione primaria |
+| `--accent-soft` | `oklch(95% 0.020 258)` | fondo di stati selezionati |
+| `--accent-ink` | `oklch(34% 0.090 258)` | testo su `--accent-soft` |
+| `--on-accent` | `oklch(99% 0.005 258)` | testo su `--accent` |
 
 ### Tema scuro (derivato dagli stessi ruoli)
 
@@ -42,19 +47,19 @@ struttura.
 
 | Token | Valore |
 |---|---|
-| `--bg` | `oklch(19% 0.008 85)` |
-| `--panel` | `oklch(23.5% 0.009 85)` |
-| `--sunken` | `oklch(15.5% 0.007 85)` |
-| `--ink` | `oklch(94% 0.006 85)` |
-| `--ink-soft` | `oklch(75% 0.008 85)` |
-| `--ink-faint` | `oklch(62% 0.008 85)` |
-| `--line` | `oklch(31% 0.010 85)` |
-| `--line-strong` | `oklch(42% 0.012 85)` |
-| `--accent` | `oklch(74% 0.105 162)` |
-| `--accent-hover` | `oklch(80% 0.100 162)` |
-| `--accent-soft` | `oklch(28% 0.038 162)` |
-| `--accent-ink` | `oklch(86% 0.070 162)` |
-| `--on-accent` | `oklch(17% 0.030 162)` |
+| `--bg` | `oklch(18% 0.003 250)` |
+| `--panel` | `oklch(22.5% 0.004 250)` |
+| `--sunken` | `oklch(14.5% 0.003 250)` |
+| `--ink` | `oklch(93% 0.003 250)` |
+| `--ink-soft` | `oklch(75% 0.004 250)` |
+| `--ink-faint` | `oklch(62% 0.005 250)` |
+| `--line` | `oklch(30% 0.005 250)` |
+| `--line-strong` | `oklch(42% 0.006 250)` |
+| `--accent` | `oklch(72% 0.095 258)` |
+| `--accent-hover` | `oklch(78% 0.090 258)` |
+| `--accent-soft` | `oklch(28% 0.045 258)` |
+| `--accent-ink` | `oklch(85% 0.070 258)` |
+| `--on-accent` | `oklch(17% 0.030 258)` |
 
 Precedenza: **scelta manuale salvata > `prefers-color-scheme` > chiaro**. Deve esistere
 anche il ritorno ad "automatico".
@@ -62,8 +67,8 @@ anche il ritorno ad "automatico".
 ### Semantici
 
 `--danger oklch(52% 0.170 27)` · `--warn oklch(64% 0.130 70)` · `--ok` coincide con
-`--accent` (il verde qui significa già "a posto", sdoppiarlo creerebbe due verdi che si
-somigliano senza voler dire cose diverse).
+`--accent`: un secondo colore per "a posto" sarebbe un colore in più da imparare, e in
+un'app che non ha stati di errore persistenti non serve.
 
 ## Tipografia
 

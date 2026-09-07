@@ -16,8 +16,9 @@
            ALIAS: le regole gia' scritte continuano a funzionare e cambiano
            aspetto tutte insieme.
 
-           Neutri tinti CALDI (hue 85), non verso il verde: tingere i grigi
-           di verde li fa sembrare malati. Il verde e' l'accento, e resta raro.
+           Neutri VERI (hue 250, croma quasi nullo): grigi che non tirano
+           ne' al caldo ne' al freddo, cosi' l'unico colore della pagina e'
+           l'accento. L'accento e' blu ardesia (hue 258) e resta raro.
            Mai #000 o #fff: il bianco pieno abbaglia sotto i neon di un
            supermercato, il nero pieno sbava sulla carta.
            ═══════════════════════════════════════════════════════════ */
@@ -25,25 +26,25 @@
             color-scheme: light dark;
 
             /* superfici */
-            --bp-bg:        oklch(97.2% 0.008 85);
-            --bp-panel:     oklch(99%   0.005 85);
-            --bp-sunken:    oklch(94.5% 0.010 85);
+            --bp-bg:        oklch(97.2% 0.002 250);
+            --bp-panel:     oklch(99%   0.001 250);
+            --bp-sunken:    oklch(94.5% 0.003 250);
 
             /* inchiostro */
-            --bp-ink:       oklch(23%   0.012 85);
-            --bp-ink-soft:  oklch(43%   0.010 85);
-            --bp-ink-faint: oklch(52%   0.009 85);
+            --bp-ink:       oklch(22%   0.004 250);
+            --bp-ink-soft:  oklch(43%   0.005 250);
+            --bp-ink-faint: oklch(52%   0.006 250);
 
             /* linee */
-            --bp-line:        oklch(88% 0.010 85);
-            --bp-line-strong: oklch(78% 0.012 85);
+            --bp-line:        oklch(88% 0.004 250);
+            --bp-line-strong: oklch(78% 0.005 250);
 
-            /* accento · verde bottiglia */
-            --bp-accent:       oklch(43% 0.088 162);
-            --bp-accent-hover: oklch(36% 0.090 162);
-            --bp-accent-soft:  oklch(94% 0.024 162);
-            --bp-accent-ink:   oklch(31% 0.072 162);
-            --bp-on-accent:    oklch(98% 0.012 162);
+            /* accento · blu ardesia */
+            --bp-accent:       oklch(45% 0.105 258);
+            --bp-accent-hover: oklch(38% 0.108 258);
+            --bp-accent-soft:  oklch(95% 0.020 258);
+            --bp-accent-ink:   oklch(34% 0.090 258);
+            --bp-on-accent:    oklch(99% 0.005 258);
 
             /* semantici */
             --bp-danger: oklch(52% 0.170 27);
@@ -60,7 +61,7 @@
 
             /* forma */
             --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
-            --bp-shadow-color: oklch(23% 0.012 85 / 0.10);
+            --bp-shadow-color: oklch(22% 0.004 250 / 0.10);
             --bp-shadow: 0 8px 28px var(--bp-shadow-color);
 
             /* movimento */
@@ -89,38 +90,38 @@
         /* Tema scuro: stessi ruoli, altri valori. Non un secondo design. */
         @media (prefers-color-scheme: dark) {
             :root:not([data-theme="light"]) {
-                --bp-bg:        oklch(19%   0.008 85);
-                --bp-panel:     oklch(23.5% 0.009 85);
-                --bp-sunken:    oklch(15.5% 0.007 85);
-                --bp-ink:       oklch(94%   0.006 85);
-                --bp-ink-soft:  oklch(75%   0.008 85);
-                --bp-ink-faint: oklch(62%   0.008 85);
-                --bp-line:        oklch(31% 0.010 85);
-                --bp-line-strong: oklch(42% 0.012 85);
-                --bp-accent:       oklch(74% 0.105 162);
-                --bp-accent-hover: oklch(80% 0.100 162);
-                --bp-accent-soft:  oklch(28% 0.038 162);
-                --bp-accent-ink:   oklch(86% 0.070 162);
-                --bp-on-accent:    oklch(17% 0.030 162);
-                --bp-shadow-color: oklch(6% 0.01 85 / 0.55);
+                --bp-bg:        oklch(18%   0.003 250);
+                --bp-panel:     oklch(22.5% 0.004 250);
+                --bp-sunken:    oklch(14.5% 0.003 250);
+                --bp-ink:       oklch(93%   0.003 250);
+                --bp-ink-soft:  oklch(75%   0.004 250);
+                --bp-ink-faint: oklch(62%   0.005 250);
+                --bp-line:        oklch(30% 0.005 250);
+                --bp-line-strong: oklch(42% 0.006 250);
+                --bp-accent:       oklch(72% 0.095 258);
+                --bp-accent-hover: oklch(78% 0.090 258);
+                --bp-accent-soft:  oklch(28% 0.045 258);
+                --bp-accent-ink:   oklch(85% 0.070 258);
+                --bp-on-accent:    oklch(17% 0.030 258);
+                --bp-shadow-color: oklch(6% 0.004 250 / 0.55);
             --bp-shadow: 0 8px 28px var(--bp-shadow-color);
             }
         }
         :root[data-theme="dark"] {
-            --bp-bg:        oklch(19%   0.008 85);
-            --bp-panel:     oklch(23.5% 0.009 85);
-            --bp-sunken:    oklch(15.5% 0.007 85);
-            --bp-ink:       oklch(94%   0.006 85);
-            --bp-ink-soft:  oklch(75%   0.008 85);
-            --bp-ink-faint: oklch(62%   0.008 85);
-            --bp-line:        oklch(31% 0.010 85);
-            --bp-line-strong: oklch(42% 0.012 85);
-            --bp-accent:       oklch(74% 0.105 162);
-            --bp-accent-hover: oklch(80% 0.100 162);
-            --bp-accent-soft:  oklch(28% 0.038 162);
-            --bp-accent-ink:   oklch(86% 0.070 162);
-            --bp-on-accent:    oklch(17% 0.030 162);
-            --bp-shadow-color: oklch(6% 0.01 85 / 0.55);
+            --bp-bg:        oklch(18%   0.003 250);
+            --bp-panel:     oklch(22.5% 0.004 250);
+            --bp-sunken:    oklch(14.5% 0.003 250);
+            --bp-ink:       oklch(93%   0.003 250);
+            --bp-ink-soft:  oklch(75%   0.004 250);
+            --bp-ink-faint: oklch(62%   0.005 250);
+            --bp-line:        oklch(30% 0.005 250);
+            --bp-line-strong: oklch(42% 0.006 250);
+            --bp-accent:       oklch(72% 0.095 258);
+            --bp-accent-hover: oklch(78% 0.090 258);
+            --bp-accent-soft:  oklch(28% 0.045 258);
+            --bp-accent-ink:   oklch(85% 0.070 258);
+            --bp-on-accent:    oklch(17% 0.030 258);
+            --bp-shadow-color: oklch(6% 0.004 250 / 0.55);
             --bp-shadow: 0 8px 28px var(--bp-shadow-color);
         }
 
@@ -1339,9 +1340,12 @@
             transition: width 320ms cubic-bezier(0.23,1,0.32,1);
         }
         .bpc-count { font-family: var(--bp-font); font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.02em; white-space: nowrap; }
+        /* La regola base `button` impone width:100%: senza questo reset il tasto
+           chiudi si allargava per tutta la topbar e la "x" finiva al centro. */
         .bpc-close {
+            width: 40px; height: 40px; flex: 0 0 auto; padding: 0;
             background: none; border: none; color: var(--text-muted); font-size: 26px; line-height: 1;
-            cursor: pointer; padding: 4px 6px; border-radius: 8px; transition: color 160ms ease, transform 160ms ease;
+            cursor: pointer; border-radius: 8px; transition: color 160ms ease, transform 160ms ease;
         }
         .bpc-close:hover { color: var(--text-main); }
         .bpc-close:active { transform: scale(0.92); }
@@ -1771,15 +1775,21 @@
         .bpm-foot { margin-top: 36px; text-align: center; font-family: var(--bp-font); font-size: 12px; letter-spacing: .06em; min-height: 14px; }
 
         /* ── Stile 1 · Elegante (nero + oro, brand) ── */
-        .bpm-elegant { background: var(--bp-panel); border: 1px solid var(--bp-accent-soft); }
-        .bpm-elegant .bpm-eyebrow { color: var(--bp-accent); }
-        .bpm-elegant .bpm-title { color: var(--bp-accent); }
-        .bpm-elegant .bpm-date { color: #8c7a55; }
-        .bpm-elegant .bpm-headrule { color: var(--bp-accent); }
-        .bpm-elegant .bpm-cat-title { color: var(--bp-accent); }
-        .bpm-elegant .bpm-cat-title::before, .bpm-elegant .bpm-cat-title::after { content: "\2726"; color: var(--bp-accent); font-size: 0.62em; vertical-align: middle; margin: 0 0.7em; }
+        /* I quattro stili del menu' da stampare sono quadri chiusi, con una loro
+           direzione artistica: NON seguono l'accento dell'interfaccia. Prima l'oro
+           qui dentro era var(--bp-accent); da quando l'accento e' blu ardesia,
+           tenerlo agganciato avrebbe messo blu e oro caldo sullo stesso foglio.
+           L'oro ora e' un valore locale di questo stile. */
+        .bpm-elegant { --bpm-gold: #c8a862; --bpm-gold-dim: #8c7a55;
+                       background: var(--bp-panel); border: 1px solid rgba(200,168,98,0.32); }
+        .bpm-elegant .bpm-eyebrow { color: var(--bpm-gold); }
+        .bpm-elegant .bpm-title { color: var(--bpm-gold); }
+        .bpm-elegant .bpm-date { color: var(--bpm-gold-dim); }
+        .bpm-elegant .bpm-headrule { color: var(--bpm-gold); }
+        .bpm-elegant .bpm-cat-title { color: var(--bpm-gold); }
+        .bpm-elegant .bpm-cat-title::before, .bpm-elegant .bpm-cat-title::after { content: "\2726"; color: var(--bpm-gold); font-size: 0.62em; vertical-align: middle; margin: 0 0.7em; }
         .bpm-elegant .bpm-name { color: #efe3cd; }
-        .bpm-elegant .bpm-foot { color: #8c7a55; }
+        .bpm-elegant .bpm-foot { color: var(--bpm-gold-dim); }
 
         /* ── Stile 2 · Minimal (carta chiara, editoriale, ottimo in stampa) ── */
         .bpm-minimal { background: #f7f2e8; border: 1px solid #e3d9c5; color: var(--bp-panel); }
