@@ -175,7 +175,7 @@ test.describe('Modificatori · dove vivono', () => {
       // eslint-disable-next-line no-undef
       menuSerataDrink = { Negroni: 3 };
       window.vaiAStep('risultati');
-      window.bpScorte = { 'ing:Gin': 2000 };
+      bpScorte = { 'ing:Gin': 2000 };
       window.bpSalvaEvento();
     });
     await page.waitForTimeout(300);

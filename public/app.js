@@ -2291,6 +2291,244 @@
         const BP_AMARI_DEFAULT = ['Amaro Montenegro','Amaro Nonino','Amaro del Capo','Fernet Branca','Jägermeister','Mirto','Amaretto','Baileys','Liquore al Caffè','Limoncello','Sambuca','Grappa'];
         let bpRecipes = { mods:{}, custom:[], amari:null };
         /* ════════════════════════════════════════════════════════════
+           LINK CONDIVISIBILE · l'evento dentro l'indirizzo
+           ════════════════════════════════════════════════════════════
+           Sta nel FRAGMENT (#e=…), che non viene mai inviato al server: resta
+           nel browser di chi apre. Ma non e' un segreto — vive nella
+           cronologia, nei backup del telefono e in mano a chiunque riceva il
+           link — e l'interfaccia lo dice, invece di lasciarlo intendere.
+
+           ── Niente compressione, e la misura lo conferma ──
+           Il piano prevedeva un codec, poi e' stato tolto: introdurre una
+           libreria per stare dentro un budget che non era ancora stato
+           misurato e' ottimizzazione prima della misura. Misurato dopo, su
+           JSON piano in base64url:
+
+               3 drink    258 caratteri di URL
+               8 drink    389
+              20 drink    626
+              40 drink   1136   (con nome evento lungo)
+
+           Tutti sotto il tetto. Se un caso sfora, la ricaduta non e' una
+           libreria: e' il file di export, che esiste gia'.
+
+           ── Le ricette personalizzate viaggiano con il link ──
+           I menu' citano le ricette per nome e il calcolo le risolve contro
+           databaseDrink. Un link che nominasse una ricetta che il destinatario
+           non ha darebbe un menu' monco — e prima della Fase 0 mandava proprio
+           in eccezione il calcolo. Quindi le definizioni citate viaggiano
+           dentro il link, e chi apre NON se le vede installate nella propria
+           libreria: valgono solo per quella copia. */
+
+        const BP_LINK_PREFISSO = 'v1.';
+        const BP_LINK_MAX = 4000;          // tetto duro sul payload codificato
+        const BP_LINK_MAX_DRINK = 80;
+
+        /* Catturato al volo, in cima ad app.js: PRIMA che qualunque script
+           opzionale possa vedere l'indirizzo completo. analytics.js oggi ha il
+           token vuoto e non chiama nessuno, ma se un domani venisse riempito
+           non deve trovarsi un evento intero nell'URL. */
+        let bpLinkInArrivo = null;
+        (function () {
+            try {
+                const h = location.hash || '';
+                const i = h.indexOf('#e=');
+                if (i !== 0) return;
+                bpLinkInArrivo = h.slice(3);
+                history.replaceState(history.state, '', location.pathname + location.search);
+            } catch (e) { bpLinkInArrivo = null; }
+        })();
+
+        function _bpB64urlEnc(testo) {
+            const bytes = new TextEncoder().encode(testo);
+            let bin = '';
+            bytes.forEach(b => { bin += String.fromCharCode(b); });
+            return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+        function _bpB64urlDec(s) {
+            const b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+            const bin = atob(b64 + '==='.slice((b64.length + 3) % 4));
+            const bytes = Uint8Array.from(bin, ch => ch.charCodeAt(0));
+            return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+        }
+
+        /* Solo cio' che serve a ricostruire l'evento: niente spunte, niente
+           scorte (descrivono una spesa di chi condivide, non di chi riceve). */
+        function bpStatoPerLink() {
+            const _v = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+            const menu = { dr: menuSerataDrink, mo: menuSerataMocktail, sh: menuSerataShot };
+
+            const ricette = {};
+            [].concat(Object.keys(menu.dr), Object.keys(menu.mo), Object.keys(menu.sh))
+              .forEach(nome => {
+                  if (ricette[nome]) return;
+                  // Viaggiano solo le ricette che il destinatario non puo' avere.
+                  if (bpRecipes.mods && bpRecipes.mods[nome]) ricette[nome] = bpRecipes.mods[nome];
+              });
+
+            const st = {
+                o: _v('ospiti'), d: _v('drink_testa'), s: _v('shot_testa'), sc: _v('scarto'),
+                p: (() => { const r = document.getElementById('pct-bevitori'); return r ? r.value : 80; })(),
+                n: _v('sel-nazione'), f: _v('sel-fascia'),
+                ff: (() => { const e = document.getElementById('sel-fascia-fermentati'); return e ? e.value : ''; })(),
+                fe: { r: _v('ferm_vino_rosso'), b: _v('ferm_vino_bianco'), bo: _v('ferm_bollicine'), bi: _v('ferm_birra') },
+                dr: menu.dr, mo: menu.mo, sh: menu.sh
+            };
+            if (bpCfgNomeEvento && bpCfgNomeEvento.trim()) st.nm = bpCfgNomeEvento.trim();
+            if (Object.keys(ricette).length) st.rc = ricette;
+            return st;
+        }
+
+        function bpCreaLink() {
+            const payload = BP_LINK_PREFISSO + _bpB64urlEnc(JSON.stringify(bpStatoPerLink()));
+            if (payload.length > BP_LINK_MAX) return { ok: false, motivo: 'troppo-lungo', lunghezza: payload.length };
+            return { ok: true, url: location.origin + location.pathname + '#e=' + payload, lunghezza: payload.length };
+        }
+
+        function bpCondividiLink() {
+            if (!bpHasInProgress()) { alert(T('alertNienteMenu')); return; }
+            const r = bpCreaLink();
+            if (!r.ok) {
+                // La ricaduta non e' una libreria di compressione: e' il file.
+                alert(T('linkTroppoLungo'));
+                return;
+            }
+            const titolo = (bpCfgNomeEvento && bpCfgNomeEvento.trim()) ? bpCfgNomeEvento.trim() : T('copyHeader');
+            if (navigator.share) {
+                navigator.share({ title: titolo, text: T('linkTesto'), url: r.url })
+                    .catch(err => { if (!err || err.name !== 'AbortError') bpCopiaNegliAppunti(r.url); });
+            } else {
+                bpCopiaNegliAppunti(r.url);
+            }
+        }
+
+        function bpCopiaNegliAppunti(testo) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(testo)
+                    .then(() => mostraToast(T('linkCopiato')))
+                    .catch(() => prompt(T('linkCopiato'), testo));
+            } else {
+                prompt(T('linkCopiato'), testo);
+            }
+        }
+
+        /* ── Chi riceve ──
+           Mai applicato in automatico: si valida, si mostra cosa contiene, e si
+           apre SOLO come copia dopo una conferma. La bozza in corso non si
+           tocca finche' non c'e' un si'. */
+        function bpValidaLink(payload) {
+            if (!payload || payload.length > BP_LINK_MAX) return { ok: false, motivo: 'lunghezza' };
+            if (payload.indexOf(BP_LINK_PREFISSO) !== 0) return { ok: false, motivo: 'versione' };
+
+            let testo;
+            try { testo = _bpB64urlDec(payload.slice(BP_LINK_PREFISSO.length)); }
+            catch (e) { return { ok: false, motivo: 'codifica' }; }
+
+            let grezzo;
+            try { grezzo = JSON.parse(testo); } catch (e) { return { ok: false, motivo: 'json' }; }
+
+            const pulito = bpPulisciValore(grezzo);
+            if (!pulito.ok) return { ok: false, motivo: 'validazione', problemi: pulito.problemi };
+
+            const st = pulito.valore;
+            if (!st || typeof st !== 'object') return { ok: false, motivo: 'forma' };
+
+            const menu = {};
+            let quanti = 0;
+            for (const campo of ['dr', 'mo', 'sh']) {
+                const m = st[campo];
+                menu[campo] = Object.create(null);
+                if (!m || typeof m !== 'object') continue;
+                for (const nome of Object.keys(m)) {
+                    const peso = parseFloat(m[nome]);
+                    if (!isFinite(peso) || peso <= 0 || peso > 5) continue;
+                    if (++quanti > BP_LINK_MAX_DRINK) return { ok: false, motivo: 'troppi-drink' };
+                    menu[campo][nome] = peso;
+                }
+            }
+            if (!quanti) return { ok: false, motivo: 'menu-vuoto' };
+
+            const num = (v, min, max, dflt) => {
+                const n = parseFloat(v);
+                return (isFinite(n) && n >= min && n <= max) ? n : dflt;
+            };
+            return {
+                ok: true,
+                stato: {
+                    nome: typeof st.nm === 'string' ? st.nm.slice(0, 120) : '',
+                    ospiti: num(st.o, 0, 100000, 50),
+                    drinkTesta: num(st.d, 0, 50, 3),
+                    shotTesta: num(st.s, 0, 50, 1),
+                    scarto: num(st.sc, 0, 100, 15),
+                    pct: num(st.p, 0, 100, 80),
+                    nazione: (typeof st.n === 'string' && indiciGeo[st.n]) ? st.n : 'Italia',
+                    fascia: ['bassa', 'media', 'alta'].indexOf(st.f) >= 0 ? st.f : 'media',
+                    fasciaFerm: ['bassa', 'media', 'alta'].indexOf(st.ff) >= 0 ? st.ff : '',
+                    ferm: {
+                        r: num(st.fe && st.fe.r, 0, 20, 0), b: num(st.fe && st.fe.b, 0, 20, 0),
+                        bo: num(st.fe && st.fe.bo, 0, 20, 0), bi: num(st.fe && st.fe.bi, 0, 20, 0)
+                    },
+                    menu,
+                    ricette: (st.rc && typeof st.rc === 'object') ? st.rc : {}
+                },
+                quanti
+            };
+        }
+
+        function bpChiediApriLink(payload) {
+            const v = bpValidaLink(payload);
+            if (!v.ok) { mostraToast(T('linkNonValido')); return; }
+
+            const nome = v.stato.nome || T('homeSenzaNome');
+            /* Due chiavi e un a capo vero: la domanda, e la promessa che la
+               bozza in corso non viene toccata. La seconda meta' e' la parte
+               che conta — chi riceve un link non deve temere di perdere il
+               proprio lavoro. */
+            const testo = T('linkRicevuto')
+                .replace('{nome}', nome)
+                .replace('{n}', String(v.quanti))
+                .replace('{ospiti}', String(v.stato.ospiti)) + `
+
+` + T('linkRicevutoNota');
+            if (!confirm(testo)) return;   // la bozza in corso resta intatta
+
+            bpApriLinkComeCopia(v.stato);
+        }
+
+        function bpApriLinkComeCopia(st) {
+            /* Le ricette del link valgono per questa copia e basta: non
+               entrano in bp_recipes, cosi' la libreria di chi riceve non viene
+               riscritta da un link ricevuto per messaggio. */
+            Object.keys(st.ricette).forEach(nome => {
+                if (!databaseDrink[nome]) databaseDrink[nome] = st.ricette[nome];
+            });
+
+            bpEditingId = null;          // e' una copia: salvandola nasce un evento nuovo
+            bpScorte = {};               // le scorte erano di chi ha condiviso
+            bpCfgNomeEvento = st.nome;
+            if (typeof bpSyncNomeField === 'function') bpSyncNomeField();
+
+            menuSerataDrink = Object.assign({}, st.menu.dr);
+            menuSerataMocktail = Object.assign({}, st.menu.mo);
+            menuSerataShot = Object.assign({}, st.menu.sh);
+
+            const _set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+            _set('ospiti', st.ospiti); _set('drink_testa', st.drinkTesta);
+            _set('shot_testa', st.shotTesta); _set('scarto', st.scarto);
+            _set('pct-bevitori', st.pct); _set('sel-nazione', st.nazione); _set('sel-fascia', st.fascia);
+            if (st.fasciaFerm) _set('sel-fascia-fermentati', st.fasciaFerm);
+            _set('ferm_vino_rosso', st.ferm.r); _set('ferm_vino_bianco', st.ferm.b);
+            _set('ferm_bollicine', st.ferm.bo); _set('ferm_birra', st.ferm.bi);
+            if (typeof aggiornaPctBevitori === 'function') aggiornaPctBevitori();
+            if (typeof renderizzaMenu === 'function') renderizzaMenu();
+
+            programmaSalvataggio();
+            bpVaiA('evento');
+            vaiAStep('risultati');
+            mostraToast(T('linkAperto'));
+        }
+
+        /* ════════════════════════════════════════════════════════════
            ESPORTA / IMPORTA · il backup, e il passaggio fra dispositivi
            ════════════════════════════════════════════════════════════
            Nasce da una domanda dell'utente: "ha senso un database con account
@@ -3634,7 +3872,21 @@ Annulla = ` + T('backupUnisci'));
 
         /* ── i18n della stampa — 7 lingue ── */
         /* ── i18n dei modificatori — 7 lingue ── */
-        /* ── i18n di backup e ripristino — 7 lingue ── */
+        /* ── i18n del link condivisibile — 7 lingue ──
+           La domanda e la nota stanno in due chiavi separate, e le unisce il
+           codice con un a capo vero: una sola stringa con "\n" dentro e' il
+           genere di dettaglio che si rompe passando fra strumenti diversi. */
+        const _linkI18n = {
+            it: { linkCondividi:"Condividi con un link", linkCopiato:"Link copiato", linkTesto:"La lista della spesa per la mia festa", linkNonValido:"Questo link non e' valido o e' stato troncato", linkTroppoLungo:"Menu troppo grande per un link: usa Esporta e manda il file", linkAperto:"Aperto come copia: modificalo e salvalo", linkRicevuto:"Aprire l'evento condiviso “{nome}”? {n} voci di menu, {ospiti} ospiti.", linkRicevutoNota:"Si apre come COPIA: quello che stai preparando ora non viene toccato." },
+            en: { linkCondividi:"Share with a link", linkCopiato:"Link copied", linkTesto:"The shopping list for my party", linkNonValido:"This link is not valid or was truncated", linkTroppoLungo:"Menu too large for a link: use Export and send the file", linkAperto:"Opened as a copy: edit it and save", linkRicevuto:"Open the shared event “{nome}”? {n} menu items, {ospiti} guests.", linkRicevutoNota:"It opens as a COPY: what you are working on now is untouched." },
+            es: { linkCondividi:"Compartir con un enlace", linkCopiato:"Enlace copiado", linkTesto:"La lista de la compra para mi fiesta", linkNonValido:"Este enlace no es válido o se ha cortado", linkTroppoLungo:"Menú demasiado grande para un enlace: usa Exportar y envía el archivo", linkAperto:"Abierto como copia: edítalo y guárdalo", linkRicevuto:"¿Abrir el evento compartido “{nome}”? {n} elementos, {ospiti} invitados.", linkRicevutoNota:"Se abre como COPIA: lo que estás preparando no se toca." },
+            fr: { linkCondividi:"Partager par lien", linkCopiato:"Lien copié", linkTesto:"La liste de courses pour ma fête", linkNonValido:"Ce lien n'est pas valide ou a été tronqué", linkTroppoLungo:"Menu trop grand pour un lien : utilisez Exporter et envoyez le fichier", linkAperto:"Ouvert comme copie : modifiez et enregistrez", linkRicevuto:"Ouvrir l'événement partagé “{nome}” ? {n} éléments, {ospiti} invités.", linkRicevutoNota:"Il s'ouvre en COPIE : ce que vous préparez n'est pas touché." },
+            de: { linkCondividi:"Per Link teilen", linkCopiato:"Link kopiert", linkTesto:"Die Einkaufsliste für meine Party", linkNonValido:"Dieser Link ist ungültig oder abgeschnitten", linkTroppoLungo:"Menü zu groß für einen Link: exportiere und schicke die Datei", linkAperto:"Als Kopie geöffnet: bearbeiten und speichern", linkRicevuto:"Geteiltes Event „{nome}“ öffnen? {n} Menüpunkte, {ospiti} Gäste.", linkRicevutoNota:"Es öffnet als KOPIE: woran du gerade arbeitest, bleibt unberührt." },
+            pt: { linkCondividi:"Partilhar com um link", linkCopiato:"Link copiado", linkTesto:"A lista de compras para a minha festa", linkNonValido:"Este link não é válido ou foi cortado", linkTroppoLungo:"Menu demasiado grande para um link: usa Exportar e envia o ficheiro", linkAperto:"Aberto como cópia: edita e guarda", linkRicevuto:"Abrir o evento partilhado “{nome}”? {n} itens, {ospiti} convidados.", linkRicevutoNota:"Abre como CÓPIA: o que estás a preparar não é tocado." },
+            nl: { linkCondividi:"Delen met een link", linkCopiato:"Link gekopieerd", linkTesto:"De boodschappenlijst voor mijn feest", linkNonValido:"Deze link is ongeldig of afgekapt", linkTroppoLungo:"Menu te groot voor een link: gebruik Exporteren en stuur het bestand", linkAperto:"Geopend als kopie: pas aan en sla op", linkRicevuto:"Gedeeld evenement “{nome}” openen? {n} menu-items, {ospiti} gasten.", linkRicevutoNota:"Het opent als KOPIE: waar je nu aan werkt blijft ongemoeid." }
+        };
+        Object.keys(_linkI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _linkI18n[lg]); });
+
         const _backupI18n = {
             it: { backupEsporta:"Esporta tutto (backup)", backupImporta:"Importa da file", backupEsportato:"Backup scaricato", backupNonValido:"Questo file non e' un backup di Barman PRO", backupTroppoGrande:"File troppo grande: non sembra un backup", backupTroppoNuovo:"Backup creato da una versione piu' recente dell'app: aggiorna prima di importarlo", backupSpazioInsufficiente:"Spazio insufficiente per importare: libera qualche evento", backupChiedi:"Come vuoi importare?", backupUnisci:"Unisci ai miei dati", backupSostituisci:"Sostituisci tutto", backupFatto:"Importato" },
             en: { backupEsporta:"Export everything (backup)", backupImporta:"Import from file", backupEsportato:"Backup downloaded", backupNonValido:"This file is not a Barman PRO backup", backupTroppoGrande:"File too large: it does not look like a backup", backupTroppoNuovo:"Backup from a newer version of the app: update before importing", backupSpazioInsufficiente:"Not enough space to import: delete a few events", backupChiedi:"How do you want to import?", backupUnisci:"Merge with my data", backupSostituisci:"Replace everything", backupFatto:"Imported" },
@@ -6104,6 +6356,9 @@ Annulla = ` + T('backupUnisci'));
             try { history.replaceState({ bpRotta: 'home' }, '', location.pathname + location.search); } catch(e) {}
             bpApplicaRotta('home', false);
             bpOsservaTastiera();
+            // Un link ricevuto si processa per ultimo, quando l'app e' in
+            // piedi: mai applicato in automatico, e mai prima di aver chiesto.
+            if (bpLinkInArrivo) { const l = bpLinkInArrivo; bpLinkInArrivo = null; bpChiediApriLink(l); }
             aggiornaPctBevitori();
             renderizzaMenu();
             aggiungiRigaIngrediente();

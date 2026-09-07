@@ -863,3 +863,37 @@ invariati. Sei test nuovi che calcolano il contrasto sui colori **risolti dal br
 sui valori scritti nel foglio: se qualcuno rimette un token dell'app li' dentro, il difetto
 torna e il test lo dice. Provati contro gli stili vecchi: **3 su 6 falliscono**. Verificato a
 schermo lo stile Elegante. Cache a v3.10.0.
+
+### Round 10-12 — Claude build · Fase 3. FASE 3 COMPLETA.
+
+**"Ce l'ho gia'" e i prezzi tuoi.** Si sottrae prima e si arrotonda dopo: servono 6,65 L,
+ne hai 2, ne restano 4,65 da pagare ma ne compri 5 perche' le bottiglie sono quelle. Un
+prezzo tuo e' il prezzo unitario finale locale — un test lo verifica cambiando paese e
+controllando che il costo non si muova. Scorte nell'evento (si consumano con quella spesa),
+prezzi nelle impostazioni. Duplicare azzera scorte e spunte. Gli editor esistono solo in
+modalita' correzione: con la modalita' spenta il DOM della lista e' identico, ed e' quella
+la proiezione dei golden.
+
+**Export/import.** Manifest esplicito (`bp_onboarded` NON si esporta: e' stato di questo
+dispositivo; le chiavi legacy nemmeno, rimetterebbero in circolo dati morti). Staging per
+transazione, prenotazione dello spazio con una scrittura di prova, marcatore, completamento
+idempotente, recupero all'avvio che spazza anche gli orfani. Validazione **iterativa** (una
+ricorsiva andrebbe in overflow proprio sull'annidamento ostile da cui difende), oggetti
+senza prototipo, rifiuto per dimensione **prima** di leggere il file.
+
+**Link condivisibile.** Il piano imponeva di **misurare prima**: 3 drink = 258 caratteri di
+URL, 8 = 389, 20 = 626, 40 con nome lungo = 1136. Tutti sotto il tetto, quindi **niente
+compressione** — la scelta di toglierla dal piano regge alla prova. Le ricette
+personalizzate citate viaggiano nel link ma **non entrano nella libreria di chi riceve**.
+Il fragment si cattura e si rimuove nel primo bootstrap, prima di qualunque script
+opzionale. Mai applicato in automatico: si valida, si chiede, si apre come copia.
+
+**Un test che passava per il motivo sbagliato.** In `ui-modificatori` avevo scritto
+`window.bpScorte = {...}`, ma `bpScorte` e' un `let` a livello di script e **non e' una
+proprieta' di window**: l'assegnazione creava una variabile diversa che il codice non
+legge. Il test "duplicare azzera le scorte" passava perche' le scorte erano vuote in
+partenza, non perche' la duplicazione le azzerasse. Corretto qui e in `ui-link`
+(7 riferimenti). E' la stessa trappola gia' documentata in `helpers.js`.
+
+**Prova.** **179 test verdi** (68 preesistenti + 111 nuovi), `npm run check` verde, 42
+golden invariati. Cache a v3.13.0.
