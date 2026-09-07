@@ -35,11 +35,26 @@
             --bp-ink-soft:  oklch(43%   0.005 250);
             --bp-ink-faint: oklch(52%   0.006 250);
 
-            /* linee */
-            --bp-line:        oklch(88% 0.004 250);
-            --bp-line-strong: oklch(78% 0.005 250);
+            /* linee · due livelli, non uno
+               --bp-line e' il filo che separa e delimita superfici; era cosi'
+               chiaro (88%) da sparire su un fondo quasi bianco.
+               --bp-line-control e' il bordo di cio' che si clicca o si scrive:
+               sta a 3:1 sul fondo E sul pannello, il minimo perche' un comando
+               si distingua da solo (WCAG 1.4.11). Le card grandi cliccabili
+               restano sul filo sottile: le identificano dimensione e contenuto,
+               un 3:1 su quelle le farebbe sembrare scatole. */
+            --bp-line:         oklch(82% 0.005 250);
+            --bp-line-control: oklch(64% 0.007 250);
+            --bp-line-strong:  oklch(70% 0.006 250);
 
-            /* accento · blu ardesia */
+            /* accento · blu ardesia
+               --bp-accent-soft e' un RIEMPIMENTO: il fondo degli stati morbidi
+               (selezionato, pannelli accentati). Non e' una linea. Era finito
+               come border-color in una trentina di regole, eredita' del vecchio
+               oro, dove faceva da filo visibile; una tinta al 95% di chiarezza
+               su un fondo al 97% non fa nessun filo, e i comandi sparivano.
+               Bordo di un controllo -> --bp-line-control.
+               Bordo che deve reagire (hover, attivo) -> --bp-accent. */
             --bp-accent:       oklch(45% 0.105 258);
             --bp-accent-hover: oklch(38% 0.108 258);
             --bp-accent-soft:  oklch(95% 0.020 258);
@@ -80,7 +95,7 @@
             --accent-gold-2: var(--bp-accent);
             --accent-glow:   var(--bp-accent-soft);
             --input-bg:      var(--bp-sunken);
-            --input-border:  var(--bp-line);
+            --input-border:  var(--bp-line-control);
             --input-focus:   var(--bp-accent);
             --danger-color:  var(--bp-danger);
             --success-color: var(--bp-accent);
@@ -96,8 +111,9 @@
                 --bp-ink:       oklch(93%   0.003 250);
                 --bp-ink-soft:  oklch(75%   0.004 250);
                 --bp-ink-faint: oklch(62%   0.005 250);
-                --bp-line:        oklch(30% 0.005 250);
-                --bp-line-strong: oklch(42% 0.006 250);
+                --bp-line:         oklch(36% 0.006 250);
+                --bp-line-control: oklch(52% 0.008 250);
+                --bp-line-strong:  oklch(48% 0.007 250);
                 --bp-accent:       oklch(72% 0.095 258);
                 --bp-accent-hover: oklch(78% 0.090 258);
                 --bp-accent-soft:  oklch(28% 0.045 258);
@@ -114,8 +130,9 @@
             --bp-ink:       oklch(93%   0.003 250);
             --bp-ink-soft:  oklch(75%   0.004 250);
             --bp-ink-faint: oklch(62%   0.005 250);
-            --bp-line:        oklch(30% 0.005 250);
-            --bp-line-strong: oklch(42% 0.006 250);
+            --bp-line:         oklch(36% 0.006 250);
+            --bp-line-control: oklch(52% 0.008 250);
+            --bp-line-strong:  oklch(48% 0.007 250);
             --bp-accent:       oklch(72% 0.095 258);
             --bp-accent-hover: oklch(78% 0.090 258);
             --bp-accent-soft:  oklch(28% 0.045 258);
@@ -137,7 +154,7 @@
         /* ─── THEME SWITCHER ─── */
         .theme-switcher {
             display: inline-flex;
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--bp-line-control);
             border-radius: 999px;
             overflow: hidden;
         }
@@ -250,7 +267,7 @@
         .suggeritore-eventi button:hover { border-color: var(--accent-gold-1); color: var(--accent-gold-1); }
         .suggeritore-close {
             width: 100%; margin-top: 14px; background: transparent;
-            border: 1px solid var(--glass-border); color: var(--text-muted);
+            border: 1px solid var(--bp-line-control); color: var(--text-muted);
             border-radius: 10px; padding: 10px; cursor: pointer;
         }
 
@@ -329,7 +346,7 @@
             background: var(--glass-bg);
 
 
-            border: 2px solid var(--bp-accent-soft);
+            border: 2px solid var(--bp-line);
             border-radius: 24px;
             padding: 40px;
             margin-bottom: 32px;
@@ -417,7 +434,7 @@
         input[type="number"], input[type="text"], input:not([type]), select {
             width: 100%;
             background: var(--bp-sunken);
-            border: 1px solid var(--bp-accent-soft);
+            border: 1px solid var(--bp-line-control);
             border-radius: 12px;
             color: var(--accent-gold-1);
             font-family: var(--bp-font);
@@ -453,7 +470,7 @@
             justify-content: center;
             width: 100%;
             background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--bp-line-control);
             color: var(--text-main);
             padding: 16px 24px;
             border-radius: 12px;
@@ -465,26 +482,20 @@
             cursor: pointer;
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
             position: relative;
-            overflow: hidden;
         }
 
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bp-line);
-            transform: translateX(-100%);
-            transition: transform 0.5s;
-        }
+        /* Qui c'era uno "shine": una banda di --bp-line larga quanto il
+           bottone che lo attraversava in mezzo secondo a ogni passaggio del
+           mouse. Coperchiava il testo mentre passava, e non diceva niente che
+           il sollevamento qui sotto non dicesse gia'. Era anche gia' stato
+           spento a mano in sei punti diversi (menu', ricettario, card della
+           home): quando un effetto va disattivato caso per caso, il posto
+           giusto per toglierlo e' l'origine. */
 
         button:hover {
             background: var(--bp-sunken);
             border-color: var(--bp-ink-faint);
             transform: translateY(-2px);
-        }
-
-        button:hover::before {
-            transform: translateX(100%);
         }
 
         button:active {
@@ -573,7 +584,7 @@
             justify-content: center;
             width: 36px; height: 36px;
             border-radius: 50%;
-            border: 1px solid var(--bp-accent-soft);
+            border: 1px solid var(--bp-line-control);
             color: var(--accent-gold-1);
             font-family: var(--bp-font);
             font-weight: 700;
@@ -611,7 +622,7 @@
             padding: 8px;
             border-radius: 18px;
             background: var(--bp-panel);
-            border: 1px solid var(--bp-accent-soft);
+            border: 1px solid var(--bp-line-control);
         }
         .builder-tab {
             flex: 1 1 130px;
@@ -840,7 +851,7 @@
             padding: 0;
             background: var(--bp-accent-soft);
             color: var(--accent-gold-1);
-            border: 1px solid var(--bp-accent-soft);
+            border: 1px solid var(--bp-line-control);
             border-radius: 8px;
             font-size: 20px;
             display: flex;
@@ -857,7 +868,7 @@
 
         .btn-aggiungi-ing {
             background: transparent;
-            border: 1px dashed var(--glass-border);
+            border: 1px dashed var(--bp-line-control);
             color: var(--text-muted);
             margin-top: 16px;
         }
@@ -984,7 +995,7 @@
         .btn-reset {
             background: transparent;
             color: var(--text-muted);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--bp-line-control);
             font-size: 11px;
             padding: 8px 16px;
             width: auto;
@@ -999,7 +1010,7 @@
         .btn-installa {
             background: var(--bp-sunken);
             color: #fff;
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--bp-line-control);
             font-size: 11px;
             padding: 8px 16px;
             width: auto;
@@ -1372,14 +1383,14 @@
         .bpc-chip {
             font-family: var(--bp-font); text-align: center; cursor: pointer;
             background: var(--input-bg); color: var(--text-main);
-            border: 1px solid var(--glass-border); border-radius: 14px;
+            border: 1px solid var(--bp-line-control); border-radius: 14px;
             padding: 15px 18px; font-size: 15.5px; font-weight: 600;
             display: flex; flex-direction: column; gap: 3px; min-height: 52px; justify-content: center;
             transition: transform 160ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease, background-color 160ms ease;
         }
         .bpc-wrap .bpc-chip { flex: 1 1 calc(50% - 5px); min-width: 130px; }
         .bpc-chip .bpc-chip-sub { font-size: 12.5px; font-weight: 500; color: var(--text-muted); }
-        @media (hover: hover) and (pointer: fine) { .bpc-chip:hover { border-color: var(--bp-accent-soft); } }
+        @media (hover: hover) and (pointer: fine) { .bpc-chip:hover { border-color: var(--bp-accent); } }
         .bpc-chip:active { transform: scale(0.98); }
         .bpc-chip.sel {
             background: var(--bp-accent);
@@ -1392,12 +1403,12 @@
         .bpc-stepper { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 6px 0; }
         .bpc-stepper button {
             width: 56px; height: 56px; border-radius: 50%; font-size: 26px; line-height: 1; cursor: pointer;
-            background: var(--input-bg); color: var(--accent-gold-1); border: 1px solid var(--glass-border);
+            background: var(--input-bg); color: var(--accent-gold-1); border: 1px solid var(--bp-line-control);
             display: flex; align-items: center; justify-content: center;
             transition: transform 140ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease;
         }
         .bpc-stepper button:active { transform: scale(0.92); }
-        @media (hover: hover) and (pointer: fine) { .bpc-stepper button:hover { border-color: var(--bp-accent-soft); } }
+        @media (hover: hover) and (pointer: fine) { .bpc-stepper button:hover { border-color: var(--bp-accent); } }
         .bpc-stepper .bpc-val { font-family: var(--bp-font); font-weight: 700; font-size: 40px; color: var(--text-main); min-width: 2.4ch; text-align: center; font-variant-numeric: tabular-nums; }
         .bpc-unit { text-align: center; font-family: var(--bp-font); font-size: 13px; color: var(--text-muted); margin-top: 10px; }
 
@@ -1406,7 +1417,7 @@
         .bpc-seg {
             flex: 1; cursor: pointer; font-family: var(--bp-font); font-weight: 700; font-size: 16px;
             padding: 18px; border-radius: 14px; background: var(--input-bg); color: var(--text-main);
-            border: 1px solid var(--glass-border); text-align: center;
+            border: 1px solid var(--bp-line-control); text-align: center;
             transition: transform 160ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease, background-color 160ms ease;
         }
         .bpc-seg:active { transform: scale(0.97); }
@@ -1442,14 +1453,14 @@
             border-radius: 13px; padding: 15px 20px; min-height: 50px;
             transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease, opacity 160ms ease;
         }
-        .bpc-back { flex: 1; min-width: 0; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--glass-border); }
+        .bpc-back { flex: 1; min-width: 0; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--bp-line-control); }
         .bpc-back:active, .bpc-next:active { transform: scale(0.97); }
         .bpc-back[disabled] { opacity: 0.35; pointer-events: none; }
         .bpc-next { flex: 1; min-width: 0; border: none; background: var(--bp-accent); color: var(--text-dark); box-shadow: none; }
 
         /* Selettore lingua sulla schermata di benvenuto */
         .bpc-wlang { display: flex; justify-content: flex-end; margin-bottom: 2px; }
-        .bpc-wlang select { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--glass-border); border-radius: 10px; padding: 7px 10px; font-size: 16px; font-family: var(--bp-font); cursor: pointer; }
+        .bpc-wlang select { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--bp-line-control); border-radius: 10px; padding: 7px 10px; font-size: 16px; font-family: var(--bp-font); cursor: pointer; }
         .bpc-skiprow { text-align: center; margin-top: 12px; }
         .bpc-skiprow button { background: none; border: none; color: var(--text-muted); font-family: var(--bp-font); font-size: 13px; cursor: pointer; text-decoration: underline; }
 
@@ -1460,13 +1471,13 @@
         .bpc-welcome-head p { font-family: var(--bp-font); font-size: 15px; color: var(--text-muted); margin: 0 auto; max-width: 40ch; line-height: 1.5; }
         .bpc-choices { display: flex; flex-direction: column; gap: 14px; }
         .bpc-choice {
-            text-align: left; cursor: pointer; background: var(--glass-bg); border: 1px solid var(--glass-border);
+            text-align: left; cursor: pointer; background: var(--glass-bg); border: 1px solid var(--bp-line-control);
             border-radius: 18px; padding: 22px 22px; display: flex; gap: 16px; align-items: flex-start;
             transition: transform 180ms cubic-bezier(0.23,1,0.32,1), border-color 180ms ease;
         }
         .bpc-choice:active { transform: scale(0.985); }
-        @media (hover: hover) and (pointer: fine) { .bpc-choice:hover { border-color: var(--bp-accent-soft); } }
-        .bpc-choice.primary { border-color: var(--bp-accent-soft); box-shadow: none; }
+        @media (hover: hover) and (pointer: fine) { .bpc-choice:hover { border-color: var(--bp-accent); } }
+        .bpc-choice.primary { border-color: var(--bp-accent); box-shadow: none; }
         .bpc-choice-mark { font-size: 22px; color: var(--accent-gold-1); line-height: 1.2; flex: 0 0 auto; }
         .bpc-choice-txt h3 { font-family: var(--bp-font); font-weight: 600; font-size: 18px; color: var(--text-main); margin: 0 0 5px; }
         .bpc-choice-txt p { font-family: var(--bp-font); font-size: 13.5px; line-height: 1.5; color: var(--text-muted); margin: 0; }
@@ -1479,7 +1490,7 @@
             transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease;
         }
         .guided-launch:active { transform: scale(0.99); }
-        @media (hover: hover) and (pointer: fine) { .guided-launch:hover { border-color: var(--bp-accent-soft); } }
+        @media (hover: hover) and (pointer: fine) { .guided-launch:hover { border-color: var(--bp-accent); } }
         .guided-launch .gl-mark { font-size: 18px; color: var(--accent-gold-1); flex: 0 0 auto; }
         .guided-launch .gl-txt { flex: 1; }
         .guided-launch .gl-txt b { font-family: var(--bp-font); font-weight: 700; font-size: 14.5px; color: var(--text-main); display: block; }
@@ -1499,16 +1510,16 @@
         .wizard-back:hover { color: var(--text-main); }
         .wizard-back:active { transform: translateX(-2px); }
         .wizard-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
-        .wizard-actions button { flex: 1 1 160px; min-height: 50px; border-radius: 13px; font-family: var(--bp-font); font-weight: 700; font-size: 14.5px; cursor: pointer; padding: 14px 16px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
+        .wizard-actions button { flex: 1 1 160px; min-height: 50px; border-radius: 13px; font-family: var(--bp-font); font-weight: 700; font-size: 14.5px; cursor: pointer; padding: 14px 16px; border: 1px solid var(--bp-line-control); background: var(--input-bg); color: var(--text-main); transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
         .wizard-actions button:active { transform: scale(0.98); }
         .wizard-actions .wz-primary { border: none; background: var(--bp-accent); color: var(--text-dark); box-shadow: none; }
-        @media (hover: hover) and (pointer: fine) { .wizard-actions button:hover { border-color: var(--bp-accent-soft); } }
+        @media (hover: hover) and (pointer: fine) { .wizard-actions button:hover { border-color: var(--bp-accent); } }
 
         /* ─── "I miei eventi" + checklist interattiva (Fase 3) ─── */
-        .btn-eventi { background: var(--input-bg); color: var(--accent-gold-1); border: 1px solid var(--bp-accent-soft); border-radius: 10px; padding: 8px 12px; font-family: var(--bp-font); font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
+        .btn-eventi { background: var(--input-bg); color: var(--accent-gold-1); border: 1px solid var(--bp-line-control); border-radius: 10px; padding: 8px 12px; font-family: var(--bp-font); font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
         .btn-eventi:active { transform: scale(0.97); }
-        @media (hover: hover) and (pointer: fine) { .btn-eventi:hover { border-color: var(--bp-accent-soft); } }
-        .bpc-evback { flex: 0 0 auto; width: auto; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--glass-border); border-radius: 10px; padding: 8px 16px; font-size: 18px; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
+        @media (hover: hover) and (pointer: fine) { .btn-eventi:hover { border-color: var(--bp-accent); } }
+        .bpc-evback { flex: 0 0 auto; width: auto; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--bp-line-control); border-radius: 10px; padding: 8px 16px; font-size: 18px; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
         .bpc-evback:active { transform: translateX(-2px); }
         .bpc-evhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 20px; }
         .bpc-evhead h2 { font-family: var(--bp-font); font-weight: 600; font-size: clamp(22px, 6vw, 28px); color: var(--text-main); margin: 0; }
@@ -1519,7 +1530,7 @@
         .bpc-evmeta { font-family: var(--bp-font); font-size: 13px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 14px; }
         .bpc-evmeta .tot { color: var(--accent-gold-1); font-weight: 700; }
         .bpc-evbtns { display: flex; flex-wrap: wrap; gap: 8px; }
-        .bpc-evbtns button { flex: 1 1 0; width: auto; min-width: 70px; font-family: var(--bp-font); font-weight: 700; font-size: 13px; padding: 10px 12px; border-radius: 10px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
+        .bpc-evbtns button { flex: 1 1 0; width: auto; min-width: 70px; font-family: var(--bp-font); font-weight: 700; font-size: 13px; padding: 10px 12px; border-radius: 10px; cursor: pointer; border: 1px solid var(--bp-line-control); background: var(--input-bg); color: var(--text-main); transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
         .bpc-evbtns button:active { transform: scale(0.97); }
         .bpc-evbtns .ev-open { border: none; background: var(--bp-accent); color: var(--text-dark); }
         .bpc-evempty { text-align: center; padding: 44px 12px; }
@@ -1573,12 +1584,12 @@
 
         /* ─── Stepper con valore digitabile + niente double-tap zoom ─── */
         .bpc-stepper button { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
-        .bpc-valinput { width: 4.5ch; min-width: 76px; max-width: 150px; text-align: center; font-family: var(--bp-font); font-weight: 700; font-size: clamp(30px, 9vw, 40px); color: var(--text-main); background: transparent; border: none; border-bottom: 2px solid var(--glass-border); padding: 2px 4px; -moz-appearance: textfield; appearance: textfield; font-variant-numeric: tabular-nums; touch-action: manipulation; }
+        .bpc-valinput { width: 4.5ch; min-width: 76px; max-width: 150px; text-align: center; font-family: var(--bp-font); font-weight: 700; font-size: clamp(30px, 9vw, 40px); color: var(--text-main); background: transparent; border: none; border-bottom: 2px solid var(--bp-line-control); padding: 2px 4px; -moz-appearance: textfield; appearance: textfield; font-variant-numeric: tabular-nums; touch-action: manipulation; }
         .bpc-valinput::-webkit-outer-spin-button, .bpc-valinput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .bpc-valinput:focus { outline: none; border-bottom-color: var(--accent-gold-1); }
 
         /* ─── Menu a panino (hamburger) → X + overlay nav ─── */
-        .bp-burger { position: fixed; top: 14px; left: 14px; z-index: 1320; width: 46px; height: 46px; border-radius: 14px; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; touch-action: manipulation; transition: transform 200ms cubic-bezier(0.23,1,0.32,1), border-color 200ms ease, opacity 180ms ease; }
+        .bp-burger { position: fixed; top: 14px; left: 14px; z-index: 1320; width: 46px; height: 46px; border-radius: 14px; background: var(--glass-bg); border: 1px solid var(--bp-line-control); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; touch-action: manipulation; transition: transform 200ms cubic-bezier(0.23,1,0.32,1), border-color 200ms ease, opacity 180ms ease; }
         .bp-burger:active { transform: scale(0.92); }
         /* Il burger sparisce quando è aperto un overlay modale (resta durante il nav, che è il suo menu) */
         body:has(.bpc-overlay.show) .bp-burger { opacity: 0; pointer-events: none; transform: scale(0.8); }
@@ -1591,9 +1602,9 @@
         .bp-nav.show { display: block; }
         .bp-nav-inner { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 14px; max-width: 520px; margin: 0 auto; padding: 88px 24px calc(40px + env(safe-area-inset-bottom, 0px)); }
         .bp-nav-eyebrow { font-family: var(--bp-font); font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-gold-2); margin-bottom: 6px; padding-left: 4px; }
-        .bp-nav-item { display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; padding: 20px 20px; border-radius: 20px; background: var(--input-bg); border: 1px solid var(--glass-border); cursor: pointer; transition: transform 220ms cubic-bezier(0.23,1,0.32,1), border-color 200ms ease; }
+        .bp-nav-item { display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; padding: 20px 20px; border-radius: 20px; background: var(--input-bg); border: 1px solid var(--bp-line-control); cursor: pointer; transition: transform 220ms cubic-bezier(0.23,1,0.32,1), border-color 200ms ease; }
         .bp-nav-item:active { transform: scale(0.985); }
-        @media (hover: hover) and (pointer: fine) { .bp-nav-item:hover { border-color: var(--bp-accent-soft); } }
+        @media (hover: hover) and (pointer: fine) { .bp-nav-item:hover { border-color: var(--bp-accent); } }
         .bp-nav-item .ic { flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%; background: var(--bp-accent-soft); color: var(--accent-gold-1); display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .bp-nav-item .tx { flex: 1; font-family: var(--bp-font); font-weight: 600; font-size: clamp(17px, 5vw, 20px); color: var(--text-main); }
         .bp-nav-item .ar { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; background: var(--bp-sunken); display: flex; align-items: center; justify-content: center; color: var(--accent-gold-1); font-size: 18px; transition: transform 240ms cubic-bezier(0.23,1,0.32,1); }
@@ -1668,8 +1679,7 @@
             opacity: 0.45; cursor: not-allowed;
             transform: none !important; filter: grayscale(0.25);
         }
-        button:disabled::before { display: none; }
-        button:disabled:hover { transform: none; background: var(--glass-bg); border-color: var(--glass-border); }
+        button:disabled:hover { transform: none; background: var(--glass-bg); border-color: var(--bp-line-control); }
 
         /* — 6. Leggibilità testi secondari (tonalità brand invariate) — */
         .budget-sub { opacity: 0.85; }
@@ -1742,14 +1752,14 @@
         .bpm-shell { min-height: 100%; display: flex; flex-direction: column; }
         .bpm-toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 13px 18px; background: var(--bp-panel); border-bottom: 1px solid var(--glass-border); }
         .bpm-styles { display: flex; gap: 8px; flex-wrap: wrap; }
-        .bpm-style-btn { font-family: var(--bp-font); font-weight: 600; font-size: 13px; letter-spacing: .02em; color: var(--text-muted); background: transparent; border: 1px solid var(--glass-border); border-radius: 999px; padding: 8px 16px; cursor: pointer; transition: color .15s ease, border-color .15s ease, background .15s ease; }
-        .bpm-style-btn:hover { color: var(--text-main); border-color: var(--bp-accent-soft); }
+        .bpm-style-btn { font-family: var(--bp-font); font-weight: 600; font-size: 13px; letter-spacing: .02em; color: var(--text-muted); background: transparent; border: 1px solid var(--bp-line-control); border-radius: 999px; padding: 8px 16px; cursor: pointer; transition: color .15s ease, border-color .15s ease, background .15s ease; }
+        .bpm-style-btn:hover { color: var(--text-main); border-color: var(--bp-accent); }
         .bpm-style-btn.active { color: var(--text-dark); background: var(--accent-gold-1); border-color: var(--accent-gold-1); }
         .bpm-tools { display: flex; align-items: center; gap: 10px; }
         .bpm-tool { font-family: var(--bp-font); font-weight: 700; font-size: 13.5px; color: var(--text-dark); background: var(--accent-gold-1); border: none; border-radius: 11px; padding: 10px 18px; cursor: pointer; transition: background .15s ease; }
         .bpm-tool:hover { background: var(--accent-gold-2); }
-        .bpm-close { width: 40px; height: 40px; border-radius: 11px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); font-size: 22px; line-height: 1; cursor: pointer; transition: border-color .15s ease; }
-        .bpm-close:hover { border-color: var(--bp-accent-soft); }
+        .bpm-close { width: 40px; height: 40px; border-radius: 11px; border: 1px solid var(--bp-line-control); background: transparent; color: var(--text-main); font-size: 22px; line-height: 1; cursor: pointer; transition: border-color .15s ease; }
+        .bpm-close:hover { border-color: var(--bp-accent); }
         .bpm-hint { text-align: center; font-family: var(--bp-font); font-size: 12.5px; color: var(--text-muted); padding: 12px 18px 0; }
         .bpm-stage { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 22px 16px 64px; }
 
@@ -1826,7 +1836,7 @@
         .bpm-festa .bpm-foot { color: #e3a7c8; }
 
         /* ── Pulsante "Visualizza il menù" nel dettaglio evento salvato ── */
-        .bpm-evbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: max-content; max-width: 100%; margin: 2px auto 18px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--bp-accent-soft); background: transparent; color: var(--accent-gold-1); font-family: var(--bp-font); font-weight: 600; font-size: 13.5px; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+        .bpm-evbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: max-content; max-width: 100%; margin: 2px auto 18px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--bp-accent); background: transparent; color: var(--accent-gold-1); font-family: var(--bp-font); font-weight: 600; font-size: 13.5px; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
         .bpm-evbtn:hover { background: var(--bp-accent-soft); }
 
         /* ── Layout adattivo: il menù resta su UNA facciata, passando a 2/3 colonne ── */
@@ -1841,10 +1851,9 @@
             .bpm-canvas.bpm-cols-2, .bpm-canvas.bpm-cols-3 { width: min(560px, 94vw); }
         }
 
-        /* Override del reset globale button { width:100%; padding:16px 24px; ::before shine } */
+        /* Override del reset globale button { width:100%; padding:16px 24px } */
         .bpm-style-btn, .bpm-tool { width: auto; }
         .bpm-close, .bpm-del { padding: 0; }
-        .bpm-style-btn::before, .bpm-tool::before, .bpm-close::before, .bpm-del::before, .bpm-evbtn::before { content: none; }
 
         @media (max-width: 560px) {
             .bpm-toolbar { justify-content: center; }
@@ -1878,9 +1887,8 @@
         .bpl-badge.analc { border-color: var(--bp-accent); color: var(--success-color); }
         .bpl-ings { font-family: var(--bp-font); font-size: 13px; color: var(--text-muted); line-height: 1.55; margin-top: 8px; }
         .bpl-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 13px; }
-        .bpl-btn { width: auto; text-transform: none; letter-spacing: 0; font-family: var(--bp-font); font-weight: 600; font-size: 13px; padding: 9px 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); cursor: pointer; }
-        .bpl-btn::before { content: none; }
-        .bpl-btn:hover { border-color: var(--bp-accent-soft); }
+        .bpl-btn { width: auto; text-transform: none; letter-spacing: 0; font-family: var(--bp-font); font-weight: 600; font-size: 13px; padding: 9px 15px; border-radius: 10px; border: 1px solid var(--bp-line-control); background: var(--input-bg); color: var(--text-main); cursor: pointer; }
+        .bpl-btn:hover { border-color: var(--bp-accent); }
         .bpl-btn.primary { background: var(--accent-gold-1); color: var(--text-dark); border-color: var(--accent-gold-1); }
         .bpl-btn.primary:hover { background: var(--accent-gold-2); }
         .bpl-btn.danger { color: var(--danger-color); }
@@ -1904,7 +1912,7 @@
         .bpset-select { width:auto; min-width:180px; flex:0 0 auto; }
         .bpset-theme { flex:0 0 auto; }
         .bpset-row-toggle .bpset-toggle-tx { flex:1 1 200px; min-width:0; }
-        .bpset-switch { position:relative; flex:0 0 auto; width:54px; height:30px; min-width:0; padding:0; border-radius:999px; border:1px solid var(--glass-border); background:var(--input-bg); cursor:pointer; text-transform:none; letter-spacing:0; transition:background-color .2s ease, border-color .2s ease; }
+        .bpset-switch { position:relative; flex:0 0 auto; width:54px; height:30px; min-width:0; padding:0; border-radius:999px; border:1px solid var(--bp-line-control); background:var(--input-bg); cursor:pointer; text-transform:none; letter-spacing:0; transition:background-color .2s ease, border-color .2s ease; }
         .bpset-switch::before { content:none; }
         .bpset-switch:hover { transform:none; background:var(--input-bg); border-color:var(--accent-gold-2); }
         .bpset-switch-knob { position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:var(--text-muted); transition:transform .2s cubic-bezier(0.23,1,0.32,1), background-color .2s ease; }
@@ -1924,10 +1932,9 @@
         .bph-eyebrow { text-align: center; font-family: var(--bp-font); text-transform: uppercase; letter-spacing: .28em; font-size: 12px; color: var(--text-muted); margin: 2px 0 22px; }
 
         .bph-hero, .bph-resume, .bph-card { justify-content: flex-start; text-transform: none; letter-spacing: 0; text-align: left; cursor: pointer; }
-        .bph-hero::before, .bph-resume::before, .bph-card::before { content: none; }
 
         .bph-hero { display: flex; align-items: center; gap: 18px; width: 100%; padding: 26px; border-radius: 20px; border: 1px solid var(--bp-accent-soft); background: var(--bp-accent-soft); margin-bottom: 14px; transition: transform .2s cubic-bezier(0.16,1,0.3,1), border-color .2s ease; }
-        .bph-hero:hover { transform: translateY(-2px); border-color: var(--bp-accent-soft); background: var(--bp-accent-soft); }
+        .bph-hero:hover { transform: translateY(-2px); border-color: var(--bp-accent); background: var(--bp-accent-soft); }
         .bph-hero-ic { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 60px; height: 60px; border-radius: 16px; background: var(--bp-accent-soft); color: var(--accent-gold-1); font-size: 27px; }
         .bph-hero-tx { display: flex; flex-direction: column; min-width: 0; }
         .bph-hero-title { font-family: var(--bp-font); font-weight: 700; font-size: 23px; color: var(--text-main); line-height: 1.15; }
@@ -1935,12 +1942,10 @@
         .bph-hero-arrow { margin-left: auto; flex: 0 0 auto; color: var(--accent-gold-1); font-size: 28px; line-height: 1; }
 
         .bph-resume { display: flex; align-items: stretch; width: 100%; border-radius: 16px; border: 1px solid var(--glass-border); background: var(--input-bg); margin-bottom: 22px; overflow: hidden; transition: border-color .2s ease; }
-        .bph-resume:hover { transform: none; border-color: var(--bp-accent-soft); }
+        .bph-resume:hover { transform: none; border-color: var(--bp-accent); }
         .bph-resume-main { display: flex; align-items: center; gap: 16px; flex: 1 1 auto; min-width: 0; width: auto; padding: 18px 20px; background: transparent; border: none; border-radius: 0; text-transform: none; letter-spacing: 0; text-align: left; cursor: pointer; }
-        .bph-resume-main::before { content: none; }
         .bph-resume-main:hover { transform: none; background: transparent; border-color: transparent; }
-        .bph-resume-reset { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; width: auto; min-width: 0; padding: 0 18px; background: transparent; border: none; border-left: 1px solid var(--glass-border); border-radius: 0; color: var(--text-muted); cursor: pointer; font: 700 11.5px/1.2 var(--bp-font); letter-spacing: 0.01em; text-transform: uppercase; white-space: nowrap; transition: color .18s ease, background-color .18s ease; }
-        .bph-resume-reset::before { content: none; }
+        .bph-resume-reset { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; width: auto; min-width: 0; padding: 0 18px; background: transparent; border: none; border-left: 1px solid var(--bp-line-control); border-radius: 0; color: var(--text-muted); cursor: pointer; font: 700 11.5px/1.2 var(--bp-font); letter-spacing: 0.01em; text-transform: uppercase; white-space: nowrap; transition: color .18s ease, background-color .18s ease; }
         .bph-resume-reset:hover { transform: none; color: #fff; background: var(--danger-color); border-color: var(--danger-color); }
         .bph-reset-ic { font-size: 13px; }
         .bph-resume-ic { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 46px; height: 46px; border-radius: 13px; background: var(--bp-accent-soft); color: var(--accent-gold-1); font-size: 20px; }
@@ -1951,7 +1956,7 @@
 
         .bph-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-bottom: 36px; }
         .bph-card { display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 20px 18px; border-radius: 16px; border: 1px solid var(--glass-border); background: var(--glass-bg); transition: transform .2s cubic-bezier(0.16,1,0.3,1), border-color .2s ease; }
-        .bph-card:hover { transform: translateY(-2px); border-color: var(--bp-accent-soft); background: var(--glass-bg); }
+        .bph-card:hover { transform: translateY(-2px); border-color: var(--bp-accent); background: var(--glass-bg); }
         .bph-card-ic { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 46px; height: 46px; border-radius: 13px; background: var(--bp-accent-soft); color: var(--accent-gold-1); font-size: 20px; }
         .bph-card-tx { display: flex; flex-direction: column; min-width: 0; }
         .bph-card-title { font-family: var(--bp-font); font-weight: 600; font-size: 16.5px; color: var(--text-main); line-height: 1.2; }
@@ -2046,7 +2051,7 @@
 
         /* — RESUME · accento oro caldo — */
         body.bp-home .bph-resume {
-            border-color: var(--bp-accent-soft);
+            border-color: var(--bp-line);
             background: var(--bp-accent-soft);
         }
         body.bp-home .bph-resume-ic {
@@ -2066,8 +2071,8 @@
             body.bp-home .bph-hero-title { font-size: 22px; }
         }
         @media (prefers-reduced-motion: reduce) {
-            body.bp-home .bph-hero::before,
-            body.bp-home .bph-hero::after,
+            /* .bph-hero::before/::after non esistono piu' (erano lo shine e la
+               sua coda): resta il pallino pulsante dell'occhiello. */
             body.bp-home .bph-eyebrow::before { animation: none; }
         }
 
@@ -2108,7 +2113,7 @@
 
         /* RESULT SECTIONS · card profonde */
         .result-section {
-            border: 1px solid var(--bp-accent-soft);
+            border: 1px solid var(--bp-line);
             background: linear-gradient(165deg, var(--bp-panel), var(--bp-panel));
             border-radius: 22px; padding: 30px 32px;
             box-shadow: 0 16px 40px -28px var(--bp-shadow-color), inset 0 1px 0 var(--bp-line);
@@ -2132,16 +2137,20 @@
            superfici di lavoro: niente glow eccessivo che disturba la lettura). */
         .step-panel .card {
             background: linear-gradient(165deg, var(--bp-panel), var(--bp-panel));
-            border: 1px solid var(--bp-accent-soft);
+            border: 1px solid var(--bp-line);
             box-shadow: 0 24px 58px -34px var(--bp-shadow-color), inset 0 1px 0 var(--bp-line);
         }
         .step-panel .card:hover { transform: none; }   /* le card-step non "saltano" come quelle home */
 
-        /* Input degli step: fill morbido a gradiente */
+        /* Input degli step: fondo incassato e bordo visibile.
+           Il fondo era `linear-gradient(--bp-line, --bp-line)`, cioe' il token
+           delle LINEE usato come superficie: appena la linea ha preso il
+           contrasto che le serviva, i campi sono diventati blocchi grigi.
+           --bp-sunken e' il ruolo giusto, esiste apposta per le aree incassate. */
         .step-panel input[type="number"], .step-panel input[type="text"],
         .step-panel input:not([type]), .step-panel select {
-            background: linear-gradient(180deg, var(--bp-line), var(--bp-line));
-            border-color: var(--bp-accent-soft);
+            background: var(--bp-sunken);
+            border-color: var(--bp-line-control);
         }
 
         /* CTA primaria: glow + lucentezza */
@@ -2151,7 +2160,7 @@
         .btn-primary-gold.btn-grande:hover { box-shadow: 0 22px 54px -16px var(--bp-accent-soft), inset 0 1px 0 var(--bp-line); }
 
         /* Tab attiva: glow oro più deciso */
-        .builder-tabs { background: var(--bp-panel); border-color: var(--bp-accent-soft); }
+        .builder-tabs { background: var(--bp-panel); border-color: var(--bp-line-control); }
         .builder-tab.active { box-shadow: none; }
 
         /* Stepper più "designed": barra premium + alone sullo step attivo */

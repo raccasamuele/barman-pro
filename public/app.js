@@ -2282,6 +2282,18 @@
 
         const STORAGE_KEY = 'barmanProState_v7';
         const BP_SETTINGS_KEY = 'bp_settings';   // preferenze (lingua/tema/auto-save), chiave separata da STORAGE_KEY
+
+        /* Il tema scelto vive qui, non nel DOM.
+           Prima veniva riletto da document.body.getAttribute('data-theme') in
+           quattro punti - ma bpApplicaTema quell'attributo lo RIMUOVE dal body
+           (i token stanno su :root). La lettura tornava sempre null, il
+           fallback era 'night', e il risultato e' che la scelta dell'utente
+           non si salvava mai: chi metteva "Chiaro" se lo ritrovava scuro al
+           riavvio, e le Impostazioni mostravano "Scuro" attivo comunque.
+           Il default e' 'light': l'app e' pensata chiara, e "Auto" resta a un
+           clic per chi vuole seguire il sistema. */
+        let bpTemaScelto = 'light';
+        let bpTemaApplicato = false;   // true quando una preferenza salvata ha gia' deciso
         let bpAutoSave = true;                   // salvataggio automatico dell'evento in corso (toggle Impostazioni, ON di default)
         let bpSaveTimer = 0;
         let bpCalcFrame = 0;
@@ -2331,7 +2343,7 @@
                     customShots: customShots,
                     customDrinks: customDrinks,
                     lingua: linguaCorrente,
-                    tema: document.body.getAttribute('data-theme') || 'night',
+                    tema: bpTemaScelto,
                     config: {
                         ospiti: _get('ospiti'),
                         drink_testa: _get('drink_testa'),
@@ -2366,6 +2378,7 @@
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
                 if (s.tema) {
                     bpApplicaTema(s.tema);
+                    bpTemaApplicato = true;
                 }
                 const _set = (id, v) => { const el = document.getElementById(id); if (el && v != null && v !== '') el.value = v; };
                 if(s.config) {
@@ -2395,7 +2408,7 @@
             try {
                 localStorage.setItem(BP_SETTINGS_KEY, JSON.stringify({
                     lingua: linguaCorrente,
-                    tema: document.body.getAttribute('data-theme') || 'night',
+                    tema: bpTemaScelto,
                     autosave: bpAutoSave ? 1 : 0
                 }));
             } catch(e) { console.warn('Salvataggio impostazioni fallito:', e); }
@@ -2408,6 +2421,7 @@
                 if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
                 if (s.tema) {
                     bpApplicaTema(s.tema);
+                    bpTemaApplicato = true;
                 }
                 if (s.autosave != null) bpAutoSave = !!s.autosave;
             } catch(e) { console.warn('Caricamento impostazioni fallito:', e); }
@@ -2419,7 +2433,7 @@
         function bpSettingsOpen() {
             const o = document.getElementById('bp-settings'); if (!o) return;
             const sel = document.getElementById('lang-selector'); if (sel) sel.value = linguaCorrente;
-            aggiornaThemeButtons(document.body.getAttribute('data-theme') || 'night');
+            aggiornaThemeButtons(bpTemaScelto);
             bpSyncAutoSaveUI();
             o.classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -2858,6 +2872,18 @@
             }
         }
 
+        /* La barra del browser deve mostrare il colore che si vede davvero.
+           In "auto" quello lo decide il sistema, negli altri due la scelta. */
+        const BP_THEME_COLOR = { light: '#f5f6f7', dark: '#111213' };
+        function bpAggiornaThemeColor(scelto) {
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (!meta) return;
+            const effettivo = scelto === 'auto'
+                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : scelto;
+            meta.setAttribute('content', BP_THEME_COLOR[effettivo]);
+        }
+
         function bpApplicaTema(tema) {
             const scelto = bpNormalizzaTema(tema);
             const root = document.documentElement;
@@ -2867,6 +2893,8 @@
             // Il vecchio attributo sul body non serve piu' a niente: se resta,
             // confonde chi legge il DOM cercando di capire quale tema e' attivo.
             document.body.removeAttribute('data-theme');
+            bpTemaScelto = scelto;
+            bpAggiornaThemeColor(scelto);
             aggiornaThemeButtons(scelto);
             return scelto;
         }
@@ -4731,10 +4759,11 @@
                 const _raw = localStorage.getItem(STORAGE_KEY);
                 if (_raw) { const _s = JSON.parse(_raw); if (_s.config && _s.config.nazione) document.getElementById('sel-nazione').value = _s.config.nazione; }
             } catch(e) {}
-            // Tema: se non c'è stato salvato, default = night (gold/dark)
-            const _temaSalvato = document.body.getAttribute('data-theme');
-            if (!_temaSalvato) { document.body.setAttribute('data-theme', 'night'); }
-            aggiornaThemeButtons(document.body.getAttribute('data-theme'));
+            // Il tema lo hanno gia' applicato caricaStato/bpLoadSettings, se
+            // ce n'era uno salvato; qui si copre solo il primo avvio, che
+            // parte dal chiaro.
+            if (!bpTemaApplicato) bpApplicaTema('light');
+            aggiornaThemeButtons(bpTemaScelto);
             aggiornaPctBevitori();
             renderizzaMenu();
             aggiungiRigaIngrediente();

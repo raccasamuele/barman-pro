@@ -6,7 +6,13 @@
     Gratuito, senza account, senza backend: tutto vive nel localStorage
     del dispositivo. Sorgente: https://github.com/raccasamuele/barman-pro
 -->
-<html lang="it">
+<!-- data-theme sta gia' nel markup, non lo mette il JavaScript.
+     Il tema salvato viene applicato dentro window.onload: senza un valore
+     qui, chi ha il sistema in scuro vedrebbe un lampo di scuro prima che
+     l'app passi al chiaro. La CSP vieta gli script inline, quindi non c'e'
+     modo di deciderlo prima del primo disegno: lo si scrive statico, e il
+     JavaScript lo cambia solo se c'e' una preferenza salvata diversa. -->
+<html lang="it" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,11 +23,13 @@
          workers.dev): senza questo, per i motori sono due pagine distinte con
          lo stesso contenuto. Tutte le altre pagine il canonical ce l'avevano. -->
     <link rel="canonical" href="https://barman-pro.raccasamuele2004.workers.dev/">
-    <!-- Il colore della barra del browser segue il tema: grigio chiarissimo
-         di giorno, quasi-nero di notte. Sono i valori di --bp-bg in app.css,
-         convertiti in sRGB: se cambiano li', vanno cambiati anche qui. -->
-    <meta name="theme-color" content="#f5f6f7" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#111213" media="(prefers-color-scheme: dark)">
+    <!-- Un solo theme-color, senza "media": qui il tema non lo decide il
+         sistema ma la preferenza salvata, e bpApplicaTema tiene questo tag
+         allineato a quello che si vede davvero. Con la coppia legata a
+         prefers-color-scheme, chi ha il sistema in scuro e l'app in chiaro
+         si ritrovava la barra del browser nera sopra una pagina bianca.
+         Il valore e' --bp-bg di app.css convertito in sRGB. -->
+    <meta name="theme-color" content="#f5f6f7">
 
     <!-- ─── Favicon e icone ─── -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
