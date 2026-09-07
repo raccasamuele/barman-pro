@@ -628,3 +628,40 @@ Gli 11 test nuovi di questa fetta sono stati provati contro il codice non corret
 la chiave non combacia, quindi il salvataggio automatico resta **acceso** in tutti i test
 che usano `openApp`. La premessa di quei test e' falsa. Non l'ho toccato perche'
 sistemarlo cambia il comportamento di test che non riguardano questa fetta.
+
+### Round 3 — Claude build · Fase 0, fetta 3 (modello canonico)
+
+Punti 1 e 2 della Fase 0, la parte per cui la fase esiste.
+
+`calcolaSpesa()` faceva tre lavori in uno — leggeva il form, calcolava, scriveva il DOM —
+e ritornava un booleano. Ora sono tre funzioni: `bpParametriDalForm()`,
+`bpCalcolaModello(p)` (pura, niente DOM e niente lingua) e `bpRenderModello(m)`.
+`calcolaSpesa()` e `stimaBudget()` restano identiche viste da fuori.
+
+`stimaBudget()` era una **seconda implementazione** della stessa matematica dei costi,
+tenuta allineata a mano da un commento che avvisava di aggiornarle entrambe. Ora e' una
+vista sul modello: non puo' piu' divergere. E' il punto 2 del piano, ottenuto togliendo
+codice invece di aggiungerne.
+
+La formula delle quantita' e' isolata in `bpQuantitaRiga(required, stock, arrotonda)`,
+fuori dal calcolo, apposta: era gia' stata scritta sbagliata una volta nella rev. 2 del
+piano. Isolata si prova con dei numeri — e il test usa proprio il caso che l'aveva
+smascherata (600 ml richiesti, 200 di scorte: ne restano 400, non 800).
+
+**Deviazione dal piano, dichiarata.** Il piano diceva `unitPrice` "per unita' base". Qui
+e' per unita' **mostrata** (litro, bottiglia, kg, pezzo). Due ragioni: un prezzo
+personalizzato lo si scrive per bottiglia, non per millilitro; e passare al millilitro
+cambierebbe l'ordine delle moltiplicazioni, dove in virgola mobile `(a*b)*c` non e' sempre
+`a*(b*c)` — su una riga al limite dell'arrotondamento a mezzo euro basta a spostare un
+totale, cioe' a rompere i golden. Il costo si calcola con la stessa associazione di prima.
+
+Seconda deviazione minore: l'unita' base del ghiaccio resta `kg` invece di `g`. Il piano
+elencava `ml / g / pezzi` come esempi; il requisito vero e' che ogni riga abbia UNA sola
+unita' e che tutte le sue quantita' vivano li', e `kg` lo soddisfa senza moltiplicare per
+mille dei numeri che poi andrebbero divisi per mille.
+
+**Prova.** **42 golden verdi senza toccare un solo valore atteso** — la condizione che il
+piano poneva all'estrazione. **92 test verdi** in totale (68 preesistenti + 24 nuovi),
+`npm run check` verde. Verifica a schermo su un caso con fermentati: righe, totale, costo
+a persona, sottotitolo e le cinque intestazioni identici. Zero errori in console.
+Cache del service worker a v3.4.0.

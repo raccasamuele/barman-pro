@@ -4299,86 +4299,6 @@
             }
         }
 
-        /* ════════════════════════════════════════════════════════════
-           STIMA COSTO VELOCE (solo numero, niente DOM) — per la stima live
-           ────────────────────────────────────────────────────────────
-           ATTENZIONE: rispecchia esattamente la matematica dei costi di
-           calcolaSpesa() (stesse tabelle prezziBase/indiciGeo, stesse formule
-           e arrotondamenti). Se cambi i prezzi/formule in calcolaSpesa,
-           aggiorna anche qui. Un test in console verifica che i due totali
-           coincidano per gli stessi input. ════════════════════════════════ */
-        function stimaBudget(p) {
-            const ospiti = parseFloat(p.ospiti) || 0;
-            const drinkTesta = parseFloat(p.drinkTesta) || 0;
-            const shotTesta = parseFloat(p.shotTesta) || 0;
-            const scarto = parseFloat(p.scarto) || 0;
-            const pct = (p.pct == null) ? 80 : (parseInt(p.pct) || 0);
-            const fascia = p.fascia || 'media';
-            const fasciaFerm = p.fasciaFerm || fascia;
-            const geoMult = indiciGeo[p.nazione] || 1;
-            const arr = c => Math.ceil(c * 2) / 2;
-
-            const ospitiAlc = Math.round(ospiti * (pct / 100));
-            const ospitiAna = Math.max(0, ospiti - ospitiAlc);
-            const mult = 1 + (scarto / 100);
-            const drinkTot = Math.ceil(ospitiAlc * drinkTesta * mult);
-            const shotTot  = Math.ceil(ospitiAlc * shotTesta  * mult);
-            const mockTot  = Math.ceil(ospitiAna * drinkTesta * mult);
-
-            const drink = p.drink || {}, mocktail = p.mocktail || {}, shot = p.shot || {};
-            let pesoD = 0; Object.keys(drink).forEach(k => pesoD += drink[k]);
-            let pesoM = 0; Object.keys(mocktail).forEach(k => pesoM += mocktail[k]);
-            let pesoS = 0; Object.keys(shot).forEach(k => pesoS += shot[k]);
-
-            const spesaA = {}, spesaN = {};
-            if (pesoD > 0 && drinkTot > 0) Object.keys(drink).forEach(nome => {
-                const qty = Math.ceil(drinkTot * (drink[nome] / pesoD));
-                (databaseDrink[nome] || []).forEach(ing => {
-                    const k = normalizzaIngrediente(ing.nome);
-                    if (ing.tipo === 'alcolico') spesaA[k] = (spesaA[k] || 0) + ing.ml * qty;
-                    else spesaN[k] = (spesaN[k] || 0) + ing.ml * qty;
-                });
-            });
-            if (pesoM > 0 && mockTot > 0) Object.keys(mocktail).forEach(nome => {
-                const qty = Math.ceil(mockTot * (mocktail[nome] / pesoM));
-                (databaseDrink[nome] || []).forEach(ing => {
-                    const k = normalizzaIngrediente(ing.nome);
-                    spesaN[k] = (spesaN[k] || 0) + ing.ml * qty;
-                });
-            });
-            if (pesoS > 0 && shotTot > 0) Object.keys(shot).forEach(nome => {
-                const qty = Math.ceil(shotTot * (shot[nome] / pesoS));
-                const k = normalizzaIngrediente(nome);
-                spesaA[k] = (spesaA[k] || 0) + 40 * qty;
-            });
-
-            let tot = 0;
-            Object.keys(spesaA).forEach(ing => { const pr = prezziBase[ing]; tot += arr((spesaA[ing] / 1000) * (pr ? pr[fascia] : 15) * geoMult); });
-            Object.keys(spesaN).forEach(ing => { const pr = prezziBase[ing]; tot += arr((spesaN[ing] / 1000) * (pr ? pr[fascia] : 2) * geoMult); });
-
-            const ferm = p.ferm || {};
-            const fermDefs = [['rosso', '_vino_rosso_bt_75cl', 5], ['bianco', '_vino_bianco_bt_75cl', 5], ['bollicine', '_bollicine_bt_75cl', 5], ['birra', '_birra_bt_33cl', 1]];
-            fermDefs.forEach(([key, pk, div]) => {
-                const v = parseFloat(ferm[key]) || 0; if (v <= 0) return;
-                const bt = (div === 1) ? Math.ceil(ospitiAlc * v) : Math.ceil((ospitiAlc * v) / div);
-                const pr = prezziBase[pk]; const prezzo = pr ? pr[fasciaFerm] : 8;
-                tot += arr(bt * prezzo * geoMult);
-            });
-
-            const drinkMostrati = pesoD > 0 ? drinkTot : 0;
-            const mockMostrati  = pesoM > 0 ? mockTot  : 0;
-            const shotMostrati  = pesoS > 0 ? shotTot  : 0;
-            const bicchieriDrinkTot = drinkMostrati + mockMostrati;
-            const kgGhiaccio = Math.ceil((bicchieriDrinkTot * 100) / 1000);
-            const pG  = prezziBase['_ghiaccio_kg']         ? prezziBase['_ghiaccio_kg'][fascia]         : 1.5;
-            const pB  = prezziBase['_bicchiere_pz']        ? prezziBase['_bicchiere_pz'][fascia]        : 0.5;
-            const pBs = prezziBase['_bicchierino_shot_pz'] ? prezziBase['_bicchierino_shot_pz'][fascia] : 0.5;
-            const pC  = prezziBase['_cannuccia_pz']        ? prezziBase['_cannuccia_pz'][fascia]        : 0.5;
-            tot += arr(kgGhiaccio * pG * geoMult) + arr(bicchieriDrinkTot * pB * geoMult)
-                 + arr(shotMostrati * pBs * geoMult) + arr(bicchieriDrinkTot * pC * geoMult);
-
-            return { totale: tot, ospiti, drinkMostrati, mockMostrati, shotMostrati };
-        }
 
         let _stimaFormFrame = 0;
         function aggiornaStimaForm() {
@@ -4407,279 +4327,347 @@
             });
         }
 
-        function calcolaSpesa(silenzioso) {
-            let ospiti = parseFloat(document.getElementById('ospiti').value) || 0;
-            let drinkTesta = parseFloat(document.getElementById('drink_testa').value) || 0;
-            let shotTesta = parseFloat(document.getElementById('shot_testa').value) || 0;
-            let scarto = parseFloat(document.getElementById('scarto').value) || 0;
+        /* ════════════════════════════════════════════════════════════
+           MODELLO CANONICO DELLA LISTA
+           ════════════════════════════════════════════════════════════
+           calcolaSpesa() faceva tre lavori in uno: leggeva il form, calcolava
+           quantita' e prezzi, e scriveva il DOM — ritornando un booleano. Non
+           esisteva nessun dato da cui partire: ne' per sottrarre le scorte, ne'
+           per applicare un prezzo personalizzato, ne' per comporre un foglio di
+           stampa. Ogni funzione che voleva quei numeri se li rileggeva dal DOM,
+           o li ricalcolava per conto suo — e' cosi' che stimaBudget e' nata
+           duplicando la matematica dei costi.
 
-            // ─── SPLIT BEVITORI / NON-BEVITORI ───────────────────────────
-            const pctBevitori = (() => {
-                const r = document.getElementById('pct-bevitori');
-                return r ? (parseInt(r.value) || 0) : 80;
-            })();
-            const ospitiAlcolici   = Math.round(ospiti * (pctBevitori / 100));
+           Adesso i tre lavori sono tre funzioni:
+             bpParametriDalForm()  legge il form
+             bpCalcolaModello(p)   calcola, e non tocca il DOM
+             bpRenderModello(m)    disegna, e non calcola
+
+           calcolaSpesa() e stimaBudget() restano quello che erano viste da
+           fuori: stessa firma, stessi numeri, stesso DOM.
+
+           ── Contratto numerico di una riga ──
+           Tutte le quantita' di una riga vivono nella SUA unita' base: mai
+           millilitri accanto a litri. I campi ci sono gia' tutti anche se le
+           scorte e i prezzi personalizzati arrivano in Fase 3, perche' la loro
+           posizione nella formula e' gia' decisa e non va reinventata:
+
+             remainingBaseQty   = max(0, requiredBaseQty - stockBaseQty)
+             roundedPurchaseQty = arrotondamento di remainingBaseQty
+             pricingQty         = remainingBaseQty
+             costo              = arrotondaCosto(quantita' * prezzo * geo)
+
+           Si sottrae PRIMA e si arrotonda DOPO. Sottrarre dalla quantita' gia'
+           arrotondata e poi riscalare il fabbisogno grezzo dava numeri
+           sbagliati: 600 ml richiesti, 1 L arrotondato e 200 ml di scorte
+           facevano pagare 480 ml quando ne restano 400.
+
+           Con stockBaseQty a 0 — cioe' oggi, e in tutti i golden — la formula
+           si riduce a pricingQty = requiredBaseQty, che e' esattamente il
+           comportamento di prima. E' questo che rende i 42 golden invarianti.
+
+           ── unitPrice: una deviazione dal piano, dichiarata ──
+           Il piano diceva "prezzo unitario per unita' base". Qui unitPrice e'
+           per unita' MOSTRATA (litro, bottiglia, kg, pezzo), per due ragioni.
+           La prima e' che un prezzo personalizzato lo si scrive per bottiglia,
+           non per millilitro. La seconda e' aritmetica: passare a un prezzo al
+           millilitro cambierebbe l'ordine delle moltiplicazioni, e in virgola
+           mobile (a*b)*c non e' sempre a*(b*c) — su una riga al limite
+           dell'arrotondamento a mezzo euro basta a spostare un totale, cioe' a
+           rompere i golden. Il costo si calcola con la stessa associazione di
+           prima; unitPrice viaggia accanto per chi dovra' mostrarlo o
+           sostituirlo. */
+
+        const BP_ARR_COSTO = c => Math.ceil(c * 2) / 2;
+
+        /* Litri mostrati: mezzo litro per eccesso, come da sempre. */
+        function bpLitriArrotondati(ml) { return Math.ceil((ml / 1000) * 2) / 2; }
+
+        /* Le tre quantita' di una riga, in un posto solo e verificabile.
+           Sta qui fuori apposta: questa formula e' gia' stata scritta
+           sbagliata una volta — sottraeva le scorte dalla quantita' GIA'
+           arrotondata e poi riscalava il fabbisogno grezzo, e con 600 ml
+           richiesti, 1 L arrotondato e 200 ml di scorte faceva pagare 480 ml
+           quando ne restano 400. Isolata, si puo' provare con dei numeri
+           invece che a occhio. */
+        function bpQuantitaRiga(requiredBaseQty, stockBaseQty, arrotonda) {
+            const req = Math.max(0, requiredBaseQty || 0);
+            const stock = Math.max(0, stockBaseQty || 0);
+            const remainingBaseQty = Math.max(0, req - stock);   // prima si sottrae
+            return {
+                requiredBaseQty: req,
+                stockBaseQty: stock,
+                remainingBaseQty,
+                roundedPurchaseQty: arrotonda ? arrotonda(remainingBaseQty) : remainingBaseQty,  // poi si arrotonda
+                pricingQty: remainingBaseQty
+            };
+        }
+
+        function bpParametriDalForm() {
+            const _v = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+            const _n = id => { const e = document.getElementById(id); return e ? (parseFloat(e.value) || 0) : 0; };
+            const _fascF = document.getElementById('sel-fascia-fermentati');
+            return {
+                ospiti: _v('ospiti'), drinkTesta: _v('drink_testa'),
+                shotTesta: _v('shot_testa'), scarto: _v('scarto'),
+                pct: (() => { const r = document.getElementById('pct-bevitori'); return r ? r.value : 80; })(),
+                nazione: _v('sel-nazione'), fascia: _v('sel-fascia'),
+                fasciaFerm: (_fascF && _fascF.value) ? _fascF.value : _v('sel-fascia'),
+                ferm: { rosso:_n('ferm_vino_rosso'), bianco:_n('ferm_vino_bianco'),
+                        bollicine:_n('ferm_bollicine'), birra:_n('ferm_birra') },
+                drink: menuSerataDrink, mocktail: menuSerataMocktail, shot: menuSerataShot
+            };
+        }
+
+        /* Pura: stessi input, stesso risultato, nessun DOM e nessuna lingua.
+           Le etichette non stanno qui — la riga porta le CHIAVI, e chi disegna
+           traduce. Cosi' il modello non cambia quando cambia la lingua. */
+        function bpCalcolaModello(p) {
+            const ospiti     = parseFloat(p.ospiti) || 0;
+            const drinkTesta = parseFloat(p.drinkTesta) || 0;
+            const shotTesta  = parseFloat(p.shotTesta) || 0;
+            const scarto     = parseFloat(p.scarto) || 0;
+            const pct        = (p.pct == null) ? 80 : (parseInt(p.pct) || 0);
+            const fascia     = p.fascia || 'media';
+            const fasciaFerm = p.fasciaFerm || fascia;
+            const nazione    = p.nazione || '';
+            const geoMult    = indiciGeo[nazione] || 1;
+
+            const ospitiAlcolici   = Math.round(ospiti * (pct / 100));
             const ospitiAnalcolici = Math.max(0, ospiti - ospitiAlcolici);
+            const mult = 1 + (scarto / 100);
+            const drinkTotali    = Math.ceil((ospitiAlcolici   * drinkTesta) * mult);
+            const shotTotali     = Math.ceil((ospitiAlcolici   * shotTesta)  * mult);
+            const mocktailTotali = Math.ceil((ospitiAnalcolici * drinkTesta) * mult);
 
-            let moltiplicatore = 1 + (scarto / 100);
-            // Cocktail/shot alcolici → bevitori; mocktail → non-bevitori (riuso drinkTesta come dose/persona).
-            let drinkTotali    = Math.ceil((ospitiAlcolici   * drinkTesta) * moltiplicatore);
-            let shotTotali     = Math.ceil((ospitiAlcolici   * shotTesta)  * moltiplicatore);
-            let mocktailTotali = Math.ceil((ospitiAnalcolici * drinkTesta) * moltiplicatore);
+            const drink = p.drink || {}, mocktail = p.mocktail || {}, shot = p.shot || {};
+            let pesoTotDrink = 0; Object.keys(drink).forEach(k => pesoTotDrink += drink[k]);
+            let pesoTotMock  = 0; Object.keys(mocktail).forEach(k => pesoTotMock += mocktail[k]);
+            let pesoTotShot  = 0; Object.keys(shot).forEach(k => pesoTotShot += shot[k]);
 
-            let pesoTotDrink = 0; let drinkSelezionati = [];
-            Object.keys(menuSerataDrink).forEach(nome => {
-                let p = menuSerataDrink[nome];
-                pesoTotDrink += p;
-                drinkSelezionati.push({nome: nome, peso: p});
-            });
-
-            let pesoTotMock = 0; let mockSelezionati = [];
-            Object.keys(menuSerataMocktail).forEach(nome => {
-                let p = menuSerataMocktail[nome];
-                pesoTotMock += p;
-                mockSelezionati.push({nome: nome, peso: p});
-            });
-
-            let pesoTotShot = 0; let shotSelezionati = [];
-            Object.keys(menuSerataShot).forEach(nome => {
-                let p = menuSerataShot[nome];
-                pesoTotShot += p;
-                shotSelezionati.push({nome: nome, peso: p});
-            });
-
-            // Input fermentati (numerici a-persona)
-            const _num = id => { const e = document.getElementById(id); return e ? (parseFloat(e.value) || 0) : 0; };
-            const calVR = _num('ferm_vino_rosso');
-            const calVB = _num('ferm_vino_bianco');
-            const calBoll = _num('ferm_bollicine');
-            const consBirra = _num('ferm_birra');
+            const ferm = p.ferm || {};
+            const calVR = parseFloat(ferm.rosso) || 0;
+            const calVB = parseFloat(ferm.bianco) || 0;
+            const calBoll = parseFloat(ferm.bollicine) || 0;
+            const consBirra = parseFloat(ferm.birra) || 0;
             const hasFerm = (calVR + calVB + calBoll + consBirra) > 0;
 
+            /* Le due condizioni di rifiuto sono quelle di prima, parola per
+               parola: cambia solo che qui si ritorna il motivo, e chi chiama
+               decide se e come mostrarlo. */
             const drinkRichiesti = drinkTotali > 0 && pesoTotDrink === 0;
             const shotRichiesti  = shotTotali  > 0 && pesoTotShot  === 0;
-
-            // Tolleranza alle nuove sezioni: l'app è valida se almeno UNO tra
-            // drink alcolici, shot, mocktail o fermentati produce output.
             const niente = (drinkTotali === 0 || pesoTotDrink === 0)
                         && (shotTotali  === 0 || pesoTotShot  === 0)
                         && (mocktailTotali === 0 || pesoTotMock === 0)
                         && !hasFerm;
             if (niente && drinkTesta === 0 && shotTesta === 0 && !hasFerm) {
-                if (!silenzioso) alert(T('alertNessunDrinkImpostato'));
-                return false;
+                return { ok:false, motivo:'alertNessunDrinkImpostato' };
             }
             if (drinkRichiesti && shotRichiesti && pesoTotMock === 0 && !hasFerm) {
-                if (!silenzioso) alert(T('alertNienteMenu'));
-                return false;
+                return { ok:false, motivo:'alertNienteMenu' };
             }
 
-            const fascia = document.getElementById('sel-fascia').value;
-            const nazione = document.getElementById('sel-nazione').value;
-            const geoMult = indiciGeo[nazione] || 1;
-            const _fascF = document.getElementById('sel-fascia-fermentati');
-            const fasciaFerm = (_fascF && _fascF.value) ? _fascF.value : fascia;
-
-            let spesaAlcolici = {}; let spesaAnalcolici = {};
-
-            if (pesoTotDrink > 0 && drinkTotali > 0) {
-                drinkSelezionati.forEach(item => {
-                    let qty = Math.ceil(drinkTotali * (item.peso / pesoTotDrink));
-                    databaseDrink[item.nome].forEach(ing => {
-                        const nomeNorm = normalizzaIngrediente(ing.nome);
-                        if(ing.tipo === 'alcolico') spesaAlcolici[nomeNorm] = (spesaAlcolici[nomeNorm] || 0) + (ing.ml * qty);
-                        else spesaAnalcolici[nomeNorm] = (spesaAnalcolici[nomeNorm] || 0) + (ing.ml * qty);
-                    });
+            const spesaAlcolici = {}, spesaAnalcolici = {};
+            if (pesoTotDrink > 0 && drinkTotali > 0) Object.keys(drink).forEach(nome => {
+                const qty = Math.ceil(drinkTotali * (drink[nome] / pesoTotDrink));
+                (databaseDrink[nome] || []).forEach(ing => {
+                    const k = normalizzaIngrediente(ing.nome);
+                    if (ing.tipo === 'alcolico') spesaAlcolici[k] = (spesaAlcolici[k] || 0) + (ing.ml * qty);
+                    else spesaAnalcolici[k] = (spesaAnalcolici[k] || 0) + (ing.ml * qty);
                 });
-            }
-
-            // ─── MOCKTAIL: ingredienti tutti analcolici → confluiscono in spesaAnalcolici ───
-            if (pesoTotMock > 0 && mocktailTotali > 0) {
-                mockSelezionati.forEach(item => {
-                    let qty = Math.ceil(mocktailTotali * (item.peso / pesoTotMock));
-                    (databaseDrink[item.nome] || []).forEach(ing => {
-                        const nomeNorm = normalizzaIngrediente(ing.nome);
-                        // Robustezza: anche se un ingrediente fosse misclassificato come alcolico,
-                        // dentro un mocktail lo trattiamo come analcolico per coerenza UI.
-                        spesaAnalcolici[nomeNorm] = (spesaAnalcolici[nomeNorm] || 0) + (ing.ml * qty);
-                    });
+            });
+            if (pesoTotMock > 0 && mocktailTotali > 0) Object.keys(mocktail).forEach(nome => {
+                const qty = Math.ceil(mocktailTotali * (mocktail[nome] / pesoTotMock));
+                (databaseDrink[nome] || []).forEach(ing => {
+                    // Anche un ingrediente classificato alcolico, dentro un
+                    // mocktail resta analcolico: coerenza con quello che si legge.
+                    const k = normalizzaIngrediente(ing.nome);
+                    spesaAnalcolici[k] = (spesaAnalcolici[k] || 0) + (ing.ml * qty);
                 });
-            }
+            });
+            if (pesoTotShot > 0 && shotTotali > 0) Object.keys(shot).forEach(nome => {
+                const qty = Math.ceil(shotTotali * (shot[nome] / pesoTotShot));
+                const k = normalizzaIngrediente(nome);
+                spesaAlcolici[k] = (spesaAlcolici[k] || 0) + (40 * qty);
+            });
 
-            if (pesoTotShot > 0 && shotTotali > 0) {
-                shotSelezionati.forEach(item => {
-                    let qty = Math.ceil(shotTotali * (item.peso / pesoTotShot));
-                    const nomeNorm = normalizzaIngrediente(item.nome);
-                    spesaAlcolici[nomeNorm] = (spesaAlcolici[nomeNorm] || 0) + (40 * qty);
-                });
-            }
+            const righe = [];
+            let totale = 0;
 
-            // ─── FERMENTATI: calcolo bottiglie/lattine ─────────────────
-            // Conv: 1 bottiglia vino/bollicine = 75 cl (≈5 calici da 150 ml) → bt = ceil((ospitiAlc × calici) / 5)
-            //       1 birra 33 cl per consumazione → bt = ceil(ospitiAlc × consumazioni)
-            const fermItems = []; // {keyPrezzo, label, bottiglie, taglia_L, totLitri, porzioni, unitKey}
-            if (calVR > 0) {
-                const bt = Math.ceil((ospitiAlcolici * calVR) / 5);
-                fermItems.push({k:'_vino_rosso_bt_75cl',   labelKey:'lblVinoRosso',   bottiglie: bt, taglia: 0.75, porzioni: Math.round(ospitiAlcolici * calVR), unitKey:'lblCalici'});
-            }
-            if (calVB > 0) {
-                const bt = Math.ceil((ospitiAlcolici * calVB) / 5);
-                fermItems.push({k:'_vino_bianco_bt_75cl',  labelKey:'lblVinoBianco',  bottiglie: bt, taglia: 0.75, porzioni: Math.round(ospitiAlcolici * calVB), unitKey:'lblCalici'});
-            }
-            if (calBoll > 0) {
-                const bt = Math.ceil((ospitiAlcolici * calBoll) / 5);
-                fermItems.push({k:'_bollicine_bt_75cl',    labelKey:'lblBollicine',   bottiglie: bt, taglia: 0.75, porzioni: Math.round(ospitiAlcolici * calBoll), unitKey:'lblCalici'});
-            }
-            if (consBirra > 0) {
-                const bt = Math.ceil(ospitiAlcolici * consBirra);
-                fermItems.push({k:'_birra_bt_33cl',        labelKey:'lblBirra',       bottiglie: bt, taglia: 0.33, porzioni: Math.round(ospitiAlcolici * consBirra), unitKey:'lblConsumazioni'});
-            }
+            /* Una riga liquida: quantita' in ml, prezzo al litro. */
+            const aggiungiLiquido = (gruppo, ingrediente, ml, prezzoDefault) => {
+                const pr = prezziBase[ingrediente];
+                const prezzoLitro = pr ? pr[fascia] : prezzoDefault;
+                const q = bpQuantitaRiga(ml, 0 /* scorte: Fase 3 */, bpLitriArrotondati);
+                // Stessa associazione di prima: ((ml/1000) * prezzo) * geo.
+                const costo = BP_ARR_COSTO((q.pricingQty / 1000) * prezzoLitro * geoMult);
+                totale += costo;
+                righe.push(Object.assign({
+                    id: 'ing:' + ingrediente, gruppo, ingrediente,
+                    baseUnit: 'ml', displayUnit: 'L', packSize: null,
+                    unitPrice: prezzoLitro * geoMult, costo
+                }, q));
+            };
+            Object.keys(spesaAlcolici).sort().forEach(i => aggiungiLiquido('alcolici', i, spesaAlcolici[i], 15));
+            Object.keys(spesaAnalcolici).sort().forEach(i => aggiungiLiquido('analcolici', i, spesaAnalcolici[i], 2));
 
-            const drinkMostrati = pesoTotDrink > 0 ? drinkTotali : 0;
-            const mocktailMostrati = pesoTotMock > 0 ? mocktailTotali : 0;
-            const shotMostrati = pesoTotShot > 0 ? shotTotali : 0;
+            /* Fermentati: l'unita' base e' la bottiglia. */
+            const fermDefs = [
+                { v:calVR,     k:'_vino_rosso_bt_75cl',  labelKey:'lblVinoRosso',  taglia:0.75, div:5, unitKey:'lblCalici' },
+                { v:calVB,     k:'_vino_bianco_bt_75cl', labelKey:'lblVinoBianco', taglia:0.75, div:5, unitKey:'lblCalici' },
+                { v:calBoll,   k:'_bollicine_bt_75cl',   labelKey:'lblBollicine',  taglia:0.75, div:5, unitKey:'lblCalici' },
+                { v:consBirra, k:'_birra_bt_33cl',       labelKey:'lblBirra',      taglia:0.33, div:1, unitKey:'lblConsumazioni' }
+            ];
+            fermDefs.forEach(d => {
+                if (d.v <= 0) return;
+                const bt = (d.div === 1) ? Math.ceil(ospitiAlcolici * d.v)
+                                         : Math.ceil((ospitiAlcolici * d.v) / d.div);
+                const pr = prezziBase[d.k];
+                const prezzoBt = pr ? pr[fasciaFerm] : 8;
+                const q = bpQuantitaRiga(bt, 0, null);   // bottiglie: gia' intere
+                const costo = BP_ARR_COSTO(q.pricingQty * prezzoBt * geoMult);
+                totale += costo;
+                righe.push(Object.assign({
+                    id: 'ferm:' + d.k, gruppo:'fermentati', ingrediente: d.k,
+                    labelKey: d.labelKey, unitKey: d.unitKey,
+                    baseUnit: 'bottiglie', displayUnit: 'bottiglie', packSize: d.taglia,
+                    porzioni: Math.round(ospitiAlcolici * d.v),
+                    unitPrice: prezzoBt * geoMult, costo
+                }, q));
+            });
+
+            const drinkMostrati    = pesoTotDrink > 0 ? drinkTotali    : 0;
+            const mocktailMostrati = pesoTotMock  > 0 ? mocktailTotali : 0;
+            const shotMostrati     = pesoTotShot  > 0 ? shotTotali     : 0;
             const bicchieriDrinkTot = drinkMostrati + mocktailMostrati;
+            const kgGhiaccio = Math.ceil((bicchieriDrinkTot * 100) / 1000);
 
+            const aggiungiExtra = (id, labelKey, qta, baseUnit, chiavePrezzo, prezzoDefault) => {
+                const pr = prezziBase[chiavePrezzo];
+                const prezzo = pr ? pr[fascia] : prezzoDefault;
+                const q = bpQuantitaRiga(qta, 0, null);
+                const costo = BP_ARR_COSTO(q.pricingQty * prezzo * geoMult);
+                totale += costo;
+                righe.push(Object.assign({
+                    id, gruppo:'extra', labelKey, ingrediente: chiavePrezzo,
+                    baseUnit, displayUnit: baseUnit, packSize: null,
+                    unitPrice: prezzo * geoMult, costo
+                }, q));
+            };
+            aggiungiExtra('extra:ghiaccio',    'ghiaccio',          kgGhiaccio,        'kg', '_ghiaccio_kg',         1.5);
+            aggiungiExtra('extra:bicchieri',   'bicchieriCocktail', bicchieriDrinkTot, 'pz', '_bicchiere_pz',        0.5);
+            aggiungiExtra('extra:bicchierini', 'bicchieriniShot',   shotMostrati,      'pz', '_bicchierino_shot_pz', 0.5);
+            aggiungiExtra('extra:cannucce',    'cannucce',          bicchieriDrinkTot, 'pz', '_cannuccia_pz',        0.5);
+
+            /* Guarnizioni: non hanno dose, quindi non hanno quantita' — e per
+               questo non accetteranno scorte, come dice il piano. */
+            const setG = new Set();
+            [].concat(Object.keys(drink), Object.keys(mocktail), Object.keys(shot))
+              .forEach(nome => { (garnishMap[nome] || []).forEach(g => setG.add(g)); });
+            Array.from(setG).forEach(g => righe.push({
+                id: 'garnish:' + g, gruppo:'garnish', garnish: g,
+                baseUnit: null, requiredBaseQty: null, stockBaseQty: null,
+                remainingBaseQty: null, roundedPurchaseQty: null,
+                pricingQty: null, unitPrice: null, costo: 0
+            }));
+
+            return {
+                ok: true, righe, totale,
+                perPersona: ospiti > 0 ? totale / ospiti : null,
+                contatori: { ospiti, drinkMostrati, mocktailMostrati, shotMostrati,
+                             bicchieriDrinkTot, kgGhiaccio },
+                meta: { nazione, fascia, fasciaFerm, geoMult }
+            };
+        }
+
+        const bpRighe = (m, g) => m.righe.filter(r => r.gruppo === g);
+
+        /* Disegna, e non calcola. Ogni stringa qui dentro e' quella di prima,
+           carattere per carattere: i golden fotografano questo testo. */
+        function bpRenderModello(m) {
+            const money = n => '€ ' + n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+            const costoSpan = costo => {
+                const cs = document.createElement('span');
+                cs.className = 'costo-voce';
+                cs.textContent = '≈ ' + money(costo);
+                return cs;
+            };
+            const litriTesto = v => (v % 1 === 0 ? v.toString() : v.toFixed(1));
+
+            const c = m.contatori;
             document.getElementById('drink-totali-text').innerHTML =
                 T('risultatiTotali')
-                    .replace('{drink}', `<strong>${drinkMostrati + mocktailMostrati}</strong>`)
-                    .replace('{shot}',  `<strong>${shotMostrati}</strong>`);
+                    .replace('{drink}', `<strong>${c.drinkMostrati + c.mocktailMostrati}</strong>`)
+                    .replace('{shot}',  `<strong>${c.shotMostrati}</strong>`);
 
-            function arrotondaLitri(ml) {
-                const v = Math.ceil((ml / 1000) * 2) / 2;
-                return v % 1 === 0 ? v.toString() : v.toFixed(1);
-            }
-
-            function appendVoce(ul, nomeDisp, litri, costo) {
-                const li = document.createElement('li');
-                const s = document.createElement('span');
-                s.textContent = nomeDisp;
-                const strong = document.createElement('strong');
-                strong.textContent = litri + ' L';
-                li.appendChild(s);
-                li.appendChild(strong);
-                if (costo > 0) {
-                    const cs = document.createElement('span');
-                    cs.className = 'costo-voce';
-                    cs.textContent = '≈ € ' + costo.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
-                    li.appendChild(cs);
+            /* Liquidi: alcolici e analcolici hanno la stessa forma. */
+            const disegnaLiquidi = (idUl, gruppo, chiaveVuoto) => {
+                const ul = document.getElementById(idUl);
+                ul.innerHTML = '';
+                const righe = bpRighe(m, gruppo);
+                if (righe.length === 0) {
+                    const li = document.createElement('li'); const s = document.createElement('span');
+                    s.textContent = T(chiaveVuoto); li.appendChild(s); ul.appendChild(li);
+                    return;
                 }
-                ul.appendChild(li);
-            }
-
-            function rigaExtra(ul, label, val, costo) {
-                const li = document.createElement('li');
-                const sp = document.createElement('span'); sp.textContent = label;
-                const st = document.createElement('strong'); st.textContent = val;
-                li.appendChild(sp); li.appendChild(st);
-                if (costo > 0) {
-                    const cs = document.createElement('span'); cs.className = 'costo-voce';
-                    cs.textContent = '≈ € ' + costo.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
-                    li.appendChild(cs);
-                }
-                ul.appendChild(li);
-            }
-
-            let budgetTot = 0;
-            const arrotondaCosto = c => Math.ceil(c * 2) / 2;
-
-            const ulAlcol = document.getElementById('lista_alcolici');
-            ulAlcol.innerHTML = '';
-            const keysAlcol = Object.keys(spesaAlcolici).sort();
-            if (keysAlcol.length === 0) {
-                const li=document.createElement('li'); const s=document.createElement('span');
-                s.textContent=T('nessunAlcolico'); li.appendChild(s); ulAlcol.appendChild(li);
-            } else {
-                keysAlcol.forEach(ing => {
-                    const ml = spesaAlcolici[ing];
-                    const p = prezziBase[ing];
-                    const costo = arrotondaCosto((ml / 1000) * (p ? p[fascia] : 15) * geoMult);
-                    budgetTot += costo;
-                    appendVoce(ulAlcol, tradIngrediente(ing), arrotondaLitri(ml), costo);
+                righe.forEach(r => {
+                    const li = document.createElement('li');
+                    const s = document.createElement('span');
+                    s.textContent = tradIngrediente(r.ingrediente);
+                    const strong = document.createElement('strong');
+                    strong.textContent = litriTesto(r.roundedPurchaseQty) + ' L';
+                    li.appendChild(s); li.appendChild(strong);
+                    if (r.costo > 0) li.appendChild(costoSpan(r.costo));
+                    ul.appendChild(li);
                 });
-            }
+            };
+            disegnaLiquidi('lista_alcolici',   'alcolici',   'nessunAlcolico');
+            disegnaLiquidi('lista_analcolici', 'analcolici', 'nessunAnalcolico');
 
-            const ulAnalcol = document.getElementById('lista_analcolici');
-            ulAnalcol.innerHTML = '';
-            const keysAnalcol = Object.keys(spesaAnalcolici).sort();
-            if (keysAnalcol.length === 0) {
-                const li=document.createElement('li'); const s=document.createElement('span');
-                s.textContent=T('nessunAnalcolico'); li.appendChild(s); ulAnalcol.appendChild(li);
-            } else {
-                keysAnalcol.forEach(ing => {
-                    const ml = spesaAnalcolici[ing];
-                    const p = prezziBase[ing];
-                    const costo = arrotondaCosto((ml / 1000) * (p ? p[fascia] : 2) * geoMult);
-                    budgetTot += costo;
-                    appendVoce(ulAnalcol, tradIngrediente(ing), arrotondaLitri(ml), costo);
-                });
-            }
-
-            // ─── BLOCCO FERMENTATI (Vini & Birre) ──────────────────────
             const blockFerm = document.getElementById('block_fermentati');
             const ulFerm = document.getElementById('lista_fermentati');
             if (ulFerm) ulFerm.innerHTML = '';
-            if (fermItems.length > 0 && ulFerm && blockFerm) {
+            const rigaFerm = bpRighe(m, 'fermentati');
+            if (rigaFerm.length > 0 && ulFerm && blockFerm) {
                 blockFerm.style.display = 'block';
-                fermItems.forEach(it => {
-                    const p = prezziBase[it.k];
-                    const prezzoBt = p ? p[fasciaFerm] : 8;
-                    // CRITICO: applica geoMult al costo unitario, come per gli altri ingredienti
-                    const costoTot = arrotondaCosto(it.bottiglie * prezzoBt * geoMult);
-                    budgetTot += costoTot;
-                    const totLitri = (it.bottiglie * it.taglia).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
-                    const taglia_L = it.taglia.toString().replace('.', ',');
+                rigaFerm.forEach(r => {
+                    const totLitri = (r.roundedPurchaseQty * r.packSize).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+                    const taglia_L = r.packSize.toString().replace('.', ',');
                     const li = document.createElement('li');
                     const nameSpan = document.createElement('span');
-                    nameSpan.textContent = T(it.labelKey) + ': ' + it.porzioni + ' ' + T(it.unitKey) + ' · ' + totLitri + ' L';
+                    nameSpan.textContent = T(r.labelKey) + ': ' + r.porzioni + ' ' + T(r.unitKey) + ' · ' + totLitri + ' L';
                     const btStrong = document.createElement('strong');
-                    btStrong.textContent = it.bottiglie + ' ' + T(it.bottiglie === 1 ? 'bottigliaSing' : 'bottiglie') + ' (' + taglia_L + ' L)';
-                    li.appendChild(nameSpan);
-                    li.appendChild(btStrong);
-                    const cs = document.createElement('span');
-                    cs.className = 'costo-voce';
-                    cs.textContent = '≈ € ' + costoTot.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
-                    li.appendChild(cs);
+                    btStrong.textContent = r.roundedPurchaseQty + ' ' + T(r.roundedPurchaseQty === 1 ? 'bottigliaSing' : 'bottiglie') + ' (' + taglia_L + ' L)';
+                    li.appendChild(nameSpan); li.appendChild(btStrong);
+                    li.appendChild(costoSpan(r.costo));
                     ulFerm.appendChild(li);
                 });
             } else if (blockFerm) {
                 blockFerm.style.display = 'none';
             }
 
-            let kgGhiaccio = Math.ceil((bicchieriDrinkTot * 100) / 1000);
-            const pGhiaccio    = prezziBase['_ghiaccio_kg']         ? prezziBase['_ghiaccio_kg'][fascia]         : 1.5;
-            const pBicchiere   = prezziBase['_bicchiere_pz']        ? prezziBase['_bicchiere_pz'][fascia]        : 0.5;
-            const pBicchierino = prezziBase['_bicchierino_shot_pz'] ? prezziBase['_bicchierino_shot_pz'][fascia] : 0.5;
-            const pCannuccia   = prezziBase['_cannuccia_pz']        ? prezziBase['_cannuccia_pz'][fascia]        : 0.5;
-            const costoGhiaccio    = arrotondaCosto(kgGhiaccio        * pGhiaccio    * geoMult);
-            const costoBicchieri   = arrotondaCosto(bicchieriDrinkTot * pBicchiere   * geoMult);
-            const costoBicchierini = arrotondaCosto(shotMostrati      * pBicchierino * geoMult);
-            const costoCannucce    = arrotondaCosto(bicchieriDrinkTot * pCannuccia   * geoMult);
-            budgetTot += costoGhiaccio + costoBicchieri + costoBicchierini + costoCannucce;
-
             const ulExtra = document.getElementById('lista_extra');
             ulExtra.innerHTML = '';
-            rigaExtra(ulExtra, T('ghiaccio'),          kgGhiaccio        + ' kg',  costoGhiaccio);
-            rigaExtra(ulExtra, T('bicchieriCocktail'), bicchieriDrinkTot + ' pz',  costoBicchieri);
-            rigaExtra(ulExtra, T('bicchieriniShot'),   shotMostrati      + ' pz',  costoBicchierini);
-            rigaExtra(ulExtra, T('cannucce'),          bicchieriDrinkTot + ' pz',  costoCannucce);
+            bpRighe(m, 'extra').forEach(r => {
+                const li = document.createElement('li');
+                const sp = document.createElement('span'); sp.textContent = T(r.labelKey);
+                const st = document.createElement('strong'); st.textContent = r.roundedPurchaseQty + ' ' + r.displayUnit;
+                li.appendChild(sp); li.appendChild(st);
+                if (r.costo > 0) li.appendChild(costoSpan(r.costo));
+                ulExtra.appendChild(li);
+            });
 
-            // ─── Da comprare a parte (guarnizioni / ingredienti di preparazione, senza dose) ───
             const ulGarnish = document.getElementById('lista_garnish');
             const blockGarnish = document.getElementById('block_garnish');
             if (ulGarnish && blockGarnish) {
-                const sceltiPerGarnish = [].concat(
-                    Object.keys(menuSerataDrink), Object.keys(menuSerataMocktail), Object.keys(menuSerataShot)
-                );
-                const setG = new Set();
-                sceltiPerGarnish.forEach(nome => { (garnishMap[nome] || []).forEach(g => setG.add(g)); });
                 ulGarnish.innerHTML = '';
-                if (setG.size) {
-                    Array.from(setG).map(traduciGarnish).sort((a,b)=>a.localeCompare(b)).forEach(label => {
+                const etichette = bpRighe(m, 'garnish').map(r => traduciGarnish(r.garnish)).sort((a, b) => a.localeCompare(b));
+                if (etichette.length) {
+                    etichette.forEach(label => {
                         const li = document.createElement('li');
                         const s = document.createElement('span'); s.textContent = label;
-                        li.appendChild(s);
-                        ulGarnish.appendChild(li);
+                        li.appendChild(s); ulGarnish.appendChild(li);
                     });
                     blockGarnish.style.display = 'block';
                 } else {
@@ -4687,28 +4675,52 @@
                 }
             }
 
-            const bbox = document.getElementById('budget-box');
-            bbox.style.display = 'block';
-            document.getElementById('budget-amount').textContent =
-                '€ ' + budgetTot.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
-            // ─── Costo a persona ───
+            document.getElementById('budget-box').style.display = 'block';
+            document.getElementById('budget-amount').textContent = money(m.totale);
             const ppEl = document.getElementById('budget-perperson');
             if (ppEl) {
-                if (ospiti > 0) {
-                    const perPersona = budgetTot / ospiti;
-                    ppEl.textContent = '≈ € ' + perPersona.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' ' + T('perPersonaTxt');
+                if (m.perPersona != null) {
+                    ppEl.textContent = '≈ ' + money(m.perPersona) + ' ' + T('perPersonaTxt');
                     ppEl.style.display = '';
                 } else {
                     ppEl.textContent = '';
                 }
             }
-            // Traduce sia "fascia" sia il valore (bassa/media/alta) → fasciaBassa/Media/Alta già nelle traduzioni
+            const fascia = m.meta.fascia;
             const _fasciaKey = 'fascia' + fascia.charAt(0).toUpperCase() + fascia.slice(1);
             document.getElementById('budget-sub').textContent =
-                nazione + ' · ' + T('budgetFasciaWord') + ' ' + (T(_fasciaKey) || fascia).toLowerCase();
+                m.meta.nazione + ' · ' + T('budgetFasciaWord') + ' ' + (T(_fasciaKey) || fascia).toLowerCase();
 
             document.getElementById('risultati').style.display = 'block';
+        }
+
+        /* Da fuori e' identica a prima: booleano, e l'avviso se manca il menu. */
+        function calcolaSpesa(silenzioso) {
+            const m = bpCalcolaModello(bpParametriDalForm());
+            if (!m.ok) {
+                if (!silenzioso) alert(T(m.motivo));
+                return false;
+            }
+            bpRenderModello(m);
             return true;
+        }
+
+        /* Era una seconda implementazione della stessa matematica, tenuta
+           allineata a mano con un commento che avvisava di aggiornare tutte e
+           due. Adesso e' una vista sul modello: non puo' piu' divergere. */
+        function stimaBudget(p) {
+            const m = bpCalcolaModello(p);
+            if (!m.ok) {
+                return { totale: 0, ospiti: parseFloat(p.ospiti) || 0,
+                         drinkMostrati: 0, mockMostrati: 0, shotMostrati: 0 };
+            }
+            return {
+                totale: m.totale,
+                ospiti: m.contatori.ospiti,
+                drinkMostrati: m.contatori.drinkMostrati,
+                mockMostrati: m.contatori.mocktailMostrati,
+                shotMostrati: m.contatori.shotMostrati
+            };
         }
 
         /* ════════════════════════════════════════════════════════════
