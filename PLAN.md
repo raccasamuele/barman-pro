@@ -467,6 +467,61 @@ cosa è possibile. Qui c'è solo il cancello e cosa deve produrre.
     **[R1] Vale finché** non si caricano miniature da Canva, non si incorpora nulla in
     iframe e non si chiama la loro API dal browser. **[R2]** `form-action 'none'` implica
     che l'avvio dell'autorizzazione **non può** essere l'invio di un form.
+#### Esito del cancello (2026-09-08) — **passato**, ma non dalla strada prevista
+
+Prova usa-e-getta eseguita sul connettore Canva dell'utente, contro l'account reale.
+Due import a confronto, letti con `read-design` per vedere cosa esce davvero.
+
+**HTML per URL — NON praticabile.** Importata una pagina pubblica del sito
+(`/quanto-ghiaccio-per-una-festa`). Il design nasce, ma:
+- `design_content` è **vuoto**: nessun elemento di testo. La pagina risulta
+  `type: "unsupported"`, senza nodi indirizzabili — niente da modificare.
+- La miniatura mostra la pagina **senza CSS**: Canva scarica il solo documento HTML e
+  **non** le sue sottorisorse. Il foglio di stile non arriva, quindi non arriva il design.
+
+**PDF — praticabile, ed è la strada.** Importato un PDF pubblico di prova: la pagina esce
+`type: "fixed"` con elementi **`type: "text"` nativi**, ciascuno con `textRegions`,
+formattazione completa (corpo, peso, colore, link) e `locator_id`. È testo vero,
+modificabile nell'editor e indirizzabile via API. Le immagini diventano `shape` con media
+sostituibile.
+
+**Autofill / Brand Template: confermato fuori portata.** La documentazione corrente ribadisce
+che l'integrazione deve agire per conto di un membro di un'organizzazione **Canva
+Enterprise**. Resta escluso, come già scritto al punto 39.
+
+**Requisiti di account: nessuno.** L'import ha funzionato su un account personale
+non-Enterprise. Il limite è 20 richieste al minuto per utente.
+
+**Due scoperte che cambiano il piano del punto 40:**
+
+1. **Non serve nessun URL pubblico.** `POST https://api.canva.com/rest/v1/imports` accetta i
+   **byte grezzi** (`Content-Type: application/octet-stream`, titolo in Base64
+   nell'intestazione `Import-Metadata`). Il Worker può inviare il PDF direttamente. È un
+   punto di privacy, non di comodità: la via per URL avrebbe richiesto di esporre il menù
+   dell'utente a un indirizzo pubblico, sia pure per poco.
+2. **Il fetcher di Canva non segue i redirect.** Il primo tentativo su
+   `…/quanto-ghiaccio-per-una-festa.html` è fallito con `fetch_failed`: Cloudflare rimanda
+   l'estensione `.html` con un 307. Stessa famiglia della trappola già nota su
+   `cache.addAll()` nel service worker.
+
+**Il problema nuovo, da risolvere prima del punto 40: l'app non sa produrre un PDF.**
+Oggi stampa con `window.print()`, che apre il dialogo di sistema e non restituisce byte.
+La strada praticabile richiede quindi un generatore di PDF che oggi non esiste — o una
+libreria lato client in un progetto che ha **zero dipendenze**, o un generatore nel Worker.
+È una decisione di prodotto, non un dettaglio realizzativo: va presa con l'utente.
+
+**Sonda ancora da fare, che potrebbe evitare del tutto il PDF:** l'HTML è stato provato solo
+**per URL**. L'API accetta anche un file HTML come byte, e la documentazione dello strumento
+menziona l'annotazione `data-document-role="page"` per gli HTML generati da agenti. Un HTML
+**autoconsistente** (CSS in linea, nessuna sottorisorsa) e annotato potrebbe produrre un
+design modificabile senza passare dal PDF. Non provato qui perché avrebbe richiesto di
+pubblicare un file su un host pubblico — cosa che il cancello dice esplicitamente di non
+fare, e che comunque lo strumento vieta per i file dell'utente.
+
+**Verdetto: il cancello è passato.** Esiste almeno una strada che produce un design
+davvero modificabile, senza Enterprise. La funzione **non** va ridiscussa; va pianificata,
+al punto 40, dopo aver deciso come nascono i byte del PDF.
+
 47. **[R1] Le promesse da riscrivere sono più di tre**: oltre a `README.md`, `PRODUCT.md` e
     `privacy.html`, anche `index.html` e i commenti in `_headers` dichiarano "nessun
     backend". Tutte, nello stesso commit, con avviso all'utente **prima** che i dati del
@@ -579,7 +634,8 @@ rilasciabile solo se, tutte insieme:
   invece di sparire.
 - **La lunghezza del link condivisibile non è nota.** È il primo passo del punto 30, non la
   verifica finale.
-- **Quale flusso Canva produce un design modificabile** non è accertato: è un cancello.
+- ~~**Quale flusso Canva produce un design modificabile** non è accertato: è un cancello.~~
+  **RISOLTO il 2026-09-08** — vedi "Esito del cancello" in fondo alla Fase 4.
 - **`app.css` è la fusione di 9 blocchi in cui l'ordine è comportamento.** Ogni intervento
   sulle regole di stampa va verificato a schermo.
 - **La navigazione va provata su un telefono vero** prima della Fase 3.

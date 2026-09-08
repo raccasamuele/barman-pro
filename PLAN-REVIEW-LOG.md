@@ -1161,3 +1161,40 @@ impedisce il ciclo se il controller cambia di nuovo. Due test, uno per ramo.
 
 **Stato:** 225 test verdi; `npm run check` verde; cache del service worker a
 v3.17.0.
+
+### Round 17 - il cancello della Fase 4 (Canva), eseguito
+
+Il punto 39 del piano chiedeva una prova usa-e-getta che stabilisse **quale flusso Canva
+produce un design davvero modificabile**, e con quali requisiti di account. Fatta contro
+l'account Canva reale dell'utente, leggendo il risultato con `read-design` invece di
+fidarsi della documentazione - che su questo punto **non dice niente**.
+
+**HTML per URL: no.** Design creato, ma `design_content` vuoto, pagina `type: "unsupported"`
+senza nodi indirizzabili, e miniatura **senza CSS**: Canva scarica il solo documento, non le
+sottorisorse.
+
+**PDF: si.** Pagina `type: "fixed"` con elementi `type: "text"` nativi, `textRegions`,
+formattazione completa e `locator_id`. Testo vero, modificabile a mano e via API.
+
+**Autofill/Brand Template**: confermato Enterprise, resta fuori. **Account**: nessun
+requisito, ha funzionato su un account personale.
+
+Due scoperte che cambiano il piano: l'API accetta i **byte grezzi**, quindi non serve
+esporre il menù dell'utente a un URL pubblico (e' un punto di privacy, non di comodita');
+e il fetcher di Canva **non segue i redirect** - il primo tentativo e' fallito sul 307 che
+Cloudflare mette sulle estensioni `.html`.
+
+**Il problema nuovo:** l'app non sa produrre un PDF. Stampa con `window.print()`, che apre
+il dialogo di sistema e non restituisce byte. Serve un generatore - libreria lato client in
+un progetto a zero dipendenze, oppure nel Worker. E' una decisione di prodotto.
+
+**Sonda ancora aperta:** l'HTML e' stato provato solo per URL. Un HTML autoconsistente
+(CSS in linea) annotato con `data-document-role="page"`, inviato come file, potrebbe dare un
+design modificabile senza passare dal PDF. Non provato: avrebbe richiesto di pubblicare un
+file su un host pubblico, cosa che il cancello dice di non fare.
+
+**Verdetto: cancello passato.** La funzione non va ridiscussa, va pianificata al punto 40 -
+che e' un secondo piano bloccato, da fare con l'utente, non un seguito automatico.
+
+Due design di prova restano nell'account Canva dell'utente: il connettore non espone
+nessuno strumento per cancellarli.
