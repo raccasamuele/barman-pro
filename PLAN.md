@@ -510,17 +510,40 @@ La strada praticabile richiede quindi un generatore di PDF che oggi non esiste �
 libreria lato client in un progetto che ha **zero dipendenze**, o un generatore nel Worker.
 È una decisione di prodotto, non un dettaglio realizzativo: va presa con l'utente.
 
-**Sonda ancora da fare, che potrebbe evitare del tutto il PDF:** l'HTML è stato provato solo
-**per URL**. L'API accetta anche un file HTML come byte, e la documentazione dello strumento
-menziona l'annotazione `data-document-role="page"` per gli HTML generati da agenti. Un HTML
-**autoconsistente** (CSS in linea, nessuna sottorisorsa) e annotato potrebbe produrre un
-design modificabile senza passare dal PDF. Non provato qui perché avrebbe richiesto di
-pubblicare un file su un host pubblico — cosa che il cancello dice esplicitamente di non
-fare, e che comunque lo strumento vieta per i file dell'utente.
+#### Seconda sonda: HTML autoconsistente — **funziona, ed è la strada migliore**
 
-**Verdetto: il cancello è passato.** Esiste almeno una strada che produce un design
-davvero modificabile, senza Enterprise. La funzione **non** va ridiscussa; va pianificata,
-al punto 40, dopo aver deciso come nascono i byte del PDF.
+Eseguita dopo che l'utente ha riferito di aver caricato a mano un file HTML su Canva e di
+averlo visto accettare. Menù sintetico (nessun dato personale) con **CSS in linea** e
+`data-document-role="page"`, servito dall'alias di preview — la produzione non è stata
+toccata, e il file è stato tolto subito dopo.
+
+Esito: **design con testo nativo**. Ogni riga è un elemento `type: "text"` indipendente con
+`locator_id`, `textRegions` e formattazione **fedele**: corpi 46/21/15/13, colori esatti
+(`#16181d`, `#5b6472`, `#3f4a63`, `#6b7280`), corsivo, spaziatura fra le lettere,
+allineamento al centro dove era al centro. Le linee dei reparti diventano `rect` del colore
+giusto. `isEditable: true`.
+
+**Il dettaglio che decide, e che nessuna documentazione dice:** `data-document-role="page"`
+va messo **sull'elemento che porta le dimensioni**, non su un contenitore che lo avvolge.
+Al primo tentativo l'annotazione stava su un wrapper senza dimensioni e Canva ha prodotto
+una pagina **1890×1122** con il contenuto da 794×1123 schiacciato in alto a sinistra e una
+fascia vuota a destra; `intended_design_type: "a4"` non basta a rimediare. Spostata
+l'annotazione sul div che ha `width`/`height`, la pagina esce **794×1123**, cioè l'A4 esatto.
+
+**Conseguenza sul piano: il PDF non serve più.** L'app già compone il menù in HTML (`#bp-menu`,
+quattro stili). Serve solo produrne una versione autoconsistente — CSS in linea, nessuna
+sottorisorsa — e inviarla come byte. Sparisce il problema del generatore PDF, e con esso la
+scelta fra una libreria in un progetto a zero dipendenze e un generatore nel Worker.
+
+**Limite noto da verificare al punto 40:** i caratteri. Il CSS della sonda chiedeva Georgia
+e Canva ha mappato su un proprio font (`fontRef`). Il Manrope dell'app quasi certamente non
+sopravvive: il menù esportato somiglierà al nostro, non sarà identico. Va deciso se
+dichiararlo all'utente o scegliere per il menù un font che Canva abbia.
+
+**Verdetto: il cancello è passato**, e per la strada migliore delle due. Esiste un percorso
+che produce un design davvero modificabile, senza Enterprise, **senza PDF** e **senza
+esporre il menù a un URL pubblico** (l'API prende i byte). La funzione non va ridiscussa:
+va pianificata al punto 40.
 
 47. **[R1] Le promesse da riscrivere sono più di tre**: oltre a `README.md`, `PRODUCT.md` e
     `privacy.html`, anche `index.html` e i commenti in `_headers` dichiarano "nessun

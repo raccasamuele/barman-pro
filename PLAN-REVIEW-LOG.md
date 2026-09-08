@@ -1198,3 +1198,31 @@ che e' un secondo piano bloccato, da fare con l'utente, non un seguito automatic
 
 Due design di prova restano nell'account Canva dell'utente: il connettore non espone
 nessuno strumento per cancellarli.
+
+### Round 18 - la sonda HTML autoconsistente: funziona, e cancella il problema del PDF
+
+L'utente ha riferito di aver caricato a mano un file HTML su Canva e di averlo visto
+accettare, e ha chiesto di provare la sonda rimasta aperta nel Round 17.
+
+Menù sintetico con CSS in linea e `data-document-role="page"`, servito dall'**alias di
+preview** (pubblico ma separato dalla produzione, che non e' stata toccata); file rimosso
+subito dopo, mai entrato in un commit.
+
+**Funziona.** Ogni riga esce come `type: "text"` con `locator_id` e formattazione fedele -
+corpi, colori esatti, corsivo, spaziatura fra le lettere, allineamento. Le linee dei reparti
+diventano `rect`. Testo vero, non immagine.
+
+**Il dettaglio che decide, non documentato da nessuna parte:** l'annotazione va
+sull'elemento che PORTA le dimensioni. Al primo colpo stava su un wrapper senza dimensioni e
+Canva ha prodotto una pagina 1890x1122 con il contenuto da 794x1123 in alto a sinistra e una
+fascia vuota a destra - `intended_design_type: "a4"` non rimedia. Spostata sul div con
+`width`/`height`: pagina 794x1123, l'A4 esatto.
+
+**Conseguenza: il problema aperto nel Round 17 sparisce.** Non serve nessun generatore di
+PDF, quindi non serve decidere fra una libreria in un progetto a zero dipendenze e un
+generatore nel Worker. L'app compone gia' il menu' in HTML: basta produrne una versione
+autoconsistente.
+
+**Limite nuovo, da verificare al punto 40:** i caratteri. Canva mappa su un proprio font; il
+Manrope dell'app quasi certamente non sopravvive. Il menu' esportato somigliera' al nostro,
+non sara' identico.
