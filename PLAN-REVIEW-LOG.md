@@ -1226,3 +1226,194 @@ autoconsistente.
 **Limite nuovo, da verificare al punto 40:** i caratteri. Canva mappa su un proprio font; il
 Manrope dell'app quasi certamente non sopravvive. Il menu' esportato somigliera' al nostro,
 non sara' identico.
+
+### Round 19 - il punto 40 sciolto, e una conclusione del Round 18 corretta
+
+Nessuna review avversariale: qui si scrive il secondo piano bloccato, non si difende il primo.
+Tutti i riferimenti di riga riletti nel codice, non ricordati.
+
+**Correzione al Round 18.** La conclusione "i byte vanno diretti all'API, quindi il menu' non
+deve mai comparire a un URL pubblico" mescolava due prove distinte: i **byte** erano stati
+provati **col PDF**, l'**HTML** era passato **per URL** (alias di preview). I doc REST del
+design import elencano ai, psd, affinity, key/numbers/pages, xls(x), ppt(x), doc(x),
+odg/odp/ods/odt e pdf — **HTML non c'e'**, e il changelog non lo aggiunge (l'unico HTML che
+nomina e' in *export*). Il connettore MCP invece dichiara HTML fra i formati accettati, e
+pretende comunque un URL pubblico.
+
+Non e' un dubbio sul "se" — Canva l'HTML lo prende, e produce testo nativo: quello resta
+verificato. E' un dubbio sul **da dove**, e decide la promessa di privacy: a byte il menu'
+**transita**, per URL deve **persistere** ed essere raggiungibile per qualche minuto. E'
+diventato il test **T0.1**, primo atto della costruzione.
+
+**Cosa e' stato verificato oggi, sui doc e nel codice:**
+- `run_worker_first` accetta l'array di glob (`["/api/*"]`), max 100 voci.
+- `public/sw.js` **non ha nessun `/api`**: il ramo `req.mode === 'navigate'` intercetta ogni
+  navigazione di primo livello e **mette la risposta in cache**. Il callback OAuth e' una
+  navigazione di primo livello: senza il salto, `code` e `state` finiscono nella Cache Storage
+  del browser. Fuga vera, non teorica.
+- La CSP ha `form-action 'none'`: l'avvio dell'autorizzazione non puo' essere un form. Da qui
+  la forma "POST poi `location.assign`".
+- `wrangler.jsonc` non ha `main`, quindi il Worker va aggiunto; e `src/` deve stare **fuori**
+  da `public/`, che e' l'unica directory pubblicata.
+- Lo stile del menu' e' in `app.css:1753-1917` (~13 KB) sui token `--bpm-*` e una ventina di
+  `--bp-*`; il markup lo produce `bpMenuRender()` (app.js:5054) con quattro stili
+  (app.js:5024) e le colonne scelte da `_bpmCols()` (app.js:5049).
+- Le promesse "nessun backend" da riscrivere sono **sei** file, con le righe esatte in 40.10.
+
+**Idea che ha semplificato il piano.** Il ritorno del flusso e' un **302 verso l'URL di
+modifica su Canva**: l'utente atterra nel proprio design e nessun token, nessun URL di Canva
+tocca mai il nostro JavaScript. Sulla strada A questo permette tre fasi con il solo cookie
+cifrato e **nessun archivio**: il menu' transita in memoria e non viene mai scritto.
+
+**Limite noto confermato:** i caratteri. Resta una decisione di prodotto (40.12), non un
+ostacolo.
+
+### Round 19b - le tre decisioni aperte, chiuse dall'utente
+
+1. **Carattere**: si sceglie una famiglia che Canva ha gia', non si dichiara il rimpiazzo.
+2. **Sfondamento**: si avvisa e sceglie l'utente fra rimpicciolire il testo e piu' pagine.
+3. **Bottone**: nella barra del menu' accanto a "Stampa / PDF", non nella schermata dei
+   risultati.
+
+**Due letture del CSS hanno cambiato il piano che avevo appena scritto.**
+
+- **Tutti e quattro gli stili usano lo stesso font** (`var(--bp-font)`, Manrope): si
+  distinguono per colore, fondo, filetti e ornamenti, non per tipografia. La decisione 1 e'
+  una sostituzione, non quattro.
+- **Correzione a 40.8.** Avevo scritto di "forzare la tavolozza chiara nell'export, altrimenti
+  chi usa il tema scuro esporta un menu' nero". E' **sbagliato**: ogni stile definisce i
+  propri `--bpm-*` al proprio interno, quindi la tavolozza del menu' **non dipende dal tema
+  dell'app** — `elegant` (#14120f), `chalk` (#1c2420) e `festa` sono scuri per scelta, e
+  forzare il chiaro li avrebbe snaturati. Dai token dell'app entrano nel canvas **solo**
+  `--bp-font` e `--bp-shadow-color`. Trovato rileggendo app.css:1753-1917, non ragionandoci
+  sopra.
+
+**Aggiunto T0.3**: la famiglia non si sceglie a intuito. Un HTML con la stessa riga in sei
+famiglie candidate, un import, e `read-design` a dire quali tornano col nome chiesto. Costa un
+design usa-e-getta da cancellare a mano (il connettore non li elimina).
+
+**Sullo sfondamento, la trappola di misura**: il canvas a schermo e' `min(560px, 94vw)` ×
+`74vh`, cioe' **non e' un A4**. Misurarlo li' vorrebbe dire misurare la cosa sbagliata — la
+stessa forma dei sei test verdi per il motivo sbagliato. La misura va fatta su un contenitore
+fuori schermo 794x1123 col CSS dell'export.
+
+**Sul bottone, una trappola che NON scatta**: `cambiaLingua()` traduce per indice solo i
+bottoni della schermata risultati; quelli della barra del menu' portano `data-i18n` e si
+traducono per chiave. Verificato prima di scriverlo, non dato per buono.
+
+### Round 20 - Codex rivede la Fase 4: VERDICT:REVISE, nove rilievi
+
+Revisione avversariale in sola lettura (`codex exec --sandbox read-only`, `sandbox_mode`
+forzato perche' `~/.codex/config.toml` ha `[windows] sandbox = "elevated"`), `gpt-5.6-sol` a
+`model_reasoning_effort=xhigh`, thread `01a08049-ada2-7b63-b04a-508173ef1ff6`. Ambito: solo
+40.0-40.14. Nove rilievi, tutti marcati DEFECT. **Nessuno ancora applicato.**
+
+**Verificati da me nel codice prima di accettarli** (regola del progetto: Codex ha quasi
+sempre ragione, ma non sempre).
+
+#### Il rilievo che vale piu' della Fase 4: un difetto in PRODUZIONE
+
+Codex, arrivandoci da un ragionamento sulla misura dello sfondamento, nota che il repository
+**non ha nessun `@font-face`**. Verificato: `grep -rn "@font-face" public/` non trova niente.
+`--bp-font` (app.css:69) chiede `'Manrope'`, sei pagine fanno `<link rel="preload">` del
+woff2, `sw.js:44-45` precacha entrambi i file - e **nessuno dichiara mai la faccia**.
+
+Provato sulla produzione con il browser:
+- `document.fonts.size` = **0**, nessuna regola registrata;
+- `font: 700 40px Manrope` misura **137px**, esattamente come una famiglia inventata
+  (`ZzqxInesistente`, 137px), e diverso da `system-ui` (154px) - quindi Manrope **non c'e'**;
+- la console lo dice da se': *"was preloaded using link preload but not used"*.
+
+**L'app non ha mai reso in Manrope.** Cade su `system-ui` (Segoe UI su Windows), e scarica
+~40 KB di font a ogni prima visita per non usarli.
+
+⚠️ Nota di metodo: `document.fonts.check('16px Manrope')` risponde **`true`**. E' un falso
+positivo noto. Chi avesse "verificato" con quello avrebbe concluso che il font c'e'. Ha
+esattamente la forma della trappola dei `fontRef` distinti in T0.3: il controllo comodo dice
+di si', la misura dice di no.
+
+#### Un mio "verificato" che non lo era
+
+In 40.12 avevo scritto: *"Verificato che qui non scatta la trappola dell'i18n a indici:
+`cambiaLingua()` traduce per posizione solo i bottoni della schermata risultati"*. **Falso.**
+Quel blocco **non esiste piu'**: la Fase 1 lo ha rimosso, e app.js:1817-1831 documenta perche'
+(sovrascriveva i `data-i18n` gia' corretti e rinominava la terza `.result-section h3`). Oggi
+si traduce solo per chiave, app.js:1792-1813.
+
+La conclusione operativa reggeva - aggiungere il bottone e' sicuro - ma **il motivo era una
+memoria vecchia, non il codice**, ed era etichettato come verificato. E' esattamente la
+categoria di errore contro cui questo repository ha una regola.
+
+#### Gli altri sette, in breve
+
+2. **40.5** - la diagnosi del service worker e' giusta (sw.js:93-110 cachea il callback), ma
+   il mio frammento usa `url` **prima** che sia dichiarato (sw.js:80): andrebbe in eccezione.
+   E il progetto `worker` erediterebbe `serviceWorkers: 'block'` dal `use` globale
+   (playwright.config.js:38-41), piu' `webServer` e' un oggetto solo, non un array.
+3. **40.3/40.4** - il "colpo singolo" non e' garantito: se l'utente chiude la scheda dopo il
+   callback la fase 3 non arriva, e **il token resta valido** (fino a 4 ore); il refresh token
+   e' gia' stato buttato, quindi non si puo' nemmeno revocare. Fix piu' pulito del mio:
+   **non scambiare il codice nel callback** - tenere `{code, code_verifier}` cifrati nel
+   cookie e scambiare dentro `/importa`, dove il token nasce e muore nella stessa richiesta.
+4. **40.4/B** - KV **non ha un get-and-delete atomico** e le scritture possono restare
+   invisibili per 60s a un'altra edge location: il fetcher di Canva e' un altro client, quindi
+   "in mezzo c'e' la schermata di consenso" non e' un argomento di correttezza. O Durable
+   Object, o si smette di chiamarlo "monouso".
+5. **40.0/T0** - l'import e' **asincrono**: accettato non vuol dire riuscito, puo' finire
+   `invalid_file`. T0.1 deve fare polling fino allo stato terminale, e provare l'envelope
+   esatto (`mime_type: "text/html"`). E la mia frase "cambia solo 40.4 e una rotta" e' falsa:
+   B vuole anche un binding, configurazione di preview, test di fallimento diversi e un testo
+   di privacy diverso.
+6. **40.8** - la funzione non puo' essere "pura" e insieme leggere il DOM vivo (e leggerlo
+   **serve**: le modifiche dell'utente vivono solo nei nodi). Un clone **non porta gli
+   pseudo-elementi**, e tre stili su quattro ci appendono gli ornamenti. E `clamp(28px, 6vw,
+   40px)` si risolve sul **viewport**, non sul contenitore da 794.
+7. **40.12/2** - la misura dello sfondamento non e' affidabile finche' il font non e' caricato
+   (e vedi sopra: oggi non lo e' mai), e non ho detto cosa fare di **una sola categoria piu'
+   alta di una pagina**.
+8. **40.7** - `Content-Length` da solo non e' un limite: si puo' omettere. Serve contare i
+   byte mentre si legge.
+9. **40.2 vs 40.4** - contraddizione interna mia: dico che l'URL di modifica non tocca mai il
+   JavaScript, e poi la strada A lo restituisce come `{editUrl}` al JavaScript. E le stringhe
+   nuove sono almeno **quattordici**, non nove.
+
+Codex conferma invece sani: `wrangler.jsonc` senza `main` e con solo `public` pubblicata,
+`form-action 'none'`, i quattro stili sullo stesso token di font, le tavolozze indipendenti
+dal tema, la posizione del bottone.
+
+### Round 21 - i nove rilievi applicati
+
+Tutti e nove recepiti in PLAN.md, ognuno marcato **[R20-n]** nel punto in cui corregge.
+Nessuno respinto: verificati uno per uno nel codice prima di applicarli, e avevano tutti
+ragione. Quindici richiami nel testo.
+
+Le tre correzioni che cambiavano la sostanza, non la formulazione:
+
+1. **Il codice non si scambia piu' nel callback.** Era il rilievo migliore. Tenendo
+   `{code, code_verifier}` nel cookie e scambiando dentro `/importa`, il token nasce e muore
+   nella stessa richiesta: sparisce la finestra in cui una scheda chiusa lasciava un token
+   valido per quattro ore senza modo di revocarlo.
+2. **KV non puo' fare "monouso"** (nessun get-and-delete atomico, propagazione fino a 60s
+   verso un'altra edge location, e il fetcher di Canva e' proprio un altro client). O Durable
+   Object, o si abbassa la promessa. Non si tiene KV e la parola.
+3. **"Il menu' non viene mai scritto da nessuna parte" era falso**: sta in `sessionStorage`
+   per tutto il giro, e alla fine Canva conserva il design. La frase giusta e' piu' stretta —
+   *il Worker non ne conserva copia*. Con essa e' cresciuto l'inventario di 40.10, dove mi
+   erano sfuggite le due promesse che la Fase 4 rompe di piu': "non installa cookie" e
+   "non condivide niente con nessuno" (privacy.html:70-74 e :150-156).
+
+Piu' sei correzioni tecniche: il salto `/api/` andava **dopo** la dichiarazione di `url` (come
+lo avevo scritto rompeva il service worker per intero), il progetto Playwright nuovo eredita
+`serviceWorkers: 'block'` e `webServer` deve diventare un array, `Content-Length` va affiancato
+dal conteggio dei byte, l'export non puo' essere una funzione pura ne' portarsi dietro `vw` e
+`clamp()` e gli pseudo-elementi, la misura dello sfondamento e' inaffidabile a font non
+caricato, e le stringhe i18n sono **diciotto**, non nove, ora elencate per chiave.
+
+E una correzione a un mio "✔️ Verificato" che non lo era: il blocco i18n posizionale
+**non esiste piu'** dalla Fase 1 (app.js:1817-1831 spiega la rimozione). La conclusione
+reggeva, la premessa no, e l'etichetta era falsa.
+
+**Fase 4 parcheggiata qui su richiesta dell'utente.** Nessun codice della Fase 4 scritto:
+`main` non esiste, non c'e' nessuna rotta `/api/`, nessuna integrazione Canva registrata.
+Restano aperte due decisioni: la famiglia tipografica (Montserrat o Poppins fra le sette
+verificate) e quale delle tre uscite di 40.13 sulla revisione Canva.

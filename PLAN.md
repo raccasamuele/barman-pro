@@ -541,9 +541,528 @@ sopravvive: il menù esportato somiglierà al nostro, non sarà identico. Va dec
 dichiararlo all'utente o scegliere per il menù un font che Canva abbia.
 
 **Verdetto: il cancello è passato**, e per la strada migliore delle due. Esiste un percorso
-che produce un design davvero modificabile, senza Enterprise, **senza PDF** e **senza
-esporre il menù a un URL pubblico** (l'API prende i byte). La funzione non va ridiscussa:
-va pianificata al punto 40.
+che produce un design davvero modificabile, senza Enterprise e **senza PDF**. La funzione non
+va ridiscussa: va pianificata al punto 40.
+
+⚠️ **Correzione del 2026-09-08.** Questo verdetto diceva anche "senza esporre il menù a un URL
+pubblico (l'API prende i byte)", e quella meta' non regge: i byte sono stati provati **col PDF**,
+mentre l'HTML e' passato **per URL**. I doc REST non elencano HTML fra i formati del design
+import. Chi decide fra le due vie e' il test **T0.1** in apertura di costruzione — vedi 40.0.
+
+---
+
+## FASE 4 — piano di costruzione (punto 40 sciolto, rev. 7 · 2026-09-08)
+
+Il cancello e' passato: la strada e' **HTML autoconsistente**, il PDF esce dal piano. Quello
+che segue e' il secondo piano bloccato chiesto al punto 40. Tutti i riferimenti di riga sono
+stati riletti nel codice oggi, non ricordati.
+
+### 40.0 L'unica incognita rimasta, e perche' cambia la forma del piano
+
+La sonda del Round 18 e' passata **per URL**: il menu' e' stato servito dall'alias di preview
+e Canva l'ha scaricato. L'invio a **byte grezzi** e' stato provato **solo col PDF**. E i
+formati elencati dai doc REST per il design import — ai, psd, affinity, key/numbers/pages,
+xls(x), ppt(x), doc(x), odg/odp/ods/odt, pdf — **non includono HTML**; il changelog non lo
+aggiunge (l'unico HTML che nomina e' in *export*). Il connettore MCP invece dichiara HTML fra
+i formati che accetta, e pretende comunque un URL pubblico.
+
+Non e' un dubbio sul "se": Canva l'HTML lo prende, verificato. E' un dubbio sul **da dove**, e
+non e' cosmetico:
+
+- **Strada A — byte.** Il menu' **transita** dal Worker e non viene scritto da nessuna parte.
+  Nessuna archiviazione, nessun URL.
+- **Strada B — URL.** Il menu' deve **persistere** fra il callback e il momento in cui il
+  fetcher di Canva viene a prenderlo, e per quella finestra e' raggiungibile a un indirizzo.
+  Servono un archivio con TTL e un token monouso.
+
+Cambia la promessa di privacy da scrivere al punto 47, non solo l'endpoint. Quindi:
+
+**T0 — primo test della costruzione, prima di scrivere qualunque altra riga.**
+- **T0.1** `POST https://api.canva.com/rest/v1/imports` con l'envelope **esatto** che
+  userebbe la produzione: corpo HTML, `Content-Type: application/octet-stream`, titolo in
+  Base64 e **`mime_type: "text/html"`** nell'intestazione `Import-Metadata` (piu' la
+  variante che lo omette, se si vuole affidarsi al riconoscimento automatico).
+  ⚠️ **[R20-3] Accettato non vuol dire riuscito.** L'import e' **asincrono**: la risposta
+  immediata apre un lavoro che puo' finire `invalid_file` piu' tardi. Il criterio non e' il
+  codice di stato: si fa **polling fino allo stato terminale**, e poi si verifica che la
+  pagina esca 794×1123 con elementi `type: "text"` modificabili. Solo allora → **strada A**.
+- **T0.2** Solo in strada B: `POST /rest/v1/url-imports` con `mime_type: text/html` verso
+  `/api/canva/doc/<token>`. Verificare che il fetcher accetti un token in percorso o query.
+  ⚠️ **Il fetcher di Canva non segue i redirect** (accertato nella prima sonda: `.html` con
+  307 → `fetch_failed`): l'URL deve rispondere 200 al primo colpo.
+  E va registrato **quante volte** Canva chiede il documento e con quale metodo: se lo
+  chiede piu' di una volta, "monouso" e' irrealizzabile a prescindere dall'archivio.
+
+- ~~**T0.3 — quali famiglie Canva riconosce.**~~ **ESEGUITO il 2026-09-08, esito in 40.12.**
+  Due import dall'alias di preview `sondafont`, poi il file rimosso: 404 su preview e
+  produzione, mai entrato in un commit. Restano due design usa-e-getta da cancellare a mano.
+
+T0 costa una chiamata con un token vero.
+
+⚠️ **[R20-3b] Correzione:** avevo scritto che fra le due strade "cambia solo 40.4 e una
+rotta". **Falso, e minimizzava.** La strada B vuole in piu': un archivio da fornire e
+configurare (binding, ambiente di preview), semantica di consumo atomica (40.4), una
+famiglia diversa di test di fallimento, e **un testo di privacy diverso** — perche' li' un
+archivio temporaneo dei dati esiste. Non e' una variante: e' un secondo progetto piu'
+piccolo. Ragione in piu' perche' T0.1 sia il primo atto.
+
+### 40.1 Dove vive il Worker
+
+`wrangler.jsonc` oggi **non ha `main`**: e' Workers Assets puro. Diventa:
+
+```jsonc
+"main": "src/worker.js",
+"assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+}
+```
+
+`run_worker_first` accetta l'array di glob (verificato oggi sui doc Cloudflare, max 100 voci).
+
+⚠️ **`src/` deve stare FUORI da `public/`.** `public/` e' l'unica directory pubblicata: un
+`worker.js` messo li' dentro sarebbe **scaricabile**. E' la stessa disciplina per cui test e
+script stanno fuori.
+
+**Prova di non-regressione, prima di aggiungere qualunque rotta:** con `main` presente ma il
+Worker che passa tutto ad `ASSETS`, le 4 pagine SEO, `/privacy`, `/sw.js`, `/manifest.json` e
+i font devono rispondere **identici** — stesso stato, stessi header di `_headers`. Il precache
+del service worker e' atomico: un solo 404 lo azzera in silenzio.
+
+### 40.2 Contratto delle rotte
+
+Tutto sotto `/api/canva/`. Nient'altro esiste.
+
+| metodo | percorso | chi chiama | cosa fa |
+|---|---|---|---|
+| POST | `/api/canva/start` | l'app, con `fetch` | apre la sessione, restituisce `{ authorizeUrl }` |
+| GET | `/api/canva/callback` | il browser, navigazione dal dominio Canva | verifica `state`, **mette in salvo il codice**, rimanda all'app |
+| POST | `/api/canva/importa` | l'app, con `fetch` | **[A]** scambia il codice, manda i byte, attende, revoca, risponde `{ editUrl }` |
+| GET | `/api/canva/doc/<token>` | **il fetcher di Canva** | **[B]** serve il menu' |
+
+**Perche' `start` e' un POST seguito da `location.assign`, e non un form.** La CSP dice
+`form-action 'none'`: l'avvio dell'autorizzazione **non puo'** essere l'invio di un form. E
+passare il menu' in query string sarebbe comunque sbagliato. L'app fa POST, riceve l'URL di
+autorizzazione, e ci naviga.
+
+⚠️ **Correzione [R20-9].** Una prima stesura diceva che l'URL di modifica "non passa mai dal
+JavaScript" perche' il flusso finisce con un 302 verso Canva, **e nella stessa pagina** faceva
+restituire `{ editUrl }` alla fase 3, cioe' al JavaScript. Contraddizione mia. La versione
+buona, con lo scambio spostato in `/importa` (40.4):
+
+- **Strada A**: `/importa` risponde **JSON** con l'URL di modifica, e l'app ci naviga. L'URL
+  passa dal JavaScript — e va bene: e' un indirizzo di Canva valido 30 giorni **per quel solo
+  utente**, non una credenziale. Cio' che non deve mai toccare il JavaScript sono **codice,
+  token e cookie**, e quelli restano nel Worker e nel cookie cifrato.
+- **Strada B**: li' si', il callback puo' finire con un 302 diretto, perche' l'import parte
+  dal callback.
+
+### 40.3 OAuth — Authorization Code + PKCE (S256)
+
+- `client_secret` con `wrangler secret put CANVA_CLIENT_SECRET`. **Mai nel repo**, mai in
+  `wrangler.jsonc`.
+- `code_verifier` e `state`: 32 byte casuali ciascuno, generati **lato server**, base64url.
+- Lo scambio del codice e' autenticato **Basic** con `client_id:client_secret` — non puo'
+  partire dal browser, ed e' il motivo per cui il Worker esiste.
+- `state` verificato **una volta sola**; il cookie di sessione riscritto nella stessa
+  risposta. Un callback ripetuto trova uno stato che non combacia e riceve un errore.
+- Scope: **`design:content:write`** ("Create designs on the user's behalf"), che e' il minimo
+  per creare un design. Da confermare al primo errore reale di T0.1, non dato per certo.
+- Limiti noti: **20 richieste al minuto per utente**; l'URL di modifica restituito vale **30
+  giorni** ed e' accessibile **solo all'utente che ha fatto la richiesta**.
+
+#### ⚠️ Il "colpo singolo" com'era scritto non era garantito **[R20-1]**
+
+Una prima stesura faceva scambiare il codice **nel callback** e teneva il token di accesso nel
+cookie fino alla fase 3. Rotture vere, non teoriche:
+
+- **Se l'utente chiude la scheda dopo il callback**, la fase 3 non arriva mai. La scadenza del
+  cookie non revoca niente: il token di accesso resta valido su Canva **fino a 4 ore**.
+- **Il refresh token era gia' stato buttato**, quindi non restava nemmeno il modo di revocare
+  la sessione — e su Canva e' la revoca del refresh token che chiude la discendenza.
+- **Due `/importa` in parallelo** potevano decifrare lo stesso cookie prima che l'uno o
+  l'altro lo cancellasse: doppio import.
+
+**La forma corretta: il codice non si scambia nel callback.**
+
+1. `start` → cookie cifrato con `{state, code_verifier}`.
+2. `callback` → verifica `state`, e mette nel cookie `{code, code_verifier}`. **Non chiama
+   Canva.** Il codice di autorizzazione e' monouso e a vita brevissima: se resta orfano
+   scade da solo senza aver mai autorizzato niente.
+3. `importa` → scambia il codice, ottiene i due token, importa, e **in un `finally` revoca il
+   refresh token**. Nascita e morte della sessione stanno **nella stessa richiesta**: non
+   esiste una finestra in cui un token nostro sopravvive a una scheda chiusa.
+
+**Custodia del cookie**, da scrivere e non lasciare implicito: cifratura autenticata
+**AES-GCM** con chiave da `wrangler secret put CANVA_COOKIE_KEY`, **envelope versionato**
+(`v1.<iv>.<ciphertext>`) cosi' un cambio di formato non fa esplodere i cookie vecchi, **numero
+massimo di frammenti** dichiarato e verificato in lettura, e rifiuto se ne manca uno.
+
+**Difesa della fase 3**, che e' una POST con cookie e quindi attaccabile da un'altra origine:
+verifica dell'**`Origin` esatto** e di un'intestazione personalizzata legata alla sessione —
+`SameSite=Lax` copre la navigazione del callback ma **non** basta da solo su una POST.
+
+### 40.4 Dove vive lo stato attraverso il redirect
+
+**Strada A — nessun archivio.** Tre fasi come in 40.3: `{state, verifier}` → `{code, verifier}`
+→ scambio e import nella stessa richiesta. Il cookie e' `__Host-bpc`, `HttpOnly`, `Secure`,
+`SameSite=Lax`, `Path=/`, TTL 10 minuti, spezzato in piu' frammenti se serve.
+
+Il menu' **resta nella pagina** in `sessionStorage` fino alla fase 3.
+
+⚠️ **Correzione [R20-2]: "il menu' non viene mai scritto da nessuna parte" era una frase
+falsa**, e l'avevo scritta due volte. Il menu' **viene scritto**: in `sessionStorage`, dal
+browser, per il tempo del giro. E alla fine **Canva conserva il design**, che e' lo scopo
+della funzione. La proprieta' vera, piu' stretta e piu' onesta:
+
+> **Il Worker non ne conserva nessuna copia.** Il menu' lo attraversa in memoria durante la
+> fase 3 e non viene scritto in nessun archivio nostro.
+
+`sessionStorage` sopravvive al ricaricamento e muore alla chiusura della scheda: ricaricare a
+meta' flusso si recupera, chiudere la scheda no. Va detto nel testo di 40.10, non lasciato
+scoprire.
+
+**Strada B — archivio con TTL. [B]**
+`start` riceve il menu', genera un token, lo archivia con TTL 10 minuti; il callback scambia
+il codice e chiama `url-imports` puntando a `/api/canva/doc/<token>`, che risponde `no-store`,
+`X-Robots-Tag: noindex`.
+
+⚠️ **Correzione [R20-4]: con Workers KV la rotta "monouso" non e' realizzabile.** KV **non ha
+un get-and-delete atomico**, e una scrittura o una cancellazione puo' restare invisibile per
+60 secondi o piu' a un'altra edge location. Il fetcher di Canva **e'** un altro client in
+un'altra location: il mio argomento "in mezzo c'e' la schermata di consenso, quindi passano
+secondi" non e' un argomento di correttezza, e' una speranza sulla latenza.
+
+Quindi, se si finisce in B, delle due l'una:
+- **Durable Object**, che consuma in modo atomico e scade con `alarm()` — previa verifica che
+  il piano lo consenta; oppure
+- si **abbassa la promessa** da "monouso" a *"indirizzo non indovinabile, valido al massimo
+  dieci minuti"*, e la si scrive cosi' anche nella privacy.
+
+Non si tiene KV **e** la parola "monouso": e' quella la combinazione che non esiste.
+
+### 40.5 Il service worker deve saltare `/api/`
+
+Oggi in `public/sw.js` **non c'e' nessun `/api`**: il gestore `fetch` ha un ramo
+`req.mode === 'navigate'` (sw.js:93-110) che intercetta ogni navigazione di primo livello, fa
+`fetch` e poi **mette la risposta in cache** con la richiesta come chiave, query compresa
+(sw.js:97-100).
+
+Il callback **e'** una navigazione di primo livello. Senza intervento, l'URL del callback —
+`code` e `state` compresi — finirebbe **dentro la Cache Storage del browser**. Diagnosi
+confermata da Codex leggendo il codice.
+
+⚠️ **Correzione [R20-5]: "come prima riga del gestore" era sbagliato.** Il frammento usa `url`,
+che viene dichiarato solo a **sw.js:80**, dopo il filtro sul metodo. Messo davvero per primo,
+andrebbe in `ReferenceError` **su ogni richiesta**, cioe' romperebbe il service worker
+interamente. Va **subito dopo** la dichiarazione:
+
+```js
+const url = new URL(req.url);
+
+// L'API non passa mai dalla cache: il callback OAuth e' una navigazione,
+// e finirebbe in Cache Storage con il codice nella query.
+if (url.origin === location.origin && url.pathname.startsWith('/api/')) return;
+```
+
+⚠️ E vale la trappola di rilascio gia' pagata: il SW nuovo va provato **su un browser che ha
+gia' il SW vecchio installato**, non solo su uno pulito.
+
+### 40.6 Header emessi dal Worker
+
+Il Worker **non eredita `_headers`**: quel file governa le risposte degli asset. Ogni risposta
+sotto `/api/` emette da se':
+`Cache-Control: no-store` · `Referrer-Policy: no-referrer` · `X-Content-Type-Options: nosniff`
+· `X-Robots-Tag: noindex` · `Vary: Cookie`.
+
+Redirect solo verso la **nostra origine** o verso `https://www.canva.com/…`: mai verso un URL
+preso dall'input. La CSP **non va aperta**: il browser parla solo col nostro Worker, non
+carica miniature da Canva, non incorpora iframe, non chiama la loro API. L'unica cosa che
+attraversa il confine e' una **navigazione**, che la CSP non governa.
+
+**Log.** `observability.enabled` e' gia' `true`. Il Worker non deve mai passare a `console`
+il codice, il token, il cookie o il payload. Regola scritta nel file e un test che, dato un
+errore in ogni stadio, verifica che il messaggio non contenga nessuno dei quattro. Le metriche
+sono per **stadio** (`start`, `scambio`, `import`, `attesa`, `revoca`), senza payload.
+
+### 40.7 Tetti e frequenza
+
+⚠️ **Correzione [R20-8]: `Content-Length` da solo non e' un limite.** Un client puo'
+**ometterlo** (`Transfer-Encoding: chunked`, o uno stream), e allora il controllo non scatta e
+il tetto non esiste. Serve tutt'e due:
+
+- rifiuto veloce sull'intestazione quando c'e' ed e' oltre il tetto (**256 KB**);
+- e comunque **conteggio dei byte mentre si legge**, con annullamento del flusso appena si
+  supera — piu' rifiuto se l'intestazione manca, e' malformata, o **non combacia** con i byte
+  effettivamente letti;
+- tipo di contenuto **verificato**, non dedotto;
+- timeout di lettura del corpo.
+
+Frequenza per IP piu' stretta del limite di Canva (20/min per utente): proposta **5/min**,
+con le regole di rate limiting di Cloudflare.
+
+### 40.8 L'HTML autoconsistente
+
+⚠️ **Correzione [R20-6]: non puo' essere una "funzione pura", e non deve esserlo.** Dicevo
+"funzione pura" e due righe dopo le chiedevo di clonare il DOM vivo e leggere gli stili
+calcolati. E leggere il DOM vivo **serve**: le modifiche dell'utente — testi riscritti a mano
+nei `contenteditable`, voci tolte con la "×" — **esistono solo nei nodi** creati da
+`bpMenuRender()` (app.js:5060-5080). Ricostruire da `src` le butterebbe via.
+
+Si separa in due:
+1. **`bpMenuIstantanea()` — impura.** Legge il canvas vivo e ne ricava una struttura di dati
+   semplice (titolo, occhiello, data, categorie, voci, piede, stile), gia' ripulita di
+   `contenteditable`, `spellcheck`, `tabindex` e dei bottoni `.bpm-del`.
+2. **`bpMenuHtmlAutonomo(istantanea, stile)` — deterministica.** Dalla struttura produce il
+   documento. Nessun DOM, nessun `getComputedStyle`: **testabile senza browser** e stabile.
+
+**Il foglio di stile dell'export e' suo, non quello dell'app.** Un solo foglio A4 canonico,
+con **valori letterali**, e senza le tre cose che nell'export non hanno senso:
+- ⚠️ **niente `vw` e niente `clamp()`** — `.bpm-title` usa `clamp(28px, 6vw, 40px)`
+  (app.css:1774) e `6vw` si risolve sul **viewport del browser**, non sul contenitore da
+  794px. Nell'export il corpo dev'essere un numero;
+- **niente media query** (app.css:1889-1897 rimpicciolisce sotto una certa larghezza);
+- **niente ombre** e niente stati di messa a fuoco.
+
+⚠️ **Gli ornamenti sono pseudo-elementi, e un clone non li porta con se'.** `elegant` appende
+`\2726` (app.css:1825-1826), `festa` `\2766` (app.css:1879-1880), `minimal` ha il suo filetto
+(app.css:1842). O le regole `::before`/`::after` restano **nel foglio dell'export** e si
+verifica che Canva le renda, o gli ornamenti si **materializzano come nodi veri** nella
+istantanea. La seconda e' piu' sicura: l'importatore non deve indovinare niente.
+
+Restano validi: nessuna sottorisorsa (niente `<link>`, `@import`, immagini esterne — Canva
+scarica il solo documento); la tavolozza **non si tocca**, e' interna a ogni stile; e
+l'annotazione `data-document-role="page"` va sull'elemento che porta `width`/`height`.
+
+**Test**: l'HTML prodotto non contiene `contenteditable`, non contiene `var(--`, non contiene
+`vw` ne' `clamp(`, non contiene URL esterni, ha `794`/`1123` e `data-document-role` sullo
+stesso elemento. E — perche' l'assenza di stringhe non prova la presenza di niente —
+**asserzioni positive**: gli ornamenti ci sono, i filetti ci sono, il numero di colonne e'
+quello atteso, e **un testo modificato a mano dall'utente compare nell'export**. Per tutti e
+quattro gli stili.
+
+### 40.9 Verifica del Worker senza chiamare Canva
+
+La suite avvia `http-server public` (playwright.config.js): statico, non puo' esercitare
+`/api/*`.
+
+⚠️ **Correzione [R20-5b]: "si aggiunge un quarto progetto" non basta, com'era scritto non
+funzionerebbe.** Due impedimenti veri nella configurazione attuale:
+- `use` globale ha `serviceWorkers: 'block'` (playwright.config.js:38-41): un progetto nuovo
+  **eredita il blocco**, quindi il test sul salto della cache non potrebbe nemmeno girare;
+- `webServer` e' **un oggetto solo** (playwright.config.js:28-36), non un array: non puo'
+  avviare insieme il server statico, `wrangler dev` e lo stub di Canva.
+
+Quindi: `webServer` diventa un **array** di tre voci; il progetto `worker` ha **baseURL
+propria** (la porta di `wrangler dev`) e `serviceWorkers: 'allow'` esplicito. Gli altri tre
+progetti non cambiano.
+
+Casi: salto del SW e **nessuna chiave di cache contenente `/api/`** · callback rigiocato →
+rifiutato · `state` che non combacia → rifiutato · sessione scaduta → errore leggibile ·
+payload oltre il tetto **con e senza `Content-Length`** → rifiutato · POST di fase 3 da
+un'altra origine → rifiutata · revoca chiamata **anche** sul percorso d'errore · log privi di
+codice, token, cookie e payload · asset e pagine SEO invariati.
+
+⚠️ **Ogni test di regressione va visto FALLIRE** sul codice non corretto (`git stash` + run)
+prima di considerarlo scritto. In questo progetto sono gia' emersi **sette** test verdi per il
+motivo sbagliato — il settimo l'ho scritto oggi, in `ui-font.spec.js`, e si e' rivelato
+guardando che *passava* sul codice rotto.
+
+### 40.10 Le promesse da riscrivere — inventario completo
+
+⚠️ **Correzione [R20-2b]: il mio elenco di sei righe era incompleto, e mancavano proprio le
+due che la Fase 4 rompe di piu'.** Inventario riverificato riga per riga:
+
+| file | cosa dice oggi | perche' diventa falso |
+|---|---|---|
+| `README.md:34-39` | "niente backend"; **"non esiste un server che possa vedere i tuoi eventi, perche' non esiste un server"** | il server esiste, e nella fase 3 il menu' lo attraversa |
+| `PRODUCT.md:11-12` | "senza account e senza backend" | idem |
+| `wrangler.jsonc:11` | "`main` non definito → Workers Assets puro, **nessun JS server-side**" | `main` ci sara' |
+| `public/privacy.html:11` | la `meta description` | idem |
+| `public/privacy.html:27`, `:110` (EN) | "non ha account, non ha backend e non ha un database" | idem |
+| `public/privacy.html:121` (EN) | "has no server" | idem |
+| **`public/privacy.html:70-74`, `:150-156` (EN)** | **"Il sito non installa cookie … e non condivide niente con nessuno"** | la Fase 4 installa un **cookie di sessione** e **condivide il menu' con Canva**. Sono le due affermazioni piu' direttamente smentite, e mi erano sfuggite |
+| **`public/privacy.html:85-90`** | "I tuoi diritti — non essendo conservato alcun dato personale … non esiste un archivio" | in **strada B** un archivio temporaneo esiste |
+| `public/index.html:6` | commento "senza backend" | idem |
+| `public/_headers:42` | commento "non ha backend" | idem |
+
+Tutte nello **stesso commit** della funzione, non dopo.
+
+Cosa deve dire il testo nuovo, con le distinzioni che 40.4 impone:
+- quello che salvi resta sul dispositivo, e **l'unica volta in cui qualcosa esce sei tu a
+  chiederlo**, premendo "Modifica in Canva";
+- cio' che esce e' **quel menu'**, verso Canva, e **il nostro server non ne conserva copia**
+  (strada A) / **la conserva al massimo dieci minuti e poi la cancella** (strada B);
+- durante il giro il menu' sta nel **`sessionStorage`** del browser, e c'e' un **cookie
+  tecnico** cifrato che dura minuti: il cookie va dichiarato, perche' oggi la pagina promette
+  che non ce n'e' nessuno;
+- **il design creato resta su Canva**, dentro l'account dell'utente, e lo gestisce lui.
+
+In app: una **conferma esplicita** prima del primo invio, che dica cosa esce e dove va.
+
+### 40.11 i18n
+
+Ogni stringa nuova × 7 lingue, con `data-i18n` / `data-i18n-aria`; `npm run check:i18n` verde.
+
+⚠️ **Correzione [R20-9c]: avevo scritto "nove stringhe", elencandone di piu'.** Un numero
+sbagliato non e' un obiettivo verificabile. Inventario esplicito delle chiavi, che `check-i18n`
+puo' controllare:
+
+| chiave | dove |
+|---|---|
+| `canvaBtn` | etichetta del bottone nella barra del menu' |
+| `canvaConfirmTitle`, `canvaConfirmBody`, `canvaConfirmOk`, `canvaConfirmCancel` | la conferma di 40.10 |
+| `canvaStageAuth`, `canvaStageImport`, `canvaStageWait`, `canvaStageDone` | i quattro stadi |
+| `canvaErrRefused`, `canvaErrExpired`, `canvaErrTooBig`, `canvaErrUnreachable` | i quattro errori |
+| `menuFitTitle`, `menuFitBody`, `menuFitShrink`, `menuFitPages`, `menuFitNoShrink` | lo sfondamento e le sue due vie, piu' il caso in cui rimpicciolire non basta |
+
+**Diciotto chiavi × 7 lingue.** Un solo "errore generico" non basta: sono azioni diverse per
+chi legge.
+
+### 40.12 Decisioni prese con l'utente (2026-09-08)
+
+**1. Il carattere: si sceglie una famiglia che Canva ha gia'.** Non si dichiara il rimpiazzo,
+si evita. **Misurato con T0.3, non scelto a intuito.**
+
+Fatto che semplifica: **tutti e quattro gli stili usano lo stesso font**, `var(--bp-font)`
+(Manrope). Non sono quattro sostituzioni, e' una. Gli stili si distinguono per colore, fondo,
+filetti e ornamenti, non per tipografia.
+
+**Esito della sonda (2026-09-08).** Due import: otto famiglie candidate, poi un **controllo
+negativo** che e' stato quello decisivo.
+
+| famiglia chiesta | `fontRef` restituito | esito |
+|---|---|---|
+| Manrope | `YACgEZ1cb1Q,0` | **rimappata** |
+| *Zqxwv Famiglia Inesistente* (controllo) | `YACgEZ1cb1Q,0` | ripiego |
+| `sans-serif` generico (controllo) | `YACgEZ1cb1Q,0` | ripiego |
+| Poppins | `YAFdJjbTu24,1` | riconosciuta |
+| Montserrat | `YAFdtQi73Xs,0` | riconosciuta |
+| Lato | `YAFdJuFCnaw,0` | riconosciuta |
+| Raleway | `YAFdJhmxbVQ,1` | riconosciuta |
+| Playfair Display | `YAFdJhem5V8,1` | riconosciuta |
+| Josefin Sans | `YAFdJjvw9Ps,0` | riconosciuta |
+| Open Sans | `YAFdJt8dAY0,1` | riconosciuta |
+| Georgia (controllo) | `YAGzXkO0pEM,0` | rimappata su un ripiego **serif** |
+
+⚠️ **Il controllo negativo era indispensabile, e senza di esso la sonda avrebbe mentito.** Al
+primo giro tutte le famiglie tornavano con un `fontRef` **diverso**, Manrope compresa, e la
+lettura ovvia era "riconosciute tutte". Il secondo giro mostra che `YACgEZ1cb1Q,0` e' il
+**sans di ripiego**: gli tornano sopra sia un nome inventato sia `sans-serif`. Manrope prende
+quello, cioe' **non e' riconosciuta**. Un ref diverso dice solo che Canva ha risolto qualcosa,
+non che ha risolto la cosa giusta. Georgia lo conferma dall'altro lato: ref suo, ma e' il
+ripiego **serif** — la nota del Round 18 sulla rimappatura era esatta.
+
+**Sette famiglie utilizzabili**, verificate. La scelta e' fra queste, e vale per tutti e
+quattro gli stili insieme. Raccomandazione: **Montserrat** — e' costruita per le maiuscole
+spaziate, che qui servono in due punti (`.bpm-eyebrow` a `.32em`, `.bpm-cat-title` a `.14em`
+e `.26em` in minimal), e regge la lista a corpo 16,5. Alternativa piu' geometrica e piu'
+vicina al disegno di Manrope: **Poppins**. Playfair Display sarebbe bella nel titolo ma serve
+una famiglia sola per tutto, e in lista a 16,5 non tiene.
+
+**Cosa e' sopravvissuto oltre alla famiglia**, letto negli elementi importati: `letterSpacing`
+(l'occhiello a `.32em` torna `0.32`), i pesi (700 → `bold`, 500 → `medium`, 400 → `normal`),
+corsivo, colori esatti, allineamento. Quindi la tipografia del menu' regge: cede **solo** il
+nome della famiglia.
+
+Solo la famiglia dell'export cambia: `--bp-font` dell'app resta Manrope, i font self-hostati
+restano quelli, `font-src 'self'` non si tocca. E in export **non serve caricare** la famiglia
+scelta: Canva la risolve per nome dal proprio catalogo, il documento porta solo il nome.
+**2. Il menu' che non sta in una facciata: si avvisa e sceglie l'utente**, fra rimpicciolire
+il testo e passare a piu' pagine. Niente taglio silenzioso, niente scelta automatica.
+
+*Come si accorge dello sfondamento.* Non si puo' guardare il canvas a schermo: e'
+`width: min(560px, 94vw)` e `min-height: 74vh` (app.css:1769), cioe' non e' un A4. La misura
+va fatta sulla **geometria dell'export** — un contenitore fuori schermo largo 794 e alto 1123
+con **il foglio dell'export** applicato (40.8), non quello dell'app — confrontando
+`scrollHeight` con 1123, e controllando **anche la larghezza**, non solo l'altezza.
+
+⚠️ **[R20-7] Tre modi di misurare la cosa sbagliata, tutti da evitare:**
+- **larghezza 794 non basta a far risolvere `6vw`**: le unita' di viewport guardano il
+  viewport, non il contenitore. E' il motivo per cui il foglio dell'export non ne ha (40.8).
+- **il contenitore non puo' stare in `display:none`**: senza riquadri non si misura niente.
+  Fuori schermo e invisibile, ma disegnato.
+- **il font dev'essere gia' caricato**: `await document.fonts.ready` piu' un controllo che
+  la faccia dell'export sia davvero quella. Misurare con il ripiego e poi esportare con
+  un'altra faccia puo' **ribaltare l'esito**. ⚠️ E non con `document.fonts.check()`, che
+  risponde `true` a faccia assente: nel progetto e' gia' costato un difetto vissuto per
+  mesi (nessun `@font-face`, corretto il 2026-09-08).
+
+*Le due vie.*
+- **Rimpicciolisci**: un fattore di scala sui corpi del testo, applicato una volta sola e
+  **limitato in basso** (proposta: non sotto 0,8). Se nemmeno al minimo ci sta, quella via
+  non viene offerta — un menu' illeggibile non e' una soluzione.
+- **Piu' pagine**: le categorie si distribuiscono su N div, e **ognuno** porta
+  `width`/`height` e `data-document-role="page"` sullo **stesso** elemento. La trappola del
+  Round 18 vale per ogni pagina, non solo per la prima.
+  ⚠️ **[R20-7b] Il caso che non avevo previsto: una sola categoria piu' alta di una pagina.**
+  Distribuire per categorie li' non basta. Regola: si impacchetta **per altezza**, e una
+  categoria che sfonda da sola **si spezza**, ripetendo la sua intestazione sulla pagina
+  successiva. **L'intestazione del menu' resta solo sulla prima pagina**: deciso qui, non
+  in costruzione — lasciarlo aperto significa scoprirlo con il codice gia' scritto.
+
+*Quando appare la scelta.* Solo se sfonda, al momento di premere il bottone, non prima. Con
+`_bpmCols()` (app.js:5049) che gia' passa a 2 o 3 colonne oltre 10 e 24 voci, il caso e' raro:
+se comparisse spesso vorrebbe dire che la soglia delle colonne e' tarata male, ed e' quello
+che andrebbe corretto.
+
+**3. Il bottone sta nella barra del menu'.** Non nella schermata dei risultati — la Fase 1 l'ha
+portata da otto azioni a quattro apposta, e rimetterne una la disfa.
+
+Va in `.bpm-tools` (index.html:98-101), accanto a "Stampa / PDF": la barra dove l'utente sta
+gia' scegliendo Elegante / Minimal / Lavagna / Festa. Etichetta **"Modifica in Canva"**.
+
+⚠️ **[R20-9b] Qui avevo scritto "✔️ Verificato" su una cosa che non avevo verificato.**
+Dicevo che `cambiaLingua()` traduce per posizione i bottoni della schermata risultati, e che
+quindi la barra del menu' e' al sicuro perche' usa `data-i18n`. **La premessa e' falsa:**
+quel blocco posizionale **non esiste piu'**. La Fase 1 lo ha rimosso, e app.js:1817-1831
+spiega perche' (riscriveva elementi che avevano gia' il proprio `data-i18n`, e rinominava la
+terza `.result-section h3` facendo chiamare due sezioni allo stesso modo in tutte e 7 le
+lingue). Oggi si traduce **solo per chiave**, app.js:1792-1813.
+
+La conclusione operativa non cambia — aggiungere un bottone con `data-i18n` e' sicuro, e ora
+lo e' **ovunque**, non solo qui. Ma il motivo che avevo scritto veniva da una memoria vecchia
+invece che dal codice, ed era etichettato come verificato. E' la stessa forma dei test verdi
+per il motivo sbagliato, applicata a un documento.
+
+La chiave nuova va sullo `<span>` di testo del bottone, non sul bottone, come gli altri.
+
+Il bottone non parte da solo: prima la conferma di 40.10, che dice cosa esce e dove va.
+
+### 40.13 Il cancello di rilascio: la revisione di Canva **[trovato il 2026-09-08]**
+
+Fatto verificato sui doc, e non era nel piano: **costruire e rilasciare hanno requisiti
+diversi.*
+
+- **Integrazione privata** → richiede **Canva Enterprise**. Fuori portata, come l'autofill.
+- **Integrazione pubblica** → si crea subito su un account personale con MFA attiva, e in
+  stato di **bozza** e' utilizzabile per **uso e prova individuali**. Basta e avanza per
+  costruire e verificare tutto il flusso.
+- Ma un'integrazione che autorizza **gli utenti dell'app pubblica** — chiunque apra
+  `barman-pro.raccasamuele2004.workers.dev` — non e' piu' "uso individuale": e' il caso che
+  richiede la **revisione di Canva**, con credenziali di prova, video dimostrativo,
+  questionario e i requisiti d'integrazione da soddisfare. Durata non dichiarata: dipende
+  dalla complessita'.
+
+**Conseguenza sul piano, non sulla fattibilita'.** Tutta la Fase 4 si puo' costruire, provare
+e verificare in bozza. Cio' che **non** si puo' fare senza revisione e' accendere il bottone
+per il pubblico. Va deciso prima di cominciare, perche' cambia cosa significa "finito":
+
+- **(a)** Si costruisce e si tiene spento dietro un interruttore finche' la revisione passa.
+- **(b)** Si costruisce e si sottopone, accettando che la data di rilascio non dipenda da noi.
+- **(c)** Si rinuncia, e il menu' resta stampabile come oggi.
+
+⚠️ Il punto 39 diceva gia' "le integrazioni pubbliche richiedono revisione", ma come nota di
+contesto sull'autofill. Qui casca sul percorso di rilascio, ed e' il secondo requisito
+d'account della Fase 4 dopo Enterprise — con la differenza che questo **non** e' un muro.
+
+### 40.14 Condizione di rilascio
+
+Quella comune a ogni fase, piu': prova del salto `/api/` su un browser **con il service worker
+vecchio gia' installato**; `CACHE_VERSION` e `ASSET_CACHE` bumpati; verifica su preview con
+`wrangler versions upload --preview-alias staging` **prima** della promozione, e alias rimosso
+dopo.
 
 47. **[R1] Le promesse da riscrivere sono più di tre**: oltre a `README.md`, `PRODUCT.md` e
     `privacy.html`, anche `index.html` e i commenti in `_headers` dichiarano "nessun
