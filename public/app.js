@@ -2595,6 +2595,7 @@
 
             bpEditingId = null;          // e' una copia: salvandola nasce un evento nuovo
             bpScorte = {};               // le scorte erano di chi ha condiviso
+            bpQuantita = {};             // e le sue correzioni a mano pure
             bpCfgNomeEvento = st.nome;
             if (typeof bpSyncNomeField === 'function') bpSyncNomeField();
 
@@ -3423,6 +3424,13 @@ Annulla = ` + T('backupUnisci'));
            la azzera. */
         let bpScorte = {};
 
+        /* Le quantita' corrette a mano, in unita' base, per riga canonica.
+           Vive NELL'EVENTO come le scorte, e per la stessa ragione: "di Aperol
+           ne servono 4 L" e' un giudizio su QUESTA festa, non una preferenza
+           che valga per le prossime. Per questo non sta nelle impostazioni
+           accanto ai prezzi, e duplicare un evento la azzera. */
+        let bpQuantita = {};
+
         /* I prezzi corretti a mano. Vivono nelle IMPOSTAZIONI, perche' quanto
            costa il gin al tuo supermercato non cambia da una festa all'altra. */
         let bpPrezziUtente = {};
@@ -3505,6 +3513,7 @@ Annulla = ` + T('backupUnisci'));
                 menuSerataShot: menuSerataShot,
                 passo: bpPassoCorrente,
                 scorte: bpScorte,
+                quantita: bpQuantita,
                 ricetteEvento: bpRicetteEvento,
                 lingua: linguaCorrente,
                 tema: bpTemaScelto,
@@ -3559,6 +3568,7 @@ Annulla = ` + T('backupUnisci'));
                 // Bozze salvate prima che il passo esistesse: default sicuro.
                 bpPassoCorrente = BP_PASSI.indexOf(s.passo) !== -1 ? s.passo : 'step-setup';
                 bpScorte = (s.scorte && typeof s.scorte === 'object') ? s.scorte : {};
+                bpQuantita = (s.quantita && typeof s.quantita === 'object') ? s.quantita : {};
                 // Senza, dopo un ricaricamento il menu conserva il nome della
                 // ricetta arrivata col link ma ne perde la definizione.
                 bpRicetteEvento = bpValidaRicette(s.ricetteEvento);
@@ -3661,6 +3671,7 @@ Annulla = ` + T('backupUnisci'));
             menuSerataMocktail = {};
             menuSerataShot = {};
             bpScorte = {};   // una scorta si consuma con la sua spesa: un evento nuovo riparte da zero
+            bpQuantita = {};
             bpRicetteEvento = {};
             customShots = [];
             customDrinks = {};
@@ -4309,13 +4320,13 @@ Annulla = ` + T('backupUnisci'));
         Object.keys(_backupI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _backupI18n[lg]); });
 
         const _modI18n = {
-            it: { modHoGia:"Ho già", modPrezzoTuo:"Il tuo prezzo", modTitolo:"Correggi la lista", modDesc:"Dichiara cosa hai già in casa e correggi i prezzi del tuo supermercato.", modAttiva:"Correggi", modChiudi:"Fatto", modRisparmio:"già in casa" },
-            en: { modHoGia:"Already have", modPrezzoTuo:"Your price", modTitolo:"Adjust the list", modDesc:"Say what you already have at home and correct your shop's prices.", modAttiva:"Adjust", modChiudi:"Done", modRisparmio:"already at home" },
-            es: { modHoGia:"Ya tengo", modPrezzoTuo:"Tu precio", modTitolo:"Corrige la lista", modDesc:"Indica lo que ya tienes en casa y corrige los precios de tu supermercado.", modAttiva:"Corregir", modChiudi:"Listo", modRisparmio:"ya en casa" },
-            fr: { modHoGia:"J'ai déjà", modPrezzoTuo:"Votre prix", modTitolo:"Corriger la liste", modDesc:"Indiquez ce que vous avez déjà et corrigez les prix de votre magasin.", modAttiva:"Corriger", modChiudi:"Terminé", modRisparmio:"déjà chez vous" },
-            de: { modHoGia:"Schon da", modPrezzoTuo:"Dein Preis", modTitolo:"Liste anpassen", modDesc:"Sag, was du schon zu Hause hast, und korrigiere die Preise deines Ladens.", modAttiva:"Anpassen", modChiudi:"Fertig", modRisparmio:"schon zu Hause" },
-            pt: { modHoGia:"Já tenho", modPrezzoTuo:"O teu preço", modTitolo:"Corrigir a lista", modDesc:"Diz o que já tens em casa e corrige os preços do teu supermercado.", modAttiva:"Corrigir", modChiudi:"Pronto", modRisparmio:"já em casa" },
-            nl: { modHoGia:"Al in huis", modPrezzoTuo:"Jouw prijs", modTitolo:"Lijst bijstellen", modDesc:"Geef aan wat je al hebt en corrigeer de prijzen van jouw winkel.", modAttiva:"Bijstellen", modChiudi:"Klaar", modRisparmio:"al in huis" }
+            it: { modHoGia:"Ho già", modPrezzoTuo:"Il tuo prezzo", modTitolo:"Correggi la lista", modDesc:"Dichiara cosa hai già in casa e correggi i prezzi del tuo supermercato.", modAttiva:"Correggi", modChiudi:"Fatto", modRisparmio:"già in casa" , modQuantita:"Da comprare", modQtaTua:"Quantità corretta da te", modQtaAzzera:"Torna alla quantità calcolata", modScortaIgnorata:"Con una quantità decisa da te, quello che hai già non viene più sottratto" },
+            en: { modHoGia:"Already have", modPrezzoTuo:"Your price", modTitolo:"Adjust the list", modDesc:"Say what you already have at home and correct your shop's prices.", modAttiva:"Adjust", modChiudi:"Done", modRisparmio:"already at home" , modQuantita:"To buy", modQtaTua:"Quantity you set", modQtaAzzera:"Back to the calculated quantity", modScortaIgnorata:"With a quantity you set, what you already have is no longer subtracted" },
+            es: { modHoGia:"Ya tengo", modPrezzoTuo:"Tu precio", modTitolo:"Corrige la lista", modDesc:"Indica lo que ya tienes en casa y corrige los precios de tu supermercado.", modAttiva:"Corregir", modChiudi:"Listo", modRisparmio:"ya en casa" , modQuantita:"A comprar", modQtaTua:"Cantidad fijada por ti", modQtaAzzera:"Volver a la cantidad calculada", modScortaIgnorata:"Con una cantidad fijada por ti, lo que ya tienes deja de restarse" },
+            fr: { modHoGia:"J'ai déjà", modPrezzoTuo:"Votre prix", modTitolo:"Corriger la liste", modDesc:"Indiquez ce que vous avez déjà et corrigez les prix de votre magasin.", modAttiva:"Corriger", modChiudi:"Terminé", modRisparmio:"déjà chez vous" , modQuantita:"À acheter", modQtaTua:"Quantité fixée par vous", modQtaAzzera:"Revenir à la quantité calculée", modScortaIgnorata:"Avec une quantité que vous fixez, ce que vous avez déjà n’est plus déduit" },
+            de: { modHoGia:"Schon da", modPrezzoTuo:"Dein Preis", modTitolo:"Liste anpassen", modDesc:"Sag, was du schon zu Hause hast, und korrigiere die Preise deines Ladens.", modAttiva:"Anpassen", modChiudi:"Fertig", modRisparmio:"schon zu Hause" , modQuantita:"Zu kaufen", modQtaTua:"Von dir gesetzte Menge", modQtaAzzera:"Zurück zur berechneten Menge", modScortaIgnorata:"Bei einer von dir gesetzten Menge wird Vorhandenes nicht mehr abgezogen" },
+            pt: { modHoGia:"Já tenho", modPrezzoTuo:"O teu preço", modTitolo:"Corrigir a lista", modDesc:"Diz o que já tens em casa e corrige os preços do teu supermercado.", modAttiva:"Corrigir", modChiudi:"Pronto", modRisparmio:"já em casa" , modQuantita:"A comprar", modQtaTua:"Quantidade definida por ti", modQtaAzzera:"Voltar à quantidade calculada", modScortaIgnorata:"Com uma quantidade definida por ti, o que já tens deixa de ser subtraído" },
+            nl: { modHoGia:"Al in huis", modPrezzoTuo:"Jouw prijs", modTitolo:"Lijst bijstellen", modDesc:"Geef aan wat je al hebt en corrigeer de prijzen van jouw winkel.", modAttiva:"Bijstellen", modChiudi:"Klaar", modRisparmio:"al in huis" , modQuantita:"Te kopen", modQtaTua:"Door jou ingestelde hoeveelheid", modQtaAzzera:"Terug naar de berekende hoeveelheid", modScortaIgnorata:"Bij een zelf ingestelde hoeveelheid wordt wat je al hebt niet meer afgetrokken" }
         };
         Object.keys(_modI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _modI18n[lg]); });
 
@@ -4733,15 +4744,16 @@ Annulla = ` + T('backupUnisci'));
                 const config = { ospiti:_g('ospiti'), drink_testa:_g('drink_testa'), shot_testa:_g('shot_testa'), scarto:_g('scarto'), nazione:_g('sel-nazione'), fascia:_g('sel-fascia'), pct_bevitori:_g('pct-bevitori'), ferm_vino_rosso:_g('ferm_vino_rosso'), ferm_vino_bianco:_g('ferm_vino_bianco'), ferm_bollicine:_g('ferm_bollicine'), ferm_birra:_g('ferm_birra'), fascia_fermentati:_g('sel-fascia-fermentati') };
                 const menu = { drink: Object.assign({}, menuSerataDrink), mocktail: Object.assign({}, menuSerataMocktail), shot: Object.assign({}, menuSerataShot) };
                 const scorte = Object.assign({}, bpScorte);
+                const quantita = Object.assign({}, bpQuantita);
                 const ricetteEvento = Object.assign({}, bpRicetteEvento);
                 const totale = (function(){ const b = document.getElementById('budget-amount'); return b ? b.textContent.trim() : ''; })();
                 const lista = bpSnapshotLista();
                 const list = bpGetEvents();
                 const idx = bpEditingId ? list.findIndex(e => e.id === bpEditingId) : -1;
                 if (idx >= 0) {
-                    list[idx] = Object.assign({}, list[idx], { nome, data: Date.now(), config, menu, totale, lista, scorte, ricetteEvento, check: list[idx].check || {} });
+                    list[idx] = Object.assign({}, list[idx], { nome, data: Date.now(), config, menu, totale, lista, scorte, quantita, ricetteEvento, check: list[idx].check || {} });
                 } else {
-                    list.push({ id: bpNuovoId(), nome, data: Date.now(), config, menu, totale, lista, scorte, ricetteEvento, check:{} });
+                    list.push({ id: bpNuovoId(), nome, data: Date.now(), config, menu, totale, lista, scorte, quantita, ricetteEvento, check:{} });
                 }
                 /* Il toast di successo esce SOLO se la scrittura e' andata a
                    buon fine. Prima bpSetEvents ingoiava l'errore e questo
@@ -4941,6 +4953,7 @@ Annulla = ` + T('backupUnisci'));
             // Le scorte fanno parte dell'evento: chi lo riapre per modificarlo
             // deve ritrovare quello che aveva gia' dichiarato di avere in casa.
             bpScorte = (ev.scorte && typeof ev.scorte === 'object') ? Object.assign({}, ev.scorte) : {};
+            bpQuantita = (ev.quantita && typeof ev.quantita === 'object') ? Object.assign({}, ev.quantita) : {};
             bpRicetteEvento = bpValidaRicette(ev.ricetteEvento);
             const c = ev.config || {};
             const _s = (eid, v) => { const e = document.getElementById(eid); if (e && v != null && v !== '') e.value = v; };
@@ -4972,7 +4985,7 @@ Annulla = ` + T('backupUnisci'));
                Deciso durante il grill, non lasciato all'implementazione. */
             copy.id = bpNuovoId(); copy.data = Date.now();
             copy.nome = (ev.nome || '') + ' ' + _T('evCopySuffix');
-            copy.check = {}; copy.scorte = {};
+            copy.check = {}; copy.scorte = {}; copy.quantita = {};
             list.push(copy);
             if (!bpSetEvents(list).ok) { mostraToast(_T('toastSalvataggioFallito')); return; }
             bpEventsList();
@@ -5959,17 +5972,40 @@ Annulla = ` + T('backupUnisci'));
            bisogno. Il ghiaccio no: quello si pesa. */
         const BP_INTERO = n => Math.ceil(n);
 
-        function bpQuantitaRiga(requiredBaseQty, stockBaseQty, arrotonda) {
+        /* ── La quantita' corretta a mano ──
+           E' l'ULTIMA parola, e vuol dire "compra questo". Non e' un fabbisogno
+           da cui sottrarre ancora qualcosa: chi la scrive ha gia' fatto il conto
+           lui, scorte comprese. Quindi sostituisce sia cio' che si compra sia
+           cio' che si paga, e su quella riga la scorta smette di contare.
+
+           requiredBaseQty, stockBaseQty e remainingBaseQty NON vengono toccati:
+           restano il calcolo dell'app, ed e' con quelli che la riga torna al suo
+           valore quando la correzione viene tolta. Per questo la correzione puo'
+           sopravvivere a un ricalcolo senza incastrarsi.
+
+           ⚠️ Arriva in UNITA' BASE, come tutto il resto della riga (ml, non
+           litri): la conversione si fa dove si scrive e dove si disegna, mai
+           qui dentro. E' la regola R3, gia' violata una volta. */
+        function bpQuantitaRiga(requiredBaseQty, stockBaseQty, arrotonda, overrideBaseQty) {
             const req = Math.max(0, requiredBaseQty || 0);
             const stock = Math.max(0, stockBaseQty || 0);
             const remainingBaseQty = Math.max(0, req - stock);   // prima si sottrae
-            return {
+            const q = {
                 requiredBaseQty: req,
                 stockBaseQty: stock,
                 remainingBaseQty,
                 roundedPurchaseQty: arrotonda ? arrotonda(remainingBaseQty) : remainingBaseQty,  // poi si arrotonda
-                pricingQty: remainingBaseQty
+                pricingQty: remainingBaseQty,
+                quantitaTua: false
             };
+
+            const ov = parseFloat(overrideBaseQty);
+            if (isFinite(ov) && ov >= 0) {
+                q.roundedPurchaseQty = ov;
+                q.pricingQty = ov;
+                q.quantitaTua = true;
+            }
+            return q;
         }
 
         /* I modificatori attivi, in un posto solo.
@@ -5979,7 +6015,7 @@ Annulla = ` + T('backupUnisci'));
            dichiarato mezza cassa di gin in casa se lo vedeva scontato solo
            alla fine. */
         function bpModificatoriCorrenti() {
-            return { scorte: bpScorte, prezzi: bpPrezziUtente, ricetteEvento: bpRicetteEvento };
+            return { scorte: bpScorte, prezzi: bpPrezziUtente, quantita: bpQuantita, ricetteEvento: bpRicetteEvento };
         }
 
         function bpParametriDalForm() {
@@ -6105,7 +6141,15 @@ Annulla = ` + T('backupUnisci'));
                misurano, e che deve restare identica per sempre. */
             const scorte = (p.scorte && typeof p.scorte === 'object') ? p.scorte : {};
             const prezziUtente = (p.prezzi && typeof p.prezzi === 'object') ? p.prezzi : {};
+            const quantitaUtente = (p.quantita && typeof p.quantita === 'object') ? p.quantita : {};
             const _scorta = id => Math.max(0, parseFloat(scorte[id]) || 0);
+            /* undefined, non 0: "zero" e' una correzione legittima ("non
+               comprarne", perche' ne ho gia' abbastanza), e va distinta da
+               "nessuna correzione". */
+            const _qta = id => {
+                const v = parseFloat(quantitaUtente[id]);
+                return (isFinite(v) && v >= 0) ? v : undefined;
+            };
             const _prezzo = (id, predefinito) => {
                 const v = parseFloat(prezziUtente[id]);
                 // Un prezzo tuo e' il prezzo unitario FINALE locale: sostituisce
@@ -6118,7 +6162,7 @@ Annulla = ` + T('backupUnisci'));
                 const id = 'ing:' + ingrediente;
                 const pr = prezziBase[ingrediente];
                 const prezzoLitro = pr ? pr[fascia] : prezzoDefault;
-                const q = bpQuantitaRiga(ml, _scorta(id), bpLitriArrotondati);
+                const q = bpQuantitaRiga(ml, _scorta(id), bpLitriArrotondati, _qta(id));
                 const pz = _prezzo(id, prezzoLitro * geoMult);
                 /* Senza prezzo tuo l'associazione resta quella di sempre —
                    ((ml/1000) * prezzo) * geo — perche' in virgola mobile
@@ -6152,7 +6196,7 @@ Annulla = ` + T('backupUnisci'));
                 const id = 'ferm:' + d.k;
                 const pr = prezziBase[d.k];
                 const prezzoBt = pr ? pr[fasciaFerm] : 8;
-                const q = bpQuantitaRiga(bt, _scorta(id), BP_INTERO);   // bottiglie: si contano
+                const q = bpQuantitaRiga(bt, _scorta(id), BP_INTERO, _qta(id));   // bottiglie: si contano
                 const pz = _prezzo(id, prezzoBt * geoMult);
                 const costo = pz.tuo
                     ? BP_ARR_COSTO(q.pricingQty * pz.valore)
@@ -6176,7 +6220,7 @@ Annulla = ` + T('backupUnisci'));
             const aggiungiExtra = (id, labelKey, qta, baseUnit, chiavePrezzo, prezzoDefault) => {
                 const pr = prezziBase[chiavePrezzo];
                 const prezzo = pr ? pr[fascia] : prezzoDefault;
-                const q = bpQuantitaRiga(qta, _scorta(id), baseUnit === 'pz' ? BP_INTERO : null);
+                const q = bpQuantitaRiga(qta, _scorta(id), baseUnit === 'pz' ? BP_INTERO : null, _qta(id));
                 const pz = _prezzo(id, prezzo * geoMult);
                 const costo = pz.tuo
                     ? BP_ARR_COSTO(q.pricingQty * pz.valore)
@@ -6343,6 +6387,15 @@ Annulla = ` + T('backupUnisci'));
            non per la persona. Le guarnizioni non hanno dose, quindi non hanno
            scorte: la riga non mostra nulla. */
         function bpAggiungiEditor(li, r) {
+            /* La marcatura vale SEMPRE, anche a modalita' spenta. Una quantita'
+               corretta a mano sopravvive ai ricalcoli: se si vedesse solo con i
+               campi aperti, resterebbe li' a cambiare la lista e il totale
+               senza che niente lo dica. */
+            if (r && r.quantitaTua) {
+                const st = li.querySelector('strong');
+                if (st) { st.classList.add('qta-tua'); st.title = T('modQtaTua'); }
+            }
+
             if (!document.body.classList.contains('bp-modifica-lista')) return;
             if (!r.baseUnit) return;   // guarnizioni: niente quantita', niente scorte
 
@@ -6350,8 +6403,55 @@ Annulla = ` + T('backupUnisci'));
             wrap.className = 'riga-mod';
 
             const passo = r.baseUnit === 'ml' ? 0.5 : 1;
-            const scortaMostrata = r.baseUnit === 'ml'
-                ? (r.stockBaseQty / 1000) : r.stockBaseQty;
+            const inBase   = v => r.baseUnit === 'ml' ? v * 1000 : v;
+            const inMostra = v => r.baseUnit === 'ml' ? v / 1000 : v;
+            const scortaMostrata = inMostra(r.stockBaseQty);
+
+            /* ── Quantita' da comprare ──
+               Sta per prima perche' e' la correzione piu' diretta: sostituisce
+               il numero che si legge sopra. Il valore calcolato resta come
+               segnaposto, cosi' si vede sempre cosa direbbe l'app. */
+            const campoQta = document.createElement('span');
+            campoQta.className = 'mod-campo';
+
+            const lblQ = document.createElement('span');
+            lblQ.className = 'mod-lbl';
+            lblQ.textContent = T('modQuantita') + ' (' + (r.baseUnit === 'ml' ? 'L' : r.displayUnit) + ')';
+
+            const qta = document.createElement('input');
+            qta.type = 'number'; qta.min = '0'; qta.step = String(passo);
+            qta.className = 'mod-qta' + (r.quantitaTua ? ' mod-qta-tua' : '');
+            qta.value = r.quantitaTua ? String(inMostra(r.roundedPurchaseQty)) : '';
+            /* Il segnaposto e' cio' che l'app comprerebbe da sola. Con una
+               correzione attiva quel numero non e' piu' roundedPurchaseQty —
+               che ORA e' la correzione — ma va ricalcolato dal fabbisogno. */
+            const calcolata = r.quantitaTua
+                ? (r.baseUnit === 'ml' ? bpLitriArrotondati(r.remainingBaseQty)
+                                       : (r.baseUnit === 'pz' || r.baseUnit === 'bottiglie'
+                                            ? BP_INTERO(r.remainingBaseQty) : r.remainingBaseQty))
+                : r.roundedPurchaseQty;
+            qta.placeholder = String(Math.round(inMostra(calcolata) * 100) / 100);
+            qta.dataset.riga = r.id;
+            qta.dataset.unita = r.baseUnit;
+            qta.setAttribute('aria-label', T('modQuantita') + ' — ' + bpNomeRiga(r));
+
+            campoQta.appendChild(lblQ);
+            campoQta.appendChild(qta);
+
+            /* Il ritorno al valore calcolato esiste solo quando c'e' qualcosa da
+               annullare: un bottone sempre presente ma quasi sempre inerte e'
+               rumore, e su una lista lunga e' rumore moltiplicato per venti. */
+            if (r.quantitaTua) {
+                const reset = document.createElement('button');
+                reset.type = 'button';
+                reset.className = 'mod-qta-reset';
+                reset.textContent = '↺';
+                reset.setAttribute('aria-label', T('modQtaAzzera') + ' — ' + bpNomeRiga(r));
+                reset.title = T('modQtaAzzera');
+                reset.dataset.do = 'bpQuantitaAzzera';
+                reset.dataset.arg = r.id;
+                campoQta.appendChild(reset);
+            }
 
             const scorta = document.createElement('input');
             scorta.type = 'number'; scorta.min = '0'; scorta.step = String(passo);
@@ -6378,9 +6478,34 @@ Annulla = ` + T('backupUnisci'));
             lblP.className = 'mod-lbl';
             lblP.textContent = T('modPrezzoTuo');
 
-            wrap.appendChild(lblS); wrap.appendChild(scorta);
-            wrap.appendChild(lblP); wrap.appendChild(prezzo);
+            /* Ogni etichetta sta col suo campo dentro un contenitore, invece di
+               essere quattro figli in fila che vanno a capo per conto loro:
+               a schermo stretto una coppia non si spezza piu' fra due righe. */
+            const campoScorta = document.createElement('span');
+            campoScorta.className = 'mod-campo' + (r.quantitaTua ? ' mod-campo-inerte' : '');
+            /* Con una quantita' decisa a mano la scorta non entra piu' nel
+               conto. Resta leggibile — e' un dato che l'utente ha scritto — ma
+               dichiara di non contare, invece di sembrare attiva e non esserlo. */
+            if (r.quantitaTua) campoScorta.title = T('modScortaIgnorata');
+            campoScorta.appendChild(lblS); campoScorta.appendChild(scorta);
+
+            const campoPrezzo = document.createElement('span');
+            campoPrezzo.className = 'mod-campo';
+            campoPrezzo.appendChild(lblP); campoPrezzo.appendChild(prezzo);
+
+            wrap.appendChild(campoQta);
+            wrap.appendChild(campoScorta);
+            wrap.appendChild(campoPrezzo);
             li.appendChild(wrap);
+        }
+
+        /* Torna al numero calcolato dall'app. Non svuota il campo e basta:
+           cancella la voce, cosi' la riga smette di essere "tua" davvero. */
+        function bpQuantitaAzzera(id) {
+            if (!id) return;
+            delete bpQuantita[id];
+            programmaSalvataggio();
+            calcolaSpesa(true);
         }
 
         /* Delega, come tutto il resto dell'app: i campi nascono e muoiono a
@@ -6388,12 +6513,35 @@ Annulla = ` + T('backupUnisci'));
         document.addEventListener('input', function (e) {
             const el = e.target;
             if (el && el.dataset && el.dataset.riga &&
-                (el.classList.contains('mod-scorta') || el.classList.contains('mod-prezzo'))) {
+                (el.classList.contains('mod-scorta') || el.classList.contains('mod-prezzo') ||
+                 el.classList.contains('mod-qta'))) {
                 bpModificatoreCambiato(el);
             }
         });
 
+        /* ⚠️ Difetto riportato: "il tasto Correggi non funziona, non succede
+           proprio niente". Era vero, ed era esattamente questo.
+
+           La versione precedente accendeva la modalita' e poi chiamava
+           `calcolaSpesa(true)`. Ma quando il modello non sa calcolare — menu'
+           vuoto, oppure ospiti e drink non impostati — `calcolaSpesa` esce
+           prima di ridisegnare, e con `silenzioso = true` **non dice niente**:
+           la classe sul body si accendeva, nessuno ridisegnava la lista, quindi
+           i campi non comparivano e a schermo non cambiava assolutamente nulla.
+           Niente errori in console, nessun messaggio. Ci finisce chiunque arrivi
+           alla schermata Lista prima di aver scelto un menu' — cioe' chi sta
+           esplorando l'app la prima volta.
+
+           Ora si guarda PRIMA se c'e' qualcosa da correggere: se non c'e', la
+           modalita' non si accende affatto e il motivo viene detto. Il motivo e'
+           gia' una chiave di traduzione, quindi vale in tutte e sette le lingue
+           senza aggiungerne nessuna. */
         function bpAlternaModifica() {
+            const m = bpCalcolaModello(bpParametriDalForm());
+            if (!m.ok) {
+                mostraToast(T(m.motivo));
+                return;
+            }
             const on = document.body.classList.toggle('bp-modifica-lista');
             const b = document.getElementById('bp-modifica-btn');
             if (b) b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -6408,7 +6556,15 @@ Annulla = ` + T('backupUnisci'));
             if (!id) return;
             const v = el.value.trim();
 
-            if (el.classList.contains('mod-scorta')) {
+            if (el.classList.contains('mod-qta')) {
+                /* Lo zero e' una correzione valida — "di questo non comprarne" —
+                   e non va confuso col campo vuoto, che significa invece
+                   "decidi tu". Per questo qui il confronto e' `n < 0` e non
+                   `n <= 0` come per le scorte, dove zero e "niente" coincidono. */
+                const n = parseFloat(v);
+                if (!v || !isFinite(n) || n < 0) delete bpQuantita[id];
+                else bpQuantita[id] = el.dataset.unita === 'ml' ? n * 1000 : n;   // in unita' base
+            } else if (el.classList.contains('mod-scorta')) {
                 const n = parseFloat(v);
                 if (!v || !isFinite(n) || n <= 0) delete bpScorte[id];
                 else bpScorte[id] = el.dataset.unita === 'ml' ? n * 1000 : n;   // in unita' base

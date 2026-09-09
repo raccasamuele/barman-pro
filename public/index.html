@@ -169,12 +169,22 @@
         </div>
     </div>
 
-    <div class="container">
+    <!-- Un titolo solo. "Barman PRO" era un <div class="subtitle"> sopra un
+         <h1>Calcolatore d'Eventi>: due righe per dire una cosa. Il nome
+         diventa l'h1 invece di sparire con esso — cancellare l'h1 e basta
+         avrebbe lasciato la pagina senza intestazione principale.
 
+         ⚠️ Sta FUORI da .container apposta. Dentro, la fascia si sarebbe
+         fermata ai 1200px di max-width del contenitore invece di arrivare ai
+         bordi. Qui e' figlia diretta del body, quindi eredita il
+         `padding-left: 240px` che a >=900px lascia spazio alla barra laterale,
+         e resta nascosta in stampa come tutti gli altri figli del body
+         (entrambe le modalita' usano `body > *:not(...)`). -->
     <header class="header">
-        <div class="subtitle">Barman PRO</div>
-        <h1>Calcolatore d'Eventi</h1>
+        <h1>Barman PRO</h1>
     </header>
+
+    <div class="container">
 
     <div class="meta-row">
         <div class="meta-actions" style="margin-left:auto">

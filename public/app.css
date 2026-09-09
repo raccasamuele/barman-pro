@@ -77,6 +77,11 @@
             --bp-bg:        oklch(97.2% 0.002 250);
             --bp-panel:     oklch(99%   0.001 250);
             --bp-sunken:    oklch(94.5% 0.003 250);
+            /* La fascia di testata. Serve un gradino VISIBILE: il fondo pagina
+               sta al 97,2% e --bp-sunken al 94,5%, cioe' 2,7 punti — a schermo
+               quella differenza non si legge come una fascia, si legge come
+               niente. Difetto riportato: "non vedo la fascia grigia in alto". */
+            --bp-band:      oklch(91% 0.004 250);
 
             /* inchiostro */
             --bp-ink:       oklch(22%   0.004 250);
@@ -156,6 +161,10 @@
                 --bp-bg:        oklch(18%   0.003 250);
                 --bp-panel:     oklch(22.5% 0.004 250);
                 --bp-sunken:    oklch(14.5% 0.003 250);
+                /* In scuro la fascia sale invece di scendere: piu' chiara del
+                   fondo, come fa il pannello. Scendere sotto il fondo la
+                   avrebbe fatta sparire in un buco nero. */
+                --bp-band:      oklch(25% 0.005 250);
                 --bp-ink:       oklch(93%   0.003 250);
                 --bp-ink-soft:  oklch(75%   0.004 250);
                 --bp-ink-faint: oklch(62%   0.005 250);
@@ -359,18 +368,32 @@
             letter-spacing: 0.05em;
         }
 
+        /* Fascia di testata: separa il marchio dal contenuto dell'app con una
+           superficie, non con dello spazio vuoto. Prima erano 60px di aria, che
+           su un telefono sono uno schermo di niente prima di arrivare al
+           dunque. */
         .header {
             text-align: center;
-            margin-bottom: 60px;
+            margin: 0;
+            padding: 32px 24px;
+            background: var(--bp-band);
+            border-bottom: 1px solid var(--bp-line);
             animation: fadeInDown 1s ease-out forwards;
         }
         
+        /* L'h1 E' il nome del prodotto, e porta l'aspetto che aveva quando
+           era il <div class="subtitle"> sopra il titolo: maiuscoletto spaziato,
+           colore d'accento. Provato prima in nero e grande come un titolo: da
+           marchio diventava intestazione, e si perdeva l'unico punto di colore
+           della pagina. */
         .header h1 {
-            font-size: var(--t-2xl);
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            color: var(--bp-ink);
-            margin: var(--s-3) 0 var(--s-2);
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--bp-accent);
+            margin: 0;
+            line-height: 1.2;
         }
 
         .header .subtitle {
@@ -991,14 +1014,43 @@
            questo foglio — la pagina privacy mostrava gli elenchi in due
            colonne, con il testo in grassetto verde. */
         #risultati ul { list-style-type: none; padding: 0; margin: 0; }
+        /* ⚠️ La griglia della lista sta QUI, su #risultati, e non su
+           .result-section — dove era scritta prima e dove NON HA MAI AVUTO
+           EFFETTO. `#risultati li` contiene un id, quindi vinceva con il suo
+           `display: flex`, e in un contenitore flex `grid-template-columns` e
+           `grid-column: 1 / -1` non significano niente. Da quell'unica riga
+           sbagliata venivano tre difetti insieme:
+             · le colonne non si allineavano fra righe diverse;
+             · il blocco "Correggi" non andava a capo e si infilava come quarta
+               colonna, perche' il suo `grid-column: 1 / -1` era inerte;
+             · e schiacciava il resto: su 375px "Bitter Campari" occupava 44px
+               di larghezza per 115 di altezza, a capo quasi lettera per lettera.
+           Se un giorno serve cambiare la disposizione della lista, si cambia
+           qui: una regola su .result-section li verrebbe di nuovo ignorata. */
         #risultati li {
             padding: 16px 8px;
             border-bottom: 1px solid var(--bp-line);
             font-size: 16px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            column-gap: 16px;
             align-items: baseline;
             transition: background 0.2s;
+        }
+        /* Nome a sinistra, quantita' e prezzo attaccati a destra. Le due
+           colonne dei valori si dimensionano sul contenuto, quindi restano
+           adiacenti invece di essere spinte agli angoli come faceva
+           space-between. */
+        #risultati li > strong,
+        #risultati li > .costo-voce { text-align: right; }
+
+        /* Con subgrid le colonne si allineano anche FRA righe diverse: senza,
+           ogni <li> e' una griglia a se' e i numeri ballano da una riga
+           all'altra. Dentro @supports perche' il ripiego (griglia per riga)
+           e' gia' corretto, solo meno bello. */
+        @supports (grid-template-columns: subgrid) {
+            #risultati ul { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; }
+            #risultati li { grid-column: 1 / -1; grid-template-columns: subgrid; }
         }
         #risultati li:hover {
             background: var(--bp-sunken);
@@ -1202,7 +1254,7 @@
         @media (max-width: 600px) {
             .container { padding: 24px 16px; }
             .card { padding: 24px; border-radius: 20px; }
-            .header h1 { font-size: 36px; }
+            .header h1 { font-size: 20px; }
             .search-add-row { flex-direction: column; }
             .search-add-row button { width: 100%; }
             .parametri-row { grid-template-columns: 1fr; gap: 16px; }
@@ -1238,14 +1290,9 @@
             white-space: nowrap;
         }
 
-        .result-section li {
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            column-gap: 16px;
-            align-items: baseline;
-        }
-        .result-section li > strong { text-align: right; min-width: 56px; }
-        .result-section li > .costo-voce { text-align: right; min-width: 92px; }
+        /* Qui c'erano una griglia e due allineamenti scritti su
+           .result-section li: lettera morta, li teneva sotto #risultati li.
+           Spostati la' sopra, dove valgono davvero. */
 
         .budget-box {
             background: var(--bp-panel);
@@ -1300,11 +1347,12 @@
             .parametri-row-geo { grid-template-columns: 1fr; gap: 16px; }
             .budget-amount { font-size: 38px; }
             .budget-box { padding: 28px 24px; }
-            /* Righe risultato: nome sulla sua riga, quantità e costo sotto */
-            .result-section li { grid-template-columns: 1fr auto; column-gap: 12px; row-gap: 3px; }
-            .result-section li > span:first-child { grid-column: 1 / -1; overflow-wrap: anywhere; }
-            .result-section li > strong { text-align: left; min-width: 0; }
-            .result-section li > .costo-voce { text-align: right; min-width: 0; }
+            /* Righe risultato: il nome prende tutta la riga, quantita' e
+               prezzo vanno sotto e restano appaiati a destra. */
+            #risultati ul { grid-template-columns: minmax(0, 1fr) auto; }
+            #risultati li { grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 4px; }
+            #risultati li > span:first-child { grid-column: 1 / -1; overflow-wrap: anywhere; }
+            #risultati li > strong { justify-self: end; }
         }
 
         /* Intestazione documento: visibile solo nel PDF/stampa */
@@ -1359,8 +1407,8 @@
             li { border-color: #eee; }
             li strong { color: #000 !important; }
             /* Prevent ingredient names from overflowing the box */
-            .result-section li { grid-template-columns: minmax(0,1fr) auto auto; }
-            .result-section li > span:first-child { word-break: break-word; overflow-wrap: break-word; min-width: 0; color: #000 !important; }
+            #risultati li { grid-template-columns: minmax(0,1fr) auto auto; }
+            #risultati li > span:first-child { word-break: break-word; overflow-wrap: break-word; min-width: 0; color: #000 !important; }
             .costo-voce { color: #555 !important; }
             /* Budget box: force visible dark text (gradient text trick becomes invisible at print) */
             .budget-box { background: var(--bp-panel) !important; border: 1px solid #bbb !important; }
@@ -1700,11 +1748,23 @@
         select:focus-visible,
         input:focus-visible,
         [role="button"]:focus-visible,
-        [tabindex]:focus-visible {
+        [tabindex]:not([tabindex="-1"]):focus-visible {
             outline: 2px solid var(--accent-gold-1);
             outline-offset: 3px;
             border-radius: 10px;
         }
+
+        /* ⚠️ `tabindex="-1"` NON e' raggiungibile col tab: lo mette
+           `bpFocusSezione()` sul contenitore della schermata e gli da' il fuoco
+           perche' uno screen reader annunci dove sei arrivato. Chrome pero'
+           considera quel fuoco "visibile" e ci disegnava intorno l'anello: alla
+           prima apertura la home mostrava un grosso rettangolo blu attorno a
+           "Da dove vuoi iniziare?" e alla card, cioe' due riquadri annidati.
+           L'anello serve a chi naviga da tastiera per sapere dove andra' il
+           prossimo tasto: su un contenitore che il tab non raggiunge non dice
+           niente a nessuno. */
+        [tabindex="-1"]:focus,
+        [tabindex="-1"]:focus-visible { outline: none; }
         /* Nel tema chiaro l'oro chiaro sparirebbe sulla sabbia: oro profondo */
 
         /* — 3. Target tap ≥ comfort su elementi piccoli —
@@ -1751,14 +1811,14 @@
            In home lo rimpicciolisco e tolgo le decorazioni ridondanti
            (sotto c'è già l'eyebrow "Dove vuoi iniziare?"). Identità brand
            — subtitle + titolo + oro — mantenuta. Nel wizard resta intatto. */
-        body.bp-home .header { margin-bottom: 18px; }
-        body.bp-home .header h1 { font-size: 30px; margin: 4px 0 2px; }
+        body.bp-home .header { margin: 0; }
+        body.bp-home .header h1 { font-size: 20px; margin: 0; }
         body.bp-home .header > .ornament { display: none; }
         body.bp-home .header .ornament-row { display: none; }
         body.bp-home .header .subtitle { letter-spacing: 0.08em; }
         @media (max-width: 560px) {
-            body.bp-home .header h1 { font-size: 24px; }
-            body.bp-home .header { margin-bottom: 14px; }
+            body.bp-home .header h1 { font-size: 17px; }
+            body.bp-home .header { margin: 0; padding: 24px 20px; }
         }
 
         /* — 9. HOME · gerarchia griglia —
@@ -2065,19 +2125,20 @@
 
 /* ═══ blocco 7 di 9 (era riga 2242 di index.html) ═══ */
         /* — Eyebrow come "badge live" con pallino luminoso — */
+        /* Era una pillola: bordo, fondo, sfocatura, un pallino luminoso con
+           due aloni, e le lettere distanziate di .28em che la facevano leggere
+           come un'insegna. Cinque decorazioni per fare quello che fa una
+           domanda scritta bene — e sopra un bottone che ripete la stessa cosa
+           in altre parole. Ora e' una domanda, in tono normale, e la sola cosa
+           che spicca nel blocco e' l'azione. */
         body.bp-home .bph-eyebrow {
-            width: max-content; max-width: 100%; margin: 2px auto 28px;
-            display: inline-flex; align-items: center; gap: 9px;
-            padding: 7px 16px 7px 14px; border-radius: 999px;
-            border: 1px solid var(--bp-accent-soft);
-            background: var(--bp-panel);
- backdrop-filter: blur(5px);
-            color: var(--accent-gold-1); letter-spacing: .24em;
-        }
-        body.bp-home .bph-eyebrow::before {
-            content: ''; width: 7px; height: 7px; border-radius: 50%;
-            background: var(--accent-gold-1); flex: 0 0 auto;
-            box-shadow: 0 0 0 3px var(--bp-accent-soft), 0 0 10px 1px var(--bp-accent-soft);
+            margin: 6px 0 16px;
+            text-transform: none;
+            letter-spacing: 0;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--bp-ink-soft);
+            text-align: left;
         }
 
         /* — HERO · la "vetrina": glow, bordo oro vivo, sheen, icona scolpita — */
@@ -2089,7 +2150,7 @@
            un'azione e' che sia l'unica con una superficie piena e un bordo
            d'accento, non la quantita' di effetti sopra. */
         body.bp-home .bph-hero {
-            gap: 20px; padding: 34px 30px; border-radius: 20px;
+            gap: 18px; padding: 28px 26px; border-radius: 16px;
             border: 1px solid var(--bp-accent);
             background: var(--bp-accent-soft);
             box-shadow: none;
@@ -2100,23 +2161,25 @@
             background: var(--bp-panel);
             border-color: var(--bp-accent-hover);
         }
+        /* Il riquadro pieno attorno al "+" e il cerchio attorno alla freccia
+           erano due contenitori che non contenevano niente. Tolti: restano il
+           segno e la freccia, che e' quello che si guarda. */
         body.bp-home .bph-hero-ic {
-            width: 60px; height: 60px; border-radius: 16px;
-            background: var(--bp-accent);
-            color: var(--bp-on-accent);
+            width: auto; height: auto; border-radius: 0;
+            background: none;
+            color: var(--bp-accent);
+            font-size: 30px; line-height: 1;
             box-shadow: none;
         }
         body.bp-home .bph-hero-title { font-size: 26px; letter-spacing: 0.01em; }
         body.bp-home .bph-hero-desc  { font-size: 14px; margin-top: 5px; }
         body.bp-home .bph-hero-arrow {
             display: flex; align-items: center; justify-content: center;
-            width: 42px; height: 42px; border-radius: 50%; font-size: 22px; margin-left: auto;
-            border: 1px solid var(--bp-accent-soft); color: var(--accent-gold-1);
-            transition: transform .25s ease, background .25s ease, color .25s ease;
+            width: auto; height: auto; border-radius: 0; font-size: 26px; margin-left: auto;
+            border: none; color: var(--bp-accent);
+            transition: transform .25s ease;
         }
-        body.bp-home .bph-hero:hover .bph-hero-arrow {
-            background: var(--accent-gold-1); color: var(--bp-panel); transform: translateX(4px);
-        }
+        body.bp-home .bph-hero:hover .bph-hero-arrow { transform: translateX(4px); }
 
         /* — Le quattro scorciatoie —
            Superficie piatta e bordo sottile. I gradienti che c'erano andavano
@@ -2161,7 +2224,9 @@
 
         @media (max-width: 560px) {
             body.bp-home .bph-hero { padding: 24px 20px; }
-            body.bp-home .bph-hero-ic { width: 56px; height: 56px; font-size: 25px; }
+            /* Niente riquadro nemmeno qui: la media query rimetteva 56x56, e
+               con lo sfondo tolto restava una scatola vuota accanto al testo. */
+            body.bp-home .bph-hero-ic { width: auto; height: auto; font-size: 26px; }
             body.bp-home .bph-hero-title { font-size: 22px; }
         }
         @media (prefers-reduced-motion: reduce) {
@@ -2266,13 +2331,10 @@
         /* Header del wizard più scenografico: alone oro dietro al titolo.
            In home l'header è compatto → niente alone. */
         .header { position: relative; }
-        .header::after {
-            content: ''; position: absolute; z-index: -1; left: 50%; top: 38%;
-            transform: translate(-50%, -50%);
-            width: 560px; max-width: 92vw; height: 240px;
-            background: radial-gradient(50% 50% at 50% 50%, var(--bp-accent-soft), transparent 70%);
-            pointer-events: none;
-        }
+        /* L'alone d'accento dietro al titolo non ha piu' senso: la fascia e'
+           gia' una superficie, e un alone dentro una superficie grigia fa
+           macchia invece che luce. */
+        .header::after { content: none; }
         body.bp-home .header::after { display: none; }
 
         @media print { .header::after { display: none !important; } .step-panel .card { box-shadow: none !important; } }
@@ -2862,7 +2924,29 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
     display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px;
     margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--bp-line);
 }
-.mod-lbl { font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 600; color: var(--bp-ink-faint); text-transform: uppercase; letter-spacing: .03em; }
+/* Etichetta e campo stanno insieme: erano quattro figli in fila, e a schermo
+   stretto il flex-wrap poteva mandare a capo un'etichetta lasciando il suo
+   campo sulla riga sopra. */
+.mod-campo { display: flex; align-items: center; gap: 8px; flex: 0 1 auto; min-width: 0; }
+.mod-lbl { font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 600; color: var(--bp-ink-faint); text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+
+/* Un campo che non conta piu' lo dichiara, invece di sembrare attivo. */
+.mod-campo-inerte { opacity: .5; }
+.mod-campo-inerte .mod-scorta { text-decoration: line-through; }
+
+/* Una quantita' decisa a mano si vede anche a modalita' spenta: sopravvive ai
+   ricalcoli, quindi deve dire di esserci. */
+.mod-qta-tua { border-color: var(--bp-accent) !important; color: var(--bp-accent-ink); font-weight: 700; }
+#risultati li > strong.qta-tua { color: var(--bp-accent-ink); border-bottom: 2px solid var(--bp-accent); }
+
+.mod-qta-reset {
+    flex: none; width: 30px; height: 30px; padding: 0; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--bp-line-control);
+    border-radius: var(--r-sm); color: var(--bp-ink-soft);
+    font-size: 15px; cursor: pointer;
+}
+.mod-qta-reset:hover { border-color: var(--bp-accent); color: var(--bp-accent); }
 .riga-mod input {
     width: 5.5rem; min-width: 0; padding: 6px 8px; text-align: right;
     background: var(--bp-panel); border: 1px solid var(--bp-line-control);
@@ -2872,6 +2956,14 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .riga-mod input:focus { border-color: var(--bp-accent); outline: 2px solid var(--bp-accent-soft); outline-offset: 1px; }
 /* Un prezzo corretto a mano si vede: e' un dato tuo, non una stima. */
 .mod-prezzo-tuo { border-color: var(--bp-accent) !important; color: var(--bp-accent-ink); font-weight: 700; }
+
+/* Tre campi affiancati non stanno in 375px: sotto quella soglia ognuno
+   prende la sua riga, con l'etichetta a sinistra e il campo a destra. */
+@media (max-width: 600px) {
+    .riga-mod { flex-direction: column; align-items: stretch; gap: 8px; }
+    .mod-campo { justify-content: space-between; }
+    .mod-campo input { flex: 0 0 auto; }
+}
 
 @media print { .bp-modifica-btn, .riga-mod { display: none !important; } }
 
