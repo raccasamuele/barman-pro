@@ -1,20 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0d0d0f"/>
-  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="#B38E46" stroke-width="0.8" stroke-opacity="0.45"/>
-  <!-- Ambient glow -->
-  <radialGradient id="gl" cx="50%" cy="42%" r="45%">
-    <stop offset="0%" stop-color="#B38E46" stop-opacity="0.28"/>
-    <stop offset="100%" stop-color="#B38E46" stop-opacity="0"/>
-  </radialGradient>
-  <rect width="64" height="64" rx="14" fill="url(#gl)"/>
-  <!-- Martini glass: rim -->
-  <line x1="10" y1="17" x2="54" y2="17" stroke="#EAD0A1" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- Left slope -->
-  <line x1="10" y1="17" x2="32" y2="41" stroke="#C4A257" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- Right slope -->
-  <line x1="54" y1="17" x2="32" y2="41" stroke="#C4A257" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- Stem -->
-  <line x1="32" y1="41" x2="32" y2="53" stroke="#C4A257" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- Base -->
-  <line x1="23" y1="56" x2="41" y2="56" stroke="#937232" stroke-width="2.6" stroke-linecap="round"/>
+  <!-- Barman PRO: scontrino con coppa. Versione semplificata dell'icona per le misure piccole. -->
+  <rect width="64" height="64" rx="14" fill="#2e558f"/>
+  <path d="M22 12h20a3 3 0 0 1 3 3v36l-3.25-2.5L38.5 51l-3.25-2.5L32 51l-3.25-2.5L25.5 51l-3.25-2.5L19 51V15a3 3 0 0 1 3-3z" fill="#fff"/>
+  <path d="M26.5 17.5h11L32 24zM32 24v4M28.5 28.5h7" fill="none" stroke="#2e558f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24.5 35h15M24.5 41h11" fill="none" stroke="#9fb0c9" stroke-width="2.6" stroke-linecap="round"/>
 </svg>
