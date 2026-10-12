@@ -134,7 +134,7 @@
             </div>
             <div class="bp-pk-cerca">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m20 20-4.2-4.2"></path></svg>
-                <input type="search" id="bp-pk-q" autocomplete="off" data-i18n-ph="pkCerca" placeholder="Cerca un drink o un ingrediente" data-on-input-value="bpPickerCerca" aria-label="Cerca" data-i18n-aria="pkCerca">
+                <input type="search" id="bp-pk-q" class="bp-pk-q" autocomplete="off" data-i18n-ph="pkCerca" placeholder="Cerca un drink o un ingrediente" data-on-input-value="bpPickerCerca" aria-label="Cerca" data-i18n-aria="pkCerca">
             </div>
             <div class="bp-chips bp-pk-chips" role="tablist" id="bp-pk-chips">
                 <button type="button" class="bp-chip on" role="tab" aria-selected="true" data-pk-cat="tutti"><span data-i18n="evTutti">Tutti</span></button>
@@ -144,7 +144,7 @@
             </div>
             <div class="bp-pk-lista" id="bp-pk-lista"></div>
             <div class="bp-pk-piede">
-                <div class="bp-pk-conto"><b id="bp-pk-n">0</b> <span data-i18n="pkScelti">drink scelti</span></div>
+                <div class="bp-pk-conto"><b id="bp-pk-n" class="bp-pk-n">0</b> <span data-i18n="pkScelti">drink scelti</span></div>
                 <button type="button" class="bp-pk-usa" data-do="bpPickerUsa" data-i18n="pkUsa">Usa questi drink</button>
             </div>
         </div>
@@ -281,8 +281,11 @@
                 <span class="bpc-count" id="bp-cfg-count">1 / 12</span>
                 <button type="button" class="bpc-close" aria-label="Chiudi" data-i18n-aria="ariaChiudi" data-do="bpCfgClose">&times;</button>
             </div>
-            <div class="bpc-body"><div class="bpc-panel" id="bp-cfg-mount"></div></div>
+            <div class="bpc-body"><div class="bpc-panel bp-ev" id="bp-cfg-mount"></div></div>
             <div class="bpc-nav">
+                <!-- Costo stimato, sempre visibile mentre si risponde: lo
+                     scrive bpCfgAggiornaCosto() a ogni cambio. -->
+                <div class="bpc-costo" id="bp-cfg-costo" aria-live="polite"></div>
                 <button type="button" class="bpc-back" id="bp-cfg-back" data-do="bpCfgPrev" data-i18n="cfgBack">Indietro</button>
                 <button type="button" class="bpc-next" id="bp-cfg-next" data-do="bpCfgNext" data-i18n="cfgNext">Avanti</button>
             </div>

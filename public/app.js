@@ -3990,7 +3990,13 @@ Annulla = ` + T('backupUnisci'));
            sono indicizzate per "tipo|nome" perche' uno stesso nome puo' essere
            sia una ricetta sia una bottiglia da shot.
            ════════════════════════════════════════════════════════════ */
-        let bpPk = null;   // { sel: Map chiave -> {nome, tipo}, cat, q }
+        /* bpPk = { sel: Map chiave -> {nome, tipo}, cat, q, root, proposti, dopo }
+           root: dove sta il selettore (il dialogo #bp-picker oppure il passo
+           "Menù" del flusso guidato); il rendering cerca dentro root per
+           classe, cosi' lo stesso codice serve a entrambi.
+           proposti: chiavi da segnare "Proposto" (solo nel guidato).
+           dopo: richiamata a ogni cambio di scelta (il guidato aggiorna il costo). */
+        let bpPk = null;
 
         function bpPickerVoci() {
             const voci = Object.keys(databaseDrink).map(nome => ({ nome, tipo: bpTipoVoce(nome) }));
@@ -3998,10 +4004,10 @@ Annulla = ` + T('backupUnisci'));
             return voci;
         }
         function bpPickerApri() {
-            bpPk = { sel: new Map(), cat: 'tutti', q: '' };
+            bpPk = { sel: new Map(), cat: 'tutti', q: '', root: document.getElementById('bp-picker'), proposti: null, dopo: null };
             [['drink', menuSerataDrink], ['mocktail', menuSerataMocktail], ['shot', menuSerataShot]].forEach(([tipo, m]) =>
                 Object.keys(m).forEach(nome => bpPk.sel.set(tipo + '|' + nome, { nome, tipo })));
-            const q = document.getElementById('bp-pk-q'); if (q) q.value = '';
+            const q = bpPk.root && bpPk.root.querySelector('.bp-pk-q'); if (q) q.value = '';
             bpPickerRender();
             bpApriModale('bp-picker');
         }
@@ -4011,8 +4017,8 @@ Annulla = ` + T('backupUnisci'));
         const _bpNorm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
         function bpPickerRender() {
-            if (!bpPk) return;
-            const lista = document.getElementById('bp-pk-lista');
+            if (!bpPk || !bpPk.root) return;
+            const lista = bpPk.root.querySelector('.bp-pk-lista');
             if (!lista) return;
             const testo = bpPk.q.trim();
             const qn = _bpNorm(testo);
@@ -4024,15 +4030,17 @@ Annulla = ` + T('backupUnisci'));
             // spunti e' peggio di una lista non ordinata.
             const scelta = v => bpPk.sel.has(v.tipo + '|' + v.nome) ? 1 : 0;
             voci.sort((a, b) => (scelta(b) - scelta(a)) || _bpmStripHV(a.nome).localeCompare(_bpmStripHV(b.nome)));
+            const prop = bpPk.proposti;
+            const tag = '<span class="bp-pk-tag">' + _bpEsc(T('cfgProposto')) + '</span>';
             let html = voci.map(v => {
                 const k = v.tipo + '|' + v.nome, on = bpPk.sel.has(k);
                 return '<button type="button" class="bp-pk-voce' + (on ? ' on' : '') + '" role="checkbox" aria-checked="' + on + '" data-k="' + _bpEsc(k) + '">'
                     + '<span class="bp-pk-cb" aria-hidden="true"></span>'
-                    + '<span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(_bpmStripHV(v.nome)) + '</span>'
+                    + '<span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(_bpmStripHV(v.nome)) + (prop && prop.has(k) ? tag : '') + '</span>'
                     + '<span class="bp-voce-sub">' + _bpEsc(bpDescriviVoce(v.nome, v.tipo)) + '</span></span></button>';
             }).join('');
             const esiste = qn && tutte.some(v => _bpNorm(v.nome) === qn || _bpNorm(_bpmStripHV(v.nome)) === qn);
-            if (testo && !esiste) {
+            if (testo && !esiste && (bpPk.cat === 'shot' || !bpPk.proposti)) {
                 const shot = bpPk.cat === 'shot';
                 html += '<button type="button" class="bp-pk-voce bp-pk-crea" data-crea="' + _bpEsc(testo) + '">'
                     + '<span class="bp-piu" aria-hidden="true">+</span>'
@@ -4040,7 +4048,7 @@ Annulla = ` + T('backupUnisci'));
                     + '<span class="bp-voce-sub">' + _bpEsc(T(shot ? 'pkCreaShotSub' : 'pkCreaSub')) + '</span></span></button>';
             }
             lista.innerHTML = html || '<p class="bp-menu-vuoto">' + _bpEsc(T('libEmpty')) + '</p>';
-            document.querySelectorAll('#bp-pk-chips .bp-chip').forEach(c => {
+            bpPk.root.querySelectorAll('.bp-pk-chips .bp-chip').forEach(c => {
                 const on = c.dataset.pkCat === bpPk.cat;
                 c.classList.toggle('on', on);
                 c.setAttribute('aria-selected', on ? 'true' : 'false');
@@ -4049,16 +4057,17 @@ Annulla = ` + T('backupUnisci'));
         }
         function bpPickerConta() {
             const n = bpPk ? bpPk.sel.size : 0;
-            const el = document.getElementById('bp-pk-n'); if (el) el.textContent = n;
+            const el = bpPk && bpPk.root && bpPk.root.querySelector('.bp-pk-n'); if (el) el.textContent = n;
+            if (bpPk && bpPk.dopo) bpPk.dopo();
         }
 
         document.addEventListener('click', function (e) {
-            if (!bpPk || !e.target.closest('#bp-picker')) return;
+            if (!bpPk || !bpPk.root || !bpPk.root.contains(e.target)) return;
             const chip = e.target.closest('[data-pk-cat]');
             if (chip) {
                 bpPk.cat = chip.dataset.pkCat;
                 bpPickerRender();
-                const l = document.getElementById('bp-pk-lista'); if (l) l.scrollTop = 0;
+                const l = bpPk.root.querySelector('.bp-pk-lista'); if (l) l.scrollTop = 0;
                 return;
             }
             const voce = e.target.closest('[data-k]');
@@ -4107,7 +4116,7 @@ Annulla = ` + T('backupUnisci'));
                 bpCreaShot(nome);
                 bpPk.sel.set('shot|' + nome, { nome, tipo: 'shot' });
                 bpPk.q = '';
-                const q = document.getElementById('bp-pk-q'); if (q) q.value = '';
+                const q = bpPk.root.querySelector('.bp-pk-q'); if (q) q.value = '';
                 bpPickerRender();
                 return;
             }
@@ -4687,6 +4696,39 @@ Annulla = ` + T('backupUnisci'));
         };
         Object.keys(_pkI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _pkI18n[lg]); });
 
+        /* Flusso guidato a 5 passi (ottobre 2026). */
+        const _cfg5I18n = {
+            it: { cfgEvQ:"Che evento è?", cfgEvDesc:"Da qui partono il menù proposto e le quantità.", cfgOspQ:"Quanti siete e quanto si beve?", cfgOspDesc:"Una stima basta: si corregge dopo.",
+                  cfgBevQ:"Chi beve alcolici?", cfgBevDesc:"Agli altri vanno mocktail e analcolici.", cfgBevAnche:"Cosa servi oltre ai cocktail", cfgNonBevono:"{n} non bevono", cfgBevono:"{n} bevono",
+                  cfgMenuQ:"Cosa servi?", cfgMenuDesc:"Abbiamo spuntato le proposte per «{tipo}». Togli, aggiungi o vai avanti.", cfgProposto:"Proposto",
+                  cfgSumAnche:"Anche", cfgNiente:"niente", cfgRiepDesc:"Controlla e crea la lista. Ogni voce si cambia anche dopo, dalla pagina Evento.", cfgPassoDi:"{n} di {tot}", cfgFatto:"Lista pronta. Si cambia tutto da Evento." },
+            en: { cfgEvQ:"What's the event?", cfgEvDesc:"The suggested menu and the quantities start from here.", cfgOspQ:"How many of you, and how much drinking?", cfgOspDesc:"An estimate is fine: you can fix it later.",
+                  cfgBevQ:"Who drinks alcohol?", cfgBevDesc:"Everyone else gets mocktails and soft drinks.", cfgBevAnche:"What else besides cocktails", cfgNonBevono:"{n} don't drink", cfgBevono:"{n} drink",
+                  cfgMenuQ:"What will you serve?", cfgMenuDesc:"We ticked the suggestions for \"{tipo}\". Remove, add, or just go on.", cfgProposto:"Suggested",
+                  cfgSumAnche:"Also", cfgNiente:"nothing", cfgRiepDesc:"Check it and make the list. Everything can still be changed from the Event page.", cfgPassoDi:"{n} of {tot}", cfgFatto:"List ready. Change anything from Event." },
+            es: { cfgEvQ:"¿Qué evento es?", cfgEvDesc:"De aquí salen el menú propuesto y las cantidades.", cfgOspQ:"¿Cuántos sois y cuánto se bebe?", cfgOspDesc:"Basta con una estimación: se corrige después.",
+                  cfgBevQ:"¿Quién bebe alcohol?", cfgBevDesc:"Los demás toman mocktails y refrescos.", cfgBevAnche:"Qué más sirves además de cócteles", cfgNonBevono:"{n} no beben", cfgBevono:"{n} beben",
+                  cfgMenuQ:"¿Qué sirves?", cfgMenuDesc:"Hemos marcado las propuestas para «{tipo}». Quita, añade o sigue.", cfgProposto:"Propuesto",
+                  cfgSumAnche:"También", cfgNiente:"nada", cfgRiepDesc:"Revisa y crea la lista. Todo se puede cambiar después desde Evento.", cfgPassoDi:"{n} de {tot}", cfgFatto:"Lista preparada. Todo se cambia desde Evento." },
+            fr: { cfgEvQ:"Quel événement ?", cfgEvDesc:"Le menu proposé et les quantités partent d'ici.", cfgOspQ:"Combien êtes-vous et combien boit-on ?", cfgOspDesc:"Une estimation suffit : on corrige après.",
+                  cfgBevQ:"Qui boit de l'alcool ?", cfgBevDesc:"Les autres auront des mocktails et des softs.", cfgBevAnche:"Quoi d'autre en plus des cocktails", cfgNonBevono:"{n} ne boivent pas", cfgBevono:"{n} boivent",
+                  cfgMenuQ:"Que sers-tu ?", cfgMenuDesc:"On a coché les propositions pour « {tipo} ». Retire, ajoute ou continue.", cfgProposto:"Proposé",
+                  cfgSumAnche:"Aussi", cfgNiente:"rien", cfgRiepDesc:"Vérifie et crée la liste. Tout se modifie encore depuis Événement.", cfgPassoDi:"{n} sur {tot}", cfgFatto:"Liste prête. Tout se modifie depuis Événement." },
+            de: { cfgEvQ:"Was für ein Event?", cfgEvDesc:"Davon hängen das vorgeschlagene Menü und die Mengen ab.", cfgOspQ:"Wie viele seid ihr, und wie viel wird getrunken?", cfgOspDesc:"Eine Schätzung reicht: später korrigierbar.",
+                  cfgBevQ:"Wer trinkt Alkohol?", cfgBevDesc:"Alle anderen bekommen Mocktails und Softdrinks.", cfgBevAnche:"Was außer Cocktails", cfgNonBevono:"{n} trinken nicht", cfgBevono:"{n} trinken",
+                  cfgMenuQ:"Was servierst du?", cfgMenuDesc:"Die Vorschläge für «{tipo}» sind angehakt. Entfernen, hinzufügen oder weiter.", cfgProposto:"Vorschlag",
+                  cfgSumAnche:"Außerdem", cfgNiente:"nichts", cfgRiepDesc:"Prüfen und Liste erstellen. Alles lässt sich später unter Event ändern.", cfgPassoDi:"{n} von {tot}", cfgFatto:"Liste fertig. Ändern geht unter Event." },
+            pt: { cfgEvQ:"Que evento é?", cfgEvDesc:"Daqui saem o menu sugerido e as quantidades.", cfgOspQ:"Quantos são e quanto se bebe?", cfgOspDesc:"Uma estimativa chega: corrige-se depois.",
+                  cfgBevQ:"Quem bebe álcool?", cfgBevDesc:"Os outros recebem mocktails e refrigerantes.", cfgBevAnche:"O que mais além de cocktails", cfgNonBevono:"{n} não bebem", cfgBevono:"{n} bebem",
+                  cfgMenuQ:"O que vais servir?", cfgMenuDesc:"Marcámos as sugestões para «{tipo}». Tira, adiciona ou continua.", cfgProposto:"Sugerido",
+                  cfgSumAnche:"Também", cfgNiente:"nada", cfgRiepDesc:"Confirma e cria a lista. Tudo se altera depois a partir de Evento.", cfgPassoDi:"{n} de {tot}", cfgFatto:"Lista pronta. Altera tudo em Evento." },
+            nl: { cfgEvQ:"Wat voor event?", cfgEvDesc:"Hier beginnen het voorgestelde menu en de hoeveelheden.", cfgOspQ:"Met hoeveel zijn jullie en hoeveel wordt er gedronken?", cfgOspDesc:"Een schatting is genoeg: later aan te passen.",
+                  cfgBevQ:"Wie drinkt alcohol?", cfgBevDesc:"De anderen krijgen mocktails en frisdrank.", cfgBevAnche:"Wat nog meer naast cocktails", cfgNonBevono:"{n} drinken niet", cfgBevono:"{n} drinken",
+                  cfgMenuQ:"Wat schenk je?", cfgMenuDesc:"De voorstellen voor „{tipo}” zijn aangevinkt. Haal weg, voeg toe of ga door.", cfgProposto:"Voorstel",
+                  cfgSumAnche:"Ook", cfgNiente:"niets", cfgRiepDesc:"Controleer en maak de lijst. Alles kan later nog via Event.", cfgPassoDi:"{n} van {tot}", cfgFatto:"Lijst klaar. Alles aanpassen kan via Event." }
+        };
+        Object.keys(_cfg5I18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _cfg5I18n[lg]); });
+
         const _ariaI18n = {
             it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
             en: { ariaAiuto:"Help", ariaChiudi:"Close", ariaHome:"Home", ariaPassi:"Steps", ariaTema:"Theme", ariaLingua:"Language", ariaCollegamenti:"Links", ariaEventi:"My events", ariaRicettario:"Recipe library", ariaMenuEsporre:"Menu to display", ariaStileMenu:"Menu style" },
@@ -4710,8 +4752,9 @@ Annulla = ` + T('backupUnisci'));
         };
         Object.keys(_extraI18nUi).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _extraI18nUi[lg]); });
 
-        const BP_CFG_STEPS = ['nome','tipo','ospiti','durata','intensita','pct','mocktail','shot','fermentati','fascia','scarto','stile','riepilogo'];
-        let bpCfgIdx = 0, bpCfgDir = 1, bpCfgBusy = false, bpCfgNomeEvento = '';
+        const BP_CFG_STEPS = ['evento', 'ospiti', 'bevitori', 'menu', 'riepilogo'];
+        let bpCfgIdx = 0, bpCfgDir = 1, bpCfgNomeEvento = '';
+        let bpCfgScelta = null, bpCfgSceltaChiave = '', bpCfgPesi = {};   // menu scelto nel guidato
         const bpCfg = { nome:'', tipo:'serata', ospiti:50, durata:'media', intensita:'media', pct:80, mocktail:true, shot:true, fermentati:true, fascia:'media', scarto:15, stile:'classico' };
 
         function _bpEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -4740,6 +4783,7 @@ Annulla = ` + T('backupUnisci'));
             const fSel = document.getElementById('sel-fascia');
             if (fSel && ['bassa','media','alta'].includes(fSel.value)) bpCfg.fascia = fSel.value;
             if (bpCfgNomeEvento) bpCfg.nome = bpCfgNomeEvento;
+            bpCfgScelta = null;   // ogni configurazione riparte dalle proposte
             bpChiudiModale('bp-welcome');
             bpApriModale('bp-config');
             bpCfgIdx = 0; bpCfgDir = 1;
@@ -4812,174 +4856,251 @@ Annulla = ` + T('backupUnisci'));
             return parts.length ? parts.join(' · ') : T('cfgUnitNone');
         }
 
-        function _bpHead(ey, q, desc, moreKey){
-            let h = '<div class="bpc-eyebrow">' + T(ey) + '</div>';
-            h += '<h2 class="bpc-q" id="bp-cfg-q">' + T(q) + '</h2>';
-            h += '<p class="bpc-desc">' + T(desc) + '</p>';
-            if (moreKey) h += '<details class="bpc-more"><summary>' + T('cfgMoreLabel') + '</summary><p>' + T(moreKey) + '</p></details>';
-            return h;
-        }
-        function _bpChips(field, opts, wrap){
-            let h = '<div class="bpc-chips' + (wrap ? ' bpc-wrap' : '') + '">';
-            opts.forEach(o => {
-                const sel = (bpCfg[field] === o.val) ? ' sel' : '';
-                h += '<button type="button" class="bpc-chip' + sel + '" data-val="' + o.val + '"><span>' + T(o.label) + '</span>' +
-                     (o.sub ? '<span class="bpc-chip-sub">' + T(o.sub) + '</span>' : '') + '</button>';
-            });
-            return h + '</div>';
-        }
-        function _bpStepper(field, unitKey){
-            return '<div class="bpc-stepper"><button type="button" data-act="dec" aria-label="−">−</button>' +
-                   '<input type="number" inputmode="numeric" class="bpc-valinput" id="bpc-stepval" value="' + bpCfg[field] + '" aria-label="' + T(unitKey) + '">' +
-                   '<button type="button" data-act="inc" aria-label="+">+</button></div>' +
-                   '<div class="bpc-unit">' + T(unitKey) + '</div>';
-        }
-        function _bpToggle(field){
-            const y = bpCfg[field] ? ' sel' : '', n = bpCfg[field] ? '' : ' sel';
-            return '<div class="bpc-toggle"><button type="button" class="bpc-seg' + y + '" data-val="1">' + T('cfgYes') +
-                   '</button><button type="button" class="bpc-seg' + n + '" data-val="0">' + T('cfgNo') + '</button></div>';
-        }
-        function _bpSlider(){
-            return '<div class="bpc-slider-display"><span id="bpc-pctv">' + bpCfg.pct + '</span>% ' + T('lblAlcolici') +
-                   ' <span class="bpc-inv">/ <span id="bpc-pctinv">' + (100 - bpCfg.pct) + '</span>% ' + T('lblAnalcolici') + '</span></div>' +
-                   '<div class="bpc-slider-wrap"><input type="range" min="0" max="100" value="' + bpCfg.pct + '" id="bpc-pct" aria-label="%"></div>' +
-                   '<div class="bpc-slider-legend"><span>0%</span><span>100%</span></div>';
-        }
-        function _bpSummary(){
+        /* ════════════════════════════════════════════════════════════
+           FLUSSO GUIDATO · 5 passi (ottobre 2026)
+           Erano 13 schermate da una domanda, con riquadri grigi e
+           avanzamento automatico. Ora: evento, ospiti, chi beve, menu,
+           riepilogo. Al passo Menu c'e' il selettore drink, lo stesso di
+           "Aggiungi drink", con le proposte del tipo di evento gia' spuntate:
+           chi vuole solo il suggerimento preme Avanti.
+           I controlli passano per delega (un listener solo, piu' sotto).
+           ════════════════════════════════════════════════════════════ */
+
+        /* Scelta del menu: le proposte piu' quello che l'utente aggiunge o
+           toglie. Si ricalcola solo se cambiano le risposte da cui dipende
+           (tipo, mocktail, shot): tornare indietro a cambiare gli ospiti non
+           deve buttare via quello che si e' scelto. */
+        function bpCfgProposte() {
+            const chiave = bpCfg.tipo + '|' + bpCfg.mocktail + '|' + bpCfg.shot;
+            if (bpCfgScelta && chiave === bpCfgSceltaChiave) return;
             const d = bpCfgDerive();
-            const rows = [
-                [T('cfgSumNome'),   bpCfg.nome ? _bpEsc(bpCfg.nome) : T('cfgSumNomeVuoto')],
-                [T('cfgSumTipo'),   T('cfgTipo' + _bpCap(bpCfg.tipo))],
-                [T('cfgSumOspiti'), bpCfg.ospiti],
-                [T('cfgSumConsumo'),T('cfgInt' + _bpCap(bpCfg.intensita)) + ' · ' + T('cfgDur' + _bpCap(bpCfg.durata))],
-                [T('cfgSumPct'),    bpCfg.pct + '%'],
-                [T('cfgSumFascia'), T('cfgFascia' + _bpCap(bpCfg.fascia))],
-                [T('cfgSumMenu'),   _bpMenuStr(d)]
-            ];
-            let h = '<div class="bpc-summary">';
-            rows.forEach(r => { h += '<div class="bpc-summary-row"><span class="k">' + r[0] + '</span><span class="v">' + r[1] + '</span></div>'; });
-            h += '</div>';
-            // ─── Stima costo in tempo reale ───
+            bpCfgScelta = new Map();
+            bpCfgPesi = {};
+            [['drink', d.drink], ['mocktail', d.mocktail], ['shot', d.shot]].forEach(([tipo, m]) =>
+                Object.keys(m).forEach(nome => {
+                    const k = tipo + '|' + nome;
+                    bpCfgScelta.set(k, { nome, tipo });
+                    bpCfgPesi[k] = m[nome];
+                }));
+            bpCfgSceltaChiave = chiave;
+        }
+        /* Il menu che il guidato applicherebbe adesso: le voci scelte, con il
+           peso del profilo se erano proposte, 3 se le ha aggiunte l'utente. */
+        function bpCfgMenu() {
+            bpCfgProposte();
+            const out = { drink: {}, mocktail: {}, shot: {} };
+            bpCfgScelta.forEach(({ nome, tipo }, k) => { out[tipo][nome] = bpCfgPesi[k] || 3; });
+            return out;
+        }
+        /* Shot scelti a mano con "shot" spento: a testa vale comunque la dose
+           del consumo, altrimenti finirebbero nel menu e non nella spesa. */
+        function bpCfgShotTesta(d, m) {
+            if (d.shotTesta || !Object.keys(m.shot).length) return d.shotTesta;
+            return ({ leggera:0.5, media:1, alta:1.5 })[bpCfg.intensita] || 1;
+        }
+        function bpCfgStima() {
+            const d = bpCfgDerive(), m = bpCfgMenu();
             try {
-                const est = stimaBudget({
-                    ospiti: bpCfg.ospiti, drinkTesta: d.drinkTesta, shotTesta: d.shotTesta, scarto: bpCfg.scarto,
+                return stimaBudget({
+                    ospiti: bpCfg.ospiti, drinkTesta: d.drinkTesta, shotTesta: bpCfgShotTesta(d, m), scarto: bpCfg.scarto,
                     pct: bpCfg.pct, fascia: bpCfg.fascia, nazione: (document.getElementById('sel-nazione') || {}).value || '',
-                    drink: d.drink, mocktail: d.mocktail, shot: d.shot,
+                    drink: m.drink, mocktail: m.mocktail, shot: m.shot,
                     ferm: { rosso: d.ferm.rosso, bianco: d.ferm.bianco, bollicine: d.ferm.bollicine, birra: d.ferm.birra },
                     ...bpModificatoriCorrenti()
-                });
-                const totStr = '€ ' + est.totale.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                const ppStr = (bpCfg.ospiti > 0) ? '≈ € ' + (est.totale / bpCfg.ospiti).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + T('perPersonaTxt') : '';
-                h += '<div class="bpc-costbox"><span class="cb-k">' + T('budgetLabel') + '</span><span class="cb-v">' + totStr + '</span>' +
-                     (ppStr ? '<span class="cb-pp">' + ppStr + '</span>' : '') + '</div>';
-            } catch (e) { /* stima non bloccante */ }
-            h += '<div class="bpc-readout"><strong>' + bpCfg.ospiti + ' ' + T('cfgReadGuests') + '</strong> · ' +
-                 T('cfgStile' + _bpCap(bpCfg.stile)) + ' · ~' + _bpNum(d.drinkTesta) + ' ' + T('cfgReadDrinkEach') +
-                 '<br>' + T('cfgReadPrudent') + '</div>';
-            return h;
+                }).totale;
+            } catch (e) { return null; }   // la stima non deve mai bloccare il flusso
+        }
+        const _bpEuro0 = n => '€ ' + n.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        const _bpEuro2 = n => '€ ' + n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        function bpCfgAggiornaCosto() {
+            const box = document.getElementById('bp-cfg-costo');
+            if (!box) return;
+            // Nel riepilogo il costo e' gia' il riquadro grande: in barra
+            // sarebbe un doppione, e stringerebbe "Genera la lista".
+            if (BP_CFG_STEPS[bpCfgIdx] === 'riepilogo') { box.innerHTML = ''; return; }
+            const tot = bpCfgStima();
+            if (tot == null || !bpCfg.ospiti) { box.innerHTML = ''; return; }
+            box.innerHTML = '<b>' + _bpEuro0(tot) + '</b><span>≈ ' + _bpEuro2(tot / bpCfg.ospiti) + ' ' + _bpEsc(T('perPersonaTxt')) + '</span>';
         }
 
-        function bpCfgStepHTML(step){
-            switch(step){
-                case 'nome':       return _bpHead('cfgEyName','cfgNomeQ','cfgNomeDesc') +
-                    '<input type="text" class="bpc-text" id="bpc-nome" maxlength="60" value="' + _bpEsc(bpCfg.nome) + '" placeholder="' + _bpEsc(T('cfgNomePh')) + '">';
-                case 'tipo':       return _bpHead('cfgEyType','cfgTipoQ','cfgTipoDesc') + _bpChips('tipo', [
-                    {val:'matrimonio',label:'cfgTipoMatrimonio',sub:'cfgTipoMatrimonioSub'},
-                    {val:'compleanno',label:'cfgTipoCompleanno',sub:'cfgTipoCompleannoSub'},
-                    {val:'aperitivo', label:'cfgTipoAperitivo', sub:'cfgTipoAperitivoSub'},
-                    {val:'serata',    label:'cfgTipoSerata',    sub:'cfgTipoSerataSub'},
-                    {val:'aziendale', label:'cfgTipoAziendale', sub:'cfgTipoAziendaleSub'}]);
-                case 'ospiti':     return _bpHead('cfgEyGuests','cfgOspitiQ','cfgOspitiDesc') + _bpStepper('ospiti','cfgOspitiUnit');
-                case 'durata':     return _bpHead('cfgEyDuration','cfgDurataQ','cfgDurataDesc') + _bpChips('durata', [
-                    {val:'breve',label:'cfgDurBreve',sub:'cfgDurBreveSub'},
-                    {val:'media',label:'cfgDurMedia',sub:'cfgDurMediaSub'},
-                    {val:'lunga',label:'cfgDurLunga',sub:'cfgDurLungaSub'}]);
-                case 'intensita':  return _bpHead('cfgEyIntensity','cfgIntQ','cfgIntDesc') + _bpChips('intensita', [
-                    {val:'leggera',label:'cfgIntLeggera',sub:'cfgIntLeggeraSub'},
-                    {val:'media',  label:'cfgIntMedia',  sub:'cfgIntMediaSub'},
-                    {val:'alta',   label:'cfgIntAlta',   sub:'cfgIntAltaSub'}]);
-                case 'pct':        return _bpHead('cfgEyDrinkers','cfgPctQ','cfgPctDesc','cfgPctMore') + _bpSlider();
-                case 'mocktail':   return _bpHead('cfgEyMocktail','cfgMockQ','cfgMockDesc') + _bpToggle('mocktail');
-                case 'shot':       return _bpHead('cfgEyShot','cfgShotQ','cfgShotDesc') + _bpToggle('shot');
-                case 'fermentati': return _bpHead('cfgEyFerm','cfgFermQ','cfgFermDesc') + _bpToggle('fermentati');
-                case 'fascia':     return _bpHead('cfgEyPrice','cfgFasciaQ','cfgFasciaDesc') + _bpChips('fascia', [
-                    {val:'bassa',label:'cfgFasciaBassa',sub:'cfgFasciaBassaSub'},
-                    {val:'media',label:'cfgFasciaMedia',sub:'cfgFasciaMediaSub'},
-                    {val:'alta', label:'cfgFasciaAlta', sub:'cfgFasciaAltaSub'}]);
-                case 'scarto':     return _bpHead('cfgEyMargin','cfgScartoQ','cfgScartoDesc','cfgScartoMore') + _bpStepper('scarto','cfgEyMargin');
-                case 'stile':      return _bpHead('cfgEyStyle','cfgStileQ','cfgStileDesc') + _bpChips('stile', [
-                    {val:'essenziale',label:'cfgStileEssenziale',sub:'cfgStileEssenzialeSub'},
-                    {val:'classico',  label:'cfgStileClassico',  sub:'cfgStileClassicoSub'},
-                    {val:'ricco',     label:'cfgStileRicco',     sub:'cfgStileRiccoSub'}]);
-                case 'riepilogo':  return _bpHead('cfgEySummary','cfgSummaryQ','cfgSummaryDesc') + _bpSummary();
+        function _bpCfgTesta(ey, q, desc) {
+            return '<div class="bpc-eyebrow">' + _bpEsc(T(ey)) + '</div>'
+                + '<h2 class="bpc-q" id="bp-cfg-q">' + _bpEsc(q) + '</h2>'
+                + (desc ? '<p class="bpc-desc">' + _bpEsc(desc) + '</p>' : '');
+        }
+        function _bpCfgSeg(campo, opz) {
+            return '<div class="bp-seg" role="radiogroup">' + opz.map(([v, k]) => {
+                const on = bpCfg[campo] === v;
+                return '<button type="button" role="radio" aria-checked="' + on + '" class="' + (on ? 'on' : '') + '" data-cfg-seg="' + campo + '" data-val="' + v + '">' + _bpEsc(T(k)) + '</button>';
+            }).join('') + '</div>';
+        }
+        function _bpCfgSw(campo, lblKey, subKey) {
+            return '<div class="bp-riga"><span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(T(lblKey)) + '</span>'
+                + '<span class="bp-voce-sub bp-sub-a-capo">' + _bpEsc(T(subKey)) + '</span></span>'
+                + '<button type="button" class="bp-sw" role="switch" aria-checked="' + !!bpCfg[campo] + '" data-cfg-sw="' + campo + '" aria-label="' + _bpEsc(T(lblKey)) + '"></button></div>';
+        }
+        const BP_CFG_DUR_SUB = { breve: 'cfgDurBreveSub', media: 'cfgDurMediaSub', lunga: 'cfgDurLungaSub' };
+        const BP_CFG_TIPI = ['matrimonio', 'compleanno', 'aperitivo', 'serata', 'aziendale'];
+
+        function bpCfgStepHTML(step) {
+            if (step === 'evento') {
+                return _bpCfgTesta('evStep', T('cfgEvQ'), T('cfgEvDesc'))
+                    + '<input type="text" class="bpc-text" id="bpc-nome" maxlength="60" value="' + _bpEsc(bpCfg.nome) + '" placeholder="' + _bpEsc(T('cfgNomePh')) + '" aria-label="' + _bpEsc(T('cfgEyName')) + '">'
+                    + '<div class="bp-gruppo bpc-gruppo" role="radiogroup" aria-labelledby="bp-cfg-q">'
+                    + BP_CFG_TIPI.map(v => {
+                        const on = bpCfg.tipo === v, c = _bpCap(v);
+                        return '<button type="button" role="radio" aria-checked="' + on + '" class="bp-opz' + (on ? ' sel' : '') + '" data-cfg-tipo="' + v + '">'
+                            + '<span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(T('cfgTipo' + c)) + '</span>'
+                            + '<span class="bp-voce-sub">' + _bpEsc(T('cfgTipo' + c + 'Sub')) + '</span></span>'
+                            + '<span class="bp-radio" aria-hidden="true"></span></button>';
+                    }).join('') + '</div>';
             }
-            return '';
+            if (step === 'ospiti') {
+                return _bpCfgTesta('cfgEyGuests', T('cfgOspQ'), T('cfgOspDesc'))
+                    + '<div class="bp-gruppo bpc-gruppo">'
+                    + '<div class="bp-riga"><label class="bp-riga-lbl" for="bpc-ospiti">' + _bpEsc(T('cfgEyGuests')) + '</label>'
+                    + '<div class="bp-stepper"><button type="button" class="bp-step-btn" data-cfg-passo="-5" aria-label="−5">&minus;</button>'
+                    + '<input type="number" id="bpc-ospiti" min="1" max="5000" inputmode="numeric" value="' + bpCfg.ospiti + '">'
+                    + '<button type="button" class="bp-step-btn" data-cfg-passo="5" aria-label="+5">+</button></div></div>'
+                    + '<div class="bp-riga bp-riga-col"><div class="bp-riga-testa"><span class="bp-riga-lbl">' + _bpEsc(T('cfgEyDuration')) + '</span>'
+                    + '<span class="bp-riga-nota" id="bpc-dur-sub">' + _bpEsc(T(BP_CFG_DUR_SUB[bpCfg.durata] || 'cfgDurMediaSub')) + '</span></div>'
+                    + _bpCfgSeg('durata', [['breve', 'cfgDurBreve'], ['media', 'cfgDurMedia'], ['lunga', 'cfgDurLunga']]) + '</div>'
+                    + '<div class="bp-riga bp-riga-col"><span class="bp-riga-lbl">' + _bpEsc(T('cfgEyIntensity')) + '</span>'
+                    + _bpCfgSeg('intensita', [['leggera', 'cfgIntLeggera'], ['media', 'cfgIntMedia'], ['alta', 'cfgIntAlta']]) + '</div>'
+                    + '<div class="bp-riga bp-riga-col"><span class="bp-riga-lbl">' + _bpEsc(T('cfgEyPrice')) + '</span>'
+                    + _bpCfgSeg('fascia', [['bassa', 'cfgFasciaBassa'], ['media', 'cfgFasciaMedia'], ['alta', 'cfgFasciaAlta']]) + '</div>'
+                    + '</div>';
+            }
+            if (step === 'bevitori') {
+                const pers = Math.round(bpCfg.ospiti * bpCfg.pct / 100);
+                return _bpCfgTesta('cfgEyDrinkers', T('cfgBevQ'), T('cfgBevDesc'))
+                    + '<div class="bp-gruppo bpc-gruppo"><div class="bp-riga bp-riga-col">'
+                    + '<div class="bp-riga-testa"><span class="bp-bevitori"><b id="bpc-bev-pers">' + pers + '</b> / ' + bpCfg.ospiti + '</span>'
+                    + '<span class="bp-riga-nota" id="bpc-bev-no">' + _bpEsc(T('cfgNonBevono').replace('{n}', bpCfg.ospiti - pers)) + '</span></div>'
+                    + '<input type="range" id="bpc-pct" min="0" max="100" value="' + bpCfg.pct + '" aria-label="' + _bpEsc(T('evChiBeve')) + '"></div></div>'
+                    + '<h3 class="bp-ev-tit bpc-sotto">' + _bpEsc(T('cfgBevAnche')) + '</h3>'
+                    + '<div class="bp-gruppo bpc-gruppo">'
+                    + _bpCfgSw('mocktail', 'cfgEyMocktail', 'cfgMockDesc')
+                    + _bpCfgSw('shot', 'cfgEyShot', 'cfgShotDesc')
+                    + _bpCfgSw('fermentati', 'cfgEyFerm', 'cfgFermDesc')
+                    + '</div>';
+            }
+            if (step === 'menu') {
+                return _bpCfgTesta('evMenu', T('cfgMenuQ'), T('cfgMenuDesc').replace('{tipo}', T('cfgTipo' + _bpCap(bpCfg.tipo))))
+                    + '<div class="bp-pk-cerca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m20 20-4.2-4.2"></path></svg>'
+                    + '<input type="search" class="bp-pk-q" autocomplete="off" data-on-input-value="bpPickerCerca" placeholder="' + _bpEsc(T('pkCerca')) + '" aria-label="' + _bpEsc(T('pkCerca')) + '"></div>'
+                    + '<div class="bp-chips bp-pk-chips" role="tablist">'
+                    + [['tutti', 'evTutti'], ['drink', 'evCocktail'], ['mocktail', 'evAnalcolici'], ['shot', 'evShot']].map(([c, k]) =>
+                        '<button type="button" class="bp-chip' + (c === 'tutti' ? ' on' : '') + '" role="tab" aria-selected="' + (c === 'tutti') + '" data-pk-cat="' + c + '">' + _bpEsc(T(k)) + '</button>').join('')
+                    + '</div>'
+                    + '<p class="bpc-conto"><b class="bp-pk-n">0</b> ' + _bpEsc(T('pkScelti')) + '</p>'
+                    + '<div class="bp-pk-lista bpc-pk-lista"></div>';
+            }
+            // riepilogo
+            const d = bpCfgDerive(), m = bpCfgMenu();
+            const pers = Math.round(bpCfg.ospiti * bpCfg.pct / 100);
+            const anche = [bpCfg.mocktail && T('cfgEyMocktail'), bpCfg.shot && T('cfgEyShot'), bpCfg.fermentati && T('cfgEyFerm')].filter(Boolean);
+            const righe = [
+                [T('cfgSumNome'), (bpCfg.nome || T('cfgSumNomeVuoto')) + ' · ' + T('cfgTipo' + _bpCap(bpCfg.tipo))],
+                [T('cfgSumOspiti'), bpCfg.ospiti + ' · ' + T('cfgBevono').replace('{n}', pers)],
+                [T('cfgSumConsumo'), T('cfgDur' + _bpCap(bpCfg.durata)) + ' · ' + T('cfgInt' + _bpCap(bpCfg.intensita))],
+                [T('cfgSumFascia'), T('cfgFascia' + _bpCap(bpCfg.fascia))],
+                [T('cfgSumMenu'), _bpMenuStr(m)],
+                [T('cfgSumAnche'), anche.length ? anche.join(', ') : T('cfgNiente')]
+            ];
+            const tot = bpCfgStima();
+            return _bpCfgTesta('cfgEySummary', T('cfgSummaryQ'), T('cfgRiepDesc'))
+                + '<div class="bp-gruppo bpc-gruppo">' + righe.map(r =>
+                    '<div class="bp-riep"><span>' + _bpEsc(r[0]) + '</span><span>' + _bpEsc(String(r[1])) + '</span></div>').join('') + '</div>'
+                + (tot != null ? '<div class="bpc-totale"><span class="bpc-totale-k">' + _bpEsc(T('budgetLabel')) + '</span>'
+                    + '<b>' + _bpEuro0(tot) + '</b><span>≈ ' + _bpEuro2(tot / Math.max(1, bpCfg.ospiti)) + ' ' + _bpEsc(T('perPersonaTxt')) + '</span></div>' : '')
+                + '<p class="bpc-nota">~' + _bpNum(d.drinkTesta) + ' ' + _bpEsc(T('cfgReadDrinkEach')) + ' · ' + _bpEsc(T('cfgReadPrudent')) + '</p>';
         }
 
-        function bpCfgWire(step, mount){
-            const auto = () => { if (bpCfgBusy) return; bpCfgBusy = true; setTimeout(() => { bpCfgBusy = false; bpCfgNext(); }, 200); };
-            const chipPick = (field) => {
-                mount.querySelectorAll('.bpc-chip').forEach(b => b.addEventListener('click', () => {
-                    bpCfg[field] = b.dataset.val;
-                    mount.querySelectorAll('.bpc-chip').forEach(x => x.classList.toggle('sel', x === b));
-                    auto();
-                }));
-            };
-            if (['tipo','durata','intensita','fascia','stile'].includes(step)) { chipPick(step); return; }
-            if (['mocktail','shot','fermentati'].includes(step)) {
-                mount.querySelectorAll('.bpc-seg').forEach(b => b.addEventListener('click', () => {
-                    bpCfg[step] = b.dataset.val === '1';
-                    mount.querySelectorAll('.bpc-seg').forEach(x => x.classList.toggle('sel', x === b));
-                    auto();
-                }));
-                return;
-            }
-            if (step === 'ospiti' || step === 'scarto') {
-                const conf = step === 'ospiti' ? { stepv:5, min:1, max:5000 } : { stepv:5, min:0, max:90 };
-                const inp = mount.querySelector('#bpc-stepval');
-                const clamp = v => Math.min(conf.max, Math.max(conf.min, v));
-                mount.querySelectorAll('.bpc-stepper button').forEach(b => b.addEventListener('click', () => {
-                    bpCfg[step] = clamp((parseInt(inp.value) || bpCfg[step] || 0) + (b.dataset.act === 'inc' ? conf.stepv : -conf.stepv));
-                    inp.value = bpCfg[step];
-                }));
-                inp.addEventListener('input', () => { const n = parseInt(inp.value); if (!isNaN(n)) bpCfg[step] = n; });
-                inp.addEventListener('blur', () => { bpCfg[step] = clamp(parseInt(inp.value) || conf.min); inp.value = bpCfg[step]; });
-                return;
-            }
-            if (step === 'pct') {
-                const sl = mount.querySelector('#bpc-pct'), v = mount.querySelector('#bpc-pctv'), inv = mount.querySelector('#bpc-pctinv');
-                sl.addEventListener('input', function(){ bpCfg.pct = parseInt(this.value) || 0; v.textContent = bpCfg.pct; inv.textContent = 100 - bpCfg.pct; });
-                return;
-            }
-            if (step === 'nome') {
-                const t = mount.querySelector('#bpc-nome');
-                t.addEventListener('input', function(){ bpCfg.nome = this.value; });
-                return;
-            }
+        /* Passo Menu: il selettore drink lavora direttamente sulla scelta del
+           guidato (stessa Map), cosi' non c'e' niente da ricopiare tornando
+           indietro o andando avanti. */
+        function bpCfgMontaSelettore(mount) {
+            bpCfgProposte();
+            bpPk = { sel: bpCfgScelta, cat: 'tutti', q: '', root: mount,
+                     proposti: new Set(Object.keys(bpCfgPesi)), dopo: bpCfgAggiornaCosto };
+            bpPickerRender();
         }
 
-        function bpCfgRender(){
+        function bpCfgRender() {
             const step = BP_CFG_STEPS[bpCfgIdx];
             const tot = BP_CFG_STEPS.length;
             const mount = document.getElementById('bp-cfg-mount');
+            if (bpPk && bpPk.root === mount) bpPk = null;
             document.getElementById('bp-cfg-progress').style.width = Math.round(((bpCfgIdx + 1) / tot) * 100) + '%';
-            document.getElementById('bp-cfg-count').textContent = (bpCfgIdx + 1) + ' / ' + tot;
+            document.getElementById('bp-cfg-count').textContent = T('cfgPassoDi').replace('{n}', bpCfgIdx + 1).replace('{tot}', tot);
             document.getElementById('bp-cfg-back').textContent = T('cfgBack');
-            document.getElementById('bp-cfg-next').textContent = (bpCfgIdx === tot - 1) ? T('cfgApply') : T('cfgNext');
+            document.getElementById('bp-cfg-next').textContent = (bpCfgIdx === tot - 1) ? T('evGenera') : T('cfgNext');
             mount.innerHTML = bpCfgStepHTML(step);
-            bpCfgWire(step, mount);
+            if (step === 'menu') bpCfgMontaSelettore(mount);
+            bpCfgAggiornaCosto();
+            const ov = document.getElementById('bp-config'); if (ov) ov.scrollTop = 0;
             mount.style.setProperty('--bpc-dx', bpCfgDir < 0 ? '-24px' : '24px');
             mount.classList.remove('bpc-anim'); void mount.offsetWidth; mount.classList.add('bpc-anim');
             // Rilascia il layer GPU (will-change) quando l'animazione è finita
             mount.addEventListener('animationend', () => mount.classList.remove('bpc-anim'), { once: true });
         }
 
+        /* Delega: un listener per tutti i controlli del guidato. Aggiorna lo
+           stato e il controllo toccato sul posto, senza ridisegnare il passo
+           (che rifarebbe partire l'animazione e perderebbe il fuoco). */
+        document.addEventListener('click', function (e) {
+            const mount = document.getElementById('bp-cfg-mount');
+            if (!mount || !mount.contains(e.target)) return;
+            const t = e.target.closest('[data-cfg-tipo],[data-cfg-seg],[data-cfg-sw],[data-cfg-passo]');
+            if (!t) return;
+            const segna = (sel, on) => { sel.classList.toggle(sel.matches('[data-cfg-tipo]') ? 'sel' : 'on', on); sel.setAttribute('aria-checked', String(on)); };
+            if (t.dataset.cfgTipo) {
+                bpCfg.tipo = t.dataset.cfgTipo;
+                mount.querySelectorAll('[data-cfg-tipo]').forEach(b => segna(b, b === t));
+            } else if (t.dataset.cfgSeg) {
+                bpCfg[t.dataset.cfgSeg] = t.dataset.val;
+                t.parentElement.querySelectorAll('[data-cfg-seg]').forEach(b => segna(b, b === t));
+                if (t.dataset.cfgSeg === 'durata') {
+                    const sub = document.getElementById('bpc-dur-sub');
+                    if (sub) sub.textContent = T(BP_CFG_DUR_SUB[bpCfg.durata] || 'cfgDurMediaSub');
+                }
+            } else if (t.dataset.cfgSw) {
+                const c = t.dataset.cfgSw;
+                bpCfg[c] = !bpCfg[c];
+                t.setAttribute('aria-checked', String(bpCfg[c]));
+            } else if (t.dataset.cfgPasso) {
+                const passo = parseInt(t.dataset.cfgPasso) || 0, att = bpCfg.ospiti || 0, amp = Math.abs(passo);
+                const nuovo = passo > 0 ? Math.floor(att / amp) * amp + amp : Math.ceil(att / amp) * amp - amp;
+                bpCfg.ospiti = Math.min(5000, Math.max(1, nuovo));
+                const inp = document.getElementById('bpc-ospiti'); if (inp) inp.value = bpCfg.ospiti;
+            }
+            bpCfgAggiornaCosto();
+        });
+        document.addEventListener('input', function (e) {
+            const t = e.target;
+            if (!t || !t.id) return;
+            if (t.id === 'bpc-nome') { bpCfg.nome = t.value; return; }
+            if (t.id === 'bpc-ospiti') {
+                const n = parseInt(t.value);
+                if (!isNaN(n) && n > 0) { bpCfg.ospiti = Math.min(5000, n); bpCfgAggiornaCosto(); }
+                return;
+            }
+            if (t.id === 'bpc-pct') {
+                bpCfg.pct = parseInt(t.value) || 0;
+                const pers = Math.round(bpCfg.ospiti * bpCfg.pct / 100);
+                const a = document.getElementById('bpc-bev-pers'); if (a) a.textContent = pers;
+                const b = document.getElementById('bpc-bev-no'); if (b) b.textContent = T('cfgNonBevono').replace('{n}', bpCfg.ospiti - pers);
+                bpCfgAggiornaCosto();
+            }
+        });
+
         function bpCfgApply(){
-            const d = bpCfgDerive();
+            const d = bpCfgDerive(), m = bpCfgMenu();
             const setV = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
             setV('ospiti', bpCfg.ospiti);
             setV('drink_testa', d.drinkTesta);
-            setV('shot_testa', d.shotTesta);
+            setV('shot_testa', bpCfgShotTesta(d, m));
             setV('scarto', bpCfg.scarto);
             setV('sel-fascia', bpCfg.fascia);
             setV('sel-fascia-fermentati', bpCfg.fascia);
@@ -4988,12 +5109,13 @@ Annulla = ` + T('backupUnisci'));
             setV('ferm_vino_bianco', d.ferm.bianco);
             setV('ferm_bollicine', d.ferm.bollicine);
             setV('ferm_birra', d.ferm.birra);
-            menuSerataDrink = Object.assign({}, d.drink);
-            menuSerataMocktail = Object.assign({}, d.mocktail);
-            menuSerataShot = Object.assign({}, d.shot);
+            menuSerataDrink = m.drink;
+            menuSerataMocktail = m.mocktail;
+            menuSerataShot = m.shot;
             bpCfgNomeEvento = bpCfg.nome || '';
             bpEditingId = null;
             bpSyncNomeField();
+            if (bpPk && bpPk.root === document.getElementById('bp-cfg-mount')) bpPk = null;
             bpChiudiModale('bp-config');
             bpChiudiModale('bp-welcome');
             document.body.style.overflow = '';
@@ -5004,8 +5126,11 @@ Annulla = ` + T('backupUnisci'));
             aggiornaBadge();
             salvaStato();
             bpMenuFiltro('tutti');
-            vaiAStep('step-menu');
-            mostraToast(T('cfgDone'));
+            // Il menu l'ha gia' visto e scelto al passo 4: si va dritti alla
+            // lista. Se non c'e' niente da calcolare, si resta sull'evento.
+            vaiAStep('risultati');
+            if (bpPassoCorrente !== 'risultati') vaiAStep('step-menu');
+            mostraToast(T('cfgFatto'));
         }
 
         /* ════════════════════════════════════════════════════════════
