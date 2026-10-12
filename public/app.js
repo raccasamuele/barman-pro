@@ -3968,8 +3968,10 @@ Annulla = ` + T('backupUnisci'));
                 p.classList.toggle('active', p.dataset.stepid === id);
             });
             // Aggiorna lo stato dello stepper
+            // Setup e Menu sono una pagina sola: entrambi accendono "Evento".
+            const passoStepper = (id === 'step-menu') ? 'step-setup' : id;
             document.querySelectorAll('.app-stepper .step').forEach(s => {
-                const on = s.dataset.step === id;
+                const on = s.dataset.step === passoStepper;
                 s.classList.toggle('active', on);
                 if (on) s.setAttribute('aria-current', 'step');           // a11y: passo corrente (additivo)
                 else s.removeAttribute('aria-current');
@@ -4202,8 +4204,38 @@ Annulla = ` + T('backupUnisci'));
             const invEl = document.getElementById('pct-bevitori-inv');
             if (valEl) valEl.textContent = v;
             if (invEl) invEl.textContent = (100 - v);
+            /* Chi beve detto in persone: 80% di 50 e' una conversione che
+               nessuno dovrebbe fare a mente. Stesso arrotondamento del
+               calcolo, che lavora su ospiti * pct / 100. */
+            const osp = Math.max(0, parseInt(document.getElementById('ospiti')?.value) || 0);
+            const persEl = document.getElementById('bp-bevitori-pers');
+            const totEl = document.getElementById('bp-bevitori-tot');
+            if (persEl) persEl.textContent = Math.round(osp * v / 100);
+            if (totEl) totEl.textContent = osp;
             ricalcolaSeVisibile();
             programmaSalvataggio();
+        }
+
+        /* Bottoni − / + accanto ai campi numerici. data-arg = "id|passo".
+           Il valore passa dal campo vero e poi si emette un evento input:
+           cosi' girano le stesse azioni dichiarate nel markup (salvataggio,
+           stima, chi beve) senza una seconda lista da tenere allineata. */
+        function bpPasso(arg) {
+            const [id, delta] = String(arg).split('|');
+            const el = document.getElementById(id);
+            if (!el) return;
+            const passo = parseFloat(delta) || 0;
+            const min = el.min !== '' ? parseFloat(el.min) : -Infinity;
+            const max = el.max !== '' ? parseFloat(el.max) : Infinity;
+            const attuale = parseFloat(el.value) || 0;
+            // Si arrotonda al passo: da 47 con +5 si va a 50, non a 52.
+            const ampiezza = Math.abs(passo);
+            let nuovo = passo > 0 ? Math.floor(attuale / ampiezza + 1e-9) * ampiezza + ampiezza
+                                  : Math.ceil(attuale / ampiezza - 1e-9) * ampiezza - ampiezza;
+            nuovo = Math.min(max, Math.max(min, Math.round(nuovo * 100) / 100));
+            if (nuovo === attuale) return;
+            el.value = nuovo;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -4564,6 +4596,18 @@ Annulla = ` + T('backupUnisci'));
             }
         };
         Object.keys(_infoI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _infoI18n[lg]); });
+
+        /* Pagina evento (Setup + Menu insieme, ottobre 2026). */
+        const _evI18n = {
+            it: { evStep:"Evento", evParametri:"Parametri", evNomePh:"Senza nome", evChiBeve:"Chi beve alcolici", evAltre:"Altre opzioni", evGenera:"Genera la lista" },
+            en: { evStep:"Event", evParametri:"Details", evNomePh:"Untitled", evChiBeve:"Who drinks alcohol", evAltre:"More options", evGenera:"Make the list" },
+            es: { evStep:"Evento", evParametri:"Datos", evNomePh:"Sin nombre", evChiBeve:"Quién bebe alcohol", evAltre:"Más opciones", evGenera:"Crear la lista" },
+            fr: { evStep:"Événement", evParametri:"Paramètres", evNomePh:"Sans nom", evChiBeve:"Qui boit de l'alcool", evAltre:"Plus d'options", evGenera:"Créer la liste" },
+            de: { evStep:"Event", evParametri:"Angaben", evNomePh:"Ohne Namen", evChiBeve:"Wer trinkt Alkohol", evAltre:"Weitere Optionen", evGenera:"Liste erstellen" },
+            pt: { evStep:"Evento", evParametri:"Dados", evNomePh:"Sem nome", evChiBeve:"Quem bebe álcool", evAltre:"Mais opções", evGenera:"Criar a lista" },
+            nl: { evStep:"Event", evParametri:"Gegevens", evNomePh:"Zonder naam", evChiBeve:"Wie drinkt alcohol", evAltre:"Meer opties", evGenera:"Lijst maken" }
+        };
+        Object.keys(_evI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _evI18n[lg]); });
 
         const _ariaI18n = {
             it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
@@ -5941,7 +5985,7 @@ Annulla = ` + T('backupUnisci'));
                 const perTesta = _n('drink_testa');
 
                 const passi = ['step-setup', 'step-menu', 'risultati'];
-                const etichette = { 'step-setup': T('stepSetup'), 'step-menu': T('stepMenu'), 'risultati': T('stepLista') };
+                const etichette = { 'step-setup': T('evStep'), 'step-menu': T('evStep'), 'risultati': T('stepLista') };
                 const iPasso = Math.max(0, passi.indexOf(bpPassoCorrente));
 
                 h += '<section class="bph-cruscotto" aria-labelledby="bph-ev-nome">';
@@ -6097,7 +6141,7 @@ Annulla = ` + T('backupUnisci'));
                 });
                 document.getElementById('stima-live-tot').textContent = '€ ' + r.totale.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 const ppEl = document.getElementById('stima-live-pp');
-                if (ppEl) ppEl.textContent = '· ≈ € ' + (r.totale / ospiti).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + T('perPersonaTxt');
+                if (ppEl) ppEl.textContent = '≈ € ' + (r.totale / ospiti).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + T('perPersonaTxt');
                 box.style.display = '';
             });
         }

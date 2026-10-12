@@ -288,15 +288,14 @@
 
     <nav class="app-stepper" aria-label="Passi" data-i18n-aria="ariaPassi">
         <button type="button" class="step active" data-step="step-setup" aria-current="step" data-do="vaiAStep" data-arg="step-setup">
-            <span class="num">1</span><span class="lbl-step" data-i18n="stepSetup">Setup</span>
+            <span class="num">1</span><span class="lbl-step" data-i18n="evStep">Evento</span>
         </button>
-        <span class="sep"></span>
-        <button type="button" class="step" data-step="step-menu" data-do="vaiAStep" data-arg="step-menu">
-            <span class="num">2</span><span class="lbl-step" data-i18n="stepMenu">Menu</span>
-        </button>
+        <!-- Setup e Menu sono una pagina sola: il passo "Menu" non e' piu'
+             una tappa a se'. vaiAStep('step-menu') resta valido e porta alla
+             parte Menu della stessa pagina, con "Evento" acceso. -->
         <span class="sep"></span>
         <button type="button" class="step" data-step="risultati" data-do="vaiAStep" data-arg="risultati">
-            <span class="num">3</span><span class="lbl-step" data-i18n="stepLista">Lista</span>
+            <span class="num">2</span><span class="lbl-step" data-i18n="stepLista">Lista</span>
         </button>
     </nav>
 
@@ -318,57 +317,84 @@
         </div>
     </div>
 
-    <!-- ════ STEP 1 · SETUP ════ -->
+    <!-- ════ STEP 1 · SETUP ════
+         Ottobre 2026: righe come nelle Impostazioni del telefono invece di
+         una card con caselle da 66px una sotto l'altra. Gli id dei campi
+         (#ospiti, #drink_testa, #shot_testa, #scarto, #pct-bevitori,
+         #sel-nazione, #sel-fascia) sono RIMASTI quelli: li leggono il calcolo,
+         il salvataggio e i test golden. Cambia solo come si presentano.
+         Setup e Menu ora si vedono insieme (regola :has in app.css), la
+         navigazione fra i passi resta quella di prima. -->
     <div class="step-panel active" data-stepid="step-setup">
-    <!-- ─── PARAMETRI EVENTO ─── -->
-    <section class="card" id="step-setup">
-        <div class="section-title">
-            <div class="ornament">&#10086;</div>
-            <h2 data-i18n="h2Parametri">Parametri dell'Evento</h2>
-            <div class="section-divider"></div>
+    <section class="bp-ev" id="step-setup" aria-labelledby="bp-ev-param">
+        <div class="bp-ev-testa">
+            <label class="bp-ev-eyebrow" for="nome-evento" data-i18n="cfgEyName">Nome evento</label>
+            <input type="text" id="nome-evento" class="bp-ev-nome" maxlength="60" data-i18n-ph="evNomePh" placeholder="Senza nome" data-on-input-value="bpAggiornaNomeEvento">
         </div>
-        <button type="button" class="guided-launch" data-do="bpCfgStart">
-            <span class="gl-mark">&#10003;</span>
-            <span class="gl-txt"><b data-i18n="cfgLaunchTitle">Configurazione guidata</b><span data-i18n="cfgLaunchSub">Rispondi a poche domande, compiliamo noi parametri e menu</span></span>
-            <span class="gl-arrow">&rsaquo;</span>
-        </button>
-        <div class="nome-evento-wrap">
-            <label data-i18n="cfgEyName">Nome evento</label>
-            <input type="text" id="nome-evento" maxlength="60" data-i18n-ph="cfgNomePh" placeholder="Es. Matrimonio Anna & Luca" data-on-input-value="bpAggiornaNomeEvento">
-        </div>
-        <div class="parametri-row">
-            <div><label data-i18n="labelOspiti">Ospiti previsti</label><input type="number" id="ospiti" value="50" min="1" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
-            <div><label><span data-i18n="labelDrink">Cocktail a persona</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipDrink">Quanti cocktail berrà in media un ospite. Indicativamente: aperitivo ~2, festa serale lunga ~4. Vale solo per gli ospiti che bevono alcolici.</span></span></label><input type="number" id="drink_testa" value="3" min="0" step="0.5" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
-            <div><label><span data-i18n="labelShot">Shot a persona</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipShot">Numero medio di shottini per ospite. Lascialo a 0 se non servi shot.</span></span></label><input type="number" id="shot_testa" value="1" min="0" step="0.5" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
-            <div><label><span data-i18n="labelScarto">Margine sicurezza (%)</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipScarto">Scorta extra aggiunta alle quantità per non rimanere a secco. 10-15% è il valore consigliato.</span></span></label><input type="number" id="scarto" value="15" min="0" data-on-input="programmaSalvataggio aggiornaStimaForm"></div>
-        </div>
-        <div class="pct-bevitori-wrap">
-            <label>
-                <span data-i18n="labelPctBevitori">Percentuale bevitori (alcolici)</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipPct">Quota di ospiti che beve alcolici. Il resto riceve mocktail e analcolici. Sposta il cursore per dividere automaticamente cocktail alcolici e analcolici.</span></span>:
-                <span class="pct-bevitori-display"><span id="pct-bevitori-val">80</span>% <span data-i18n="lblAlcolici">Alcolici</span> / <span id="pct-bevitori-inv">20</span>% <span data-i18n="lblAnalcolici">Analcolici</span></span>
-            </label>
-            <input type="range" id="pct-bevitori" min="0" max="100" value="80" data-on-input="aggiornaPctBevitori">
-        </div>
-        <div class="parametri-row-geo">
-            <div>
-                <label data-i18n="labelNazione">Nazione Evento</label>
-                <select id="sel-nazione" data-on-change="ricalcolaSeVisibile"></select>
+
+        <h2 class="bp-ev-tit" id="bp-ev-param" data-i18n="evParametri">Parametri</h2>
+        <div class="bp-gruppo">
+            <div class="bp-riga">
+                <label class="bp-riga-lbl" for="ospiti" data-i18n="labelOspiti">Ospiti previsti</label>
+                <div class="bp-stepper">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ospiti|-5" aria-label="−5">&minus;</button>
+                    <input type="number" id="ospiti" value="50" min="1" inputmode="numeric" data-on-input="programmaSalvataggio aggiornaStimaForm aggiornaPctBevitori">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ospiti|5" aria-label="+5">+</button>
+                </div>
             </div>
-            <div>
-                <label><span data-i18n="labelFascia">Fascia di Prezzo</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipFascia">Qualità/prezzo dei prodotti usati per la stima: Bassa = economici, Media = standard, Alta = premium. Cambia i costi unitari, non le quantità.</span></span></label>
-                <select id="sel-fascia" data-on-change="ricalcolaSeVisibile">
-                    <option value="bassa" data-i18n="optBassa">Bassa · Prodotti Economici</option>
-                    <option value="media" selected data-i18n="optMedia">Media · Prodotti Standard</option>
-                    <option value="alta" data-i18n="optAlta">Alta · Prodotti Premium</option>
-                </select>
+            <div class="bp-riga">
+                <span class="bp-riga-lbl"><label for="drink_testa" data-i18n="labelDrink">Cocktail a persona</label><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipDrink">Quanti cocktail berrà in media un ospite. Indicativamente: aperitivo ~2, festa serale lunga ~4. Vale solo per gli ospiti che bevono alcolici.</span></span></span>
+                <div class="bp-stepper">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="drink_testa|-0.5" aria-label="−0,5">&minus;</button>
+                    <input type="number" id="drink_testa" value="3" min="0" step="0.5" inputmode="decimal" data-on-input="programmaSalvataggio aggiornaStimaForm">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="drink_testa|0.5" aria-label="+0,5">+</button>
+                </div>
             </div>
-        </div>
-        <div class="stima-live" id="stima-live-form" style="display:none;">
-            <span class="sl-label" data-i18n="budgetLabel">Budget Stimato Materie Prime</span>
-            <span class="sl-vals"><span class="sl-tot" id="stima-live-tot">€ 0</span> <span class="sl-pp" id="stima-live-pp"></span></span>
+            <div class="bp-riga">
+                <span class="bp-riga-lbl"><label for="shot_testa" data-i18n="labelShot">Shot a persona</label><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipShot">Numero medio di shottini per ospite. Lascialo a 0 se non servi shot.</span></span></span>
+                <div class="bp-stepper">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="shot_testa|-0.5" aria-label="−0,5">&minus;</button>
+                    <input type="number" id="shot_testa" value="1" min="0" step="0.5" inputmode="decimal" data-on-input="programmaSalvataggio aggiornaStimaForm">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="shot_testa|0.5" aria-label="+0,5">+</button>
+                </div>
+            </div>
+            <!-- Chi beve: in persone ("40 / 50"), con la percentuale accanto.
+                 Il cursore resta in percentuale perche' e' quello che il
+                 calcolo e i salvataggi conoscono. -->
+            <div class="bp-riga bp-riga-col">
+                <div class="bp-riga-testa">
+                    <span class="bp-riga-lbl"><label for="pct-bevitori" data-i18n="evChiBeve">Chi beve alcolici</label><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipPct">Quota di ospiti che beve alcolici. Il resto riceve mocktail e analcolici. Sposta il cursore per dividere automaticamente cocktail alcolici e analcolici.</span></span></span>
+                    <span class="bp-bevitori"><b id="bp-bevitori-pers">40</b> / <span id="bp-bevitori-tot">50</span> <span class="bp-bevitori-pct">· <span id="pct-bevitori-val">80</span>%</span></span>
+                </div>
+                <input type="range" id="pct-bevitori" min="0" max="100" value="80" data-on-input="aggiornaPctBevitori">
+            </div>
+            <!-- Le opzioni che servono di rado stanno chiuse. <details> e' nativo:
+                 apre e chiude senza JavaScript, da tastiera e con i lettori di schermo. -->
+            <details class="bp-altre">
+                <summary><span data-i18n="evAltre">Altre opzioni</span><span class="bp-altre-fr" aria-hidden="true">&rsaquo;</span></summary>
+                <div class="bp-riga">
+                    <span class="bp-riga-lbl"><label for="scarto" data-i18n="labelScarto">Margine sicurezza (%)</label><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipScarto">Scorta extra aggiunta alle quantità per non rimanere a secco. 10-15% è il valore consigliato.</span></span></span>
+                    <div class="bp-stepper">
+                        <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="scarto|-5" aria-label="−5">&minus;</button>
+                        <input type="number" id="scarto" value="15" min="0" inputmode="numeric" data-on-input="programmaSalvataggio aggiornaStimaForm">
+                        <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="scarto|5" aria-label="+5">+</button>
+                    </div>
+                </div>
+                <div class="bp-riga">
+                    <label class="bp-riga-lbl" for="sel-nazione" data-i18n="labelNazione">Nazione Evento</label>
+                    <select id="sel-nazione" class="bp-select" data-on-change="ricalcolaSeVisibile aggiornaStimaForm programmaSalvataggio"></select>
+                </div>
+                <div class="bp-riga">
+                    <span class="bp-riga-lbl"><label for="sel-fascia" data-i18n="labelFascia">Fascia di Prezzo</label><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipFascia">Qualità/prezzo dei prodotti usati per la stima: Bassa = economici, Media = standard, Alta = premium. Cambia i costi unitari, non le quantità.</span></span></span>
+                    <select id="sel-fascia" class="bp-select" data-on-change="ricalcolaSeVisibile aggiornaStimaForm programmaSalvataggio">
+                        <option value="bassa" data-i18n="optBassa">Bassa · Prodotti Economici</option>
+                        <option value="media" selected data-i18n="optMedia">Media · Prodotti Standard</option>
+                        <option value="alta" data-i18n="optAlta">Alta · Prodotti Premium</option>
+                    </select>
+                </div>
+            </details>
         </div>
     </section>
-    <button class="btn-primary-gold btn-grande" data-do="vaiAStep" data-arg="step-menu">&#10086;&nbsp;&nbsp;<span data-i18n="cfgContinuaMenu">Continua al menu</span>&nbsp;&nbsp;&#8250;</button>
     </div>
 
     <!-- ════ STEP 2 · MENU ════ -->
@@ -481,9 +507,20 @@
         </div>
     </section>
 
-    <!-- ─── BOTTONE GENERA ─── -->
-    <button type="button" class="wizard-back" data-do="vaiAStep" data-arg="step-setup">&#8249; <span data-i18n="cfgTornaSetup">Torna al setup</span></button>
-    <button class="btn-primary-gold btn-grande" data-do="vaiAStep" data-arg="risultati">&#10086;&nbsp;&nbsp;<span data-i18n="btnGenera">Genera lista della spesa</span>&nbsp;&nbsp;&#10086;</button>
+    </div>
+
+    <!-- ─── BARRA EVENTO ───
+         Sostituisce "Continua al menu", "Torna al setup" e il bottone grande
+         "Genera lista": una barra sola, ferma in fondo sopra la navigazione,
+         con il costo stimato sempre visibile. Si vede solo mentre si e' in
+         Setup o Menu (regola in app.css). #stima-live-form e i suoi figli
+         mantengono gli id: li scrive aggiornaStimaForm(). -->
+    <div class="bp-ev-azione">
+        <div class="stima-live" id="stima-live-form" style="display:none;">
+            <span class="sl-tot" id="stima-live-tot">€ 0</span>
+            <span class="sl-pp" id="stima-live-pp"></span>
+        </div>
+        <button type="button" class="bp-ev-genera" data-do="vaiAStep" data-arg="risultati" data-i18n="evGenera">Genera la lista</button>
     </div>
 
     <!-- ════ STEP 3 · LISTA ════ -->
