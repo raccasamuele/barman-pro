@@ -24,6 +24,27 @@ test.describe('UI · azioni per delega', () => {
     }
   });
 
+  /* Un campo puo' dichiarare piu' azioni separate da spazi. Il dispatcher le
+     divideva con /s+/ — la lettera "s", non lo spazio — e per un mese i campi
+     a due azioni (Ospiti, Cocktail a persona...) non hanno ne' salvato ne'
+     aggiornato la stima, mentre "ricalcolaSeVisibile" diventava due nomi
+     inesistenti. Nessun errore visibile: solo un console.warn. */
+  test("i campi con piu' azioni le eseguono tutte", async ({ page }) => {
+    const avvisi = [];
+    page.on('console', (m) => { if (m.type() === 'warning') avvisi.push(m.text()); });
+    await openApp(page);
+
+    await page.evaluate(() => {
+      for (const sel of ['#ospiti', '#drink_testa', '#ferm_birra', '#sel-fascia', '#sel-nazione', '#sel-fascia-fermentati']) {
+        const el = document.querySelector(sel);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    expect(avvisi.filter((a) => a.includes('azione sconosciuta')), 'azioni non trovate dal dispatcher').toEqual([]);
+  });
+
   test('ogni data-do punta a una funzione che esiste', async ({ page }) => {
     await openApp(page);
 
@@ -95,5 +116,29 @@ test.describe('UI · azioni per delega', () => {
 
     const veri = errori.filter((e) => !/ServiceWorker|net::ERR_FAILED/i.test(e));
     expect(veri, 'errori JavaScript in pagina').toEqual([]);
+  });
+});
+
+/* Privacy, Licenza e Contatti si comportavano in tre modi diversi: pagina a
+   parte, GitHub, mailto: che senza app email non faceva niente. Ora aprono
+   lo stesso pannello dentro l'app, dal footer come dal menu Altro. */
+test.describe('UI · pannello Info', () => {
+  for (const [voce, titolo] of [['privacy', 'Privacy'], ['licenza', 'Licenza'], ['contatti', 'Contatti']]) {
+    test(`il footer apre "${voce}" dentro l'app`, async ({ page }) => {
+      await openApp(page);
+      const url = page.url();
+      await page.locator(`.bp-footer [data-arg="${voce}"]`).click();
+      await expect(page.locator('#bp-info')).toBeVisible();
+      await expect(page.locator('#bp-info-title')).toHaveText(titolo);
+      expect(page.url(), 'il link e\' stato seguito invece di aprire il pannello').toBe(url);
+    });
+  }
+
+  test("Contatti mostra l'indirizzo, senza dipendere da un'app email", async ({ page }) => {
+    await openApp(page);
+    await page.evaluate(() => bpVaiA('altro'));
+    await page.locator('#bp-altro [data-arg="contatti"]').click();
+    await expect(page.locator('#bp-info .bp-info-mail')).toContainText('@');
+    await expect(page.locator('#bp-info [data-do="bpInfoCopiaMail"]')).toBeVisible();
   });
 });

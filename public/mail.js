@@ -10,12 +10,16 @@
  * ma ferma i raccoglitori automatici, che si limitano a cercare "mailto:"
  * nell'HTML. Per l'utente non cambia niente: vede un link e ci clicca.
  *
- * Applica a ogni elemento con l'attributo `data-mail`.
+ * Applica a ogni elemento con l'attributo `data-mail`, e mette l'indirizzo
+ * a disposizione dell'app come `window.bpIndirizzoMail()` per il pannello
+ * Contatti, che viene scritto dopo il caricamento e qui non ci sarebbe.
  */
 (function () {
     var utente = ['raccasamuele', '2004'].join('');
     var dominio = ['gmail', 'com'].join('.');
     var indirizzo = utente + String.fromCharCode(64) + dominio;
+
+    window.bpIndirizzoMail = function () { return indirizzo; };
 
     document.querySelectorAll('[data-mail]').forEach(function (el) {
         el.setAttribute('href', 'mailto:' + indirizzo);

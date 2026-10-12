@@ -120,3 +120,55 @@ test.describe('i18n · etichette di accessibilita\'', () => {
     }
   });
 });
+
+/**
+ * Lingua al primo avvio: quella del dispositivo se l'app la ha, altrimenti
+ * l'inglese. Prima partiva sempre in inglese e la lingua si sceglieva da un
+ * selettore che ricompariva a ogni nuovo evento.
+ *
+ * La lingua indovinata NON si salva: se finisse in bp_settings_v2, al prossimo
+ * avvio varrebbe come una scelta e un cambio di lingua del telefono non
+ * verrebbe piu' seguito. Si salva solo quella scelta nelle Impostazioni.
+ */
+test.describe('i18n · lingua del dispositivo', () => {
+  async function apriSenzaPreferenze(browser, locale) {
+    const ctx = await browser.newContext({ locale });
+    const page = await ctx.newPage();
+    await page.addInitScript(() => { try { localStorage.setItem('bp_onboarded', '1'); } catch (e) { /* */ } });
+    await page.goto('/index.html', { waitUntil: 'load' });
+    await page.waitForFunction(() => typeof window.calcolaSpesa === 'function');
+    return { ctx, page };
+  }
+  const salvata = (page) => page.evaluate(() => (JSON.parse(localStorage.getItem('bp_settings_v2') || '{}')).lingua);
+
+  test('un telefono in tedesco apre l\'app in tedesco, senza salvarla come scelta', async ({ browser }) => {
+    const { ctx, page } = await apriSenzaPreferenze(browser, 'de-DE');
+    expect(await page.evaluate(() => linguaCorrente)).toBe('de');
+    expect(await page.evaluate(() => document.documentElement.lang)).toBe('de');
+    expect(await salvata(page), 'la lingua indovinata e\' finita su disco').toBeUndefined();
+    await ctx.close();
+  });
+
+  test('una lingua che l\'app non ha ricade sull\'inglese', async ({ browser }) => {
+    const { ctx, page } = await apriSenzaPreferenze(browser, 'ja-JP');
+    expect(await page.evaluate(() => linguaCorrente)).toBe('en');
+    await ctx.close();
+  });
+
+  test('la scelta nelle Impostazioni vince sul dispositivo e resta', async ({ browser }) => {
+    const { ctx, page } = await apriSenzaPreferenze(browser, 'de-DE');
+    await page.evaluate(() => bpVaiA('altro/impostazioni'));
+    await page.selectOption('#lang-selector', 'pt');
+    expect(await salvata(page)).toBe('pt');
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForFunction(() => typeof window.calcolaSpesa === 'function');
+    expect(await page.evaluate(() => linguaCorrente)).toBe('pt');
+    await ctx.close();
+  });
+
+  test('il benvenuto non ha piu\' un selettore di lingua', async ({ browser }) => {
+    const { ctx, page } = await apriSenzaPreferenze(browser, 'it-IT');
+    expect(await page.locator('#bp-welcome select').count()).toBe(0);
+    await ctx.close();
+  });
+});

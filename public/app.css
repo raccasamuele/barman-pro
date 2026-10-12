@@ -372,28 +372,38 @@
            superficie, non con dello spazio vuoto. Prima erano 60px di aria, che
            su un telefono sono uno schermo di niente prima di arrivare al
            dunque. */
+        /* Ottobre 2026: la fascia grigia con il nome centrato in maiuscoletto
+           e' diventata una barra di testata con il logotipo a sinistra, come
+           nelle app. Il colore lo porta l'icona; la scritta torna inchiostro. */
         .header {
-            text-align: center;
+            text-align: left;
             margin: 0;
-            padding: 32px 24px;
-            background: var(--bp-band);
+            padding: 12px 20px;
+            background: var(--bp-panel);
             border-bottom: 1px solid var(--bp-line);
-            animation: fadeInDown 1s ease-out forwards;
         }
-        
-        /* L'h1 E' il nome del prodotto, e porta l'aspetto che aveva quando
-           era il <div class="subtitle"> sopra il titolo: maiuscoletto spaziato,
-           colore d'accento. Provato prima in nero e grande come un titolo: da
-           marchio diventava intestazione, e si perdeva l'unico punto di colore
-           della pagina. */
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--bp-accent);
+
+        .header h1.bp-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             margin: 0;
-            line-height: 1.2;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            text-transform: none;
+            color: var(--bp-ink);
+            line-height: 1;
+        }
+        .bp-logo-ic { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; }
+        .bp-logo-pro {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            padding: 4px 6px 3px;
+            border-radius: 6px;
+            color: var(--bp-accent-ink);
+            background: var(--bp-accent-soft);
         }
 
         .header .subtitle {
@@ -1129,14 +1139,19 @@
 
         .toast {
             position: fixed;
-            bottom: 40px;
+            /* Sopra la barra di navigazione (56px), non sopra le sue icone. */
+            bottom: calc(56px + 16px + env(safe-area-inset-bottom, 0px));
             left: 50%;
-            transform: translateX(-50%) translateY(40px);
-            background: var(--bp-panel);
-
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            padding: 16px 32px;
+            max-width: calc(100vw - 32px);
+            transform: translateX(-50%) translateY(16px);
+            /* Invertito rispetto alla pagina: inchiostro come fondo, fondo come
+               testo. Prima era testo bianco su --bp-panel, che nel tema chiaro
+               e' bianco: un ovale vuoto sopra la barra. */
+            background: var(--bp-ink);
+            border: none;
+            color: var(--bp-bg);
+            padding: 12px 20px;
+            text-align: center;
             border-radius: 100px;
             font-family: var(--bp-font);
             font-size: 14px;
@@ -1558,8 +1573,6 @@
         .bpc-next { flex: 1; min-width: 0; border: none; background: var(--bp-accent); color: var(--text-dark); box-shadow: none; }
 
         /* Selettore lingua sulla schermata di benvenuto */
-        .bpc-wlang { display: flex; justify-content: flex-end; margin-bottom: 2px; }
-        .bpc-wlang select { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--bp-line-control); border-radius: 10px; padding: 7px 10px; font-size: 16px; font-family: var(--bp-font); cursor: pointer; }
         .bpc-skiprow { text-align: center; margin-top: 12px; }
         .bpc-skiprow button { background: none; border: none; color: var(--text-muted); font-family: var(--bp-font); font-size: 13px; cursor: pointer; text-decoration: underline; }
 
@@ -1805,21 +1818,10 @@
             .bph-resume-main:active, .bph-resume-reset:active { transform: none; }
         }
 
-        /* — 8. HOME · header compatto —
-           Il titolo editoriale 54px da solo riempiva tutta la prima
-           schermata, spingendo l'hero "Crea nuovo evento" sotto la piega.
-           In home lo rimpicciolisco e tolgo le decorazioni ridondanti
-           (sotto c'è già l'eyebrow "Dove vuoi iniziare?"). Identità brand
-           — subtitle + titolo + oro — mantenuta. Nel wizard resta intatto. */
-        body.bp-home .header { margin: 0; }
-        body.bp-home .header h1 { font-size: 20px; margin: 0; }
-        body.bp-home .header > .ornament { display: none; }
-        body.bp-home .header .ornament-row { display: none; }
-        body.bp-home .header .subtitle { letter-spacing: 0.08em; }
-        @media (max-width: 560px) {
-            body.bp-home .header h1 { font-size: 17px; }
-            body.bp-home .header { margin: 0; padding: 24px 20px; }
-        }
+        /* — 8. HOME · header —
+           C'erano qui le regole che rimpicciolivano in home il vecchio titolo
+           editoriale. Con la barra di testata il logotipo e' uguale ovunque:
+           una testata che cambia misura fra le sezioni sembra un salto. */
 
         /* — 9. HOME · gerarchia griglia —
            "Impostazioni" è una preferenza, non un contenuto: resa più
@@ -2673,6 +2675,15 @@ body { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
 body.bp-tastiera .bp-tabbar { display: none; }
 body.bp-tastiera { padding-bottom: 0; }
 
+/* Dialogo aperto: la barra si nasconde. La scala qui sopra la voleva
+   SOTTO i dialoghi, ma i dialoghi stanno dentro .container, che fa da
+   contesto di impilamento: il loro z-index 1000 vale solo li' dentro, e la
+   barra (z 10, figlia del body) finiva sopra Indietro/Avanti del wizard.
+   Spostare tutti i dialoghi fuori dal contenitore toccava troppo markup;
+   mentre un dialogo e' aperto la barra non serve comunque, perche' non si
+   cambia sezione. */
+body:has(.bpc-overlay.show, .bpm-overlay.show, .suggeritore-modal.show) .bp-tabbar { display: none; }
+
 @media (min-width: 900px) {
     .bp-tabbar {
         inset: 0 auto 0 0;
@@ -2699,6 +2710,8 @@ body.bp-tastiera { padding-bottom: 0; }
     body { padding-bottom: 0; padding-left: 240px; }
     body.bp-tastiera { padding-left: 240px; }
     body.bp-tastiera .bp-tabbar { display: flex; }
+    /* Barra a sinistra: il toast si centra sul contenuto, non sulla finestra. */
+    .toast { bottom: 32px; left: calc(50% + 120px); }
 }
 
 /* ── Sezioni: una sola autorita' sulla visibilita' ──
@@ -2777,6 +2790,28 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .bp-altro-voce:hover { transform: none; background: var(--bp-sunken); border-color: transparent; }
 .bp-altro-ar { color: var(--bp-ink-faint); font-size: 20px; line-height: 1; }
 .bp-altro-esterni .bp-altro-voce { font-weight: 500; color: var(--bp-ink-soft); }
+
+/* ── Pannello Info (privacy, licenza, contatti) ──
+   Testo da leggere, non un modulo: colonna stretta, niente card. */
+.bp-info-body { max-width: 34rem; font-family: var(--bp-font); color: var(--bp-ink); }
+.bp-info-body h2 { font-size: clamp(22px, 6vw, 28px); font-weight: 700; margin: 0 0 16px; color: var(--bp-ink); }
+.bp-info-body p { font-size: var(--t-base); line-height: 1.6; color: var(--bp-ink-soft); margin: 0 0 14px; }
+.bp-info-body .bp-info-mail {
+    font-size: 17px; font-weight: 700; color: var(--bp-ink);
+    user-select: all; overflow-wrap: anywhere; margin: 6px 0 4px;
+}
+.bp-info-azioni { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+.bp-info-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; min-height: 48px; padding: 12px 18px;
+    border: 1px solid var(--bp-line-control); border-radius: var(--r-md);
+    background: var(--bp-panel); color: var(--bp-ink);
+    font-family: var(--bp-font); font-size: var(--t-base); font-weight: 600;
+    text-transform: none; letter-spacing: 0; text-decoration: none; cursor: pointer;
+}
+.bp-info-btn:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-panel); }
+.bp-info-btn.primario { background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-on-accent); }
+.bp-info-btn.primario:hover { background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); }
 
 /* ── Home · cruscotto ──
    Non piu' un menu di card: quelle erano una seconda strada per posti che

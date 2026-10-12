@@ -17,6 +17,32 @@
            INTERNAZIONALIZZAZIONE (i18n)
            ════════════════════════════════════════════════════════════ */
         let linguaCorrente = 'en';
+        /* True solo dopo una scelta esplicita nelle Impostazioni (o se ne
+           esiste una salvata). Finche' e' false la lingua segue quella del
+           dispositivo e NON viene scritta in bp_settings: altrimenti la lingua
+           indovinata al primo avvio diventerebbe per sempre una "scelta". */
+        let bpLinguaScelta = false;
+
+        /* La prima lingua del dispositivo fra le sette dell'app, altrimenti
+           l'inglese. navigator.languages e' in ordine di preferenza: un
+           telefono in catalano con lo spagnolo come seconda lingua deve avere
+           lo spagnolo, non l'inglese. */
+        function bpLinguaDispositivo() {
+            const lista = (navigator.languages && navigator.languages.length)
+                ? navigator.languages : [navigator.language || ''];
+            for (const l of lista) {
+                const base = String(l).toLowerCase().split('-')[0];
+                if (translations[base]) return base;
+            }
+            return 'en';
+        }
+
+        /* Dal selettore delle Impostazioni: e' l'unico punto in cui l'utente
+           sceglie una lingua, quindi l'unico che la rende definitiva. */
+        function bpScegliLingua(lang) {
+            bpLinguaScelta = true;
+            cambiaLingua(lang);
+        }
 
         const translations = {
             it: {
@@ -69,7 +95,7 @@
                 btnCreaShot: 'Crea e aggiungi',
                 // Risultati
                 btnGenera: 'Genera lista della spesa',
-                printTitle: 'Lista della Spesa · Barman PRO',
+                printTitle: 'Lista della Spesa',
                 risultatiAlcolici: 'Alcolici (Litri)',
                 risultatiAnalcolici: 'Analcolici & Filler (Litri)',
                 risultatiAttrezzatura: 'Attrezzatura',
@@ -198,7 +224,7 @@
                 phNewShot: 'Name (e.g. Limoncello)',
                 btnCreaShot: 'Create & add',
                 btnGenera: 'Generate shopping list',
-                printTitle: 'Shopping List · Barman PRO',
+                printTitle: 'Shopping List',
                 risultatiAlcolici: 'Spirits (Litres)',
                 risultatiAnalcolici: 'Mixers & Fillers (Litres)',
                 risultatiAttrezzatura: 'Equipment',
@@ -324,7 +350,7 @@
                 phNewShot: 'Nombre (p. ej. Limoncello)',
                 btnCreaShot: 'Crear y añadir',
                 btnGenera: 'Generar lista de compra',
-                printTitle: 'Lista de Compra · Barman PRO',
+                printTitle: 'Lista de Compra',
                 risultatiAlcolici: 'Destilados (Litros)',
                 risultatiAnalcolici: 'Mixers y Rellenos (Litros)',
                 risultatiAttrezzatura: 'Equipamiento',
@@ -450,7 +476,7 @@
                 phNewShot: 'Nom (ex. Limoncello)',
                 btnCreaShot: 'Créer et ajouter',
                 btnGenera: 'Générer la liste de courses',
-                printTitle: 'Liste de Courses · Barman PRO',
+                printTitle: 'Liste de Courses',
                 risultatiAlcolici: 'Alcools (Litres)',
                 risultatiAnalcolici: 'Softs & Remplisseurs (Litres)',
                 risultatiAttrezzatura: 'Équipement',
@@ -576,7 +602,7 @@
                 phNewShot: 'Name (z. B. Limoncello)',
                 btnCreaShot: 'Erstellen & hinzufügen',
                 btnGenera: 'Einkaufsliste generieren',
-                printTitle: 'Einkaufsliste · Barman PRO',
+                printTitle: 'Einkaufsliste',
                 risultatiAlcolici: 'Spirituosen (Liter)',
                 risultatiAnalcolici: 'Mischgetränke & Füller (Liter)',
                 risultatiAttrezzatura: 'Ausrüstung',
@@ -702,7 +728,7 @@
                 phNewShot: 'Nome (ex. Limoncello)',
                 btnCreaShot: 'Criar e adicionar',
                 btnGenera: 'Gerar lista de compras',
-                printTitle: 'Lista de Compras · Barman PRO',
+                printTitle: 'Lista de Compras',
                 risultatiAlcolici: 'Bebidas Alcoólicas (Litros)',
                 risultatiAnalcolici: 'Mixers & Complementos (Litros)',
                 risultatiAttrezzatura: 'Equipamento',
@@ -828,7 +854,7 @@
                 phNewShot: 'Naam (bijv. Limoncello)',
                 btnCreaShot: 'Aanmaken & toevoegen',
                 btnGenera: 'Boodschappenlijst genereren',
-                printTitle: 'Boodschappenlijst · Barman PRO',
+                printTitle: 'Boodschappenlijst',
                 risultatiAlcolici: 'Alcohol (Liter)',
                 risultatiAnalcolici: 'Mixers & Vullers (Liter)',
                 risultatiAttrezzatura: 'Materiaal',
@@ -3616,19 +3642,20 @@ Annulla = ` + T('backupUnisci'));
            riscrive. */
         function bpSaveSettings() {
             const attuali = bpStorageRead(BP_SETTINGS_KEY, {});
-            const uniti = Object.assign({}, (attuali && typeof attuali === 'object') ? attuali : {}, {
-                lingua: linguaCorrente,
+            const nuovi = {
                 tema: bpTemaScelto,
                 autosave: bpAutoSave ? 1 : 0,
                 prezzi: bpPrezziUtente
-            });
+            };
+            if (bpLinguaScelta) nuovi.lingua = linguaCorrente;
+            const uniti = Object.assign({}, (attuali && typeof attuali === 'object') ? attuali : {}, nuovi);
             return bpStorageWrite(BP_SETTINGS_KEY, uniti);
         }
         function bpLoadSettings() {
             try {
                 const s = bpStorageRead(BP_SETTINGS_KEY, null);
                 if (!s || typeof s !== 'object') return;
-                if (s.lingua && translations[s.lingua]) linguaCorrente = s.lingua;
+                if (s.lingua && translations[s.lingua]) { linguaCorrente = s.lingua; bpLinguaScelta = true; }
                 if (s.tema) {
                     bpApplicaTema(s.tema);
                     bpTemaApplicato = true;
@@ -3643,6 +3670,52 @@ Annulla = ` + T('backupUnisci'));
         }
         function bpSettingsOpen() { bpVaiA('altro/impostazioni'); }
         function bpSettingsClose() { bpVaiA('altro'); }
+
+        /* ── Pannello Info: privacy, licenza, contatti ──
+           Stesso tema e stessa lingua dell'app. La privacy completa resta una
+           pagina a se' (e' il testo che fa fede e quello che i motori
+           indicizzano): qui c'e' il riassunto, con il link. */
+        const BP_REPO = 'https://github.com/raccasamuele/barman-pro';
+        function bpInfoApri(tipo) {
+            const m = document.getElementById('bp-info-mount');
+            if (!m) return;
+            const p = (k) => '<p>' + _bpEsc(T(k)) + '</p>';
+            const azione = (html) => '<div class="bp-info-azioni">' + html + '</div>';
+            const link = (href, k, primario) => '<a class="bp-info-btn' + (primario ? ' primario' : '') + '" href="' + href + '" rel="noopener">' + _bpEsc(T(k)) + '</a>';
+            let html;
+            if (tipo === 'licenza') {
+                html = '<h2 id="bp-info-title">' + _bpEsc(T('infoLicTit')) + '</h2>'
+                    + p('infoLic1') + p('infoLic2')
+                    + azione(link(BP_REPO + '/blob/main/LICENSE', 'infoLicTesto') + link(BP_REPO, 'infoLicCodice'));
+            } else if (tipo === 'contatti') {
+                const mail = (typeof window.bpIndirizzoMail === 'function') ? window.bpIndirizzoMail() : '';
+                html = '<h2 id="bp-info-title">' + _bpEsc(T('infoConTit')) + '</h2>'
+                    + p('infoCon1')
+                    + (mail ? '<p class="bp-info-mail">' + _bpEsc(mail) + '</p>' : '')
+                    + azione(
+                        (mail ? '<button type="button" class="bp-info-btn primario" data-do="bpInfoCopiaMail">' + _bpEsc(T('infoConCopia')) + '</button>'
+                              + '<a class="bp-info-btn" href="mailto:' + _bpEsc(mail) + '" rel="nofollow">' + _bpEsc(T('infoConMail')) + '</a>' : '')
+                        + link(BP_REPO + '/issues', 'infoConIssue'));
+            } else {
+                html = '<h2 id="bp-info-title">' + _bpEsc(T('infoPrivTit')) + '</h2>'
+                    + p('infoPriv1') + p('infoPriv2') + p('infoPriv3') + p('infoPriv4')
+                    + azione('<a class="bp-info-btn" href="privacy">' + _bpEsc(T('infoPrivFull')) + '</a>');
+            }
+            m.innerHTML = html;
+            bpApriModale('bp-info');
+        }
+        function bpInfoChiudi() { bpChiudiModale('bp-info'); }
+        async function bpInfoCopiaMail() {
+            const mail = (typeof window.bpIndirizzoMail === 'function') ? window.bpIndirizzoMail() : '';
+            if (!mail) return;
+            try { await navigator.clipboard.writeText(mail); mostraToast(T('infoConCopiato')); }
+            catch (e) {
+                // Senza permesso agli appunti si seleziona il testo: copiarlo
+                // a mano resta possibile.
+                const el = document.querySelector('#bp-info .bp-info-mail');
+                if (el) { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+            }
+        }
         function bpSyncAutoSaveUI() {
             const b = document.getElementById('bp-autosave'); if (!b) return;
             b.setAttribute('aria-checked', bpAutoSave ? 'true' : 'false');
@@ -3701,7 +3774,7 @@ Annulla = ` + T('backupUnisci'));
 
         function mostraToast(testo) {
             const t = document.getElementById('toast');
-            t.textContent = '❖  ' + testo;
+            t.textContent = testo;
             t.classList.add('show');
             clearTimeout(window._toastTimer);
             window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
@@ -4352,6 +4425,146 @@ Annulla = ` + T('backupUnisci'));
         };
         Object.keys(_navI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _navI18n[lg]); });
 
+        /* Pannello Info (privacy, licenza, contatti). Il riassunto della
+           privacy deve dire le stesse cose di privacy.html: se cambia una,
+           va cambiata l'altra. */
+        const _infoI18n = {
+            it: {
+                infoPrivTit:"Privacy",
+                infoPriv1:"Niente account e niente server: eventi, ricette e preferenze restano sul tuo dispositivo, nella memoria del browser.",
+                infoPriv2:"Nessuno può leggerli, nemmeno l'autore. Ma nessuno può nemmeno recuperarli: se cancelli i dati del sito o cambi dispositivo spariscono. Per tenerne una copia usa «Esporta tutto» nel menu Altro.",
+                infoPriv3:"L'unica statistica è il conteggio delle visite di Cloudflare Web Analytics: niente cookie, niente identificativi, solo numeri aggregati.",
+                infoPriv4:"Nessun cookie, nessuna pubblicità, niente condiviso con terzi.",
+                infoPrivFull:"Leggi l'informativa completa",
+                infoLicTit:"Licenza",
+                infoLic1:"Barman PRO è gratuito e open source, con licenza MIT: puoi usarlo, copiarlo e modificarlo liberamente, anche per lavoro.",
+                infoLic2:"È fornito così com'è, senza garanzie: controlla sempre le quantità prima di fare la spesa.",
+                infoLicTesto:"Testo completo della licenza",
+                infoLicCodice:"Codice sorgente su GitHub",
+                infoConTit:"Contatti",
+                infoCon1:"Una domanda, un'idea o un numero che non ti torna? Scrivimi.",
+                infoConCopia:"Copia indirizzo",
+                infoConCopiato:"Indirizzo copiato",
+                infoConMail:"Scrivi un'email",
+                infoConIssue:"Segnala un problema su GitHub"
+            },
+            en: {
+                infoPrivTit:"Privacy",
+                infoPriv1:"No accounts and no server: events, recipes and preferences stay on your device, in the browser's storage.",
+                infoPriv2:"Nobody can read them, not even the author. But nobody can recover them either: clear the site's data or switch device and they are gone. To keep a copy, use \"Export everything\" in the More menu.",
+                infoPriv3:"The only statistic is the visit count from Cloudflare Web Analytics: no cookies, no identifiers, only aggregate numbers.",
+                infoPriv4:"No cookies, no ads, nothing shared with anyone.",
+                infoPrivFull:"Read the full privacy notice",
+                infoLicTit:"Licence",
+                infoLic1:"Barman PRO is free and open source under the MIT licence: you can use, copy and modify it freely, for work too.",
+                infoLic2:"It comes as is, with no warranty: always check the quantities before you go shopping.",
+                infoLicTesto:"Full licence text",
+                infoLicCodice:"Source code on GitHub",
+                infoConTit:"Contact",
+                infoCon1:"A question, an idea or a number that doesn't add up? Write to me.",
+                infoConCopia:"Copy address",
+                infoConCopiato:"Address copied",
+                infoConMail:"Send an email",
+                infoConIssue:"Report a problem on GitHub"
+            },
+            es: {
+                infoPrivTit:"Privacidad",
+                infoPriv1:"Sin cuentas y sin servidor: eventos, recetas y preferencias se quedan en tu dispositivo, en la memoria del navegador.",
+                infoPriv2:"Nadie puede leerlos, ni siquiera el autor. Pero tampoco nadie puede recuperarlos: si borras los datos del sitio o cambias de dispositivo, desaparecen. Para guardar una copia usa «Exportar todo» en el menú Más.",
+                infoPriv3:"La única estadística es el recuento de visitas de Cloudflare Web Analytics: sin cookies, sin identificadores, solo cifras agregadas.",
+                infoPriv4:"Sin cookies, sin publicidad, nada compartido con terceros.",
+                infoPrivFull:"Leer la política de privacidad completa",
+                infoLicTit:"Licencia",
+                infoLic1:"Barman PRO es gratuito y de código abierto, con licencia MIT: puedes usarlo, copiarlo y modificarlo libremente, también para trabajar.",
+                infoLic2:"Se ofrece tal cual, sin garantías: revisa siempre las cantidades antes de hacer la compra.",
+                infoLicTesto:"Texto completo de la licencia",
+                infoLicCodice:"Código fuente en GitHub",
+                infoConTit:"Contacto",
+                infoCon1:"¿Una pregunta, una idea o una cifra que no te cuadra? Escríbeme.",
+                infoConCopia:"Copiar dirección",
+                infoConCopiato:"Dirección copiada",
+                infoConMail:"Enviar un email",
+                infoConIssue:"Informar de un problema en GitHub"
+            },
+            fr: {
+                infoPrivTit:"Confidentialité",
+                infoPriv1:"Pas de compte ni de serveur : événements, recettes et préférences restent sur ton appareil, dans la mémoire du navigateur.",
+                infoPriv2:"Personne ne peut les lire, pas même l'auteur. Mais personne ne peut non plus les récupérer : si tu effaces les données du site ou changes d'appareil, elles disparaissent. Pour en garder une copie, utilise « Tout exporter » dans le menu Plus.",
+                infoPriv3:"La seule statistique est le comptage des visites de Cloudflare Web Analytics : pas de cookies, pas d'identifiants, seulement des chiffres agrégés.",
+                infoPriv4:"Pas de cookies, pas de publicité, rien de partagé avec des tiers.",
+                infoPrivFull:"Lire la politique de confidentialité complète",
+                infoLicTit:"Licence",
+                infoLic1:"Barman PRO est gratuit et open source, sous licence MIT : tu peux l'utiliser, le copier et le modifier librement, y compris pour le travail.",
+                infoLic2:"Il est fourni tel quel, sans garantie : vérifie toujours les quantités avant de faire les courses.",
+                infoLicTesto:"Texte complet de la licence",
+                infoLicCodice:"Code source sur GitHub",
+                infoConTit:"Contact",
+                infoCon1:"Une question, une idée ou un chiffre qui ne colle pas ? Écris-moi.",
+                infoConCopia:"Copier l'adresse",
+                infoConCopiato:"Adresse copiée",
+                infoConMail:"Envoyer un e-mail",
+                infoConIssue:"Signaler un problème sur GitHub"
+            },
+            de: {
+                infoPrivTit:"Datenschutz",
+                infoPriv1:"Kein Konto und kein Server: Events, Rezepte und Einstellungen bleiben auf deinem Gerät, im Speicher des Browsers.",
+                infoPriv2:"Niemand kann sie lesen, nicht einmal der Autor. Aber niemand kann sie auch wiederherstellen: Löschst du die Website-Daten oder wechselst das Gerät, sind sie weg. Für eine Kopie nutze „Alles exportieren“ im Menü Mehr.",
+                infoPriv3:"Die einzige Statistik ist die Besucherzählung von Cloudflare Web Analytics: keine Cookies, keine Kennungen, nur zusammengefasste Zahlen.",
+                infoPriv4:"Keine Cookies, keine Werbung, nichts wird mit Dritten geteilt.",
+                infoPrivFull:"Vollständige Datenschutzerklärung lesen",
+                infoLicTit:"Lizenz",
+                infoLic1:"Barman PRO ist kostenlos und Open Source unter der MIT-Lizenz: Du darfst es frei nutzen, kopieren und verändern, auch beruflich.",
+                infoLic2:"Es wird ohne Gewähr bereitgestellt: Prüfe die Mengen immer, bevor du einkaufst.",
+                infoLicTesto:"Vollständiger Lizenztext",
+                infoLicCodice:"Quellcode auf GitHub",
+                infoConTit:"Kontakt",
+                infoCon1:"Eine Frage, eine Idee oder eine Zahl, die nicht stimmt? Schreib mir.",
+                infoConCopia:"Adresse kopieren",
+                infoConCopiato:"Adresse kopiert",
+                infoConMail:"E-Mail schreiben",
+                infoConIssue:"Problem auf GitHub melden"
+            },
+            pt: {
+                infoPrivTit:"Privacidade",
+                infoPriv1:"Sem contas e sem servidor: eventos, receitas e preferências ficam no teu dispositivo, na memória do navegador.",
+                infoPriv2:"Ninguém os pode ler, nem sequer o autor. Mas também ninguém os pode recuperar: se apagares os dados do site ou mudares de dispositivo, desaparecem. Para guardar uma cópia usa «Exportar tudo» no menu Mais.",
+                infoPriv3:"A única estatística é a contagem de visitas do Cloudflare Web Analytics: sem cookies, sem identificadores, só números agregados.",
+                infoPriv4:"Sem cookies, sem publicidade, nada partilhado com terceiros.",
+                infoPrivFull:"Ler a política de privacidade completa",
+                infoLicTit:"Licença",
+                infoLic1:"O Barman PRO é gratuito e de código aberto, com licença MIT: podes usá-lo, copiá-lo e alterá-lo livremente, também para trabalho.",
+                infoLic2:"É fornecido tal como está, sem garantias: confirma sempre as quantidades antes de ir às compras.",
+                infoLicTesto:"Texto completo da licença",
+                infoLicCodice:"Código-fonte no GitHub",
+                infoConTit:"Contactos",
+                infoCon1:"Uma pergunta, uma ideia ou um número que não bate certo? Escreve-me.",
+                infoConCopia:"Copiar endereço",
+                infoConCopiato:"Endereço copiado",
+                infoConMail:"Enviar um email",
+                infoConIssue:"Reportar um problema no GitHub"
+            },
+            nl: {
+                infoPrivTit:"Privacy",
+                infoPriv1:"Geen account en geen server: events, recepten en voorkeuren blijven op je apparaat, in het geheugen van de browser.",
+                infoPriv2:"Niemand kan ze lezen, ook de maker niet. Maar niemand kan ze ook terughalen: wis je de sitegegevens of wissel je van apparaat, dan zijn ze weg. Bewaar een kopie met „Alles exporteren” in het menu Meer.",
+                infoPriv3:"De enige statistiek is het bezoekersaantal van Cloudflare Web Analytics: geen cookies, geen identificatie, alleen opgetelde cijfers.",
+                infoPriv4:"Geen cookies, geen advertenties, niets gedeeld met derden.",
+                infoPrivFull:"Volledige privacyverklaring lezen",
+                infoLicTit:"Licentie",
+                infoLic1:"Barman PRO is gratis en open source, met een MIT-licentie: je mag het vrij gebruiken, kopiëren en aanpassen, ook voor je werk.",
+                infoLic2:"Het wordt geleverd zoals het is, zonder garantie: controleer altijd de hoeveelheden voordat je boodschappen doet.",
+                infoLicTesto:"Volledige licentietekst",
+                infoLicCodice:"Broncode op GitHub",
+                infoConTit:"Contact",
+                infoCon1:"Een vraag, een idee of een getal dat niet klopt? Schrijf me.",
+                infoConCopia:"Adres kopiëren",
+                infoConCopiato:"Adres gekopieerd",
+                infoConMail:"Stuur een e-mail",
+                infoConIssue:"Meld een probleem op GitHub"
+            }
+        };
+        Object.keys(_infoI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _infoI18n[lg]); });
+
         const _ariaI18n = {
             it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
             en: { ariaAiuto:"Help", ariaChiudi:"Close", ariaHome:"Home", ariaPassi:"Steps", ariaTema:"Theme", ariaLingua:"Language", ariaCollegamenti:"Links", ariaEventi:"My events", ariaRicettario:"Recipe library", ariaMenuEsporre:"Menu to display", ariaStileMenu:"Menu style" },
@@ -4387,8 +4600,6 @@ Annulla = ` + T('backupUnisci'));
             const w = document.getElementById('bp-welcome');
             if (w) { bpApriModale('bp-welcome'); }
             if (!w) return;
-            const ls = document.getElementById('bp-welcome-lang');
-            if (ls) ls.value = linguaCorrente;
             w.classList.add('show');
             document.body.style.overflow = 'hidden';
         }
@@ -6985,7 +7196,7 @@ Annulla = ` + T('backupUnisci'));
     function chiamaTutte(el, attr, conValore) {
         const lista = el.getAttribute(attr);
         if (!lista) return;
-        for (const nome of lista.split(/s+/)) {
+        for (const nome of lista.trim().split(/\s+/)) {
             const fn = window[nome];
             if (typeof fn !== 'function') { console.warn('[bp] azione sconosciuta:', nome); continue; }
             if (conValore) fn(el.value); else fn();
@@ -7034,6 +7245,9 @@ Annulla = ` + T('backupUnisci'));
             bpMigraStorage();
             caricaStato();
             bpLoadSettings();   // preferenze (lingua/tema/auto-save): override sui default di caricaStato
+            // Nessuna lingua scelta: vale quella del dispositivo, anche sopra
+            // quella rimasta nello stato dell'evento.
+            if (!bpLinguaScelta) linguaCorrente = bpLinguaDispositivo();
             bpSyncNomeField();
             bpRecipesLoad();
             bpDerivaRicetteUtente();   // customDrinks/customShots dalle ricette, non dalla bozza

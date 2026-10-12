@@ -111,3 +111,25 @@ test.describe('Tema · cio che sopravvive al ricaricamento', () => {
     await contesto.close();
   });
 });
+
+/* La privacy non carica app.js e seguiva solo prefers-color-scheme: con il
+   telefono in scuro si apriva tutta nera anche se l'app era chiara. Ora parte
+   chiara come l'app e segue il tema scelto (tema-pagina.js). */
+test.describe('Tema · la pagina privacy segue l\'app', () => {
+  test('sistema scuro e nessuna scelta: resta chiara', async ({ browser }) => {
+    const ctx = await browser.newContext({ colorScheme: 'dark' });
+    const page = await ctx.newPage();
+    await page.goto('/privacy', { waitUntil: 'load' });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('data-theme'))).toBe('light');
+    await ctx.close();
+  });
+
+  test('tema scuro scelto nell\'app: anche la privacy e\' scura', async ({ browser }) => {
+    const ctx = await browser.newContext({ colorScheme: 'light' });
+    const page = await ctx.newPage();
+    await page.addInitScript(() => { try { localStorage.setItem('bp_settings_v2', JSON.stringify({ tema: 'dark' })); } catch (e) { /* */ } });
+    await page.goto('/privacy', { waitUntil: 'load' });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('data-theme'))).toBe('dark');
+    await ctx.close();
+  });
+});

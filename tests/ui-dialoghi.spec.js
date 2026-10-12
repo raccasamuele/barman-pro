@@ -123,11 +123,12 @@ test.describe('Dialoghi · l\'inventario e\' completo', () => {
     await openApp(page);
     await apri(page, 'bp-welcome');
 
-    // Voluto: mentre un dialogo e' aperto non si cambia sezione. E' quello che
-    // significa `inert`, ed e' il motivo per cui la barra sta SOTTO i dialoghi
-    // nella scala di z-index invece che sopra.
-    await page.locator('.bp-tab[data-sezione=\"salvati\"]').click({ force: true });
-    await page.waitForTimeout(200);
+    // Voluto: mentre un dialogo e' aperto non si cambia sezione. Prima la
+    // barra restava visibile e `inert`; ma i dialoghi stanno dentro
+    // .container, che fa da contesto di impilamento, e la barra finiva
+    // DISEGNATA sopra Indietro/Avanti del wizard. Ora con un dialogo aperto
+    // la barra non c'e' proprio: non si vede e non si clicca.
+    await expect(page.locator('#bp-tabbar'), 'la barra resta visibile sopra il dialogo').toBeHidden();
 
     expect(await page.evaluate(() => document.body.dataset.sezione),
       "la barra ha cambiato sezione da sotto un dialogo").toBe('home');

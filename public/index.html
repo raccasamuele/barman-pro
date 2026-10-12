@@ -120,6 +120,22 @@
         </div>
     </div>
 
+    <!-- ════ INFO · privacy, licenza, contatti ════
+         Un pannello solo per tre voci che prima si comportavano in tre modi
+         diversi: la privacy apriva una pagina a parte (che seguiva il tema
+         del sistema e non quello dell'app), la licenza portava su GitHub e
+         Contatti era un mailto: che senza un'app email non faceva niente.
+         Il contenuto lo scrive bpInfoApri(). -->
+    <div class="bpc-overlay" id="bp-info" role="dialog" aria-modal="true" aria-labelledby="bp-info-title">
+        <div class="bpc-shell">
+            <div class="bpc-topbar">
+                <div style="flex:1"></div>
+                <button type="button" class="bpc-close" aria-label="Chiudi" data-i18n-aria="ariaChiudi" data-do="bpInfoChiudi">&times;</button>
+            </div>
+            <div class="bp-info-body" id="bp-info-mount"></div>
+        </div>
+    </div>
+
     <!-- ════ IMPOSTAZIONI · preferenze (lingua, tema, salvataggio automatico) ════ -->
     <div class="bpc-overlay" id="bp-settings" role="region" aria-labelledby="bp-set-title">
         <div class="bpc-shell">
@@ -133,14 +149,17 @@
 
                 <div class="bpset-row">
                     <label class="bpset-label" for="lang-selector" data-i18n="setLang">Lingua predefinita</label>
-                    <select id="lang-selector" class="bpset-select" data-on-change-value="cambiaLingua" aria-label="Language / Lingua" data-i18n-aria="ariaLingua">
-                        <option value="it">🇮🇹 Italiano</option>
-                        <option value="en">🇬🇧 English</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="fr">🇫🇷 Français</option>
-                        <option value="de">🇩🇪 Deutsch</option>
-                        <option value="pt">🇵🇹 Português</option>
-                        <option value="nl">🇳🇱 Nederlands</option>
+                    <!-- Niente bandiere: su Windows le emoji delle bandiere
+                         escono come due lettere ("GB", "IT"), e una lingua non
+                         e' un paese. Ogni lingua scritta nella lingua stessa. -->
+                    <select id="lang-selector" class="bpset-select" data-on-change-value="bpScegliLingua" aria-label="Language / Lingua" data-i18n-aria="ariaLingua">
+                        <option value="it">Italiano</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="pt">Português</option>
+                        <option value="nl">Nederlands</option>
                     </select>
                 </div>
 
@@ -181,7 +200,10 @@
          e resta nascosta in stampa come tutti gli altri figli del body
          (entrambe le modalita' usano `body > *:not(...)`). -->
     <header class="header">
-        <h1>Barman PRO</h1>
+        <!-- Logotipo: l'icona dell'app e il nome, "PRO" come etichetta.
+             Lo spazio fra i due span tiene "Barman PRO" leggibile come testo
+             (lettori di schermo, titolo copiato) anche se in flex non si vede. -->
+        <h1 class="bp-logo"><img class="bp-logo-ic" src="favicon.svg" alt="" width="30" height="30"><span class="bp-logo-nome">Barman</span> <span class="bp-logo-pro">PRO</span></h1>
     </header>
 
     <div class="container">
@@ -195,17 +217,8 @@
     <!-- ════ ONBOARDING · scelta modalità (manuale / guidata) ════ -->
     <div class="bpc-overlay" id="bp-welcome" role="dialog" aria-modal="true" aria-labelledby="bp-welcome-title">
         <div class="bpc-shell">
-            <div class="bpc-wlang">
-                <select id="bp-welcome-lang" data-on-change-value="cambiaLingua" aria-label="Language / Lingua" data-i18n-aria="ariaLingua">
-                    <option value="it">🇮🇹</option>
-                    <option value="en">🇬🇧</option>
-                    <option value="es">🇪🇸</option>
-                    <option value="fr">🇫🇷</option>
-                    <option value="de">🇩🇪</option>
-                    <option value="pt">🇵🇹</option>
-                    <option value="nl">🇳🇱</option>
-                </select>
-            </div>
+            <!-- La lingua non si sceglie piu' qui: segue il dispositivo e si cambia
+                 nelle Impostazioni. Questo selettore ricompariva a ogni nuovo evento. -->
             <div class="bpc-welcome-head">
                 <div class="bpc-eyebrow" data-i18n="cfgWelcomeEyebrow">Barman PRO</div>
                 <h2 id="bp-welcome-title" data-i18n="cfgWelcomeTitle">Come vuoi preparare l'evento?</h2>
@@ -477,7 +490,7 @@
     <div class="step-panel" data-stepid="risultati">
     <!-- ─── RISULTATI ─── -->
     <div id="risultati">
-        <h2 class="print-title" data-i18n="printTitle">Lista della Spesa &middot; Barman PRO</h2>
+        <h2 class="print-title" data-i18n="printTitle">Lista della Spesa</h2>
         <div class="print-meta" id="print-meta"></div>
 
         <div class="risultati-header">
@@ -587,8 +600,9 @@
             </button>
         </div>
         <div class="bp-altro-lista bp-altro-esterni">
-            <a class="bp-altro-voce" href="privacy"><span class="bp-altro-tx" data-i18n="footPrivacy">Privacy</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></a>
-            <a class="bp-altro-voce" href="https://github.com/raccasamuele/barman-pro/blob/main/LICENSE" rel="noopener"><span class="bp-altro-tx" data-i18n="footLicenza">Licenza MIT</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></a>
+            <button type="button" class="bp-altro-voce" data-do="bpInfoApri" data-arg="privacy"><span class="bp-altro-tx" data-i18n="footPrivacy">Privacy</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></button>
+            <button type="button" class="bp-altro-voce" data-do="bpInfoApri" data-arg="licenza"><span class="bp-altro-tx" data-i18n="footLicenza">Licenza MIT</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></button>
+            <button type="button" class="bp-altro-voce" data-do="bpInfoApri" data-arg="contatti"><span class="bp-altro-tx" data-i18n="footerContatti">Contatti</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></button>
             <a class="bp-altro-voce" href="https://github.com/raccasamuele/barman-pro" rel="noopener"><span class="bp-altro-tx">GitHub</span><span class="bp-altro-ar" aria-hidden="true">&rsaquo;</span></a>
         </div>
     </section>
@@ -656,11 +670,14 @@
     <footer class="bp-footer">
         <nav class="bp-footer-link" aria-label="Collegamenti" data-i18n-aria="ariaCollegamenti">
             <a href="https://github.com/raccasamuele/barman-pro" rel="noopener">GitHub</a>
-            <a href="privacy">Privacy</a>
-            <a href="https://github.com/raccasamuele/barman-pro/blob/main/LICENSE" rel="noopener">Licenza MIT</a>
+            <!-- Gli href restano veri: senza JavaScript (o per un crawler)
+                 portano alla pagina giusta. Con lo script, data-do apre il
+                 pannello Info dentro l'app e il dispatcher annulla il link. -->
+            <a href="privacy" data-do="bpInfoApri" data-arg="privacy" data-i18n="footPrivacy">Privacy</a>
+            <a href="https://github.com/raccasamuele/barman-pro/blob/main/LICENSE" rel="noopener" data-do="bpInfoApri" data-arg="licenza" data-i18n="footLicenza">Licenza MIT</a>
             <!-- L'indirizzo lo ricompone mail.js: in chiaro qui verrebbe
                  raccolto dai bot che scandagliano le pagine indicizzate. -->
-            <a href="#" data-mail data-i18n="footerContatti">Contatti</a>
+            <a href="#" data-mail data-do="bpInfoApri" data-arg="contatti" data-i18n="footerContatti">Contatti</a>
         </nav>
         <p class="bp-footer-nota">&copy; 2026 Samuele Racca &middot; MIT</p>
     </footer>

@@ -9,8 +9,8 @@
  *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v3.21.0';
-const ASSET_CACHE = 'barman-pro-assets-v3.21.0';
+const CACHE_VERSION = 'barman-pro-v3.22.0';
+const ASSET_CACHE = 'barman-pro-assets-v3.22.0';
 
 // Asset da pre-cachare alla prima installazione.
 //
@@ -33,6 +33,7 @@ const PRECACHE_ASSETS = [
     './app.css',
     './app.js',
     './mail.js',
+    './tema-pagina.js',
     './analytics.js',
     './favicon.svg',
     './apple-touch-icon.png',
