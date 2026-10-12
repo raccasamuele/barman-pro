@@ -3349,7 +3349,6 @@ Annulla = ` + T('backupUnisci'));
         let menuSerataShot = {};
         let customShots = [];
         let customDrinks = {};
-        let ingredientCounter = 0;
 
         const STORAGE_KEY_LEGACY = 'barmanProState_v7';
         const STORAGE_KEY = 'barmanProState_v8';
@@ -3765,9 +3764,6 @@ Annulla = ` + T('backupUnisci'));
             document.getElementById('budget-box').style.display = 'none';
             document.getElementById('risultati').style.display = 'none';
             const _bf = document.getElementById('block_fermentati'); if (_bf) _bf.style.display = 'none';
-            document.getElementById('ingredienti-container').innerHTML = '';
-            aggiungiRigaIngrediente();
-            aggiungiRigaIngrediente();
             inizializzaApp();
             renderizzaMenu();
         }
@@ -3790,21 +3786,8 @@ Annulla = ` + T('backupUnisci'));
                 datalist.appendChild(opt);
             }
 
-            // Datalist drink ALCOLICI: cocktail con ≥1 ingrediente alcolico
-            // Datalist drink ANALCOLICI (mocktail): cocktail con TUTTI ingredienti analcolici
-            const datalistDrink = document.getElementById('lista-database-drink');
-            const datalistMocktail = document.getElementById('lista-database-mocktail');
-            datalistDrink.innerHTML = '';
-            if (datalistMocktail) datalistMocktail.innerHTML = '';
-            Object.keys(databaseDrink).sort().forEach(nome => {
-                const ings = databaseDrink[nome] || [];
-                const hasAlc = ings.some(i => i.tipo === 'alcolico');
-                if (hasAlc) {
-                    aggiungiOption(datalistDrink, nome);
-                } else if (datalistMocktail) {
-                    aggiungiOption(datalistMocktail, nome);
-                }
-            });
+            // Cocktail e mocktail non hanno piu' un datalist: li elenca il
+            // selettore drink (bpPickerVoci), che legge databaseDrink al momento.
 
             let setTuttiIngredienti = new Set();
             let setSoloAlcolici = new Set();
@@ -3823,13 +3806,18 @@ Annulla = ` + T('backupUnisci'));
             // li rendiamo cercabili anche manualmente nella ricerca shot.
             ['Mirto'].forEach(s => { setSoloAlcolici.add(s); setTuttiIngredienti.add(s); });
 
+            // Resta il datalist degli ingredienti: lo usa l'editor delle ricette.
             const datalistIngredienti = document.getElementById('lista-ingredienti');
-            datalistIngredienti.innerHTML = '';
-            Array.from(setTuttiIngredienti).sort().forEach(nome => aggiungiOption(datalistIngredienti, nome));
+            if (datalistIngredienti) {
+                datalistIngredienti.innerHTML = '';
+                Array.from(setTuttiIngredienti).sort().forEach(nome => aggiungiOption(datalistIngredienti, nome));
+            }
 
-            const datalistShot = document.getElementById('lista-database-shot');
-            datalistShot.innerHTML = '';
-            Array.from(setSoloAlcolici).sort().forEach(nome => aggiungiOption(datalistShot, nome));
+            // Shot proponibili: gli alcolici del ricettario, gli amari della
+            // libreria e quelli che il suggeritore propone (Mirto). Prima
+            // finivano in un datalist; ora li legge il selettore drink.
+            (bpRecipes.amari || []).forEach(s => setSoloAlcolici.add(s));
+            bpElencoShot = Array.from(setSoloAlcolici).sort((a, b) => a.localeCompare(b));
 
             const selNazione = document.getElementById('sel-nazione');
             if (selNazione && selNazione.options.length === 0) {
@@ -3846,48 +3834,35 @@ Annulla = ` + T('backupUnisci'));
         /* ════════════════════════════════════════════════════════════
            AGGIUNTA E RIMOZIONE
            ════════════════════════════════════════════════════════════ */
-        function aggiungiDrinkSerata() {
-            let inputField = document.getElementById('search-drink-input');
-            let nome = inputField.value.trim();
-            if(!nome) return;
-            if(!databaseDrink[nome]) return alert(T('alertCocktailNonTrovato'));
+        /* Ottobre 2026: il menu non si costruisce piu' da tre campi di ricerca
+           (uno per tipo) con il datalist del browser, ma dal selettore drink.
+           Le tre mappe nome -> frequenza (menuSerataDrink/Mocktail/Shot)
+           restano quelle: le leggono il calcolo, i salvataggi e i golden. */
+        let bpElencoShot = [];          // riempito da inizializzaApp()
+        let bpMenuFiltroAttivo = 'tutti';
 
-            // Sicurezza: se per errore l'utente cerca qui un mocktail (es. autocomplete cross-section),
-            // ridirigiamo nel menu corretto basandoci sul contenuto degli ingredienti.
-            const hasAlc = databaseDrink[nome].some(i => i.tipo === 'alcolico');
-            if (!hasAlc) {
-                if (!(nome in menuSerataMocktail)) menuSerataMocktail[nome] = 1;
-            } else {
-                if (!(nome in menuSerataDrink)) menuSerataDrink[nome] = 1;
-            }
-            inputField.value = '';
-            renderizzaMenu();
-            salvaStato();
+        /* Tipo di una voce del ricettario: cocktail se ha almeno un
+           ingrediente alcolico, mocktail se e' tutta analcolica. Uno shot non
+           e' una ricetta ma una bottiglia, quindi non sta in databaseDrink. */
+        function bpTipoVoce(nome) {
+            const ings = databaseDrink[nome];
+            if (!ings) return 'shot';
+            return ings.some(i => i.tipo === 'alcolico') ? 'drink' : 'mocktail';
+        }
+        function bpMenuDi(tipo) {
+            return tipo === 'drink' ? menuSerataDrink : (tipo === 'mocktail' ? menuSerataMocktail : menuSerataShot);
         }
 
-        function aggiungiMocktailSerata() {
-            let inputField = document.getElementById('search-mocktail-input');
-            let nome = inputField.value.trim();
-            if(!nome) return;
-            if(!databaseDrink[nome]) return alert(T('alertMocktailNonTrovato'));
-            const hasAlc = (databaseDrink[nome] || []).some(i => i.tipo === 'alcolico');
-            if (hasAlc) return alert(T('alertMocktailNonTrovato'));
-
-            if (!(nome in menuSerataMocktail)) menuSerataMocktail[nome] = 1;
-            inputField.value = '';
+        /* Aggiunge una voce al menu giusto. La frequenza parte da 3, "normale":
+           prima partiva da 1, cioe' "di nicchia", e quasi nessuno la cambiava. */
+        function bpMenuAggiungi(nome, tipo, freq) {
+            nome = String(nome || '').trim();
+            if (!nome) return false;
+            const m = bpMenuDi(tipo || bpTipoVoce(nome));
+            if (!(nome in m)) m[nome] = freq || 3;
             renderizzaMenu();
             salvaStato();
-        }
-
-        function aggiungiShotSerata() {
-            let inputField = document.getElementById('search-shot-input');
-            let nome = inputField.value.trim();
-            if(!nome) return;
-
-            if (!(nome in menuSerataShot)) menuSerataShot[nome] = 1;
-            inputField.value = '';
-            renderizzaMenu();
-            salvaStato();
+            return true;
         }
 
         function aggiornaFrequenza(nome, tipo, valore) {
@@ -3906,24 +3881,68 @@ Annulla = ` + T('backupUnisci'));
             salvaStato();
         }
 
-        function renderizzaMenu() {
-            const renderMenuGroup = (containerId, menu, tipo) => {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-                const frag = document.createDocumentFragment();
-                Object.keys(menu).sort().forEach(nome => {
-                    frag.appendChild(creaSliderElement(nome, tipo, menu[nome]));
-                });
-                container.replaceChildren(frag);
-            };
-            renderMenuGroup('drink-serata-container', menuSerataDrink, 'drink');
-            renderMenuGroup('mocktail-serata-container', menuSerataMocktail, 'mocktail');
-            renderMenuGroup('shot-serata-container', menuSerataShot, 'shot');
+        /* La riga sotto il nome: gli ingredienti per un cocktail, la dose
+           per uno shot. Serve a riconoscere un drink senza aprirlo. */
+        function bpDescriviVoce(nome, tipo) {
+            if (tipo === 'shot') return T('evShotDose');
+            return (databaseDrink[nome] || []).map(i => tradIngrediente(i.nome)).join(' · ');
+        }
 
+        const BP_IC_TOGLI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>';
+
+        function renderizzaMenu() {
+            const box = document.getElementById('bp-menu-righe');
+            if (box) {
+                const voci = [];
+                [['drink', menuSerataDrink], ['mocktail', menuSerataMocktail], ['shot', menuSerataShot]].forEach(([tipo, m]) => {
+                    Object.keys(m).sort((a, b) => _bpmStripHV(a).localeCompare(_bpmStripHV(b)))
+                        .forEach(nome => voci.push({ nome, tipo, f: m[nome] }));
+                });
+                const vis = voci.filter(v => bpMenuFiltroAttivo === 'tutti' || v.tipo === bpMenuFiltroAttivo);
+                box.innerHTML = vis.map(v => {
+                    const visto = _bpmStripHV(v.nome);
+                    const pallini = [1, 2, 3, 4, 5].map(k =>
+                        '<button type="button" class="bp-pallino' + (k <= v.f ? ' on' : '') + '" data-freq="' + k + '"'
+                        + ' aria-pressed="' + (k === v.f) + '" aria-label="' + _bpEsc(T('evFreqAria').replace('{n}', k)) + '"></button>').join('');
+                    return '<div class="bp-voce" data-nome="' + _bpEsc(v.nome) + '" data-tipo="' + v.tipo + '">'
+                        + '<span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(visto) + '</span>'
+                        + '<span class="bp-voce-sub">' + _bpEsc(bpDescriviVoce(v.nome, v.tipo)) + '</span></span>'
+                        + '<span class="bp-pallini" role="group" aria-label="' + _bpEsc(T('evFreq')) + '">' + pallini + '</span>'
+                        + '<button type="button" class="bp-togli" data-togli="1" aria-label="' + _bpEsc(T('evTogli') + ' ' + visto) + '">' + BP_IC_TOGLI + '</button>'
+                        + '</div>';
+                }).join('');
+                const vuoto = document.getElementById('bp-menu-vuoto');
+                if (vuoto) vuoto.hidden = vis.length > 0;
+            }
             aggiornaBadge();
         }
 
-        /* ── Conteggio voci per le schede del builder ── */
+        /* Pallini e "togli" passano da qui: il nome di un drink puo' contenere
+           qualunque carattere, e in un data-arg andrebbe interpretato. Il
+           pallino cambia la riga sul posto invece di ridisegnare l'elenco,
+           cosi' il fuoco resta dov'e'. */
+        document.addEventListener('click', function (e) {
+            const riga = e.target.closest('#bp-menu-righe .bp-voce');
+            if (!riga) return;
+            const nome = riga.dataset.nome, tipo = riga.dataset.tipo;
+            const p = e.target.closest('[data-freq]');
+            if (p) {
+                const f = parseInt(p.dataset.freq);
+                aggiornaFrequenza(nome, tipo, f);
+                riga.querySelectorAll('[data-freq]').forEach(b => {
+                    const k = parseInt(b.dataset.freq);
+                    b.classList.toggle('on', k <= f);
+                    b.setAttribute('aria-pressed', String(k === f));
+                });
+                return;
+            }
+            if (e.target.closest('[data-togli]')) {
+                rimuovi(nome, tipo);
+                mostraToast(T('evTolto').replace('{nome}', _bpmStripHV(nome)));
+            }
+        });
+
+        /* ── Conteggio voci per i filtri del menu ── */
         function aggiornaBadge() {
             const setBadge = (id, n) => {
                 const b = document.getElementById(id);
@@ -3931,9 +3950,13 @@ Annulla = ` + T('backupUnisci'));
                 b.textContent = n;
                 b.classList.toggle('empty', n === 0);
             };
-            setBadge('badge-alcolici', Object.keys(menuSerataDrink).length);
-            setBadge('badge-analcolici', Object.keys(menuSerataMocktail).length);
-            setBadge('badge-shot', Object.keys(menuSerataShot).length);
+            const nD = Object.keys(menuSerataDrink).length;
+            const nM = Object.keys(menuSerataMocktail).length;
+            const nS = Object.keys(menuSerataShot).length;
+            setBadge('badge-alcolici', nD);
+            setBadge('badge-analcolici', nM);
+            setBadge('badge-shot', nS);
+            setBadge('badge-tutti', nD + nM + nS);
             const fermN = ['ferm_vino_rosso','ferm_vino_bianco','ferm_bollicine','ferm_birra']
                 .reduce((acc, fid) => {
                     const el = document.getElementById(fid);
@@ -3943,16 +3966,157 @@ Annulla = ` + T('backupUnisci'));
             aggiornaStimaForm();
         }
 
-        /* ── Schede del builder ── */
-        function mostraTab(key) {
-            document.querySelectorAll('.builder-tab').forEach(t => {
-                const on = t.dataset.tab === key;
-                t.classList.toggle('active', on);
-                t.setAttribute('aria-selected', on ? 'true' : 'false');   // a11y: stato tab (additivo)
+        /* ── Filtri del menu: Tutti / Cocktail / Analcolici / Shot / Vino e birra ──
+           "Vino e birra" non e' un elenco di drink: mostra i calici e le birre
+           a persona al posto delle righe. */
+        function bpMenuFiltro(cat) {
+            bpMenuFiltroAttivo = ['tutti', 'drink', 'mocktail', 'shot', 'ferm'].indexOf(cat) >= 0 ? cat : 'tutti';
+            document.querySelectorAll('#step-menu .bp-chip').forEach(c => {
+                const on = c.dataset.filtro === bpMenuFiltroAttivo;
+                c.classList.toggle('on', on);
+                c.setAttribute('aria-selected', on ? 'true' : 'false');
             });
-            document.querySelectorAll('.builder-panel').forEach(p => {
-                p.classList.toggle('active', p.dataset.panel === key);
+            const ferm = bpMenuFiltroAttivo === 'ferm';
+            const el = id => document.getElementById(id);
+            if (el('bp-menu-elenco')) el('bp-menu-elenco').hidden = ferm;
+            if (el('bp-menu-nota')) el('bp-menu-nota').hidden = ferm;
+            if (el('fermentati-panel')) el('fermentati-panel').hidden = !ferm;
+            renderizzaMenu();
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           SELETTORE DRINK (#bp-picker)
+           Si sceglie su una copia: il menu cambia solo con "Usa". Le voci
+           sono indicizzate per "tipo|nome" perche' uno stesso nome puo' essere
+           sia una ricetta sia una bottiglia da shot.
+           ════════════════════════════════════════════════════════════ */
+        let bpPk = null;   // { sel: Map chiave -> {nome, tipo}, cat, q }
+
+        function bpPickerVoci() {
+            const voci = Object.keys(databaseDrink).map(nome => ({ nome, tipo: bpTipoVoce(nome) }));
+            bpElencoShot.forEach(nome => voci.push({ nome, tipo: 'shot' }));
+            return voci;
+        }
+        function bpPickerApri() {
+            bpPk = { sel: new Map(), cat: 'tutti', q: '' };
+            [['drink', menuSerataDrink], ['mocktail', menuSerataMocktail], ['shot', menuSerataShot]].forEach(([tipo, m]) =>
+                Object.keys(m).forEach(nome => bpPk.sel.set(tipo + '|' + nome, { nome, tipo })));
+            const q = document.getElementById('bp-pk-q'); if (q) q.value = '';
+            bpPickerRender();
+            bpApriModale('bp-picker');
+        }
+        function bpPickerChiudi() { bpChiudiModale('bp-picker'); bpPk = null; }
+        function bpPickerCerca(v) { if (!bpPk) return; bpPk.q = v || ''; bpPickerRender(); }
+
+        const _bpNorm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+        function bpPickerRender() {
+            if (!bpPk) return;
+            const lista = document.getElementById('bp-pk-lista');
+            if (!lista) return;
+            const testo = bpPk.q.trim();
+            const qn = _bpNorm(testo);
+            const tutte = bpPickerVoci();
+            const voci = tutte.filter(v => (bpPk.cat === 'tutti' || v.tipo === bpPk.cat)
+                && (!qn || _bpNorm(_bpmStripHV(v.nome) + ' ' + bpDescriviVoce(v.nome, v.tipo)).includes(qn)));
+            // Le voci gia' nel menu in cima; poi in ordine alfabetico. L'ordine
+            // si decide qui, non al tocco: una riga che salta via mentre la
+            // spunti e' peggio di una lista non ordinata.
+            const scelta = v => bpPk.sel.has(v.tipo + '|' + v.nome) ? 1 : 0;
+            voci.sort((a, b) => (scelta(b) - scelta(a)) || _bpmStripHV(a.nome).localeCompare(_bpmStripHV(b.nome)));
+            let html = voci.map(v => {
+                const k = v.tipo + '|' + v.nome, on = bpPk.sel.has(k);
+                return '<button type="button" class="bp-pk-voce' + (on ? ' on' : '') + '" role="checkbox" aria-checked="' + on + '" data-k="' + _bpEsc(k) + '">'
+                    + '<span class="bp-pk-cb" aria-hidden="true"></span>'
+                    + '<span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(_bpmStripHV(v.nome)) + '</span>'
+                    + '<span class="bp-voce-sub">' + _bpEsc(bpDescriviVoce(v.nome, v.tipo)) + '</span></span></button>';
+            }).join('');
+            const esiste = qn && tutte.some(v => _bpNorm(v.nome) === qn || _bpNorm(_bpmStripHV(v.nome)) === qn);
+            if (testo && !esiste) {
+                const shot = bpPk.cat === 'shot';
+                html += '<button type="button" class="bp-pk-voce bp-pk-crea" data-crea="' + _bpEsc(testo) + '">'
+                    + '<span class="bp-piu" aria-hidden="true">+</span>'
+                    + '<span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(T('pkCrea').replace('{nome}', testo)) + '</span>'
+                    + '<span class="bp-voce-sub">' + _bpEsc(T(shot ? 'pkCreaShotSub' : 'pkCreaSub')) + '</span></span></button>';
+            }
+            lista.innerHTML = html || '<p class="bp-menu-vuoto">' + _bpEsc(T('libEmpty')) + '</p>';
+            document.querySelectorAll('#bp-pk-chips .bp-chip').forEach(c => {
+                const on = c.dataset.pkCat === bpPk.cat;
+                c.classList.toggle('on', on);
+                c.setAttribute('aria-selected', on ? 'true' : 'false');
             });
+            bpPickerConta();
+        }
+        function bpPickerConta() {
+            const n = bpPk ? bpPk.sel.size : 0;
+            const el = document.getElementById('bp-pk-n'); if (el) el.textContent = n;
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!bpPk || !e.target.closest('#bp-picker')) return;
+            const chip = e.target.closest('[data-pk-cat]');
+            if (chip) {
+                bpPk.cat = chip.dataset.pkCat;
+                bpPickerRender();
+                const l = document.getElementById('bp-pk-lista'); if (l) l.scrollTop = 0;
+                return;
+            }
+            const voce = e.target.closest('[data-k]');
+            if (voce) {
+                const k = voce.dataset.k, i = k.indexOf('|');
+                if (bpPk.sel.has(k)) bpPk.sel.delete(k);
+                else bpPk.sel.set(k, { tipo: k.slice(0, i), nome: k.slice(i + 1) });
+                const on = bpPk.sel.has(k);
+                voce.classList.toggle('on', on);
+                voce.setAttribute('aria-checked', String(on));
+                bpPickerConta();
+                return;
+            }
+            const crea = e.target.closest('[data-crea]');
+            if (crea) bpPickerCrea(crea.dataset.crea);
+        });
+
+        /* "Usa": il menu diventa la scelta. Chi c'era gia' tiene la sua
+           frequenza, chi entra parte da 3, chi e' stato tolto esce. */
+        function bpPickerApplica() {
+            if (!bpPk) return 0;
+            [['drink', menuSerataDrink], ['mocktail', menuSerataMocktail], ['shot', menuSerataShot]].forEach(([tipo, m]) => {
+                Object.keys(m).forEach(nome => { if (!bpPk.sel.has(tipo + '|' + nome)) delete m[nome]; });
+            });
+            bpPk.sel.forEach(({ nome, tipo }) => { const m = bpMenuDi(tipo); if (!(nome in m)) m[nome] = 3; });
+            renderizzaMenu();
+            salvaStato();
+            return bpPk.sel.size;
+        }
+        function bpPickerUsa() {
+            const n = bpPickerApplica();
+            bpPickerChiudi();
+            mostraToast(T('pkFatto').replace('{n}', n));
+        }
+
+        /* "Crea «nome»". Uno shot e' solo un nome: si aggiunge agli amari e si
+           spunta. Un cocktail ha bisogno degli ingredienti: si apre l'editor
+           di "I miei cocktail" con il nome gia' scritto, e al salvataggio si
+           torna al menu con il cocktail dentro. La scelta fatta fin li' non
+           si perde: viene applicata prima di uscire. */
+        let bpLibTornaAlMenu = false;
+        function bpPickerCrea(nome) {
+            nome = String(nome || '').trim();
+            if (!nome || !bpPk) return;
+            if (bpPk.cat === 'shot') {
+                bpCreaShot(nome);
+                bpPk.sel.set('shot|' + nome, { nome, tipo: 'shot' });
+                bpPk.q = '';
+                const q = document.getElementById('bp-pk-q'); if (q) q.value = '';
+                bpPickerRender();
+                return;
+            }
+            bpPickerApplica();
+            bpPickerChiudi();
+            bpVaiA('altro/ricette');
+            bpLibShowEditor('cocktail');
+            const campo = document.getElementById('bpl-name'); if (campo) campo.value = nome;
+            bpLibTornaAlMenu = true;
         }
 
         /* ── Navigazione a step (wizard: una sezione visibile alla volta) ── */
@@ -3985,142 +4149,16 @@ Annulla = ` + T('backupUnisci'));
             if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function creaSliderElement(nome, tipo, valoreAttuale) {
-            const wrap = document.createElement('div');
-            wrap.className = 'menu-item';
-
-            const header = document.createElement('div');
-            header.className = 'menu-header';
-
-            const span = document.createElement('span');
-            span.textContent = nome;
-
-            const btnRimuovi = document.createElement('button');
-            btnRimuovi.className = 'btn-rimuovi';
-            btnRimuovi.textContent = T('sliderRimuovi');
-            btnRimuovi.addEventListener('click', () => rimuovi(nome, tipo));
-
-            header.appendChild(span);
-            header.appendChild(btnRimuovi);
-
-            const sliderWrap = document.createElement('div');
-            sliderWrap.className = 'slider-container';
-
-            const lbl = document.createElement('span');
-            lbl.className = 'lbl';
-            lbl.textContent = T('sliderFreq');
-
-            const slider = document.createElement('input');
-            slider.type = 'range';
-            slider.min = 1;
-            slider.max = 5;
-            slider.value = valoreAttuale;
-
-            const sliderVal = document.createElement('span');
-            sliderVal.className = 'slider-value';
-            sliderVal.textContent = valoreAttuale;
-
-            slider.addEventListener('input', function() {
-                sliderVal.textContent = this.value;
-                aggiornaFrequenza(nome, tipo, this.value);
-            });
-
-            sliderWrap.appendChild(lbl);
-            sliderWrap.appendChild(slider);
-            sliderWrap.appendChild(sliderVal);
-
-            wrap.appendChild(header);
-            wrap.appendChild(sliderWrap);
-            return wrap;
-        }
-
-        /* ════════════════════════════════════════════════════════════
-           CREATOR — Cocktail con N ingredienti dinamici
-           ════════════════════════════════════════════════════════════ */
-        function aggiungiRigaIngrediente(preset) {
-            const c = document.getElementById('ingredienti-container');
-            const id = ++ingredientCounter;
-            const nome = preset && preset.nome ? preset.nome : '';
-            const ml = preset && preset.ml ? preset.ml : '';
-            const tipo = preset && preset.tipo ? preset.tipo : 'alcolico';
-            const div = document.createElement('div');
-            div.className = 'creator-row';
-            div.id = 'row-' + id;
-            div.innerHTML = `
-                <input type="text" class="ing-nome" placeholder="${T('phIngrediente')}" list="lista-ingredienti">
-                <select class="ing-tipo">
-                    <option value="alcolico">${T('labelAlcolico')}</option>
-                    <option value="analcolico">${T('labelAnalcolico')}</option>
-                </select>
-                <input type="number" class="ing-ml" placeholder="${T('phMl')}" min="0" step="0.5">
-                <button class="btn-rimuovi-ing" title="${T('lblRimuovi') || 'Rimuovi'}">&times;</button>
-            `;
-            div.querySelector('.ing-nome').value = nome;
-            div.querySelector('.ing-ml').value = ml;
-            div.querySelector('.ing-tipo').value = tipo;
-            div.querySelector('.btn-rimuovi-ing').addEventListener('click', () => div.remove());
-            c.appendChild(div);
-        }
-
-        function creaCocktail() {
-            let nome = document.getElementById('new_cocktail_name').value.trim();
-            if(!nome) return alert(T('alertNomeCocktailVuoto'));
-
-            let ingredienti = [];
-            document.querySelectorAll('#ingredienti-container .creator-row').forEach(row => {
-                let n = row.querySelector('.ing-nome').value.trim();
-                let mlRaw = row.querySelector('.ing-ml').value;
-                let ml = parseFloat(mlRaw);
-                let tipo = row.querySelector('.ing-tipo').value;
-                if(n && !isNaN(ml) && ml > 0) ingredienti.push({nome: n, tipo: tipo, ml: ml});
-            });
-
-            if(ingredienti.length === 0) return alert(T('alertIngVuoti'));
-
-            databaseDrink[nome] = ingredienti;
-            // Registra la ricetta nella libreria "I miei cocktail": così compare
-            // come voce personale (badge "Personale") ed è eliminabile, e sopravvive
-            // al reset dell'evento (store bp_recipes, separato da customDrinks/stato).
-            bpRecipes.mods[nome] = JSON.parse(JSON.stringify(ingredienti));
-            if (!DB_ORIGINAL[nome] && bpRecipes.custom.indexOf(nome) < 0) bpRecipes.custom.push(nome);
-            bpRecipesSave();
-
-            // ─── AUTO-DETECT alcolico vs mocktail ────────────────────────
-            // Se NESSUN ingrediente è alcolico → mocktail (va nella sezione analcolici).
-            // Altrimenti → cocktail alcolico standard.
-            const hasAlc = ingredienti.some(i => i.tipo === 'alcolico');
-            if (hasAlc) {
-                menuSerataDrink[nome] = 1;
-            } else {
-                menuSerataMocktail[nome] = 1;
-            }
-
-            document.getElementById('new_cocktail_name').value = '';
-            document.getElementById('ingredienti-container').innerHTML = '';
-            aggiungiRigaIngrediente();
-            aggiungiRigaIngrediente();
-
-            inizializzaApp();
-            renderizzaMenu();
-            salvaStato();
-            mostraToast(T('toastCocktailCreato').replace('{nome}', nome));
-        }
-
-        function creaShot() {
-            let nome = document.getElementById('new_shot_name').value.trim();
-            if(!nome) return alert(T('alertNomeShotVuoto'));
-
-            // Un posto solo: "I miei amari". Prima lo stesso nome finiva anche
-            // in customShots dentro la bozza, e i due archivi divergevano.
+        /* Uno shot nuovo: un posto solo, "I miei amari". Prima lo creava la
+           scheda "Creazioni personalizzate"; ora il selettore drink. */
+        function bpCreaShot(nome) {
+            nome = String(nome || '').trim();
+            if (!nome) return false;
             if (bpRecipes.amari.indexOf(nome) < 0) { bpRecipes.amari.push(nome); bpRecipesSave(); }
-            if(!customShots.includes(nome)) customShots.push(nome);   // copia di lavoro
-            menuSerataShot[nome] = 1;
-
-            document.getElementById('new_shot_name').value = '';
+            if (!customShots.includes(nome)) customShots.push(nome);   // copia di lavoro
             inizializzaApp();
-            renderizzaMenu();
-            salvaStato();
             mostraToast(T('toastShotCreato').replace('{nome}', nome));
+            return true;
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -4311,7 +4349,7 @@ Annulla = ` + T('backupUnisci'));
             renderizzaMenu();
             aggiornaBadge();
             salvaStato();
-            mostraTab('alcolici');
+            bpMenuFiltro('tutti');
             mostraToast(T('sugFatto') || 'Menu suggerito applicato. Modificalo a piacere.');
         }
 
@@ -4608,6 +4646,46 @@ Annulla = ` + T('backupUnisci'));
             nl: { evStep:"Event", evParametri:"Gegevens", evNomePh:"Zonder naam", evChiBeve:"Wie drinkt alcohol", evAltre:"Meer opties", evGenera:"Lijst maken" }
         };
         Object.keys(_evI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _evI18n[lg]); });
+
+        /* Menu a righe e selettore drink (ottobre 2026). */
+        const _pkI18n = {
+            it: { evMenu:"Menù", evProponi:"Proponi un menù", evTutti:"Tutti", evCocktail:"Cocktail", evAnalcolici:"Analcolici", evShot:"Shot", evVinoBirra:"Vino e birra",
+                  evMenuVuoto:"Ancora nessun drink. Aggiungili tu o fatti proporre un menù.", evAggiungi:"Aggiungi drink", evNotaFreq:"I pallini sono la frequenza: 5 = il più richiesto.",
+                  evTogli:"Togli", evFreq:"Frequenza", evFreqAria:"Frequenza {n} su 5", evTolto:"«{nome}» tolto dal menù", evShotDose:"Shot · 4 cl",
+                  pkTitolo:"Scegli i drink", pkCerca:"Cerca un drink o un ingrediente", pkScelti:"drink scelti", pkUsa:"Usa questi drink",
+                  pkCrea:"Crea «{nome}»", pkCreaSub:"Nuova ricetta con i tuoi ingredienti", pkCreaShotSub:"Nuovo shot o liquore", pkFatto:"Menù aggiornato: {n} drink" },
+            en: { evMenu:"Menu", evProponi:"Suggest a menu", evTutti:"All", evCocktail:"Cocktails", evAnalcolici:"Alcohol-free", evShot:"Shots", evVinoBirra:"Wine & beer",
+                  evMenuVuoto:"No drinks yet. Add them yourself or get a suggested menu.", evAggiungi:"Add drinks", evNotaFreq:"The dots are the frequency: 5 = most ordered.",
+                  evTogli:"Remove", evFreq:"Frequency", evFreqAria:"Frequency {n} of 5", evTolto:"\"{nome}\" removed from the menu", evShotDose:"Shot · 4 cl",
+                  pkTitolo:"Choose drinks", pkCerca:"Search a drink or an ingredient", pkScelti:"drinks chosen", pkUsa:"Use these drinks",
+                  pkCrea:"Create \"{nome}\"", pkCreaSub:"New recipe with your own ingredients", pkCreaShotSub:"New shot or liqueur", pkFatto:"Menu updated: {n} drinks" },
+            es: { evMenu:"Menú", evProponi:"Proponer un menú", evTutti:"Todos", evCocktail:"Cócteles", evAnalcolici:"Sin alcohol", evShot:"Chupitos", evVinoBirra:"Vino y cerveza",
+                  evMenuVuoto:"Aún no hay bebidas. Añádelas tú o pide un menú propuesto.", evAggiungi:"Añadir bebidas", evNotaFreq:"Los puntos son la frecuencia: 5 = el más pedido.",
+                  evTogli:"Quitar", evFreq:"Frecuencia", evFreqAria:"Frecuencia {n} de 5", evTolto:"«{nome}» quitado del menú", evShotDose:"Chupito · 4 cl",
+                  pkTitolo:"Elige las bebidas", pkCerca:"Busca una bebida o un ingrediente", pkScelti:"bebidas elegidas", pkUsa:"Usar estas bebidas",
+                  pkCrea:"Crear «{nome}»", pkCreaSub:"Receta nueva con tus ingredientes", pkCreaShotSub:"Chupito o licor nuevo", pkFatto:"Menú actualizado: {n} bebidas" },
+            fr: { evMenu:"Menu", evProponi:"Proposer un menu", evTutti:"Tous", evCocktail:"Cocktails", evAnalcolici:"Sans alcool", evShot:"Shots", evVinoBirra:"Vin et bière",
+                  evMenuVuoto:"Pas encore de boissons. Ajoute-les ou fais-toi proposer un menu.", evAggiungi:"Ajouter des boissons", evNotaFreq:"Les points indiquent la fréquence : 5 = le plus demandé.",
+                  evTogli:"Retirer", evFreq:"Fréquence", evFreqAria:"Fréquence {n} sur 5", evTolto:"« {nome} » retiré du menu", evShotDose:"Shot · 4 cl",
+                  pkTitolo:"Choisis les boissons", pkCerca:"Cherche une boisson ou un ingrédient", pkScelti:"boissons choisies", pkUsa:"Utiliser ces boissons",
+                  pkCrea:"Créer « {nome} »", pkCreaSub:"Nouvelle recette avec tes ingrédients", pkCreaShotSub:"Nouveau shot ou liqueur", pkFatto:"Menu mis à jour : {n} boissons" },
+            de: { evMenu:"Menü", evProponi:"Menü vorschlagen", evTutti:"Alle", evCocktail:"Cocktails", evAnalcolici:"Alkoholfrei", evShot:"Shots", evVinoBirra:"Wein & Bier",
+                  evMenuVuoto:"Noch keine Getränke. Füge sie selbst hinzu oder lass dir ein Menü vorschlagen.", evAggiungi:"Getränke hinzufügen", evNotaFreq:"Die Punkte sind die Häufigkeit: 5 = am meisten bestellt.",
+                  evTogli:"Entfernen", evFreq:"Häufigkeit", evFreqAria:"Häufigkeit {n} von 5", evTolto:"«{nome}» aus dem Menü entfernt", evShotDose:"Shot · 4 cl",
+                  pkTitolo:"Getränke wählen", pkCerca:"Getränk oder Zutat suchen", pkScelti:"Getränke gewählt", pkUsa:"Diese Getränke nehmen",
+                  pkCrea:"«{nome}» erstellen", pkCreaSub:"Neues Rezept mit deinen Zutaten", pkCreaShotSub:"Neuer Shot oder Likör", pkFatto:"Menü aktualisiert: {n} Getränke" },
+            pt: { evMenu:"Menu", evProponi:"Sugerir um menu", evTutti:"Todos", evCocktail:"Cocktails", evAnalcolici:"Sem álcool", evShot:"Shots", evVinoBirra:"Vinho e cerveja",
+                  evMenuVuoto:"Ainda sem bebidas. Adiciona-as tu ou pede um menu sugerido.", evAggiungi:"Adicionar bebidas", evNotaFreq:"Os pontos são a frequência: 5 = o mais pedido.",
+                  evTogli:"Tirar", evFreq:"Frequência", evFreqAria:"Frequência {n} de 5", evTolto:"«{nome}» tirado do menu", evShotDose:"Shot · 4 cl",
+                  pkTitolo:"Escolhe as bebidas", pkCerca:"Procura uma bebida ou um ingrediente", pkScelti:"bebidas escolhidas", pkUsa:"Usar estas bebidas",
+                  pkCrea:"Criar «{nome}»", pkCreaSub:"Nova receita com os teus ingredientes", pkCreaShotSub:"Novo shot ou licor", pkFatto:"Menu atualizado: {n} bebidas" },
+            nl: { evMenu:"Menu", evProponi:"Menu voorstellen", evTutti:"Alle", evCocktail:"Cocktails", evAnalcolici:"Alcoholvrij", evShot:"Shots", evVinoBirra:"Wijn en bier",
+                  evMenuVuoto:"Nog geen drankjes. Voeg ze zelf toe of laat een menu voorstellen.", evAggiungi:"Drankjes toevoegen", evNotaFreq:"De bolletjes zijn de frequentie: 5 = het meest besteld.",
+                  evTogli:"Verwijderen", evFreq:"Frequentie", evFreqAria:"Frequentie {n} van 5", evTolto:"„{nome}” uit het menu gehaald", evShotDose:"Shot · 4 cl",
+                  pkTitolo:"Kies de drankjes", pkCerca:"Zoek een drankje of ingrediënt", pkScelti:"drankjes gekozen", pkUsa:"Deze drankjes gebruiken",
+                  pkCrea:"„{nome}” maken", pkCreaSub:"Nieuw recept met je eigen ingrediënten", pkCreaShotSub:"Nieuwe shot of likeur", pkFatto:"Menu bijgewerkt: {n} drankjes" }
+        };
+        Object.keys(_pkI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _pkI18n[lg]); });
 
         const _ariaI18n = {
             it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
@@ -4925,7 +5003,7 @@ Annulla = ` + T('backupUnisci'));
             aggiornaPctBevitori();   // aggiorna display % + ricalcolo-se-visibile + salva
             aggiornaBadge();
             salvaStato();
-            mostraTab('alcolici');
+            bpMenuFiltro('tutti');
             vaiAStep('step-menu');
             mostraToast(T('cfgDone'));
         }
@@ -5463,6 +5541,7 @@ Annulla = ` + T('backupUnisci'));
 
         function bpLibShowList(){
             bpLibEditOriginal = null;
+            bpLibTornaAlMenu = false;   // annullato l'editor: niente ritorno al menu
             const back = document.getElementById('bpl-backbtn'); if (back) back.style.display = 'none';
             const wrap = document.getElementById('bpl-wrap'); if (!wrap) return;
             const isC = bpLibMode === 'cocktail';
@@ -5601,6 +5680,15 @@ Annulla = ` + T('backupUnisci'));
             if (typeof aggiornaBadge === 'function') aggiornaBadge();
             salvaStato();
             mostraToast(T('libSavedToast'));
+            // Arrivati qui da "Crea «nome»" del selettore drink: il cocktail
+            // entra nel menu e si torna all'evento, invece di restare nella
+            // libreria a cercare "Aggiungi al menù".
+            if (bpLibTornaAlMenu) {
+                bpLibTornaAlMenu = false;
+                bpMenuAggiungi(nome);
+                vaiAStep('step-menu');
+                return;
+            }
             bpLibShowList();
         }
 
@@ -7316,8 +7404,6 @@ Annulla = ` + T('backupUnisci'));
             if (bpLinkInArrivo) { const l = bpLinkInArrivo; bpLinkInArrivo = null; bpChiediApriLink(l); }
             aggiornaPctBevitori();
             renderizzaMenu();
-            aggiungiRigaIngrediente();
-            aggiungiRigaIngrediente();
             cambiaLingua(linguaCorrente);
 
 

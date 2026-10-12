@@ -38,9 +38,8 @@ test.describe('Correggi · quando non c\'e\' niente da correggere', () => {
       };
       set('ospiti', 40);
       set('drink_testa', 3);
-      const inp = document.getElementById('search-drink-input');
       // eslint-disable-next-line no-undef
-      if (databaseDrink['Negroni']) { inp.value = 'Negroni'; window.aggiungiDrinkSerata(); }
+      if (databaseDrink['Negroni']) { window.bpMenuAggiungi('Negroni'); }
       window.vaiAStep('risultati');
       window.calcolaSpesa(true);
 
@@ -82,9 +81,8 @@ test.describe('Correggi · quando non c\'e\' niente da correggere', () => {
       };
       set('ospiti', 40);
       set('drink_testa', 3);
-      const inp = document.getElementById('search-drink-input');
       // eslint-disable-next-line no-undef
-      if (databaseDrink['Negroni']) { inp.value = 'Negroni'; window.aggiungiDrinkSerata(); }
+      if (databaseDrink['Negroni']) { window.bpMenuAggiungi('Negroni'); }
       window.vaiAStep('risultati');
       window.calcolaSpesa(true);
     });

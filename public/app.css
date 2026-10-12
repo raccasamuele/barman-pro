@@ -3151,3 +3151,127 @@ body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .s
 @media (min-width: 900px) {
     body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .step-panel.active[data-stepid="step-menu"]) .toast { bottom: 108px; }
 }
+
+/* ── Menu dell'evento: filtri, righe, pallini ── */
+.bp-ev-menu-testa { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.bp-ev-menu-testa .bp-ev-tit { margin: 0; font-variant-numeric: tabular-nums; }
+.bp-ev .bp-link {
+    width: auto; padding: 4px 2px; border: none; background: none; border-radius: var(--r-sm);
+    color: var(--bp-accent); font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0;
+}
+.bp-ev .bp-link:hover { transform: none; background: none; text-decoration: underline; }
+
+.bp-chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 12px; scrollbar-width: none; }
+.bp-chips::-webkit-scrollbar { display: none; }
+.bp-chip,
+.bp-ev .bp-chip {
+    flex: 0 0 auto; width: auto; display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border: 1px solid var(--bp-line-control); border-radius: 8px;
+    background: var(--bp-panel); color: var(--bp-ink-soft);
+    font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 600; text-transform: none; letter-spacing: 0;
+}
+.bp-chip:hover { transform: none; background: var(--bp-panel); border-color: var(--bp-accent); }
+.bp-chip.on, .bp-chip.on:hover { background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-on-accent); }
+.bp-chip-n { font-size: 11px; font-variant-numeric: tabular-nums; opacity: .85; }
+.bp-chip-n.empty { opacity: .55; }
+
+.bp-voce { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 10px 6px 10px 14px; }
+#bp-menu-righe > .bp-voce + .bp-voce { border-top: 1px solid var(--bp-line); }
+.bp-voce-tx { flex: 1 1 auto; min-width: 0; display: grid; gap: 1px; text-align: left; }
+.bp-voce-nome { font-weight: 600; color: var(--bp-ink); overflow-wrap: anywhere; }
+.bp-voce-sub { font-size: var(--t-xs); color: var(--bp-ink-faint); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Frequenza a 5 pallini. Il bersaglio e' 26x32: il pallino si vede
+   piccolo, ma si tocca con un dito. */
+.bp-pallini { display: flex; align-items: center; flex: 0 0 auto; }
+.bp-ev .bp-pallino {
+    width: 22px; height: 32px; padding: 0; border: none; background: none; border-radius: 6px;
+    display: grid; place-items: center;
+}
+.bp-ev .bp-pallino::before {
+    content: ""; width: 10px; height: 10px; border-radius: 50%;
+    border: 1.5px solid var(--bp-line-control); background: transparent;
+    transition: background 150ms cubic-bezier(0.25, 1, 0.5, 1), border-color 150ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+.bp-ev .bp-pallino.on::before { background: var(--bp-accent); border-color: var(--bp-accent); }
+.bp-ev .bp-pallino:hover { transform: none; background: none; }
+.bp-ev .bp-togli {
+    width: 36px; height: 36px; padding: 0; flex: 0 0 auto; border: none; background: none; border-radius: 50%;
+    display: grid; place-items: center; color: var(--bp-ink-faint);
+}
+.bp-ev .bp-togli svg { width: 18px; height: 18px; }
+.bp-ev .bp-togli:hover { transform: none; background: var(--bp-sunken); color: var(--bp-danger); }
+
+.bp-ev .bp-aggiungi {
+    display: flex; align-items: center; justify-content: flex-start; gap: 10px;
+    width: 100%; min-height: 54px; padding: 12px 14px;
+    border: none; border-top: 1px solid var(--bp-line); border-radius: 0 0 var(--r-lg) var(--r-lg); background: none;
+    color: var(--bp-accent); font-size: var(--t-base); font-weight: 700; text-transform: none; letter-spacing: 0;
+}
+#bp-menu-righe:empty + .bp-menu-vuoto[hidden] + .bp-aggiungi { border-top: none; }
+.bp-ev .bp-aggiungi:hover { transform: none; background: var(--bp-sunken); }
+.bp-piu {
+    width: 24px; height: 24px; border-radius: 7px; flex: 0 0 auto;
+    display: grid; place-items: center; background: var(--bp-accent-soft); color: var(--bp-accent-ink);
+    font-size: 18px; font-weight: 600; line-height: 1;
+}
+.bp-menu-vuoto { margin: 0; padding: 16px 14px 14px; color: var(--bp-ink-faint); font-size: var(--t-sm); }
+.bp-nota { margin: 8px 2px 0; color: var(--bp-ink-faint); font-size: var(--t-xs); }
+#fermentati-panel .bp-nota { padding: 0 14px 12px; margin: 0; }
+#fermentati-panel > .bp-riga + .bp-riga { border-top: 1px solid var(--bp-line); }
+
+/* ── Selettore drink: schermo intero su telefono, finestra su desktop ── */
+.bp-picker { background: var(--bp-bg); }
+.bp-pk-shell {
+    max-width: 640px; height: 100%; margin: 0 auto;
+    display: flex; flex-direction: column;
+    padding: 14px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    font-family: var(--bp-font); color: var(--bp-ink);
+}
+.bp-picker.show { display: block; overflow: hidden; }
+.bp-pk-testa { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0 10px; }
+.bp-pk-testa h2 { margin: 0; font-size: var(--t-lg); font-weight: 700; color: var(--bp-ink); }
+.bp-pk-cerca { position: relative; margin-bottom: 10px; }
+.bp-pk-cerca svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--bp-ink-faint); pointer-events: none; }
+.bp-picker input#bp-pk-q {
+    width: 100%; margin: 0; padding: 12px 14px 12px 40px;
+    font-size: 16px; font-weight: 500; color: var(--bp-ink);
+    background: var(--bp-panel); border: 1px solid var(--bp-line-control); border-radius: var(--r-md); box-shadow: none;
+}
+.bp-picker input#bp-pk-q:focus { transform: none; border-color: var(--bp-accent); box-shadow: none; background: var(--bp-panel); }
+.bp-pk-chips { padding-bottom: 10px; }
+/* Nella colonna flex solo l'elenco si accorcia. I filtri hanno overflow-x:
+   auto, e un elemento flex con overflow puo' scendere fino a zero: senza
+   questa riga venivano schiacciati a una striscia. */
+.bp-pk-testa, .bp-pk-cerca, .bp-pk-chips, .bp-pk-piede { flex: 0 0 auto; }
+.bp-pk-lista {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+    background: var(--bp-panel); border: 1px solid var(--bp-line); border-radius: var(--r-lg);
+}
+.bp-picker .bp-pk-voce {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 9px 14px;
+    border: none; border-radius: 0; background: none; text-align: left; justify-content: flex-start;
+    color: var(--bp-ink); font-size: var(--t-base); font-weight: 500; text-transform: none; letter-spacing: 0;
+}
+.bp-picker .bp-pk-voce + .bp-pk-voce { border-top: 1px solid var(--bp-line); }
+.bp-picker .bp-pk-voce:hover { transform: none; background: var(--bp-sunken); }
+.bp-pk-cb {
+    width: 22px; height: 22px; flex: 0 0 auto; border-radius: var(--r-sm);
+    border: 2px solid var(--bp-line-control); display: grid; place-items: center;
+}
+.bp-pk-voce.on .bp-pk-cb { background: var(--bp-accent); border-color: var(--bp-accent); }
+.bp-pk-voce.on .bp-pk-cb::after {
+    content: ""; width: 10px; height: 6px; transform: translateY(-1px) rotate(-45deg);
+    border-left: 2.5px solid var(--bp-on-accent); border-bottom: 2.5px solid var(--bp-on-accent);
+}
+.bp-pk-crea .bp-voce-nome { color: var(--bp-accent); font-weight: 700; }
+.bp-pk-piede { display: flex; align-items: center; gap: 12px; padding-top: 12px; }
+.bp-pk-conto { flex: 1 1 auto; font-size: var(--t-sm); color: var(--bp-ink-soft); font-variant-numeric: tabular-nums; }
+.bp-pk-conto b { font-size: var(--t-md); color: var(--bp-ink); }
+.bp-picker .bp-pk-usa {
+    width: auto; min-height: 48px; padding: 12px 20px;
+    background: var(--bp-accent); border: 1px solid var(--bp-accent); color: var(--bp-on-accent);
+    border-radius: var(--r-md); font-size: var(--t-base); font-weight: 700; text-transform: none; letter-spacing: 0;
+}
+.bp-picker .bp-pk-usa:hover { transform: none; background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); }
+.bp-picker .bpc-close { width: 40px; height: 40px; }

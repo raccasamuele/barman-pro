@@ -120,6 +120,36 @@
         </div>
     </div>
 
+    <!-- ════ SELETTORE DRINK ════
+         Un componente solo per scegliere cosa servire: ricerca, filtri per
+         tipo, elenco con caselle. Lo apre "Aggiungi drink" del menu (e, dal
+         passo 3, il flusso guidato). Scegliere qui non tocca il menu finche'
+         non si preme "Usa": chiudere annulla. Contenuto scritto da
+         bpPickerRender(). -->
+    <div class="bpc-overlay bp-picker" id="bp-picker" role="dialog" aria-modal="true" aria-labelledby="bp-pk-tit">
+        <div class="bp-pk-shell">
+            <div class="bp-pk-testa">
+                <h2 id="bp-pk-tit" data-i18n="pkTitolo">Scegli i drink</h2>
+                <button type="button" class="bpc-close" aria-label="Chiudi" data-i18n-aria="ariaChiudi" data-do="bpPickerChiudi">&times;</button>
+            </div>
+            <div class="bp-pk-cerca">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m20 20-4.2-4.2"></path></svg>
+                <input type="search" id="bp-pk-q" autocomplete="off" data-i18n-ph="pkCerca" placeholder="Cerca un drink o un ingrediente" data-on-input-value="bpPickerCerca" aria-label="Cerca" data-i18n-aria="pkCerca">
+            </div>
+            <div class="bp-chips bp-pk-chips" role="tablist" id="bp-pk-chips">
+                <button type="button" class="bp-chip on" role="tab" aria-selected="true" data-pk-cat="tutti"><span data-i18n="evTutti">Tutti</span></button>
+                <button type="button" class="bp-chip" role="tab" aria-selected="false" data-pk-cat="drink"><span data-i18n="evCocktail">Cocktail</span></button>
+                <button type="button" class="bp-chip" role="tab" aria-selected="false" data-pk-cat="mocktail"><span data-i18n="evAnalcolici">Analcolici</span></button>
+                <button type="button" class="bp-chip" role="tab" aria-selected="false" data-pk-cat="shot"><span data-i18n="evShot">Shot</span></button>
+            </div>
+            <div class="bp-pk-lista" id="bp-pk-lista"></div>
+            <div class="bp-pk-piede">
+                <div class="bp-pk-conto"><b id="bp-pk-n">0</b> <span data-i18n="pkScelti">drink scelti</span></div>
+                <button type="button" class="bp-pk-usa" data-do="bpPickerUsa" data-i18n="pkUsa">Usa questi drink</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ════ INFO · privacy, licenza, contatti ════
          Un pannello solo per tre voci che prima si comportavano in tre modi
          diversi: la privacy apriva una pagina a parte (che seguiva il tema
@@ -397,115 +427,81 @@
     </section>
     </div>
 
-    <!-- ════ STEP 2 · MENU ════ -->
+    <!-- ════ STEP 2 · MENU ════
+         Ottobre 2026: niente piu' card annidate, griglia di schede, ricerca
+         del browser (datalist) e scheda "Creazioni personalizzate". Il menu
+         e' un elenco di righe (nome, ingredienti, frequenza a 5 pallini,
+         togli) e si riempie dal selettore drink (#bp-picker), lo stesso che
+         usera' il flusso guidato. Le righe le scrive renderizzaMenu().
+         I campi di vino e birra tengono gli id (#ferm_*): li leggono il
+         calcolo e i golden. -->
     <div class="step-panel" data-stepid="step-menu">
-    <!-- ─── STEP 2 · COSTRUISCI IL MENU ─── -->
-    <section class="card" id="step-menu">
-        <div class="section-title">
-            <div class="ornament">&#10086;</div>
-            <h2 data-i18n="h2Menu">Costruisci il Menu</h2>
-            <div class="section-divider"></div>
+    <section class="bp-ev" id="step-menu" aria-labelledby="bp-ev-menu-tit">
+        <div class="bp-ev-menu-testa">
+            <h2 class="bp-ev-tit" id="bp-ev-menu-tit"><span data-i18n="evMenu">Menù</span> · <span id="badge-tutti">0</span></h2>
+            <button type="button" class="bp-link" data-do="apriSuggeritore" data-i18n="evProponi">Proponi un menù</button>
         </div>
-        <p class="descrizione" data-i18n="menuSub">Passa da una scheda all'altra: ogni voce scelta confluisce nella lista finale</p>
-
-        <div class="suggeritore-row">
-            <button type="button" class="btn-suggerisci" data-do="apriSuggeritore"><span data-i18n="btnSuggerisci">Suggerisci un menu</span></button>
-            <span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipSuggerisci">Scegli il tipo di evento e l'app compila in automatico un menu di partenza (cocktail, mocktail, shot e vini/birre). Potrai poi modificarlo a piacere.</span></span>
-        </div>
-
-        <div class="builder-tabs" role="tablist">
-            <button type="button" role="tab" aria-selected="true" class="builder-tab active" data-tab="alcolici" data-do="mostraTab" data-arg="alcolici"><span data-i18n="h2Cocktail">Cocktail Alcolici</span><span class="tab-badge empty" id="badge-alcolici">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="analcolici" data-do="mostraTab" data-arg="analcolici"><span data-i18n="h2Mocktail">Cocktail Analcolici</span><span class="tab-badge empty" id="badge-analcolici">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="shot" data-do="mostraTab" data-arg="shot"><span data-i18n="h2Shot">Shot &amp; Amari</span><span class="tab-badge empty" id="badge-shot">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="fermentati" data-do="mostraTab" data-arg="fermentati"><span data-i18n="h2Fermentati">Servizio Fermentati</span><span class="tab-badge empty" id="badge-fermentati">0</span></button>
-            <button type="button" role="tab" aria-selected="false" class="builder-tab" data-tab="custom" data-do="mostraTab" data-arg="custom"><span data-i18n="h2Creazioni">Creazioni Personalizzate</span></button>
+        <div class="bp-chips" role="tablist" aria-labelledby="bp-ev-menu-tit">
+            <button type="button" class="bp-chip on" role="tab" aria-selected="true" data-filtro="tutti" data-do="bpMenuFiltro" data-arg="tutti"><span data-i18n="evTutti">Tutti</span></button>
+            <button type="button" class="bp-chip" role="tab" aria-selected="false" data-filtro="drink" data-do="bpMenuFiltro" data-arg="drink"><span data-i18n="evCocktail">Cocktail</span> <span class="bp-chip-n" id="badge-alcolici">0</span></button>
+            <button type="button" class="bp-chip" role="tab" aria-selected="false" data-filtro="mocktail" data-do="bpMenuFiltro" data-arg="mocktail"><span data-i18n="evAnalcolici">Analcolici</span> <span class="bp-chip-n" id="badge-analcolici">0</span></button>
+            <button type="button" class="bp-chip" role="tab" aria-selected="false" data-filtro="shot" data-do="bpMenuFiltro" data-arg="shot"><span data-i18n="evShot">Shot</span> <span class="bp-chip-n" id="badge-shot">0</span></button>
+            <button type="button" class="bp-chip" role="tab" aria-selected="false" data-filtro="ferm" data-do="bpMenuFiltro" data-arg="ferm"><span data-i18n="evVinoBirra">Vino e birra</span> <span class="bp-chip-n" id="badge-fermentati">0</span></button>
         </div>
 
-        <div class="builder-panel active" data-panel="alcolici">
-            <p class="descrizione"><span data-i18n="descCocktail">Cerca dal ricettario e regola la frequenza con il cursore da 1 a 5</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipFrequenza">La frequenza (da 1 a 5) indica quanto spesso quel drink verrà scelto rispetto agli altri: 5 = molto gettonato, 1 = di nicchia. L'app distribuisce le quantità totali in base a questi pesi relativi.</span></span></p>
-            <div class="search-add-row">
-                <input list="lista-database-drink" id="search-drink-input" data-i18n-ph="phSearchDrink" placeholder="Cerca dal ricettario (es. Negroni, Spritz, Margarita)...">
-                <datalist id="lista-database-drink"></datalist>
-                <button data-do="aggiungiDrinkSerata">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
-            </div>
-            <br>
-            <div id="drink-serata-container" class="grid"></div>
-            <div class="bp-empty" role="status"><span class="bp-empty-ic"></span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
+        <div class="bp-gruppo" id="bp-menu-elenco">
+            <div id="bp-menu-righe"></div>
+            <p class="bp-menu-vuoto" id="bp-menu-vuoto" data-i18n="evMenuVuoto">Ancora nessun drink. Aggiungili tu o fatti proporre un menù.</p>
+            <button type="button" class="bp-aggiungi" data-do="bpPickerApri"><span class="bp-piu" aria-hidden="true">+</span><span data-i18n="evAggiungi">Aggiungi drink</span></button>
         </div>
 
-        <div class="builder-panel" data-panel="analcolici">
-            <p class="descrizione" data-i18n="descMocktail">Mocktail e drink analcolici per ospiti che non bevono alcol</p>
-            <div class="search-add-row">
-                <input list="lista-database-mocktail" id="search-mocktail-input" data-i18n-ph="phSearchMocktail" placeholder="Cerca un mocktail (es. Virgin Mojito, Shirley Temple)...">
-                <datalist id="lista-database-mocktail"></datalist>
-                <button data-do="aggiungiMocktailSerata">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
-            </div>
-            <br>
-            <div id="mocktail-serata-container" class="grid"></div>
-            <div class="bp-empty" role="status"><span class="bp-empty-ic"></span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
-        </div>
-
-        <div class="builder-panel" data-panel="shot">
-            <p class="descrizione"><span data-i18n="descShot">Dose standard 40 ml &middot; cerca tra gli alcolici disponibili</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipFrequenza">La frequenza (da 1 a 5) indica quanto spesso quel drink verrà scelto rispetto agli altri: 5 = molto gettonato, 1 = di nicchia. L'app distribuisce le quantità totali in base a questi pesi relativi.</span></span></p>
-            <div class="search-add-row">
-                <input list="lista-database-shot" id="search-shot-input" data-i18n-ph="phSearchShot" placeholder="Cerca shot, amaro o liquore...">
-                <datalist id="lista-database-shot"></datalist>
-                <button data-do="aggiungiShotSerata">&#10010; <span data-i18n="btnAggiungi">Aggiungi</span></button>
-            </div>
-            <br>
-            <div id="shot-serata-container" class="grid"></div>
-            <div class="bp-empty" role="status"><span class="bp-empty-ic"></span><span class="bp-empty-title" data-i18n="emptyMenuTitle">Ancora niente qui</span><span class="bp-empty-desc" data-i18n="emptyMenuDesc">Usa la ricerca qui sopra per aggiungere voci: compariranno in questo elenco.</span></div>
-        </div>
-
-        <div class="builder-panel" data-panel="fermentati">
-            <p class="descrizione"><span data-i18n="descFermentati">Vino e birra: indica calici/consumazioni a persona, l'app calcola bottiglie e costi</span><span class="help-tip" tabindex="0" role="button" aria-label="?" data-i18n-aria="ariaAiuto" data-toggle="active"><span class="help-bubble" data-i18n="tipFermentati">Indica per ogni ospite quanti calici di vino/bollicine e quante consumazioni di birra. L'app calcola le bottiglie (vino 75 cl ≈ 5 calici) e le aggiunge alla lista con i relativi costi.</span></span></p>
-            <div id="fermentati-panel">
-            <div class="parametri-row">
-                <div><label data-i18n="labelVinoRosso">Calici Vino Rosso/persona</label><input type="number" id="ferm_vino_rosso" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
-                <div><label data-i18n="labelVinoBianco">Calici Vino Bianco/persona</label><input type="number" id="ferm_vino_bianco" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
-                <div><label data-i18n="labelBollicine">Calici Bollicine/persona</label><input type="number" id="ferm_bollicine" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
-                <div><label data-i18n="labelBirra">Consumazioni Birra/persona</label><input type="number" id="ferm_birra" value="0" min="0" step="0.25" data-on-input="ricalcolaSeVisibile programmaSalvataggio"></div>
-            </div>
-            <div class="parametri-row-geo" style="margin-top: 12px;">
-                <div>
-                    <label data-i18n="labelFasciaFermentati">Fascia Prezzo Fermentati</label>
-                    <select id="sel-fascia-fermentati" data-on-change="ricalcolaSeVisibile programmaSalvataggio">
-                        <option value="bassa" data-i18n="fasciaBassa">Bassa</option>
-                        <option value="media" selected data-i18n="fasciaMedia">Media</option>
-                        <option value="alta" data-i18n="fasciaAlta">Alta</option>
-                    </select>
+        <!-- Vino e birra: si vede col filtro "Vino e birra". -->
+        <div class="bp-gruppo" id="fermentati-panel" hidden>
+            <div class="bp-riga">
+                <label class="bp-riga-lbl" for="ferm_vino_rosso" data-i18n="labelVinoRosso">Calici Vino Rosso/persona</label>
+                <div class="bp-stepper">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_vino_rosso|-0.25" aria-label="−0,25">&minus;</button>
+                    <input type="number" id="ferm_vino_rosso" value="0" min="0" step="0.25" inputmode="decimal" data-on-input="ricalcolaSeVisibile programmaSalvataggio">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_vino_rosso|0.25" aria-label="+0,25">+</button>
                 </div>
             </div>
-            <p class="helper-note" data-i18n="helperFermentati">Nota: l'app calcola automaticamente 1 bottiglia di vino ogni 5 calici e 1 bottiglia/lattina di birra per consumazione.</p>
-            </div>
-        </div>
-
-        <div class="builder-panel" data-panel="custom">
-            <div class="creator-grid">
-
-                <div class="creator-box">
-                    <h3 id="h3-nuovo-cocktail" data-i18n="h3NuovoCocktail">Nuovo Cocktail</h3>
-                    <input type="text" id="new_cocktail_name" data-i18n-ph="phNomeCocktail" placeholder="Nome del cocktail">
-                    <datalist id="lista-ingredienti"></datalist>
-
-                    <div style="margin-top: 14px;">
-                        <label style="margin-bottom: 6px;" data-i18n="labelIngredienti">Ingredienti</label>
-                        <div id="ingredienti-container"></div>
-                        <button class="btn-aggiungi-ing" data-do="aggiungiRigaIngrediente">&#10010; <span data-i18n="btnAggiungiIng">Aggiungi ingrediente</span></button>
-                    </div>
-
-                    <button class="btn-secondary" data-do="creaCocktail"><span data-i18n="btnCrea">Crea e aggiungi alla serata</span></button>
-                </div>
-
-                <div class="creator-box">
-                    <h3 id="h3-bottiglia-shot" data-i18n="h3BottigliaShot">Bottiglia Shot</h3>
-                    <p class="descrizione" style="text-align: left; margin-bottom: 12px;" data-i18n="descBottShot">Aggiungi un alcolico extra non presente nel ricettario</p>
-                    <input type="text" id="new_shot_name" data-i18n-ph="phNomeShot" placeholder="Nome (es. Limoncello)">
-                    <button class="btn-secondary" data-do="creaShot"><span data-i18n="btnCreaShot">Crea e aggiungi</span></button>
+            <div class="bp-riga">
+                <label class="bp-riga-lbl" for="ferm_vino_bianco" data-i18n="labelVinoBianco">Calici Vino Bianco/persona</label>
+                <div class="bp-stepper">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_vino_bianco|-0.25" aria-label="−0,25">&minus;</button>
+                    <input type="number" id="ferm_vino_bianco" value="0" min="0" step="0.25" inputmode="decimal" data-on-input="ricalcolaSeVisibile programmaSalvataggio">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_vino_bianco|0.25" aria-label="+0,25">+</button>
                 </div>
             </div>
+            <div class="bp-riga">
+                <label class="bp-riga-lbl" for="ferm_bollicine" data-i18n="labelBollicine">Calici Bollicine/persona</label>
+                <div class="bp-stepper">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_bollicine|-0.25" aria-label="−0,25">&minus;</button>
+                    <input type="number" id="ferm_bollicine" value="0" min="0" step="0.25" inputmode="decimal" data-on-input="ricalcolaSeVisibile programmaSalvataggio">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_bollicine|0.25" aria-label="+0,25">+</button>
+                </div>
+            </div>
+            <div class="bp-riga">
+                <label class="bp-riga-lbl" for="ferm_birra" data-i18n="labelBirra">Consumazioni Birra/persona</label>
+                <div class="bp-stepper">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_birra|-0.25" aria-label="−0,25">&minus;</button>
+                    <input type="number" id="ferm_birra" value="0" min="0" step="0.25" inputmode="decimal" data-on-input="ricalcolaSeVisibile programmaSalvataggio">
+                    <button type="button" class="bp-step-btn" data-do="bpPasso" data-arg="ferm_birra|0.25" aria-label="+0,25">+</button>
+                </div>
+            </div>
+            <div class="bp-riga">
+                <label class="bp-riga-lbl" for="sel-fascia-fermentati" data-i18n="labelFasciaFermentati">Fascia Prezzo Fermentati</label>
+                <select id="sel-fascia-fermentati" class="bp-select" data-on-change="ricalcolaSeVisibile programmaSalvataggio">
+                    <option value="bassa" data-i18n="fasciaBassa">Bassa</option>
+                    <option value="media" selected data-i18n="fasciaMedia">Media</option>
+                    <option value="alta" data-i18n="fasciaAlta">Alta</option>
+                </select>
+            </div>
+            <p class="bp-nota" data-i18n="helperFermentati">Nota: l'app calcola automaticamente 1 bottiglia di vino ogni 5 calici e 1 bottiglia/lattina di birra per consumazione.</p>
         </div>
+        <p class="bp-nota" id="bp-menu-nota" data-i18n="evNotaFreq">I pallini sono la frequenza: 5 = il più richiesto.</p>
     </section>
+    <datalist id="lista-ingredienti"></datalist>
 
     </div>
 

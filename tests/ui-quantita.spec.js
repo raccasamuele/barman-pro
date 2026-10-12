@@ -28,10 +28,9 @@ async function listaConCorrezioneAperta(page) {
     };
     set('ospiti', 40);
     set('drink_testa', 3);
-    const inp = document.getElementById('search-drink-input');
     ['Aperol Spritz', 'Negroni', 'Gin Tonic'].forEach((n) => {
       // eslint-disable-next-line no-undef
-      if (databaseDrink[n]) { inp.value = n; window.aggiungiDrinkSerata(); }
+      if (databaseDrink[n]) { window.bpMenuAggiungi(n); }
     });
     window.vaiAStep('risultati');
     window.calcolaSpesa(true);
