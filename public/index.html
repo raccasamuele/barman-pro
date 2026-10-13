@@ -401,6 +401,19 @@
                 </div>
                 <input type="range" id="pct-bevitori" min="0" max="100" value="80" data-on-input="aggiornaPctBevitori">
             </div>
+            <!-- Servizio: cambia la dose degli highball (45 ml al bar, 60 in festa).
+                 Il valore sta nel campo nascosto, come gli altri parametri. -->
+            <div class="bp-riga bp-riga-col">
+                <div class="bp-riga-testa">
+                    <span class="bp-riga-lbl" id="bp-servizio-lbl" data-i18n="servQ">Come servi</span>
+                    <span class="bp-riga-nota bp-nota-a-capo" id="bp-servizio-nota">Dosi IBA, 45 ml negli highball</span>
+                </div>
+                <div class="bp-seg" id="bp-servizio-seg" role="radiogroup" aria-labelledby="bp-servizio-lbl">
+                    <button type="button" role="radio" aria-checked="true" class="on" data-do="bpServizioScegli" data-arg="bar" data-i18n="servBar">Bar / ricevimento</button>
+                    <button type="button" role="radio" aria-checked="false" data-do="bpServizioScegli" data-arg="festa" data-i18n="servFesta">Festa / disco</button>
+                </div>
+                <input type="hidden" id="servizio" value="bar">
+            </div>
             <!-- Le opzioni che servono di rado stanno chiuse. <details> e' nativo:
                  apre e chiude senza JavaScript, da tastiera e con i lettori di schermo. -->
             <details class="bp-altre">

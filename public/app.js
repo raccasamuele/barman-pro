@@ -1869,6 +1869,9 @@
 
             /* ── Re-render slider per "Rimuovi" e "Freq." ── */
             if (typeof renderizzaMenu === 'function') renderizzaMenu();
+            // La nota del servizio dipende dal valore scelto: niente data-i18n.
+            const _serv = document.getElementById('servizio');
+            if (_serv) bpServizioImposta(_serv.value);
 
             bpSaveSettings();   // la lingua scelta è una preferenza: persiste sempre
             salvaStato();
@@ -2209,27 +2212,26 @@
             "Vieux Carré": [{nome: "Whiskey Rye", tipo: "alcolico", ml: 22.5}, {nome: "Cognac", tipo: "alcolico", ml: 22.5}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 22.5}, {nome: "Bénédictine", tipo: "alcolico", ml: 5}],
             "Ward 8": [{nome: "Whiskey Rye", tipo: "alcolico", ml: 60}, {nome: "Succo di Limone", tipo: "analcolico", ml: 15}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 15}, {nome: "Granatina", tipo: "analcolico", ml: 5}],
             "Yellow Bird": [{nome: "Rum Bianco", tipo: "alcolico", ml: 30}, {nome: "Liquore Galliano", tipo: "alcolico", ml: 15}, {nome: "Triple Sec", tipo: "alcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}],
-            "Vodka Redbull (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Lemon (HV)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Menta Redbull (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Pesca Redbull (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Fragola Redbull (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Melone Redbull (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Vodka Menta Lemon (HV)": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Pesca Lemon (HV)": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Fragola Lemon (HV)": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Vodka Melone Lemon (HV)": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Gin Tonic (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Acqua Tonica", tipo: "analcolico", ml: 140}],
-            "Gin Lemon (HV)": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Rum & Coca (HV)": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
-            "Monte & Coca (HV)": [{nome: "Amaro Montenegro", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
-            "Jager & Redbull (HV)": [{nome: "Jägermeister", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
-            "Malibu & Ananas (HV)": [{nome: "Malibu", tipo: "alcolico", ml: 60}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 140}],
-            "Midori Lemon (HV)": [{nome: "Midori", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
-            "Garibaldi (HV)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 60}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 140}],
-            "Fernandito (HV)": [{nome: "Fernet Branca", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
-            "Dark N Stormy (HV)": [{nome: "Rum Scuro", tipo: "alcolico", ml: 60}, {nome: "Ginger Beer", tipo: "analcolico", ml: 140}],
-            "Horses Neck (HV)": [{nome: "Cognac", tipo: "alcolico", ml: 60}, {nome: "Ginger Ale", tipo: "analcolico", ml: 140}],
+            "Vodka Redbull": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Energy Drink", tipo: "analcolico", ml: 120}],
+            "Vodka Lemon": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Lemon Soda", tipo: "analcolico", ml: 120}],
+            "Vodka Menta Redbull": [{nome: "Vodka Menta", tipo: "alcolico", ml: 45}, {nome: "Energy Drink", tipo: "analcolico", ml: 120}],
+            "Vodka Pesca Redbull": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 45}, {nome: "Energy Drink", tipo: "analcolico", ml: 120}],
+            "Vodka Fragola Redbull": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 45}, {nome: "Energy Drink", tipo: "analcolico", ml: 120}],
+            "Vodka Melone Redbull": [{nome: "Vodka Melone", tipo: "alcolico", ml: 45}, {nome: "Energy Drink", tipo: "analcolico", ml: 120}],
+            "Vodka Menta Lemon": [{nome: "Vodka Menta", tipo: "alcolico", ml: 45}, {nome: "Lemon Soda", tipo: "analcolico", ml: 120}],
+            "Vodka Pesca Lemon": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 45}, {nome: "Lemon Soda", tipo: "analcolico", ml: 120}],
+            "Vodka Fragola Lemon": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 45}, {nome: "Lemon Soda", tipo: "analcolico", ml: 120}],
+            "Vodka Melone Lemon": [{nome: "Vodka Melone", tipo: "alcolico", ml: 45}, {nome: "Lemon Soda", tipo: "analcolico", ml: 120}],
+            "Gin Tonic": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Acqua Tonica", tipo: "analcolico", ml: 120}],
+            "Gin Lemon": [{nome: "Gin", tipo: "alcolico", ml: 45}, {nome: "Lemon Soda", tipo: "analcolico", ml: 120}],
+            "Rum & Coca": [{nome: "Rum Bianco", tipo: "alcolico", ml: 45}, {nome: "Cola", tipo: "analcolico", ml: 120}],
+            "Monte & Coca": [{nome: "Amaro Montenegro", tipo: "alcolico", ml: 45}, {nome: "Cola", tipo: "analcolico", ml: 120}],
+            "Jager & Redbull": [{nome: "Jägermeister", tipo: "alcolico", ml: 45}, {nome: "Energy Drink", tipo: "analcolico", ml: 120}],
+            "Malibu & Ananas": [{nome: "Malibu", tipo: "alcolico", ml: 45}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 120}],
+            "Midori Lemon": [{nome: "Midori", tipo: "alcolico", ml: 45}, {nome: "Lemon Soda", tipo: "analcolico", ml: 120}],
+            "Fernandito": [{nome: "Fernet Branca", tipo: "alcolico", ml: 45}, {nome: "Cola", tipo: "analcolico", ml: 120}],
+            "Dark N Stormy": [{nome: "Rum Scuro", tipo: "alcolico", ml: 60}, {nome: "Ginger Beer", tipo: "analcolico", ml: 100}],
+            "Horses Neck": [{nome: "Cognac", tipo: "alcolico", ml: 40}, {nome: "Ginger Ale", tipo: "analcolico", ml: 120}],
             "Alexander": [{nome: "Cognac", tipo: "alcolico", ml: 30}, {nome: "Crema di Cacao Scura", tipo: "alcolico", ml: 30}, {nome: "Panna Fresca", tipo: "analcolico", ml: 30}],
             "Americano": [{nome: "Bitter Campari", tipo: "alcolico", ml: 30}, {nome: "Vermouth Rosso", tipo: "alcolico", ml: 30}, {nome: "Soda", tipo: "analcolico", ml: 30}],
             "Angel Face": [{nome: "Gin", tipo: "alcolico", ml: 30}, {nome: "Apricot Brandy", tipo: "alcolico", ml: 30}, {nome: "Calvados", tipo: "alcolico", ml: 30}],
@@ -2255,13 +2257,13 @@
             "Caipirinha": [{nome: "Cachaça", tipo: "alcolico", ml: 60}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
             "Cosmopolitan": [{nome: "Vodka al Limone", tipo: "alcolico", ml: 40}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 30}],
             "Cuba Libre": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Cola", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
-            "Garibaldi (IBA)": [{nome: "Bitter Campari", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 120}],
+            "Garibaldi": [{nome: "Bitter Campari", tipo: "alcolico", ml: 45}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 120}],
             "Irish Coffee": [{nome: "Whiskey Irlandese", tipo: "alcolico", ml: 50}, {nome: "Caffè", tipo: "analcolico", ml: 120}, {nome: "Panna Fresca", tipo: "analcolico", ml: 50}],
             "Long Island": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 15}, {nome: "Tequila", tipo: "alcolico", ml: 15}, {nome: "Rum Bianco", tipo: "alcolico", ml: 15}, {nome: "Gin", tipo: "alcolico", ml: 15}, {nome: "Cointreau", tipo: "alcolico", ml: 15}, {nome: "Succo di Limone", tipo: "analcolico", ml: 25}, {nome: "Cola", tipo: "analcolico", ml: 60}],
             "Mai-Tai": [{nome: "Rum Giamaicano", tipo: "alcolico", ml: 30}, {nome: "Rum Martinicano", tipo: "alcolico", ml: 30}, {nome: "Curaçao all'Arancia", tipo: "alcolico", ml: 15}, {nome: "Orgeat", tipo: "analcolico", ml: 15}, {nome: "Succo di Lime", tipo: "analcolico", ml: 30}],
             "Margarita": [{nome: "Tequila", tipo: "alcolico", ml: 50}, {nome: "Triple Sec", tipo: "alcolico", ml: 20}, {nome: "Succo di Lime", tipo: "analcolico", ml: 15}],
             "Mojito": [{nome: "Rum Bianco", tipo: "alcolico", ml: 45}, {nome: "Succo di Lime", tipo: "analcolico", ml: 20}, {nome: "Soda", tipo: "analcolico", ml: 40}],
-            "Moscow Mule (IBA)": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Ginger Beer", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+            "Moscow Mule": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 45}, {nome: "Ginger Beer", tipo: "analcolico", ml: 120}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
             "Pina Colada": [{nome: "Rum Bianco", tipo: "alcolico", ml: 50}, {nome: "Crema di Cocco", tipo: "analcolico", ml: 30}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 50}],
             "Pisco Sour": [{nome: "Pisco", tipo: "alcolico", ml: 60}, {nome: "Succo di Limone", tipo: "analcolico", ml: 30}, {nome: "Albume", tipo: "analcolico", ml: 20}],
             "Sex on the Beach": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 40}, {nome: "Schnapps alla Pesca", tipo: "alcolico", ml: 20}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 40}, {nome: "Succo di Cranberry", tipo: "analcolico", ml: 40}],
@@ -2290,6 +2292,120 @@
                 {nome: "Sciroppo di Zucchero", tipo: "analcolico", ml: 10}
             ]
         };
+
+        /* ════ SERVIZIO · dosi da bar e dosi da festa (fase c, ottobre 2026) ════
+           databaseDrink contiene la dose da BAR: IBA dove la ricetta IBA esiste,
+           45 ml + 120 ml per gli highball che non ce l'hanno. Qui c'e' la dose
+           da FESTA (bicchiere da 300 ml), solo per i drink dove cambia: e'
+           esattamente la dose che queste ricette avevano quando si chiamavano
+           "(HV)", cosi' un evento da festa salvato prima ridà gli stessi numeri.
+           Una ricetta modificata dall'utente vale uguale nei due servizi. */
+        const BP_DOSI_FESTA = {
+            "Vodka Redbull": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Lemon": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Menta Redbull": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Pesca Redbull": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Fragola Redbull": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Melone Redbull": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Vodka Menta Lemon": [{nome: "Vodka Menta", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Pesca Lemon": [{nome: "Vodka Pesca", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Fragola Lemon": [{nome: "Vodka Fragola", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Vodka Melone Lemon": [{nome: "Vodka Melone", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Gin Tonic": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Acqua Tonica", tipo: "analcolico", ml: 140}],
+            "Gin Lemon": [{nome: "Gin", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Rum & Coca": [{nome: "Rum Bianco", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Monte & Coca": [{nome: "Amaro Montenegro", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Jager & Redbull": [{nome: "Jägermeister", tipo: "alcolico", ml: 60}, {nome: "Energy Drink", tipo: "analcolico", ml: 140}],
+            "Malibu & Ananas": [{nome: "Malibu", tipo: "alcolico", ml: 60}, {nome: "Succo di Ananas", tipo: "analcolico", ml: 140}],
+            "Midori Lemon": [{nome: "Midori", tipo: "alcolico", ml: 60}, {nome: "Lemon Soda", tipo: "analcolico", ml: 140}],
+            "Garibaldi": [{nome: "Bitter Campari", tipo: "alcolico", ml: 60}, {nome: "Succo di Arancia", tipo: "analcolico", ml: 140}],
+            "Fernandito": [{nome: "Fernet Branca", tipo: "alcolico", ml: 60}, {nome: "Cola", tipo: "analcolico", ml: 140}],
+            "Dark N Stormy": [{nome: "Rum Scuro", tipo: "alcolico", ml: 60}, {nome: "Ginger Beer", tipo: "analcolico", ml: 140}],
+            "Horses Neck": [{nome: "Cognac", tipo: "alcolico", ml: 60}, {nome: "Ginger Ale", tipo: "analcolico", ml: 140}],
+            "Moscow Mule": [{nome: "Vodka Liscia", tipo: "alcolico", ml: 60}, {nome: "Ginger Beer", tipo: "analcolico", ml: 140}, {nome: "Succo di Lime", tipo: "analcolico", ml: 10}],
+        };
+        /* I nomi di prima. Arrivano da eventi salvati, bozze, link, backup e
+           libreria: li traduce bpNomeAttuale, in un posto solo. */
+        const BP_NOMI_VECCHI = {
+            "Vodka Redbull (HV)": "Vodka Redbull",
+            "Vodka Lemon (HV)": "Vodka Lemon",
+            "Vodka Menta Redbull (HV)": "Vodka Menta Redbull",
+            "Vodka Pesca Redbull (HV)": "Vodka Pesca Redbull",
+            "Vodka Fragola Redbull (HV)": "Vodka Fragola Redbull",
+            "Vodka Melone Redbull (HV)": "Vodka Melone Redbull",
+            "Vodka Menta Lemon (HV)": "Vodka Menta Lemon",
+            "Vodka Pesca Lemon (HV)": "Vodka Pesca Lemon",
+            "Vodka Fragola Lemon (HV)": "Vodka Fragola Lemon",
+            "Vodka Melone Lemon (HV)": "Vodka Melone Lemon",
+            "Gin Tonic (HV)": "Gin Tonic",
+            "Gin Lemon (HV)": "Gin Lemon",
+            "Rum & Coca (HV)": "Rum & Coca",
+            "Monte & Coca (HV)": "Monte & Coca",
+            "Jager & Redbull (HV)": "Jager & Redbull",
+            "Malibu & Ananas (HV)": "Malibu & Ananas",
+            "Midori Lemon (HV)": "Midori Lemon",
+            "Garibaldi (HV)": "Garibaldi",
+            "Fernandito (HV)": "Fernandito",
+            "Dark N Stormy (HV)": "Dark N Stormy",
+            "Horses Neck (HV)": "Horses Neck",
+            "Garibaldi (IBA)": "Garibaldi",
+            "Moscow Mule (IBA)": "Moscow Mule"
+        };
+        const _bpHa = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+        function bpNomeAttuale(n) { return _bpHa(BP_NOMI_VECCHI, n) ? BP_NOMI_VECCHI[n] : n; }
+        /* Un menu (nome → peso) con i nomi di adesso. Se due nomi vecchi
+           diventano lo stesso (i due Garibaldi) i pesi si sommano, fino a 5:
+           e' il massimo dei pallini, e il link scarta i pesi oltre. */
+        function bpMigraMenu(m) {
+            const out = {};
+            if (!m || typeof m !== 'object') return out;
+            Object.keys(m).forEach(k => {
+                const n = bpNomeAttuale(k);
+                out[n] = _bpHa(out, n) ? Math.min(5, (parseFloat(out[n]) || 0) + (parseFloat(m[k]) || 0)) : m[k];
+            });
+            return out;
+        }
+        /* Stessa cosa per le mappe nome → ricetta. In caso di doppione vince
+           la ricetta gia' scritta col nome nuovo. */
+        function bpMigraRicette(r) {
+            if (!r || typeof r !== 'object') return r;
+            const out = Object.getPrototypeOf(r) === null ? Object.create(null) : {};
+            Object.keys(r).forEach(k => { if (!_bpHa(BP_NOMI_VECCHI, k)) out[k] = r[k]; });
+            Object.keys(r).forEach(k => { const n = bpNomeAttuale(k); if (!(n in out)) out[n] = r[k]; });
+            return out;
+        }
+        /* Un evento senza il campo servizio viene da prima della fase (c):
+           era "da festa" se il menu conteneva almeno un drink (HV), perche'
+           quelle erano le uniche dosi da festa. Cosi' ricalcola identico. */
+        function bpServizioDi(valore, ...menu) {
+            if (valore === 'bar' || valore === 'festa') return valore;
+            return menu.some(m => m && typeof m === 'object' && Object.keys(m).some(k => / \(HV\)$/.test(k))) ? 'festa' : 'bar';
+        }
+        /* Predefinito per tipo di evento, deciso con l'utente il 13/10/2026. */
+        const BP_SERVIZIO_TIPO = { matrimonio:'bar', aperitivo:'bar', aziendale:'bar', compleanno:'festa', serata:'festa' };
+        /* Il valore vive in un campo nascosto #servizio, come gli altri
+           parametri: salvataggi, link e calcolo lo leggono dal form. I due
+           bottoni ne sono solo la faccia. */
+        function bpServizioImposta(v) {
+            v = (v === 'festa') ? 'festa' : 'bar';
+            const inp = document.getElementById('servizio');
+            if (inp) inp.value = v;
+            document.querySelectorAll('#bp-servizio-seg [data-arg]').forEach(b => {
+                const on = b.getAttribute('data-arg') === v;
+                b.classList.toggle('on', on);
+                b.setAttribute('aria-checked', String(on));
+            });
+            const nota = document.getElementById('bp-servizio-nota');
+            if (nota && typeof T === 'function') nota.textContent = T(v === 'festa' ? 'servFestaSub' : 'servBarSub');
+        }
+        function bpServizioScegli(v) {
+            const inp = document.getElementById('servizio');
+            if (inp && inp.value === v) return;
+            bpServizioImposta(v);
+            ricalcolaSeVisibile();
+            aggiornaStimaForm();
+            programmaSalvataggio();
+        }
 
         // Snapshot dei cocktail predefiniti — per "Ripristina originale" nella libreria.
         const DB_ORIGINAL = JSON.parse(JSON.stringify(databaseDrink));
@@ -2395,7 +2511,7 @@
             const st = {
                 o: _v('ospiti'), d: _v('drink_testa'), s: _v('shot_testa'), sc: _v('scarto'),
                 p: (() => { const r = document.getElementById('pct-bevitori'); return r ? r.value : 80; })(),
-                n: _v('sel-nazione'), f: _v('sel-fascia'),
+                n: _v('sel-nazione'), f: _v('sel-fascia'), sv: _v('servizio') || 'bar',
                 ff: (() => { const e = document.getElementById('sel-fascia-fermentati'); return e ? e.value : ''; })(),
                 fe: { r: _v('ferm_vino_rosso'), b: _v('ferm_vino_bianco'), bo: _v('ferm_bollicine'), bi: _v('ferm_birra') },
                 dr: menu.dr, mo: menu.mo, sh: menu.sh
@@ -2495,6 +2611,8 @@
                         bo: num(st.fe && st.fe.bo, 0, 20, 0), bi: num(st.fe && st.fe.bi, 0, 20, 0)
                     },
                     menu,
+                    // Un link fatto prima della fase (c) non ha "sv": si deduce dai nomi.
+                    servizio: bpServizioDi(st.sv, menu.dr, menu.mo, menu.sh),
                     ricette: bpValidaRicette(st.rc)
                 },
                 quanti
@@ -2617,7 +2735,8 @@
                entrano in databaseDrink — che e' cio' che la libreria "I miei
                cocktail" enumera — quindi un link ricevuto per messaggio non
                riscrive le ricette di chi lo apre. */
-            bpRicetteEvento = Object.assign(Object.create(null), st.ricette);
+            bpRicetteEvento = Object.assign(Object.create(null), bpMigraRicette(st.ricette));
+            bpServizioImposta(st.servizio);
 
             bpEditingId = null;          // e' una copia: salvandola nasce un evento nuovo
             bpScorte = {};               // le scorte erano di chi ha condiviso
@@ -2625,9 +2744,9 @@
             bpCfgNomeEvento = st.nome;
             if (typeof bpSyncNomeField === 'function') bpSyncNomeField();
 
-            menuSerataDrink = Object.assign({}, st.menu.dr);
-            menuSerataMocktail = Object.assign({}, st.menu.mo);
-            menuSerataShot = Object.assign({}, st.menu.sh);
+            menuSerataDrink = bpMigraMenu(st.menu.dr);
+            menuSerataMocktail = bpMigraMenu(st.menu.mo);
+            menuSerataShot = bpMigraMenu(st.menu.sh);
 
             const _set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
             _set('ospiti', st.ospiti); _set('drink_testa', st.drinkTesta);
@@ -3320,8 +3439,12 @@ Annulla = ` + T('backupUnisci'));
                 Object.keys(r).forEach(k => {
                     if (k !== 'mods' && k !== 'custom' && k !== 'amari') bpRecipes[k] = r[k];
                 });
-                bpRecipes.mods = r.mods || {};
-                bpRecipes.custom = Array.isArray(r.custom) ? r.custom : [];
+                /* Le ricette modificate e create sono indicizzate per nome:
+                   una "Gin Tonic (HV)" riscritta dall'utente resta sua anche
+                   col nome nuovo. */
+                bpRecipes.mods = bpMigraRicette(r.mods || {});
+                bpRecipes.custom = Array.isArray(r.custom)
+                    ? r.custom.map(bpNomeAttuale).filter((n, i, a) => a.indexOf(n) === i) : [];
                 bpRecipes.amari = Array.isArray(r.amari) ? r.amari : null;
             }
             if (!bpRecipes.amari) bpRecipes.amari = BP_AMARI_DEFAULT.slice();
@@ -3556,6 +3679,7 @@ Annulla = ` + T('backupUnisci'));
                     ferm_bollicine: _get('ferm_bollicine'),
                     ferm_birra: _get('ferm_birra'),
                     fascia_fermentati: _get('sel-fascia-fermentati'),
+                    servizio: _get('servizio') || 'bar',
                     nome_evento: bpCfgNomeEvento || ''
                 }
             };
@@ -3583,9 +3707,11 @@ Annulla = ` + T('backupUnisci'));
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if(!raw) return;
                 const s = JSON.parse(raw);
-                menuSerataDrink = s.menuSerataDrink || {};
-                menuSerataMocktail = s.menuSerataMocktail || {};
-                menuSerataShot = s.menuSerataShot || {};
+                // Il servizio si deduce PRIMA di rinominare: dopo, la sigla (HV) non c'e' piu'.
+                bpServizioImposta(bpServizioDi(s.config && s.config.servizio, s.menuSerataDrink, s.menuSerataMocktail, s.menuSerataShot));
+                menuSerataDrink = bpMigraMenu(s.menuSerataDrink);
+                menuSerataMocktail = bpMigraMenu(s.menuSerataMocktail);
+                menuSerataShot = bpMigraMenu(s.menuSerataShot);
                 /* Le ricette non arrivano piu' dalla bozza: si derivano da
                    bp_recipes_v2 in bpDerivaRicetteUtente(), chiamata dopo
                    bpRecipesLoad(). Le bozze vecchie sono gia' state assorbite
@@ -3596,7 +3722,7 @@ Annulla = ` + T('backupUnisci'));
                 bpQuantita = (s.quantita && typeof s.quantita === 'object') ? s.quantita : {};
                 // Senza, dopo un ricaricamento il menu conserva il nome della
                 // ricetta arrivata col link ma ne perde la definizione.
-                bpRicetteEvento = bpValidaRicette(s.ricetteEvento);
+                bpRicetteEvento = bpValidaRicette(bpMigraRicette(s.ricetteEvento));
                 /* Solo se quell'evento esiste davvero: nel frattempo puo'
                    essere stato cancellato, magari da un'altra scheda. Un id
                    che non punta piu' a niente farebbe ricadere il salvataggio
@@ -3761,6 +3887,7 @@ Annulla = ` + T('backupUnisci'));
             const _pct = document.getElementById('pct-bevitori'); if (_pct) { _pct.value = 80; aggiornaPctBevitori(); }
             ['ferm_vino_rosso','ferm_vino_bianco','ferm_bollicine','ferm_birra'].forEach(id => { const e = document.getElementById(id); if (e) e.value = 0; });
             const _fascF = document.getElementById('sel-fascia-fermentati'); if (_fascF) _fascF.value = 'media';
+            bpServizioImposta('bar');
             document.getElementById('budget-box').style.display = 'none';
             document.getElementById('risultati').style.display = 'none';
             const _bf = document.getElementById('block_fermentati'); if (_bf) _bf.style.display = 'none';
@@ -4289,36 +4416,36 @@ Annulla = ` + T('backupUnisci'));
            SUGGERITORE MENU (profili evento)
            ════════════════════════════════════════════════════════════ */
         // ─── Guarnizioni / prep da comprare a parte (v1.3) ───
-        const garnishMap = {"Negroni":["Fetta d'arancia"],"Americano":["Fetta d'arancia"],"Boulevardier":["Scorza d'arancia"],"Old Fashioned":["Angostura","Scorza d'arancia"],"Manhattan":["Ciliegia al maraschino","Angostura"],"Sazerac":["Assenzio (per risciacquo)","Scorza di limone"],"Mojito":["Menta fresca","Lime fresco"],"Caipirinha":["Lime fresco","Zucchero di canna"],"Mai-Tai":["Menta fresca","Lime fresco"],"Margarita":["Sale","Lime fresco"],"Tommys Margarita":["Lime fresco"],"Daiquiri":["Lime fresco"],"Cuba Libre":["Lime fresco"],"Moscow Mule (IBA)":["Lime fresco","Menta fresca"],"Espresso Martini":["Chicchi di caffè"],"Cosmopolitan":["Scorza d'arancia"],"Gin Fizz":["Scorza di limone"],"Whiskey Sour":["Ciliegia al maraschino","Angostura"],"Pisco Sour":["Angostura"],"Aviation":["Ciliegia al maraschino"],"Hanky Panky":["Scorza d'arancia"],"Dry Martini":["Oliva","Scorza di limone"],"Sidecar":["Zucchero (bordo)","Scorza di limone"],"Tequila Sunrise":["Fetta d'arancia","Ciliegia al maraschino"],"Sex on the Beach":["Fetta d'arancia"],"Pina Colada":["Ananas (fetta)","Ciliegia al maraschino"],"Paloma":["Sale","Lime fresco"],"Spritz":["Fetta d'arancia","Oliva"],"Garibaldi (IBA)":["Fetta d'arancia"],"Zombie":["Menta fresca"],"Bees Knees":["Scorza di limone"],"Long Island":["Lime fresco"],"Alexander":["Noce moscata"],"Bull Shot":["Tabasco","Salsa Worcestershire"],"Casino":["Orange Bitters"],"Champagne Cocktail":["Angostura","Zollette di zucchero"],"Corpse Reviver #2":["Assenzio (per risciacquo)"],"Gibson":["Cipolline cocktail"],"Gin Basil Smash":["Basilico fresco"],"Michelada":["Tabasco","Salsa Worcestershire","Sale"],"Monkey Gland":["Assenzio (per risciacquo)"],"Pegu Club":["Angostura"],"Ramos Gin Fizz":["Acqua ai fiori d'arancio"],"Salty Dog":["Sale"],"Tuxedo":["Orange Bitters"],"Vieux Carré":["Angostura"]};
+        const garnishMap = {"Negroni":["Fetta d'arancia"],"Americano":["Fetta d'arancia"],"Boulevardier":["Scorza d'arancia"],"Old Fashioned":["Angostura","Scorza d'arancia"],"Manhattan":["Ciliegia al maraschino","Angostura"],"Sazerac":["Assenzio (per risciacquo)","Scorza di limone"],"Mojito":["Menta fresca","Lime fresco"],"Caipirinha":["Lime fresco","Zucchero di canna"],"Mai-Tai":["Menta fresca","Lime fresco"],"Margarita":["Sale","Lime fresco"],"Tommys Margarita":["Lime fresco"],"Daiquiri":["Lime fresco"],"Cuba Libre":["Lime fresco"],"Moscow Mule":["Lime fresco","Menta fresca"],"Espresso Martini":["Chicchi di caffè"],"Cosmopolitan":["Scorza d'arancia"],"Gin Fizz":["Scorza di limone"],"Whiskey Sour":["Ciliegia al maraschino","Angostura"],"Pisco Sour":["Angostura"],"Aviation":["Ciliegia al maraschino"],"Hanky Panky":["Scorza d'arancia"],"Dry Martini":["Oliva","Scorza di limone"],"Sidecar":["Zucchero (bordo)","Scorza di limone"],"Tequila Sunrise":["Fetta d'arancia","Ciliegia al maraschino"],"Sex on the Beach":["Fetta d'arancia"],"Pina Colada":["Ananas (fetta)","Ciliegia al maraschino"],"Paloma":["Sale","Lime fresco"],"Spritz":["Fetta d'arancia","Oliva"],"Garibaldi":["Fetta d'arancia"],"Zombie":["Menta fresca"],"Bees Knees":["Scorza di limone"],"Long Island":["Lime fresco"],"Alexander":["Noce moscata"],"Bull Shot":["Tabasco","Salsa Worcestershire"],"Casino":["Orange Bitters"],"Champagne Cocktail":["Angostura","Zollette di zucchero"],"Corpse Reviver #2":["Assenzio (per risciacquo)"],"Gibson":["Cipolline cocktail"],"Gin Basil Smash":["Basilico fresco"],"Michelada":["Tabasco","Salsa Worcestershire","Sale"],"Monkey Gland":["Assenzio (per risciacquo)"],"Pegu Club":["Angostura"],"Ramos Gin Fizz":["Acqua ai fiori d'arancio"],"Salty Dog":["Sale"],"Tuxedo":["Orange Bitters"],"Vieux Carré":["Angostura"]};
         const _garnishI18n = {"en":{"Tabasco":"Tabasco","Salsa Worcestershire":"Worcestershire sauce","Orange Bitters":"Orange Bitters","Angostura":"Angostura","Zollette di zucchero":"Sugar cubes","Assenzio (per risciacquo)":"Absinthe (rinse)","Cipolline cocktail":"Cocktail onions","Basilico fresco":"Fresh basil","Sale":"Salt","Acqua ai fiori d'arancio":"Orange flower water","Fetta d'arancia":"Orange slice","Scorza d'arancia":"Orange peel","Scorza di limone":"Lemon peel","Ciliegia al maraschino":"Maraschino cherry","Menta fresca":"Fresh mint","Lime fresco":"Fresh lime","Zucchero di canna":"Cane sugar","Chicchi di caffè":"Coffee beans","Oliva":"Olive","Ananas (fetta)":"Pineapple slice","Noce moscata":"Nutmeg","Zucchero (bordo)":"Sugar (rim)"},"es":{"Tabasco":"Tabasco","Salsa Worcestershire":"Salsa Worcestershire","Orange Bitters":"Orange Bitters","Angostura":"Angostura","Zollette di zucchero":"Terrones de azúcar","Assenzio (per risciacquo)":"Absenta (enjuague)","Cipolline cocktail":"Cebollitas cóctel","Basilico fresco":"Albahaca fresca","Sale":"Sal","Acqua ai fiori d'arancio":"Agua de azahar","Fetta d'arancia":"Rodaja de naranja","Scorza d'arancia":"Piel de naranja","Scorza di limone":"Piel de limón","Ciliegia al maraschino":"Cereza al marrasquino","Menta fresca":"Menta fresca","Lime fresco":"Lima fresca","Zucchero di canna":"Azúcar de caña","Chicchi di caffè":"Granos de café","Oliva":"Aceituna","Ananas (fetta)":"Rodaja de piña","Noce moscata":"Nuez moscada","Zucchero (bordo)":"Azúcar (borde)"},"fr":{"Tabasco":"Tabasco","Salsa Worcestershire":"Sauce Worcestershire","Orange Bitters":"Orange Bitters","Angostura":"Angostura","Zollette di zucchero":"Sucres en morceaux","Assenzio (per risciacquo)":"Absinthe (rinçage)","Cipolline cocktail":"Oignons cocktail","Basilico fresco":"Basilic frais","Sale":"Sel","Acqua ai fiori d'arancio":"Eau de fleur d'oranger","Fetta d'arancia":"Tranche d'orange","Scorza d'arancia":"Zeste d'orange","Scorza di limone":"Zeste de citron","Ciliegia al maraschino":"Cerise au marasquin","Menta fresca":"Menthe fraîche","Lime fresco":"Citron vert frais","Zucchero di canna":"Sucre de canne","Chicchi di caffè":"Grains de café","Oliva":"Olive","Ananas (fetta)":"Tranche d'ananas","Noce moscata":"Noix de muscade","Zucchero (bordo)":"Sucre (bord)"},"de":{"Tabasco":"Tabasco","Salsa Worcestershire":"Worcestershiresauce","Orange Bitters":"Orange Bitters","Angostura":"Angostura","Zollette di zucchero":"Würfelzucker","Assenzio (per risciacquo)":"Absinth (zum Ausspülen)","Cipolline cocktail":"Cocktailzwiebeln","Basilico fresco":"Frischer Basilikum","Sale":"Salz","Acqua ai fiori d'arancio":"Orangenblütenwasser","Fetta d'arancia":"Orangenscheibe","Scorza d'arancia":"Orangenschale","Scorza di limone":"Zitronenschale","Ciliegia al maraschino":"Maraschino-Kirsche","Menta fresca":"Frische Minze","Lime fresco":"Frische Limette","Zucchero di canna":"Rohrzucker","Chicchi di caffè":"Kaffeebohnen","Oliva":"Olive","Ananas (fetta)":"Ananasscheibe","Noce moscata":"Muskatnuss","Zucchero (bordo)":"Zucker (Rand)"},"pt":{"Tabasco":"Tabasco","Salsa Worcestershire":"Molho inglês","Orange Bitters":"Orange Bitters","Angostura":"Angostura","Zollette di zucchero":"Cubos de açúcar","Assenzio (per risciacquo)":"Absinto (para enxaguar)","Cipolline cocktail":"Cebolinhas cocktail","Basilico fresco":"Manjericão fresco","Sale":"Sal","Acqua ai fiori d'arancio":"Água de flor de laranjeira","Fetta d'arancia":"Fatia de laranja","Scorza d'arancia":"Casca de laranja","Scorza di limone":"Casca de limão","Ciliegia al maraschino":"Cereja ao maraschino","Menta fresca":"Hortelã fresca","Lime fresco":"Lima fresca","Zucchero di canna":"Açúcar de cana","Chicchi di caffè":"Grãos de café","Oliva":"Azeitona","Ananas (fetta)":"Fatia de ananás","Noce moscata":"Noz-moscada","Zucchero (bordo)":"Açúcar (borda)"},"nl":{"Tabasco":"Tabasco","Salsa Worcestershire":"Worcestershiresaus","Orange Bitters":"Orange Bitters","Angostura":"Angostura","Zollette di zucchero":"Suikerklontjes","Assenzio (per risciacquo)":"Absint (om te spoelen)","Cipolline cocktail":"Cocktailuitjes","Basilico fresco":"Verse basilicum","Sale":"Zout","Acqua ai fiori d'arancio":"Oranjebloesemwater","Fetta d'arancia":"Sinaasappelschijf","Scorza d'arancia":"Sinaasappelschil","Scorza di limone":"Citroenschil","Ciliegia al maraschino":"Maraschinokers","Menta fresca":"Verse munt","Lime fresco":"Verse limoen","Zucchero di canna":"Rietsuiker","Chicchi di caffè":"Koffiebonen","Oliva":"Olijf","Ananas (fetta)":"Ananasschijf","Noce moscata":"Nootmuskaat","Zucchero (bordo)":"Suiker (rand)"}};
         function traduciGarnish(label){ const M=_garnishI18n[linguaCorrente]; return (M && M[label]) ? M[label] : label; }
         const PROFILI_EVENTO = {
             matrimonio: {
-                drink:    { 'Spritz':4, 'Negroni':3, 'Gin Tonic (HV)':3, 'Bellini':3, 'Americano':3 },
+                drink:    { 'Spritz':4, 'Negroni':3, 'Gin Tonic':3, 'Bellini':3, 'Americano':3 },
                 mocktail: { 'Virgin Mojito':3 },
                 shot:     { 'Mirto':2, 'Amaro Montenegro':2 },
                 ferm: { rosso:0.25, bianco:0.5, bollicine:1, birra:0.10 }
             },
             compleanno: {
-                drink:    { 'Spritz':4, 'Vodka Lemon (HV)':3, 'Mojito':3, 'Gin Tonic (HV)':3 },
+                drink:    { 'Spritz':4, 'Vodka Lemon':3, 'Mojito':3, 'Gin Tonic':3 },
                 mocktail: { 'Shirley Temple':3 },
                 shot:     { 'Amaro Montenegro':2, 'Jägermeister':2 },
                 ferm: { rosso:0, bianco:0, bollicine:0, birra:0.20 }
             },
             aperitivo: {
-                drink:    { 'Spritz':5, 'Negroni':3, 'Americano':3, 'Gin Tonic (HV)':3 },
+                drink:    { 'Spritz':5, 'Negroni':3, 'Americano':3, 'Gin Tonic':3 },
                 mocktail: { 'Florida':3 },
                 shot:     {},
                 ferm: { rosso:0, bianco:0, bollicine:0.30, birra:0.20 }
             },
             serata: {
-                drink:    { 'Vodka Redbull (HV)':4, 'Rum & Coca (HV)':4, 'Gin Lemon (HV)':3, 'Mojito':3, 'Gin Tonic (HV)':3 },
+                drink:    { 'Vodka Redbull':4, 'Rum & Coca':4, 'Gin Lemon':3, 'Mojito':3, 'Gin Tonic':3 },
                 mocktail: { 'Virgin Mojito':3 },
                 shot:     { 'Jägermeister':3, 'Tequila':2, 'Amaro Montenegro':2 },
                 ferm: { rosso:0, bianco:0, bollicine:0, birra:0.30 }
             },
             aziendale: {
-                drink:    { 'Spritz':4, 'Gin Tonic (HV)':3, 'Negroni':3, 'Americano':3 },
+                drink:    { 'Spritz':4, 'Gin Tonic':3, 'Negroni':3, 'Americano':3 },
                 mocktail: { 'Florida':3 },
                 shot:     {},
                 ferm: { rosso:0.10, bianco:0.10, bollicine:0.5, birra:0 }
@@ -4353,6 +4480,8 @@ Annulla = ` + T('backupUnisci'));
             _setF('ferm_vino_bianco', prof.ferm.bianco);
             _setF('ferm_bollicine',   prof.ferm.bollicine);
             _setF('ferm_birra',       prof.ferm.birra);
+            bpServizioImposta(BP_SERVIZIO_TIPO[evento]);
+            aggiornaStimaForm();
 
             chiudiSuggeritore();
             renderizzaMenu();
@@ -4729,6 +4858,25 @@ Annulla = ` + T('backupUnisci'));
         };
         Object.keys(_cfg5I18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _cfg5I18n[lg]); });
 
+        /* Servizio: dosi da bar o da festa (fase c, ottobre 2026). */
+        const _servI18n = {
+            it: { servQ:"Come servi", servBar:"Bar / ricevimento", servFesta:"Festa / disco",
+                  servBarSub:"Dosi IBA, 45 ml negli highball", servFestaSub:"Bicchiere grande, 60 ml negli highball" },
+            en: { servQ:"How you serve", servBar:"Bar / reception", servFesta:"Party / club",
+                  servBarSub:"IBA measures, 45 ml in highballs", servFestaSub:"Big glass, 60 ml in highballs" },
+            es: { servQ:"Cómo sirves", servBar:"Bar / recepción", servFesta:"Fiesta / disco",
+                  servBarSub:"Medidas IBA, 45 ml en los highballs", servFestaSub:"Vaso grande, 60 ml en los highballs" },
+            fr: { servQ:"Comment tu sers", servBar:"Bar / réception", servFesta:"Fête / boîte",
+                  servBarSub:"Doses IBA, 45 ml dans les highballs", servFestaSub:"Grand verre, 60 ml dans les highballs" },
+            de: { servQ:"Wie du servierst", servBar:"Bar / Empfang", servFesta:"Party / Club",
+                  servBarSub:"IBA-Maße, 45 ml in Highballs", servFestaSub:"Großes Glas, 60 ml in Highballs" },
+            pt: { servQ:"Como serves", servBar:"Bar / receção", servFesta:"Festa / discoteca",
+                  servBarSub:"Doses IBA, 45 ml nos highballs", servFestaSub:"Copo grande, 60 ml nos highballs" },
+            nl: { servQ:"Hoe je schenkt", servBar:"Bar / receptie", servFesta:"Feest / club",
+                  servBarSub:"IBA-maten, 45 ml in highballs", servFestaSub:"Groot glas, 60 ml in highballs" }
+        };
+        Object.keys(_servI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _servI18n[lg]); });
+
         const _ariaI18n = {
             it: { ariaAiuto:"Aiuto", ariaChiudi:"Chiudi", ariaHome:"Home", ariaPassi:"Passi", ariaTema:"Tema", ariaLingua:"Lingua", ariaCollegamenti:"Collegamenti", ariaEventi:"I miei eventi", ariaRicettario:"Libreria ricette", ariaMenuEsporre:"Menù da esporre", ariaStileMenu:"Stile menù" },
             en: { ariaAiuto:"Help", ariaChiudi:"Close", ariaHome:"Home", ariaPassi:"Steps", ariaTema:"Theme", ariaLingua:"Language", ariaCollegamenti:"Links", ariaEventi:"My events", ariaRicettario:"Recipe library", ariaMenuEsporre:"Menu to display", ariaStileMenu:"Menu style" },
@@ -4755,7 +4903,7 @@ Annulla = ` + T('backupUnisci'));
         const BP_CFG_STEPS = ['evento', 'ospiti', 'bevitori', 'menu', 'riepilogo'];
         let bpCfgIdx = 0, bpCfgDir = 1, bpCfgNomeEvento = '';
         let bpCfgScelta = null, bpCfgSceltaChiave = '', bpCfgPesi = {};   // menu scelto nel guidato
-        const bpCfg = { nome:'', tipo:'serata', ospiti:50, durata:'media', intensita:'media', pct:80, mocktail:true, shot:true, fermentati:true, fascia:'media', scarto:15, stile:'classico' };
+        const bpCfg = { nome:'', tipo:'serata', ospiti:50, durata:'media', intensita:'media', pct:80, mocktail:true, shot:true, fermentati:true, fascia:'media', scarto:15, stile:'classico', servizio:'festa', servizioToccato:false };
 
         function _bpEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
         function _bpCap(s){ return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
@@ -4784,6 +4932,9 @@ Annulla = ` + T('backupUnisci'));
             if (fSel && ['bassa','media','alta'].includes(fSel.value)) bpCfg.fascia = fSel.value;
             if (bpCfgNomeEvento) bpCfg.nome = bpCfgNomeEvento;
             bpCfgScelta = null;   // ogni configurazione riparte dalle proposte
+            // Il servizio segue il tipo di evento finche' l'utente non lo sceglie lui.
+            bpCfg.servizio = BP_SERVIZIO_TIPO[bpCfg.tipo] || 'bar';
+            bpCfg.servizioToccato = false;
             bpChiudiModale('bp-welcome');
             bpApriModale('bp-config');
             bpCfgIdx = 0; bpCfgDir = 1;
@@ -4806,9 +4957,9 @@ Annulla = ` + T('backupUnisci'));
            Tutti presenti in databaseDrink (FULL); quelli assenti vengono saltati. */
         const BP_STILE_EXTRA = {
             matrimonio: ['French 75','Mimosa','Kir Royale','Cosmopolitan','Margarita'],
-            compleanno: ['Vodka Redbull (HV)','Sex on the Beach','Tequila Sunrise','Long Island','Margarita'],
-            aperitivo:  ['Hugo','Garibaldi (IBA)','Boulevardier','Bellini','Cosmopolitan'],
-            serata:     ['Jager & Redbull (HV)','Vodka Lemon (HV)','Long Island','Cuba Libre','Tequila Sunrise'],
+            compleanno: ['Vodka Redbull','Sex on the Beach','Tequila Sunrise','Long Island','Margarita'],
+            aperitivo:  ['Hugo','Garibaldi','Boulevardier','Bellini','Cosmopolitan'],
+            serata:     ['Jager & Redbull','Vodka Lemon','Long Island','Cuba Libre','Tequila Sunrise'],
             aziendale:  ['Bellini','Mimosa','Margarita','Cosmopolitan','French 75']
         };
         const BP_MOCK_EXTRA = ['Virgin Mojito','Shirley Temple','Florida'];
@@ -4903,7 +5054,7 @@ Annulla = ` + T('backupUnisci'));
             try {
                 return stimaBudget({
                     ospiti: bpCfg.ospiti, drinkTesta: d.drinkTesta, shotTesta: bpCfgShotTesta(d, m), scarto: bpCfg.scarto,
-                    pct: bpCfg.pct, fascia: bpCfg.fascia, nazione: (document.getElementById('sel-nazione') || {}).value || '',
+                    pct: bpCfg.pct, fascia: bpCfg.fascia, servizio: bpCfg.servizio, nazione: (document.getElementById('sel-nazione') || {}).value || '',
                     drink: m.drink, mocktail: m.mocktail, shot: m.shot,
                     ferm: { rosso: d.ferm.rosso, bianco: d.ferm.bianco, bollicine: d.ferm.bollicine, birra: d.ferm.birra },
                     ...bpModificatoriCorrenti()
@@ -4967,6 +5118,9 @@ Annulla = ` + T('backupUnisci'));
                     + _bpCfgSeg('durata', [['breve', 'cfgDurBreve'], ['media', 'cfgDurMedia'], ['lunga', 'cfgDurLunga']]) + '</div>'
                     + '<div class="bp-riga bp-riga-col"><span class="bp-riga-lbl">' + _bpEsc(T('cfgEyIntensity')) + '</span>'
                     + _bpCfgSeg('intensita', [['leggera', 'cfgIntLeggera'], ['media', 'cfgIntMedia'], ['alta', 'cfgIntAlta']]) + '</div>'
+                    + '<div class="bp-riga bp-riga-col"><div class="bp-riga-testa"><span class="bp-riga-lbl">' + _bpEsc(T('servQ')) + '</span>'
+                    + '<span class="bp-riga-nota bp-nota-a-capo" id="bpc-serv-sub">' + _bpEsc(T(bpCfg.servizio === 'festa' ? 'servFestaSub' : 'servBarSub')) + '</span></div>'
+                    + _bpCfgSeg('servizio', [['bar', 'servBar'], ['festa', 'servFesta']]) + '</div>'
                     + '<div class="bp-riga bp-riga-col"><span class="bp-riga-lbl">' + _bpEsc(T('cfgEyPrice')) + '</span>'
                     + _bpCfgSeg('fascia', [['bassa', 'cfgFasciaBassa'], ['media', 'cfgFasciaMedia'], ['alta', 'cfgFasciaAlta']]) + '</div>'
                     + '</div>';
@@ -5004,6 +5158,7 @@ Annulla = ` + T('backupUnisci'));
                 [T('cfgSumNome'), (bpCfg.nome || T('cfgSumNomeVuoto')) + ' · ' + T('cfgTipo' + _bpCap(bpCfg.tipo))],
                 [T('cfgSumOspiti'), bpCfg.ospiti + ' · ' + T('cfgBevono').replace('{n}', pers)],
                 [T('cfgSumConsumo'), T('cfgDur' + _bpCap(bpCfg.durata)) + ' · ' + T('cfgInt' + _bpCap(bpCfg.intensita))],
+                [T('servQ'), T(bpCfg.servizio === 'festa' ? 'servFesta' : 'servBar')],
                 [T('cfgSumFascia'), T('cfgFascia' + _bpCap(bpCfg.fascia))],
                 [T('cfgSumMenu'), _bpMenuStr(m)],
                 [T('cfgSumAnche'), anche.length ? anche.join(', ') : T('cfgNiente')]
@@ -5057,6 +5212,7 @@ Annulla = ` + T('backupUnisci'));
             const segna = (sel, on) => { sel.classList.toggle(sel.matches('[data-cfg-tipo]') ? 'sel' : 'on', on); sel.setAttribute('aria-checked', String(on)); };
             if (t.dataset.cfgTipo) {
                 bpCfg.tipo = t.dataset.cfgTipo;
+                if (!bpCfg.servizioToccato) bpCfg.servizio = BP_SERVIZIO_TIPO[bpCfg.tipo] || 'bar';
                 mount.querySelectorAll('[data-cfg-tipo]').forEach(b => segna(b, b === t));
             } else if (t.dataset.cfgSeg) {
                 bpCfg[t.dataset.cfgSeg] = t.dataset.val;
@@ -5064,6 +5220,11 @@ Annulla = ` + T('backupUnisci'));
                 if (t.dataset.cfgSeg === 'durata') {
                     const sub = document.getElementById('bpc-dur-sub');
                     if (sub) sub.textContent = T(BP_CFG_DUR_SUB[bpCfg.durata] || 'cfgDurMediaSub');
+                }
+                if (t.dataset.cfgSeg === 'servizio') {
+                    bpCfg.servizioToccato = true;
+                    const sub = document.getElementById('bpc-serv-sub');
+                    if (sub) sub.textContent = T(bpCfg.servizio === 'festa' ? 'servFestaSub' : 'servBarSub');
                 }
             } else if (t.dataset.cfgSw) {
                 const c = t.dataset.cfgSw;
@@ -5109,6 +5270,7 @@ Annulla = ` + T('backupUnisci'));
             setV('ferm_vino_bianco', d.ferm.bianco);
             setV('ferm_bollicine', d.ferm.bollicine);
             setV('ferm_birra', d.ferm.birra);
+            bpServizioImposta(bpCfg.servizio);
             menuSerataDrink = m.drink;
             menuSerataMocktail = m.mocktail;
             menuSerataShot = m.shot;
@@ -5199,7 +5361,7 @@ Annulla = ` + T('backupUnisci'));
                 const nome = (bpCfgNomeEvento && bpCfgNomeEvento.trim())
                     ? bpCfgNomeEvento.trim()
                     : (_T('cfgSumNomeVuoto') + ' · ' + new Date().toLocaleDateString(linguaCorrente));
-                const config = { ospiti:_g('ospiti'), drink_testa:_g('drink_testa'), shot_testa:_g('shot_testa'), scarto:_g('scarto'), nazione:_g('sel-nazione'), fascia:_g('sel-fascia'), pct_bevitori:_g('pct-bevitori'), ferm_vino_rosso:_g('ferm_vino_rosso'), ferm_vino_bianco:_g('ferm_vino_bianco'), ferm_bollicine:_g('ferm_bollicine'), ferm_birra:_g('ferm_birra'), fascia_fermentati:_g('sel-fascia-fermentati') };
+                const config = { ospiti:_g('ospiti'), drink_testa:_g('drink_testa'), shot_testa:_g('shot_testa'), scarto:_g('scarto'), nazione:_g('sel-nazione'), fascia:_g('sel-fascia'), pct_bevitori:_g('pct-bevitori'), ferm_vino_rosso:_g('ferm_vino_rosso'), ferm_vino_bianco:_g('ferm_vino_bianco'), ferm_bollicine:_g('ferm_bollicine'), ferm_birra:_g('ferm_birra'), fascia_fermentati:_g('sel-fascia-fermentati'), servizio:_g('servizio') || 'bar' };
                 const menu = { drink: Object.assign({}, menuSerataDrink), mocktail: Object.assign({}, menuSerataMocktail), shot: Object.assign({}, menuSerataShot) };
                 const scorte = Object.assign({}, bpScorte);
                 const quantita = Object.assign({}, bpQuantita);
@@ -5412,15 +5574,17 @@ Annulla = ` + T('backupUnisci'));
             // deve ritrovare quello che aveva gia' dichiarato di avere in casa.
             bpScorte = (ev.scorte && typeof ev.scorte === 'object') ? Object.assign({}, ev.scorte) : {};
             bpQuantita = (ev.quantita && typeof ev.quantita === 'object') ? Object.assign({}, ev.quantita) : {};
-            bpRicetteEvento = bpValidaRicette(ev.ricetteEvento);
+            bpRicetteEvento = bpValidaRicette(bpMigraRicette(ev.ricetteEvento));
             const c = ev.config || {};
+            const evMenu = ev.menu || {};
+            bpServizioImposta(bpServizioDi(c.servizio, evMenu.drink, evMenu.mocktail, evMenu.shot));
             const _s = (eid, v) => { const e = document.getElementById(eid); if (e && v != null && v !== '') e.value = v; };
             _s('ospiti', c.ospiti); _s('drink_testa', c.drink_testa); _s('shot_testa', c.shot_testa); _s('scarto', c.scarto);
             _s('sel-nazione', c.nazione); _s('sel-fascia', c.fascia); _s('pct-bevitori', c.pct_bevitori);
             _s('ferm_vino_rosso', c.ferm_vino_rosso); _s('ferm_vino_bianco', c.ferm_vino_bianco); _s('ferm_bollicine', c.ferm_bollicine); _s('ferm_birra', c.ferm_birra); _s('sel-fascia-fermentati', c.fascia_fermentati);
-            menuSerataDrink = Object.assign({}, (ev.menu && ev.menu.drink) || {});
-            menuSerataMocktail = Object.assign({}, (ev.menu && ev.menu.mocktail) || {});
-            menuSerataShot = Object.assign({}, (ev.menu && ev.menu.shot) || {});
+            menuSerataDrink = bpMigraMenu(evMenu.drink);
+            menuSerataMocktail = bpMigraMenu(evMenu.mocktail);
+            menuSerataShot = bpMigraMenu(evMenu.shot);
             bpCfgNomeEvento = ev.nome || '';
             bpEditingId = ev.id;
             bpSyncNomeField();
@@ -5494,7 +5658,9 @@ Annulla = ` + T('backupUnisci'));
            ════════════════════════════════════════════════════════════ */
         const BPM_STYLES = ['elegant','minimal','chalk','festa'];
 
-        function _bpmStripHV(n){ return String(n == null ? '' : n).replace(/\s*\((?:HV|hv)\)\s*$/, '').trim(); }
+        /* Dalla fase (c) i nomi non hanno piu' la sigla: resta per quelli che
+           arrivano da un evento salvato prima e non ancora riaperto. */
+        function _bpmStripHV(n){ return bpNomeAttuale(String(n == null ? '' : n)).replace(/\s*\((?:HV|hv)\)\s*$/, '').trim(); }
 
         /* Costruisce le categorie del menù (solo nomi) dalla sorgente. */
         function _bpmCats(src){
@@ -6347,7 +6513,7 @@ Annulla = ` + T('backupUnisci'));
                 const r = stimaBudget({
                     ospiti, drinkTesta: num('drink_testa'), shotTesta: num('shot_testa'), scarto: num('scarto'),
                     pct: (document.getElementById('pct-bevitori') ? parseInt(document.getElementById('pct-bevitori').value) : 80),
-                    fascia: selV('sel-fascia') || 'media', nazione: selV('sel-nazione'), fasciaFerm: selV('sel-fascia-fermentati'),
+                    fascia: selV('sel-fascia') || 'media', nazione: selV('sel-nazione'), fasciaFerm: selV('sel-fascia-fermentati'), servizio: selV('servizio'),
                     drink: menuSerataDrink, mocktail: menuSerataMocktail, shot: menuSerataShot,
                     ferm: { rosso: num('ferm_vino_rosso'), bianco: num('ferm_vino_bianco'), bollicine: num('ferm_bollicine'), birra: num('ferm_birra') },
                     ...bpModificatoriCorrenti()
@@ -6494,7 +6660,7 @@ Annulla = ` + T('backupUnisci'));
                 ospiti: _v('ospiti'), drinkTesta: _v('drink_testa'),
                 shotTesta: _v('shot_testa'), scarto: _v('scarto'),
                 pct: (() => { const r = document.getElementById('pct-bevitori'); return r ? r.value : 80; })(),
-                nazione: _v('sel-nazione'), fascia: _v('sel-fascia'),
+                nazione: _v('sel-nazione'), fascia: _v('sel-fascia'), servizio: _v('servizio'),
                 fasciaFerm: (_fascF && _fascF.value) ? _fascF.value : _v('sel-fascia'),
                 ferm: { rosso:_n('ferm_vino_rosso'), bianco:_n('ferm_vino_bianco'),
                         bollicine:_n('ferm_bollicine'), birra:_n('ferm_birra') },
@@ -6543,9 +6709,15 @@ Annulla = ` + T('backupUnisci'));
                della definizione dell'evento; la libreria resta comunque
                intatta, che e' la garanzia separata. */
             const ricetteEvento = (p.ricetteEvento && typeof p.ricetteEvento === 'object') ? p.ricetteEvento : {};
+            /* Servizio assente = bar: e' la modalita' che i golden storici
+               misurano, e nessuno dei loro menu ha una dose da festa. */
+            const festa = p.servizio === 'festa';
             const _ricetta = nome => {
                 const ospite = ricetteEvento[nome];
                 if (Array.isArray(ospite)) return ospite;
+                /* La dose da festa solo se l'utente non ha riscritto la
+                   ricetta: quella sua vale uguale nei due servizi. */
+                if (festa && _bpHa(BP_DOSI_FESTA, nome) && !(bpRecipes.mods && bpRecipes.mods[nome])) return BP_DOSI_FESTA[nome];
                 const locale = databaseDrink[nome];
                 return Array.isArray(locale) ? locale : [];
             };

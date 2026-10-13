@@ -3307,6 +3307,10 @@ body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .s
 
 .bp-riga-nota { font-size: var(--t-sm); color: var(--bp-ink-faint); white-space: nowrap; }
 .bp-sub-a-capo { white-space: normal; }
+/* Una nota lunga ("Bicchiere grande, 60 ml negli highball") va a capo lei,
+   non l'etichetta: "Come servi" spezzato su due righe non si legge. */
+.bp-riga-nota.bp-nota-a-capo { white-space: normal; text-align: right; min-width: 0; }
+.bp-riga-testa:has(.bp-nota-a-capo) .bp-riga-lbl { flex: none; }
 .bp-gruppo > .bp-riga-col + .bp-riga-col,
 .bp-gruppo > .bp-riga + .bp-riga-col { border-top: 1px solid var(--bp-line); }
 

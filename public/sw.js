@@ -9,7 +9,7 @@
  *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v3.25.0';
+const CACHE_VERSION = 'barman-pro-v3.26.0';
 const ASSET_CACHE = 'barman-pro-assets-v3.25.0';
 
 // Asset da pre-cachare alla prima installazione.
