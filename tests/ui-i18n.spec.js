@@ -67,19 +67,14 @@ test.describe('i18n · una chiave per elemento', () => {
     }
   });
 
-  test('i bottoni della lista conservano i loro <span data-i18n>', async ({ page }) => {
+  test('il bottone della lista si traduce e resta collegato', async ({ page }) => {
     await openApp(page);
-
-    // Il vecchio blocco assegnava textContent sul <button>, cancellando lo span.
-    const prima = await page.evaluate(() =>
-      document.querySelectorAll('.action-buttons button [data-i18n]').length);
-    expect(prima, 'i bottoni azione non hanno span con chiave').toBeGreaterThan(0);
-
     await page.evaluate(() => window.cambiaLingua('de'));
-
-    const dopo = await page.evaluate(() =>
-      document.querySelectorAll('.action-buttons button [data-i18n]').length);
-    expect(dopo, 'cambiare lingua ha distrutto gli span dei bottoni azione').toBe(prima);
+    const b = page.locator('.bp-lista-azione button');
+    const atteso = await page.evaluate(() => translations.de.cfgSalvaEvento);
+    await expect(b).toHaveText(atteso);
+    // tradurre assegna textContent: l'azione dichiarata deve restare
+    await expect(b).toHaveAttribute('data-do', 'bpSalvaEvento');
   });
 });
 

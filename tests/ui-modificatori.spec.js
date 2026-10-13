@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { openApp, toNumber } from './helpers.js';
+import { openApp, toNumber, apriVoce } from './helpers.js';
 
 /**
  * "Ce l'ho gia'" e "il tuo prezzo".
@@ -12,7 +12,7 @@ import { openApp, toNumber } from './helpers.js';
  *
  * La prima: con i modificatori spenti il modello e il DOM devono essere
  * identici a prima, perche' e' quella la proiezione che i 42 golden
- * fotografano. Per questo gli editor esistono solo in modalita' correzione.
+ * fotografano. Per questo i campi stanno nella scheda della voce, mai nella lista.
  *
  * La seconda: si sottrae PRIMA e si arrotonda DOPO. La quantita' che paghi e
  * quella che compri sono due numeri diversi di proposito — servono 6.65 L, ne
@@ -42,7 +42,7 @@ test.describe('Modificatori · spenti, non esistono', () => {
     }
   });
 
-  test('gli editor non sono nel DOM finche\' non si entra in correzione', async ({ page }) => {
+  test('la lista non ha campi: si correggono nella scheda della voce', async ({ page }) => {
     await openApp(page);
     await page.evaluate(() => {
       // eslint-disable-next-line no-undef
@@ -53,11 +53,12 @@ test.describe('Modificatori · spenti, non esistono', () => {
 
     // E' cio' che tiene invarianti i golden: un campo sempre presente dentro
     // ogni <li> avrebbe cambiato la loro fotografia senza cambiare un numero.
-    expect(await page.locator('.riga-mod').count()).toBe(0);
+    expect(await page.locator('#risultati input').count()).toBe(0);
 
-    await page.evaluate(() => window.bpAlternaModifica());
-    await page.waitForTimeout(200);
-    expect(await page.locator('.riga-mod').count()).toBeGreaterThan(0);
+    await apriVoce(page);
+    await expect(page.locator('#bp-voce .mod-scorta')).toHaveCount(1);
+    await expect(page.locator('#bp-voce .mod-prezzo')).toHaveCount(1);
+    expect(await page.locator('#risultati input').count(), 'la scheda ha messo campi nella lista').toBe(0);
   });
 
   test('le guarnizioni non accettano scorte: non hanno dose', async ({ page }) => {
@@ -66,13 +67,13 @@ test.describe('Modificatori · spenti, non esistono', () => {
       // eslint-disable-next-line no-undef
       menuSerataDrink = { Negroni: 3 };
       window.vaiAStep('risultati');
-      window.bpAlternaModifica();
     });
     await page.waitForTimeout(300);
 
-    const garnishConEditor = await page.evaluate(() =>
-      document.querySelectorAll('#lista_garnish .riga-mod').length);
-    expect(garnishConEditor, 'una guarnizione ha un campo scorte').toBe(0);
+    expect(await page.locator('#lista_garnish li').count(), 'il Negroni non ha guarnizioni: il test non prova niente').toBeGreaterThan(0);
+    const garnishToccabili = await page.evaluate(() =>
+      document.querySelectorAll('#lista_garnish li[data-voce]').length);
+    expect(garnishToccabili, 'una guarnizione si puo\' correggere').toBe(0);
   });
 });
 
@@ -149,14 +150,14 @@ test.describe('Modificatori · dove vivono', () => {
       // eslint-disable-next-line no-undef
       menuSerataDrink = { Negroni: 3 };
       window.vaiAStep('risultati');
-      window.bpAlternaModifica();
     });
     await page.waitForTimeout(300);
+    await apriVoce(page, '#risultati li[data-voce="ing:Gin"]');
 
     await page.evaluate(() => {
-      const s = document.querySelector('.mod-scorta[data-riga="ing:Gin"]');
+      const s = document.querySelector('#bp-voce .mod-scorta[data-riga="ing:Gin"]');
       s.value = '2'; s.dispatchEvent(new Event('input', { bubbles: true }));
-      const p = document.querySelector('.mod-prezzo[data-riga="ing:Gin"]');
+      const p = document.querySelector('#bp-voce .mod-prezzo[data-riga="ing:Gin"]');
       p.value = '10'; p.dispatchEvent(new Event('input', { bubbles: true }));
     });
     await page.waitForTimeout(500);
@@ -260,7 +261,7 @@ test.describe("Il ricalcolo differito . chi salva non si porta via numeri vecchi
 });
 
 test.describe("Condividere . cosa esce dalla lista", () => {
-  test("in correzione il testo non porta fuori le etichette degli editor", async ({ page }) => {
+  test("una voce corretta non porta il segno 'corretta' nel testo ne' nell'evento salvato", async ({ page }) => {
     await openApp(page);
     await page.evaluate(() => {
       // eslint-disable-next-line no-undef
@@ -270,30 +271,23 @@ test.describe("Condividere . cosa esce dalla lista", () => {
     });
     await page.waitForTimeout(300);
 
-    // Il testo si costruiva da li.innerText, e in correzione dentro ogni <li>
-    // c'e' il blocco .riga-mod. NB: i VALORI digitati non trapelano — il
-    // valore di un <input> non fa parte di innerText, e la prima versione di
-    // questo test lo asseriva e passava anche senza la correzione, cioe' non
-    // provava niente. A trapelare sono le ETICHETTE: ogni voce della lista
-    // condivisa si portava dietro "Ce l'ho gia' (L)" e "Il tuo prezzo".
-    await page.evaluate(() => window.bpAlternaModifica());
-    await page.waitForTimeout(400);
-    const etichetta = await page.evaluate(() => {
-      const l = document.querySelector(".riga-mod .mod-lbl");
-      return l ? l.textContent : null;
-    });
-    expect(etichetta, "gli editor non sono aperti: il test non prova niente").toBeTruthy();
+    /* Il segno e' un ::after proprio per questo: prima, i campi dentro la
+       riga facevano finire le etichette "Ce l'ho gia' (L)" e "Il tuo
+       prezzo" nel testo condiviso. Qui si controlla che il segno non faccia
+       la stessa fine. */
+    await apriVoce(page, '#risultati li[data-voce="ing:Gin"]');
+    await page.locator('#bp-voce [data-arg="mod-scorta|1"]').click();
+    await page.locator('#bp-voce .bp-print-ok').click();
+    await expect(page.locator('#risultati li[data-voce="ing:Gin"]')).toHaveClass(/voce-corretta/);
 
     const testo = await page.evaluate(() => window.costruisciTestoLista());
-    // Confronto senza maiuscole/minuscole: le etichette hanno
-    // text-transform: uppercase, e innerText restituisce il testo RESO, cioe'
-    // "HO GIA' (L)". La versione precedente confrontava con textContent
-    // ("Ho gia' (L)") e per questo passava anche senza la correzione — un
-    // altro test verde per il motivo sbagliato, nello stesso giro in cui li
-    // stavo cercando.
-    expect(testo.toLowerCase(), `l'etichetta "${etichetta}" e' finita nel testo condiviso`)
-      .not.toContain(etichetta.toLowerCase());
-    // Ripulire non vuol dire svuotare: le voci devono esserci ancora.
+    expect(testo.toLowerCase(), "il segno e' finito nel testo condiviso").not.toContain("corretta");
     expect(testo, "il testo condiviso ha perso le voci").toContain("Gin");
+
+    await page.evaluate(() => window.bpSalvaEvento());
+    const nomi = await page.evaluate(() =>
+      window.bpGetEvents().slice(-1)[0].lista.flatMap((g) => g.items.map((it) => it.nome)));
+    expect(nomi).toContain("Gin");
+    expect(nomi.join(" ").toLowerCase(), "il segno e' finito nell'evento salvato").not.toContain("corretta");
   });
 });

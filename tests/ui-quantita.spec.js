@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { openApp } from './helpers.js';
+import { openApp, apriVoce } from './helpers.js';
 
 /**
  * La quantita' corretta a mano.
@@ -8,7 +8,7 @@ import { openApp } from './helpers.js';
  *  · vuol dire "compra questo": sostituisce il numero e il costo, e su quella
  *    riga la scorta smette di contare;
  *  · sopravvive al ricalcolo — e' un giudizio, non un risultato intermedio;
- *  · si vede sempre, anche a modalita' "Correggi" spenta;
+ *  · si vede sempre, anche a scheda chiusa;
  *  · si annulla, e la riga torna al numero dell'app.
  *
  * ⚠️ Le correzioni si scrivono nei CAMPI, mai assegnando `bpQuantita`:
@@ -16,7 +16,7 @@ import { openApp } from './helpers.js';
  *    che questo file dovrebbe trovare.
  */
 
-/** Prepara una lista con qualche riga e apre la modalita' correzione. */
+/** Prepara una lista con qualche riga e apre la scheda della prima voce. */
 async function listaConCorrezioneAperta(page) {
   await openApp(page);
   await page.evaluate(() => {
@@ -35,39 +35,33 @@ async function listaConCorrezioneAperta(page) {
     window.vaiAStep('risultati');
     window.calcolaSpesa(true);
   });
-  /* ⚠️ Si PREME il bottone, non si chiama `bpAlternaModifica()`.
-     La prima stesura chiamava la funzione: cosi' i test dicevano verde anche
-     se il bottone fosse stato coperto, disabilitato o scollegato dal
-     dispatcher `data-do` — cioe' proprio il modo in cui "Correggi" puo'
-     smettere di funzionare per chi lo usa. */
-  const btn = page.locator('#bp-modifica-btn');
-  await btn.scrollIntoViewIfNeeded();
-  await btn.click();
-  await expect(btn).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('#lista_alcolici li .mod-qta').first()).toBeVisible();
+  /* ⚠️ Si PREME la riga, non si chiama `bpVoceApri()`: una riga coperta o
+     scollegata dalla delega dei click deve far fallire questi test. */
+  await apriVoce(page);
 }
 
 /** Legge la prima riga alcolici. */
 function leggiRiga(page) {
   return page.evaluate(() => {
     const li = document.querySelector('#lista_alcolici li');
-    const q = li.querySelector('.mod-qta');
+    const q = document.querySelector('#bp-voce[open] .mod-qta');
+    const rip = document.getElementById('bp-voce-ripristina');
     return {
       quantita: li.querySelector('strong').textContent.trim(),
       marcata: li.querySelector('strong').classList.contains('qta-tua'),
       costo: (li.querySelector('.costo-voce') || {}).textContent || '',
       totale: document.getElementById('budget-amount').textContent.trim(),
-      segnaposto: q ? q.placeholder : null,
-      haReset: !!li.querySelector('.mod-qta-reset'),
-      scortaInerte: !!li.querySelector('.mod-campo-inerte'),
+      segnaposto: q ? q.dataset.calc : null,
+      haReset: !!(q && rip && !rip.disabled),
+      scortaInerte: !!document.querySelector('#bp-voce[open] .mod-campo-inerte'),
     };
   });
 }
 
-/** Scrive un valore nel campo "Da comprare" della prima riga. */
+/** Scrive un valore nel campo "Da comprare" della scheda aperta. */
 async function scrivi(page, valore) {
   await page.evaluate((v) => {
-    const c = document.querySelector('#lista_alcolici li .mod-qta');
+    const c = document.querySelector('#bp-voce .mod-qta');
     c.value = String(v);
     c.dispatchEvent(new Event('input', { bubbles: true }));
   }, valore);
@@ -102,13 +96,15 @@ test.describe('Quantita\' corretta a mano', () => {
     expect(calcolata).toContain(dopo.segnaposto);
   });
 
-  test('la marcatura resta anche a modalita\' "Correggi" spenta', async ({ page }) => {
+  test('la marcatura resta anche a scheda chiusa', async ({ page }) => {
     await listaConCorrezioneAperta(page);
     await scrivi(page, 4);
-    await page.locator("#bp-modifica-btn").click();   // spegne, premendo
+    await page.locator('#bp-voce .bp-print-ok').click();   // "Fatto", premendo
+    await expect(page.locator('#bp-voce')).toBeHidden();
 
     const li = page.locator('#lista_alcolici li').first();
-    await expect(li.locator('.mod-qta')).toHaveCount(0);
+    await expect(li.locator('input')).toHaveCount(0);
+    await expect(li).toHaveClass(/voce-corretta/);
     await expect(li.locator('strong')).toHaveClass(/qta-tua/);
     await expect(li.locator('strong')).toHaveText('4 L');
   });
@@ -137,7 +133,7 @@ test.describe('Quantita\' corretta a mano', () => {
     const prima = await leggiRiga(page);
 
     await scrivi(page, 4);
-    await page.locator('#lista_alcolici li .mod-qta-reset').first().click();
+    await page.locator('#bp-voce-ripristina').click();
 
     const dopo = await leggiRiga(page);
     expect(dopo.quantita).toBe(prima.quantita);
@@ -175,7 +171,7 @@ test.describe('Quantita\' corretta a mano', () => {
        — che sarebbe `undefined`, e l'asserzione passerebbe leggendo un
        ripiego. Stesso inciampo gia' fatto con `bpScorte` e `bpPilaModali`. */
     const salvato = await page.evaluate(() => {
-      const c = document.querySelector('#lista_alcolici li .mod-qta');
+      const c = document.querySelector('#bp-voce .mod-qta');
       // eslint-disable-next-line no-undef
       return bpQuantita[c.dataset.riga];
     });

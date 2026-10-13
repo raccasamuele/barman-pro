@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { openApp } from './helpers.js';
+import { openApp, apriVoce } from './helpers.js';
 
 /**
  * La disposizione delle righe della lista.
@@ -97,17 +97,18 @@ test.describe('Lista · disposizione delle righe', () => {
   test.describe('su telefono', () => {
     test.use({ viewport: { width: 375, height: 812 } });
 
+    /* Una voce corretta prende il segno "corretta" accanto al nome: e' il
+       caso in cui il nome ha meno spazio, quindi e' quello da misurare. */
+    const correggiPrima = async (page) => {
+      await apriVoce(page);
+      await page.locator('#bp-voce [data-arg="mod-scorta|1"]').click();
+      await page.locator('#bp-voce .bp-print-ok').click();
+      await expect(page.locator('#lista_alcolici li').first()).toHaveClass(/voce-corretta/);
+    };
+
     test('il nome sta su una riga, non incolonnato lettera per lettera', async ({ page }) => {
       await listaPronta(page);
-
-      /* ⚠️ La prima stesura misurava a modalita' "Correggi" SPENTA, e passava
-         anche sul codice rotto: con tre soli figli il flex lasciava al nome
-         spazio a sufficienza. Lo schiacciamento a 44x115 nasceva quando il
-         blocco dei campi si aggiungeva come quarta colonna invece di andare a
-         capo — cioe' proprio a modalita' accesa. Misurava la situazione in cui
-         il difetto non c'e'. */
-      await page.locator("#bp-modifica-btn").click();   // si preme, non si chiama
-      await expect(page.locator("#lista_alcolici li .mod-qta").first()).toBeVisible();
+      await correggiPrima(page);
 
       const n = await page.evaluate(() => {
         const s = document.querySelector('#lista_alcolici li > span');
@@ -120,10 +121,9 @@ test.describe('Lista · disposizione delle righe', () => {
       expect(n.w, `"${n.testo}" largo solo ${n.w}px`).toBeGreaterThan(120);
     });
 
-    test('in modalita\' Correggi non si sovrappone niente', async ({ page }) => {
+    test('con una voce corretta non si sovrappone niente', async ({ page }) => {
       await listaPronta(page);
-      await page.locator("#bp-modifica-btn").click();   // si preme, non si chiama
-      await expect(page.locator("#lista_alcolici li .mod-qta").first()).toBeVisible();
+      await correggiPrima(page);
 
       const sovrapposizioni = await page.evaluate(() => {
         const li = document.querySelector('#lista_alcolici li');
@@ -149,23 +149,25 @@ test.describe('Lista · disposizione delle righe', () => {
       expect(sovrapposizioni, 'elementi sovrapposti: ' + sovrapposizioni.join(' · ')).toEqual([]);
     });
 
-    test('ogni etichetta resta con il suo campo', async ({ page }) => {
+    test('nella scheda ogni etichetta sta accanto al suo campo, dentro lo schermo', async ({ page }) => {
       await listaPronta(page);
-      await page.locator("#bp-modifica-btn").click();   // si preme, non si chiama
-      await expect(page.locator("#lista_alcolici li .mod-qta").first()).toBeVisible();
+      await apriVoce(page);
 
-      /* Erano quattro figli in fila con flex-wrap: a schermo stretto
-         un'etichetta poteva finire a capo lasciando il suo campo sopra. */
       const coppie = await page.evaluate(() =>
-        [...document.querySelectorAll('#lista_alcolici li .mod-campo')].map((c) => {
-          const l = c.querySelector('.mod-lbl').getBoundingClientRect();
+        [...document.querySelectorAll('#bp-voce-campi .bp-riga')].map((c) => {
+          const l = c.querySelector('label').getBoundingClientRect();
           const i = c.querySelector('input').getBoundingClientRect();
-          return { etichetta: c.querySelector('.mod-lbl').textContent, scarto: Math.round(Math.abs(l.top - i.top)) };
+          return {
+            etichetta: c.querySelector('label').textContent,
+            scarto: Math.round(Math.abs((l.top + l.bottom) / 2 - (i.top + i.bottom) / 2)),
+            fuori: i.right > window.innerWidth || i.left < 0,
+          };
         }));
 
-      expect(coppie.length).toBeGreaterThan(0);
+      expect(coppie.length).toBe(3);
       for (const c of coppie) {
         expect(c.scarto, `"${c.etichetta}" e il suo campo su righe diverse`).toBeLessThan(20);
+        expect(c.fuori, `il campo di "${c.etichetta}" esce dallo schermo`).toBe(false);
       }
     });
   });

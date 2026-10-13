@@ -103,8 +103,8 @@ test.describe('servizio · gli eventi salvati prima ridanno gli stessi numeri', 
     await page.goto('/index.html', { waitUntil: 'load' });
     await page.waitForFunction(() => typeof window.bpEventsOpen === 'function');
     await page.evaluate(() => window.bpEventsOpen());
-    await page.locator('.bpc-evkebab').first().click();
-    await page.locator('.bpc-evmenu.show button[data-act="edit"]').click();
+    await page.locator('.bpc-evcard-main').first().click();
+    await page.locator('.bpe-azioni [data-do="bpEventEdit"]').click();
     const r = await fotografa(page);
     expect(r.servizio).toBe('festa');
     expect(r.nomi).toContain('Gin Tonic');

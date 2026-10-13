@@ -1276,9 +1276,12 @@
             .search-add-row button { width: 100%; }
             .parametri-row { grid-template-columns: 1fr; gap: 16px; }
             .creator-row {
-                grid-template-columns: 1fr 1fr 60px;
+                /* "Analcolico" usciva tagliato: la tendina prende piu' spazio
+                   dei millilitri, che sono al massimo quattro cifre. */
+                grid-template-columns: 1.5fr 1fr 56px;
                 grid-template-areas: "nome nome nome" "tipo ml rim";
             }
+            .creator-row .ing-tipo { min-width: 0; padding-left: 14px; padding-right: 30px; }
             .creator-row .ing-nome { grid-area: nome; }
             .creator-row .ing-tipo { grid-area: tipo; }
             .creator-row .ing-ml   { grid-area: ml; }
@@ -1626,7 +1629,7 @@
         .wizard-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
         .wizard-actions button { flex: 1 1 160px; min-height: 50px; border-radius: 13px; font-family: var(--bp-font); font-weight: 700; font-size: 14.5px; cursor: pointer; padding: 14px 16px; border: 1px solid var(--bp-line-control); background: var(--input-bg); color: var(--text-main); transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
         .wizard-actions button:active { transform: scale(0.98); }
-        .wizard-actions .wz-primary { border: none; background: var(--bp-accent); color: var(--text-dark); box-shadow: none; }
+        .wizard-actions .wz-primary { border: none; background: var(--bp-accent); color: var(--bp-on-accent); box-shadow: none; }
         @media (hover: hover) and (pointer: fine) { .wizard-actions button:hover { border-color: var(--bp-accent); } }
 
         /* ─── "I miei eventi" + checklist interattiva (Fase 3) ─── */
@@ -2047,7 +2050,7 @@
         .bpl-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 13px; }
         .bpl-btn { width: auto; text-transform: none; letter-spacing: 0; font-family: var(--bp-font); font-weight: 600; font-size: 13px; padding: 9px 15px; border-radius: 10px; border: 1px solid var(--bp-line-control); background: var(--input-bg); color: var(--text-main); cursor: pointer; }
         .bpl-btn:hover { border-color: var(--bp-accent); }
-        .bpl-btn.primary { background: var(--accent-gold-1); color: var(--text-dark); border-color: var(--accent-gold-1); }
+        .bpl-btn.primary { background: var(--accent-gold-1); color: var(--bp-on-accent); border-color: var(--accent-gold-1); }
         .bpl-btn.primary:hover { background: var(--accent-gold-2); }
         .bpl-btn.danger { color: var(--danger-color); }
         .bpl-btn.danger:hover { border-color: var(--bp-danger); }
@@ -2850,21 +2853,6 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .bph-salvato-nome { font-family: var(--bp-font); font-size: var(--t-base); font-weight: 700; color: var(--bp-ink); }
 .bph-salvato-meta { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); }
 
-/* Conferma dopo un salvataggio verificato. Non e' un bottone fisso: esiste
-   solo quando c'e' davvero qualcosa da aprire. */
-.bp-post-salvataggio {
-    display: flex; align-items: center; justify-content: space-between; gap: 14px;
-    flex-wrap: wrap; margin-top: 18px; padding: 14px 18px;
-    background: var(--bp-accent-soft); border: 1px solid var(--bp-accent-soft);
-    border-radius: var(--r-lg);
-}
-.bp-post-tx { font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 600; color: var(--bp-accent-ink); }
-.bp-post-vai {
-    width: auto; padding: 9px 16px; background: var(--bp-accent); color: var(--bp-on-accent);
-    border: none; border-radius: var(--r-md); font-family: var(--bp-font);
-    font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer;
-}
-
 /* ═══════════════════════════════════════════════════════════
    FOGLIO DI STAMPA
    ═══════════════════════════════════════════════════════════
@@ -2944,65 +2932,92 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .bp-print-annulla { background: none; border: 1px solid var(--bp-line-control); color: var(--bp-ink-soft); }
 .bp-print-ok { background: var(--bp-accent); border: none; color: var(--bp-on-accent); }
 
-/* ── Correggi la lista: "ho gia'" e "il tuo prezzo" ──
-   Compaiono solo in modalita' correzione. Con la modalita' spenta questi
-   elementi non esistono, ed e' voluto: la lista di default resta quella che
-   i golden fotografano. */
-.bp-modifica-btn {
-    width: auto; margin: 0 auto 14px; display: block; padding: 9px 18px;
-    background: none; border: 1px solid var(--bp-line-control); border-radius: 999px;
-    color: var(--bp-ink-soft); font-family: var(--bp-font); font-size: var(--t-sm);
-    font-weight: 600; text-transform: none; letter-spacing: 0; cursor: pointer;
+/* ── Correggere una voce ──
+   Niente piu' modalita': la riga si tocca e sale una scheda solo per lei. */
+#risultati li.voce-tocca { cursor: pointer; border-radius: var(--r-sm); transition: background-color 150ms ease; }
+@media (hover: hover) { #risultati li.voce-tocca:hover { background: var(--bp-sunken); } }
+#risultati li.voce-tocca:focus-visible { outline: 2px solid var(--bp-accent); outline-offset: 2px; }
+/* "corretta" e' un ::after: non entra nel testo della riga, che e' quello
+   che i golden fotografano e che finisce nell'evento salvato. */
+#risultati li.voce-corretta > span[data-badge]::after {
+    content: attr(data-badge);
+    display: inline-block; margin-left: 8px; padding: 1px 7px; vertical-align: 2px;
+    border-radius: 999px; background: var(--bp-accent-soft); color: var(--bp-accent-ink);
+    font-size: var(--t-xs); font-weight: 700;
 }
-.bp-modifica-btn[aria-pressed="true"] { background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-on-accent); }
+.bp-lista-tocca { margin: 6px 0 0; text-align: center; font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); }
 
-.riga-mod {
-    grid-column: 1 / -1;
-    display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px;
-    margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--bp-line);
-}
-/* Etichetta e campo stanno insieme: erano quattro figli in fila, e a schermo
-   stretto il flex-wrap poteva mandare a capo un'etichetta lasciando il suo
-   campo sulla riga sopra. */
-.mod-campo { display: flex; align-items: center; gap: 8px; flex: 0 1 auto; min-width: 0; }
-.mod-lbl { font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 600; color: var(--bp-ink-faint); text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
-
-/* Un campo che non conta piu' lo dichiara, invece di sembrare attivo. */
-.mod-campo-inerte { opacity: .5; }
-.mod-campo-inerte .mod-scorta { text-decoration: line-through; }
-
-/* Una quantita' decisa a mano si vede anche a modalita' spenta: sopravvive ai
-   ricalcoli, quindi deve dire di esserci. */
+/* Una quantita' decisa a mano si vede: sopravvive ai ricalcoli. */
 .mod-qta-tua { border-color: var(--bp-accent) !important; color: var(--bp-accent-ink); font-weight: 700; }
 #risultati li > strong.qta-tua { color: var(--bp-accent-ink); border-bottom: 2px solid var(--bp-accent); }
 
-.mod-qta-reset {
-    flex: none; width: 30px; height: 30px; padding: 0; line-height: 1;
-    display: inline-flex; align-items: center; justify-content: center;
-    background: transparent; border: 1px solid var(--bp-line-control);
-    border-radius: var(--r-sm); color: var(--bp-ink-soft);
-    font-size: 15px; cursor: pointer;
+/* La scheda: in fondo allo schermo sul telefono, al centro sul desktop. */
+.bp-sheet { max-width: 480px; }
+.bp-sheet-in { padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+.bp-sheet-testa { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.bp-sheet-testa .bp-print-tit { margin: 4px 0 0; }
+.bp-sheet-x {
+    flex: none; width: 40px; height: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+    background: none; border: 1px solid var(--bp-line-control); border-radius: var(--r-md);
+    color: var(--bp-ink-soft); font-size: 22px; line-height: 1; cursor: pointer;
 }
-.mod-qta-reset:hover { border-color: var(--bp-accent); color: var(--bp-accent); }
-.riga-mod input {
-    width: 5.5rem; min-width: 0; padding: 6px 8px; text-align: right;
-    background: var(--bp-panel); border: 1px solid var(--bp-line-control);
-    border-radius: var(--r-sm); color: var(--bp-ink);
-    font-family: var(--bp-font); font-size: var(--t-sm); font-variant-numeric: tabular-nums;
-}
-.riga-mod input:focus { border-color: var(--bp-accent); outline: 2px solid var(--bp-accent-soft); outline-offset: 1px; }
-/* Un prezzo corretto a mano si vede: e' un dato tuo, non una stima. */
-.mod-prezzo-tuo { border-color: var(--bp-accent) !important; color: var(--bp-accent-ink); font-weight: 700; }
-
-/* Tre campi affiancati non stanno in 375px: sotto quella soglia ognuno
-   prende la sua riga, con l'etichetta a sinistra e il campo a destra. */
+.bp-voce-calc { margin: 0; font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); font-variant-numeric: tabular-nums; }
+.bp-voce-campi { margin: 0; }
+.bp-voce-campi .bp-riga-lbl { font-size: var(--t-sm); text-transform: none; letter-spacing: 0; }
+.bp-voce-campi .mod-prezzo { width: 7.5rem; }
+.bp-voce-nota:empty { display: none; }
+.bp-voce-nota { margin: 0; padding: 10px 14px; font-family: var(--bp-font); font-size: var(--t-xs); color: var(--bp-ink-faint); }
+.mod-campo-inerte .bp-stepper { opacity: .5; }
+.mod-campo-inerte .mod-scorta { text-decoration: line-through; }
+.bp-sheet .bp-print-annulla:disabled { opacity: .4; cursor: default; }
 @media (max-width: 600px) {
-    .riga-mod { flex-direction: column; align-items: stretch; gap: 8px; }
-    .mod-campo { justify-content: space-between; }
-    .mod-campo input { flex: 0 0 auto; }
+    .bp-sheet {
+        width: 100vw; max-width: 100vw; margin: auto 0 0; max-height: 92vh;
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
 }
 
-@media print { .bp-modifica-btn, .riga-mod { display: none !important; } }
+/* Condividi: le due scelte sono bottoni grandi, non radio. */
+.bp-share-op { width: 100%; text-align: left; background: var(--bp-panel); color: var(--bp-ink); text-transform: none; letter-spacing: 0; }
+.bp-share-op:hover { border-color: var(--bp-accent); background: var(--bp-accent-soft); transform: none; }
+
+/* La Lista: un'azione sola, nella barra in fondo come nella pagina Evento. */
+.step-panel[data-stepid="risultati"] .bp-lista-azione { display: flex; }
+
+/* ── L'evento salvato ── */
+.bpe-tot { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 14px 0 16px; font-family: var(--bp-font); }
+.bpe-tot b { font-size: var(--t-xl, 28px); font-weight: 800; color: var(--bp-ink); font-variant-numeric: tabular-nums; }
+.bpe-tot span { font-size: var(--t-sm); color: var(--bp-ink-faint); }
+.bpe-azioni { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
+@media (max-width: 480px) { .bpe-azioni { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.bpe-az {
+    width: 100%; min-height: 46px; padding: 10px 8px; border-radius: var(--r-md);
+    border: 1px solid var(--bp-line-control); background: var(--bp-panel); color: var(--bp-ink);
+    font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+.bpe-az:first-child { background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-on-accent); }
+.bpe-az:hover { transform: none; border-color: var(--bp-accent); }
+.bpe-az:first-child:hover { background: var(--bp-accent-hover); }
+.bpe-schede { padding-bottom: 14px; }
+
+.bpe-prev-gr { margin-bottom: 18px; }
+.bpe-prev-gr .gt { font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--bp-accent-ink); padding-bottom: 6px; border-bottom: 1px solid var(--bp-line); }
+.bpe-prev-riga, .bpe-prev-sub {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto 6.5rem; gap: 10px; align-items: baseline;
+    padding: 9px 0; border-bottom: 1px solid var(--bp-line);
+    font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink); font-variant-numeric: tabular-nums;
+}
+.bpe-prev-riga .qt { color: var(--bp-ink-faint); text-align: right; }
+.bpe-prev-riga .cs, .bpe-prev-sub .cs { text-align: right; }
+.bpe-prev-sub { grid-template-columns: minmax(0, 1fr) 6.5rem; border-bottom: none; font-weight: 700; color: var(--bp-ink-soft); }
+.bpe-prev-totale {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    margin-top: 6px; padding: 14px 0 4px; border-top: 2px solid var(--bp-ink);
+    font-family: var(--bp-font); font-size: var(--t-base); font-weight: 700;
+}
+.bpe-prev-totale b { font-size: var(--t-md); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bpe-prev-pp { margin: 4px 0 0; font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); text-align: right; }
 
 /* Bozza messa da parte: e' il modo in cui la promessa "il tuo lavoro non
    viene toccato" si mantiene, invece di essere solo scritta nel messaggio. */
@@ -3072,25 +3087,27 @@ body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .s
 
 /* − valore + */
 .bp-stepper { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
-.bp-ev .bp-step-btn {
+.bp-ev .bp-step-btn, .bp-sheet .bp-step-btn {
     width: 40px; height: 40px; padding: 0; flex: 0 0 auto;
     display: grid; place-items: center;
     border: 1px solid var(--bp-line-control); border-radius: var(--r-md);
     background: var(--bp-panel); color: var(--bp-ink);
     font-size: 20px; font-weight: 500; line-height: 1; text-transform: none; letter-spacing: 0;
 }
-.bp-ev .bp-step-btn:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-panel); }
-.bp-ev .bp-step-btn:active { transform: scale(0.94); }
-.bp-ev .bp-stepper input[type="number"] {
+.bp-ev .bp-step-btn:hover, .bp-sheet .bp-step-btn:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-panel); }
+.bp-ev .bp-step-btn:active, .bp-sheet .bp-step-btn:active { transform: scale(0.94); }
+.bp-ev .bp-stepper input[type="number"], .bp-sheet .bp-stepper input[type="number"] {
     width: 56px; padding: 6px 2px; margin: 0;
     text-align: center; font-size: var(--t-md); font-weight: 700; color: var(--bp-ink);
     font-variant-numeric: tabular-nums;
     background: none; border: 1px solid transparent; border-radius: var(--r-sm); box-shadow: none;
     -moz-appearance: textfield;
 }
-.bp-ev .bp-stepper input[type="number"]:focus { border-color: var(--bp-accent); background: var(--bp-panel); transform: none; box-shadow: none; }
+.bp-ev .bp-stepper input[type="number"]:focus, .bp-sheet .bp-stepper input[type="number"]:focus { border-color: var(--bp-accent); background: var(--bp-panel); transform: none; box-shadow: none; }
 .bp-ev .bp-stepper input::-webkit-outer-spin-button,
-.bp-ev .bp-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.bp-ev .bp-stepper input::-webkit-inner-spin-button,
+.bp-sheet .bp-stepper input::-webkit-outer-spin-button,
+.bp-sheet .bp-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 .bp-ev select.bp-select {
     width: auto; max-width: 62%; flex: 0 1 auto; text-overflow: ellipsis; padding: 8px 30px 8px 10px; margin: 0;

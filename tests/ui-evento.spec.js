@@ -54,7 +54,7 @@ test.describe('Evento · una pagina sola', () => {
     await apriEvento(page);
     await expect(page.locator('[data-stepid="step-setup"]')).toBeVisible();
     await expect(page.locator('[data-stepid="step-menu"]')).toBeVisible();
-    await expect(page.locator('.bp-ev-azione')).toBeVisible();
+    await expect(page.locator('.bp-ev-azione:not(.bp-lista-azione)')).toBeVisible();
 
     // Il passo salvato resta quello chiesto: "riprendi" deve portare al menu.
     await page.evaluate(() => window.vaiAStep('step-menu'));
@@ -67,7 +67,9 @@ test.describe('Evento · una pagina sola', () => {
     });
     await expect(page.locator('[data-stepid="risultati"]')).toBeVisible();
     await expect(page.locator('[data-stepid="step-setup"]')).toBeHidden();
-    await expect(page.locator('.bp-ev-azione')).toBeHidden();
+    await expect(page.locator('.bp-ev-azione:not(.bp-lista-azione)')).toBeHidden();
+    // nella lista c'e' la sua barra, con "Salva evento"
+    await expect(page.locator('.bp-lista-azione')).toBeVisible();
   });
 
   test('la barra mostra il costo appena c\'e\' un menu', async ({ page }) => {

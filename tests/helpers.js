@@ -162,3 +162,16 @@ export function toNumber(euro) {
   const m = String(euro).replace(/[^\d.,]/g, '').replace(/\./g, '').replace(',', '.');
   return Number.parseFloat(m);
 }
+
+/**
+ * Tocca una voce della lista e aspetta la scheda per correggerla.
+ * Si PREME la riga, non si chiama bpVoceApri: una riga coperta o scollegata
+ * dalla delega dei click deve far fallire il test.
+ */
+export async function apriVoce(page, selettore = '#lista_alcolici li[data-voce]') {
+  const li = page.locator(selettore).first();
+  await li.scrollIntoViewIfNeeded();
+  await li.click();
+  await expect(page.locator('#bp-voce')).toBeVisible();
+  await expect(page.locator('#bp-voce .mod-qta')).toBeVisible();
+}

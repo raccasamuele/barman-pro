@@ -577,41 +577,22 @@
             <ul id="lista_garnish"></ul>
         </div>
 
-        <!-- Modalita' correzione: fuori dalle azioni, perche' non e' un'azione
-             ma un modo di guardare la stessa lista. Con la modalita' spenta il
-             DOM della lista e' identico a prima. -->
-        <button type="button" id="bp-modifica-btn" class="bp-modifica-btn" aria-pressed="false" data-do="bpAlternaModifica">
-            <span data-i18n="modAttiva">Correggi</span>
-        </button>
-
-        <!-- Quattro azioni, non otto. "Copia testo" spariva dietro
-             "Condividi", che gia' ricade sulla copia quando la condivisione
-             nativa non c'e'; "Nuovo evento" su una schermata di risultati
-             invitava a buttare via il lavoro appena fatto; "Crea menu' da
-             esporre" e' passato in "Altro". La funzione copiaListaTesto resta:
-             e' la ricaduta di condividiLista da desktop. -->
-        <div class="action-buttons">
-            <!-- U+279C, non U+27A4: e' la freccia che il JavaScript scriveva qui sopra
-                 finche' traduceva per posizione. La Fase 0 non cambia nulla a schermo. -->
-            <button data-do="condividiLista">&#10140; <span data-i18n="btnCondividi">Condividi</span></button>
-            <button data-do="stampaLista"><span data-i18n="btnStampa">Stampa o salva in PDF</span></button>
-            <button data-do="bpCondividiLink"><span data-i18n="linkCondividi">Condividi con un link</span></button>
-        </div>
-
-        <div class="wizard-actions">
-            <button class="wz-primary" data-do="bpSalvaEvento"><span data-i18n="cfgSalvaEvento">Salva evento</span></button>
-            <button data-do="vaiAStep" data-arg="step-menu">&#9998; <span data-i18n="cfgModificaMenu">Modifica menu</span></button>
-        </div>
+        <!-- Correggere non e' piu' una modalita' da accendere: si tocca la
+             voce e sale una scheda solo per quella (bpVoceApri). -->
+        <p class="bp-lista-tocca" data-i18n="vocTocca">Tocca una voce per correggerla: quanto comprarne, cosa hai gi&agrave;, il prezzo.</p>
 
     </div>
 
-        <!-- La conferma dopo il salvataggio la costruisce bpSalvaEvento, e solo
-             dopo una scrittura VERIFICATA. Prima qui c'era un bottone fisso:
-             invitava ad aprire un elenco che poteva essere ancora vuoto. -->
-        <div id="bp-post-salvataggio" class="bp-post-salvataggio" hidden></div>
+        <!-- Un'azione sola. Condividere, stampare e il menu' si fanno
+             dall'evento salvato, dove c'e' anche il preventivo. -->
+        <div class="bp-ev-azione bp-lista-azione">
+            <div class="stima-live">
+                <span class="sl-tot" id="bp-lista-tot">€ 0</span>
+                <span class="sl-pp" id="bp-lista-pp"></span>
+            </div>
+            <button type="button" class="bp-ev-genera" data-do="bpSalvaEvento" data-i18n="cfgSalvaEvento">Salva evento</button>
+        </div>
     </div>
-
-
     </div>
 
     <!-- ─── FOOTER ─── -->
@@ -667,6 +648,47 @@
 
     <!-- Scelta del formato. <dialog> nativo: niente script inline (la CSP li
          vieta) e niente dipendenze. -->
+    <!-- Correggere una voce della lista. Una scheda per voce, invece di tre
+         campi aperti sotto ogni riga: si riempie in bpVoceApri. I campi hanno
+         le stesse classi di prima (mod-qta, mod-scorta, mod-prezzo), quindi li
+         legge lo stesso bpModificatoreCambiato. -->
+    <dialog id="bp-voce" class="bp-print-dialog bp-sheet" aria-labelledby="bp-voce-tit">
+        <div class="bp-sheet-in">
+            <div class="bp-sheet-testa">
+                <h2 class="bp-print-tit" id="bp-voce-tit"></h2>
+                <button type="button" class="bp-sheet-x" data-do="bpVoceChiudi" aria-label="Chiudi" data-i18n-aria="ariaChiudi">&times;</button>
+            </div>
+            <p class="bp-voce-calc" id="bp-voce-calc"></p>
+            <div class="bp-gruppo bp-voce-campi" id="bp-voce-campi"></div>
+            <div class="bp-print-azioni">
+                <button type="button" class="bp-print-annulla" id="bp-voce-ripristina" data-do="bpVoceRipristina" data-i18n="vocRipristina">Ripristina</button>
+                <button type="button" class="bp-print-ok" data-do="bpVoceChiudi" data-i18n="vocFatto">Fatto</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Condividere un evento salvato: la lista come testo, oppure un link. -->
+    <dialog id="bp-share-dialog" class="bp-print-dialog">
+        <form method="dialog" class="bp-print-form">
+            <h2 class="bp-print-tit" data-i18n="shTitolo">Cosa vuoi condividere?</h2>
+            <button type="submit" value="testo" class="bp-print-op bp-share-op">
+                <span class="bp-print-op-tx">
+                    <span class="bp-print-op-nome" data-i18n="shTesto">La lista, come testo</span>
+                    <span class="bp-print-op-desc" data-i18n="shTestoDesc">Per WhatsApp o email: voci, quantit&agrave; e totale.</span>
+                </span>
+            </button>
+            <button type="submit" value="link" class="bp-print-op bp-share-op">
+                <span class="bp-print-op-tx">
+                    <span class="bp-print-op-nome" data-i18n="shLink">Un link all'evento</span>
+                    <span class="bp-print-op-desc" data-i18n="shLinkDesc">Chi lo apre ritrova l'evento nell'app e ne modifica una copia.</span>
+                </span>
+            </button>
+            <div class="bp-print-azioni">
+                <button type="submit" value="annulla" class="bp-print-annulla" data-i18n="printAnnulla">Annulla</button>
+            </div>
+        </form>
+    </dialog>
+
     <dialog id="bp-print-dialog" class="bp-print-dialog">
         <form method="dialog" class="bp-print-form">
             <h2 class="bp-print-tit" data-i18n="printTitolo">Come vuoi il foglio?</h2>

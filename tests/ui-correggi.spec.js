@@ -1,98 +1,99 @@
 import { test, expect } from '@playwright/test';
-import { openApp } from './helpers.js';
+import { openApp, apriVoce } from './helpers.js';
 
 /**
- * "Il tasto Correggi non funziona, non succede proprio niente."
+ * Correggere una voce della lista (ottobre 2026).
  *
- * Era vero. `bpAlternaModifica()` accendeva la modalita' e poi chiamava
- * `calcolaSpesa(true)`; quando il modello non sa calcolare — menu' vuoto, o
- * ospiti e drink non impostati — `calcolaSpesa` esce prima di ridisegnare e,
- * essendo silenziosa, non dice niente. La classe finiva sul body, la lista non
- * veniva rifatta, i campi non comparivano: a schermo, nulla. Nessun errore in
- * console.
- *
- * ⚠️ Perche' i test non l'avevano visto: preparavano SEMPRE un evento completo
- *    prima di premere. Il difetto vive nel caso in cui non c'e' niente da
- *    correggere — cioe' in quello che capita esplorando l'app la prima volta.
- *    Un caso mai costruito e' un caso mai protetto.
+ * Prima "Correggi" era una modalita': accesa, apriva tre campi sotto OGNI
+ * riga ("Da comprare", "Ho gia'", "Il tuo prezzo"). Con quattordici voci
+ * erano quarantadue campi e una pagina lunghissima; l'utente l'ha chiamata
+ * "un po' confusionaria". Ora si tocca una voce e sale una scheda solo per
+ * lei. La lista resta pulita: nessun campo dentro, nessun bottone da
+ * accendere.
  */
 
-test.describe('Correggi · quando non c\'e\' niente da correggere', () => {
+async function lista(page) {
+  await openApp(page);
+  await page.evaluate(() => {
+    const set = (id, v) => {
+      const e = document.getElementById(id);
+      e.value = String(v);
+      e.dispatchEvent(new Event('input', { bubbles: true }));
+      e.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    set('ospiti', 40);
+    set('drink_testa', 3);
+    window.bpMenuAggiungi('Negroni');
+    window.vaiAStep('risultati');
+    window.calcolaSpesa(true);
+  });
+  await expect(page.locator('#lista_alcolici li').first()).toBeVisible();
+}
 
-  test('senza menu\' la modalita\' non si accende, e l\'app dice perche\'', async ({ page }) => {
-    await openApp(page);
-
-    /* ⚠️ Non si puo' arrivare alla lista SENZA menu': `vaiAStep('risultati')`
-       si rifiuta, quindi il bottone non e' nemmeno raggiungibile — verificato,
-       e la mia prima ricostruzione del difetto era sbagliata proprio qui.
-       La via raggiungibile e' l'altra: si arriva alla lista con un menu', e
-       POI lo stato smette di essere calcolabile (si torna indietro e si svuota
-       il menu', o si azzerano gli ospiti). Il pannello resta aperto, il
-       bottone resta li', e premerlo non faceva niente in silenzio. */
-    await page.evaluate(() => {
-      const set = (id, v) => {
-        const e = document.getElementById(id);
-        e.value = String(v);
-        e.dispatchEvent(new Event('input', { bubbles: true }));
-        e.dispatchEvent(new Event('change', { bubbles: true }));
-      };
-      set('ospiti', 40);
-      set('drink_testa', 3);
-      // eslint-disable-next-line no-undef
-      if (databaseDrink['Negroni']) { window.bpMenuAggiungi('Negroni'); }
-      window.vaiAStep('risultati');
-      window.calcolaSpesa(true);
-
-      // ora il menu' si svuota: la lista resta a schermo, il modello non calcola piu'
-      // eslint-disable-next-line no-undef
-      menuSerataDrink = {};
-      // eslint-disable-next-line no-undef
-      menuSerataMocktail = {};
-      // eslint-disable-next-line no-undef
-      menuSerataShot = {};
-    });
-
-    const btn = page.locator('#bp-modifica-btn');
-    await btn.scrollIntoViewIfNeeded();
-    await btn.click();
-
-    // niente modalita' accesa a vuoto...
-    await expect(btn).toHaveAttribute('aria-pressed', 'false');
-    expect(await page.evaluate(() => document.body.classList.contains('bp-modifica-lista')),
-      'la modalita\' si e\' accesa pur non avendo niente da mostrare').toBe(false);
-
-    // ...e soprattutto: qualcosa lo ha detto
-    const avviso = await page.evaluate(() => {
-      const t = [...document.querySelectorAll('.toast, #toast, [class*="toast"]')]
-        .map((e) => (e.textContent || '').trim()).filter(Boolean);
-      return t.join(' | ');
-    });
-    expect(avviso, 'premendo non e\' comparso nessun messaggio: il silenzio era il difetto').not.toBe('');
+test.describe('Correggi · una scheda per voce', () => {
+  test('nella lista non c\'e\' piu\' un bottone Correggi ne\' un campo', async ({ page }) => {
+    await lista(page);
+    await expect(page.locator('#bp-modifica-btn')).toHaveCount(0);
+    await expect(page.locator('#risultati input')).toHaveCount(0);
+    await expect(page.locator('.bp-lista-tocca')).toBeVisible();
   });
 
-  test('con un menu\' vero si accende e mostra i campi', async ({ page }) => {
-    await openApp(page);
-    await page.evaluate(() => {
-      const set = (id, v) => {
-        const e = document.getElementById(id);
-        e.value = String(v);
-        e.dispatchEvent(new Event('input', { bubbles: true }));
-        e.dispatchEvent(new Event('change', { bubbles: true }));
-      };
-      set('ospiti', 40);
-      set('drink_testa', 3);
-      // eslint-disable-next-line no-undef
-      if (databaseDrink['Negroni']) { window.bpMenuAggiungi('Negroni'); }
-      window.vaiAStep('risultati');
-      window.calcolaSpesa(true);
-    });
+  test('toccare una voce apre la sua scheda, con il suo nome e i tre campi', async ({ page }) => {
+    await lista(page);
+    const nome = (await page.locator('#lista_alcolici li > span').first().textContent()).trim();
+    await apriVoce(page);
+    await expect(page.locator('#bp-voce-tit')).toHaveText(nome);
+    for (const c of ['.mod-qta', '.mod-scorta', '.mod-prezzo']) {
+      await expect(page.locator('#bp-voce ' + c)).toBeVisible();
+    }
+    // senza correzioni non c'e' niente da ripristinare
+    await expect(page.locator('#bp-voce-ripristina')).toBeDisabled();
+  });
 
-    const btn = page.locator('#bp-modifica-btn');
-    await btn.scrollIntoViewIfNeeded();
-    await btn.click();
+  test('la tastiera apre la scheda: Tab sulla riga, poi Invio', async ({ page }) => {
+    await lista(page);
+    await page.locator('#lista_alcolici li[data-voce]').first().focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#bp-voce')).toBeVisible();
+  });
 
-    await expect(btn).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('#lista_alcolici li .mod-qta').first()).toBeVisible();
-    await expect(page.locator('#lista_alcolici li .mod-scorta').first()).toBeVisible();
+  test('i bottoni − / + cambiano la quantita\' partendo dal numero dell\'app', async ({ page }) => {
+    await lista(page);
+    await apriVoce(page);
+    const calcolata = parseFloat(await page.locator('#bp-voce .mod-qta').getAttribute('data-calc'));
+    await page.locator('#bp-voce [data-arg="mod-qta|1"]').click();
+    await expect(page.locator('#bp-voce .mod-qta')).toHaveValue(String(calcolata + 0.5));
+    await expect(page.locator('#lista_alcolici li').first().locator('strong')).toHaveText((calcolata + 0.5) + ' L');
+    await expect(page.locator('#bp-voce-ripristina')).toBeEnabled();
+  });
+
+  test('una voce corretta e\' segnata, ma il suo testo non cambia', async ({ page }) => {
+    await lista(page);
+    const li = page.locator('#lista_alcolici li').first();
+    const nome = await li.locator('span').first().textContent();
+    await apriVoce(page);
+    await page.locator('#bp-voce [data-arg="mod-scorta|1"]').click();
+    await page.locator('#bp-voce .bp-print-ok').click();
+    await expect(page.locator('#bp-voce')).toBeHidden();
+
+    await expect(li).toHaveClass(/voce-corretta/);
+    // il segno e' un ::after: il nome nel DOM resta quello, e cosi' cio' che
+    // finisce nell'evento salvato e nei golden
+    expect(await li.locator('span').first().textContent()).toBe(nome);
+    const segno = await li.locator('span').first().evaluate((s) => getComputedStyle(s, '::after').content);
+    expect(segno).toContain('corretta');
+  });
+
+  test('un tocco fuori dalla scheda la chiude', async ({ page }) => {
+    await lista(page);
+    await apriVoce(page);
+    await page.mouse.click(5, 5);
+    await expect(page.locator('#bp-voce')).toBeHidden();
+  });
+
+  test('le guarnizioni non si toccano: non hanno dose', async ({ page }) => {
+    await lista(page);
+    await expect(page.locator('#lista_garnish li').first()).toBeVisible();
+    await expect(page.locator('#lista_garnish li[data-voce]')).toHaveCount(0);
   });
 });

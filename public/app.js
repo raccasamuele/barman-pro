@@ -2545,21 +2545,23 @@
             return st;
         }
 
-        function bpCreaLink() {
-            const payload = BP_LINK_PREFISSO + _bpB64urlEnc(JSON.stringify(bpStatoPerLink()));
+        function bpCreaLink(st) {
+            const payload = BP_LINK_PREFISSO + _bpB64urlEnc(JSON.stringify(st || bpStatoPerLink()));
             if (payload.length > BP_LINK_MAX) return { ok: false, motivo: 'troppo-lungo', lunghezza: payload.length };
             return { ok: true, url: location.origin + location.pathname + '#e=' + payload, lunghezza: payload.length };
         }
 
-        function bpCondividiLink() {
-            if (!bpHasInProgress()) { alert(T('alertNienteMenu')); return; }
-            const r = bpCreaLink();
+        function bpCondividiLink(st) {
+            if (!st || typeof st !== 'object') st = null;   // dal dispatcher puo' arrivare una stringa
+            if (!st && !bpHasInProgress()) { alert(T('alertNienteMenu')); return; }
+            const r = bpCreaLink(st);
             if (!r.ok) {
                 // La ricaduta non e' una libreria di compressione: e' il file.
                 alert(T('linkTroppoLungo'));
                 return;
             }
-            const titolo = (bpCfgNomeEvento && bpCfgNomeEvento.trim()) ? bpCfgNomeEvento.trim() : T('copyHeader');
+            const titolo = (st && st.nm) ? st.nm
+                         : (bpCfgNomeEvento && bpCfgNomeEvento.trim()) ? bpCfgNomeEvento.trim() : T('copyHeader');
             if (navigator.share) {
                 navigator.share({ title: titolo, text: T('linkTesto'), url: r.url })
                     .catch(err => { if (!err || err.name !== 'AbortError') bpCopiaNegliAppunti(r.url); });
@@ -4303,7 +4305,6 @@ Annulla = ` + T('backupUnisci'));
             // Dove sono arrivato: serve a riprendere dal punto giusto invece
             // che dall'inizio, e alla Home per dire a che punto sei.
             if (BP_PASSI.indexOf(id) !== -1) { bpPassoCorrente = id; programmaSalvataggio(); }
-            if (id !== 'risultati') bpNascondiConfermaSalvataggio();
             // Riporta in alto il pannello attivo, sotto lo stepper sticky
             const panel = document.querySelector('.step-panel[data-stepid="' + id + '"]');
             if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -4908,6 +4909,31 @@ Annulla = ` + T('backupUnisci'));
             pt: { libTipoAuto:"Ingrediente conhecido: o tipo é definido pela app" },
             nl: { libTipoAuto:"Bekend ingrediënt: de app bepaalt het type" }
         };
+        /* Lista con un'azione sola, scheda di una voce, evento salvato. */
+        const _hubI18n = {
+            it: { vocTocca:"Tocca una voce per correggerla: quanto comprarne, cosa hai già, il prezzo.", vocCorretta:"corretta", vocRipristina:"Ripristina", vocFatto:"Fatto", vocNellaLista:"Nella lista",
+                  evTabCompra:"Da comprare", evStampaBreve:"Stampa / PDF", evMenuBreve:"Menù", evSubtotale:"Subtotale",
+                  shTitolo:"Cosa vuoi condividere?", shTesto:"La lista, come testo", shTestoDesc:"Per WhatsApp o email: voci, quantità e totale.", shLink:"Un link all'evento", shLinkDesc:"Chi lo apre ritrova l'evento nell'app e ne modifica una copia." },
+            en: { vocTocca:"Tap an item to correct it: how much to buy, what you already have, the price.", vocCorretta:"edited", vocRipristina:"Reset", vocFatto:"Done", vocNellaLista:"In the list",
+                  evTabCompra:"To buy", evStampaBreve:"Print / PDF", evMenuBreve:"Menu", evSubtotale:"Subtotal",
+                  shTitolo:"What do you want to share?", shTesto:"The list, as text", shTestoDesc:"For WhatsApp or email: items, quantities and total.", shLink:"A link to the event", shLinkDesc:"Whoever opens it finds the event in the app and edits a copy." },
+            es: { vocTocca:"Toca un artículo para corregirlo: cuánto comprar, qué ya tienes, el precio.", vocCorretta:"corregido", vocRipristina:"Restablecer", vocFatto:"Hecho", vocNellaLista:"En la lista",
+                  evTabCompra:"Por comprar", evStampaBreve:"Imprimir / PDF", evMenuBreve:"Menú", evSubtotale:"Subtotal",
+                  shTitolo:"¿Qué quieres compartir?", shTesto:"La lista, como texto", shTestoDesc:"Para WhatsApp o email: artículos, cantidades y total.", shLink:"Un enlace al evento", shLinkDesc:"Quien lo abra encuentra el evento en la app y edita una copia." },
+            fr: { vocTocca:"Touche un article pour le corriger : combien en acheter, ce que tu as déjà, le prix.", vocCorretta:"corrigé", vocRipristina:"Réinitialiser", vocFatto:"Terminé", vocNellaLista:"Dans la liste",
+                  evTabCompra:"À acheter", evStampaBreve:"Imprimer / PDF", evMenuBreve:"Menu", evSubtotale:"Sous-total",
+                  shTitolo:"Que veux-tu partager ?", shTesto:"La liste, en texte", shTestoDesc:"Pour WhatsApp ou e-mail : articles, quantités et total.", shLink:"Un lien vers l'événement", shLinkDesc:"Qui l'ouvre retrouve l'événement dans l'app et en modifie une copie." },
+            de: { vocTocca:"Tippe auf einen Posten, um ihn zu korrigieren: wie viel kaufen, was du schon hast, den Preis.", vocCorretta:"korrigiert", vocRipristina:"Zurücksetzen", vocFatto:"Fertig", vocNellaLista:"In der Liste",
+                  evTabCompra:"Einkaufen", evStampaBreve:"Drucken / PDF", evMenuBreve:"Menü", evSubtotale:"Zwischensumme",
+                  shTitolo:"Was möchtest du teilen?", shTesto:"Die Liste als Text", shTestoDesc:"Für WhatsApp oder E-Mail: Posten, Mengen und Summe.", shLink:"Ein Link zum Event", shLinkDesc:"Wer ihn öffnet, findet das Event in der App und bearbeitet eine Kopie." },
+            pt: { vocTocca:"Toca num item para o corrigir: quanto comprar, o que já tens, o preço.", vocCorretta:"corrigido", vocRipristina:"Repor", vocFatto:"Feito", vocNellaLista:"Na lista",
+                  evTabCompra:"Por comprar", evStampaBreve:"Imprimir / PDF", evMenuBreve:"Menu", evSubtotale:"Subtotal",
+                  shTitolo:"O que queres partilhar?", shTesto:"A lista, como texto", shTestoDesc:"Para WhatsApp ou email: itens, quantidades e total.", shLink:"Uma ligação para o evento", shLinkDesc:"Quem a abrir encontra o evento na app e edita uma cópia." },
+            nl: { vocTocca:"Tik op een item om het te corrigeren: hoeveel kopen, wat je al hebt, de prijs.", vocCorretta:"aangepast", vocRipristina:"Herstellen", vocFatto:"Klaar", vocNellaLista:"In de lijst",
+                  evTabCompra:"Te kopen", evStampaBreve:"Afdrukken / PDF", evMenuBreve:"Menu", evSubtotale:"Subtotaal",
+                  shTitolo:"Wat wil je delen?", shTesto:"De lijst als tekst", shTestoDesc:"Voor WhatsApp of e-mail: items, hoeveelheden en totaal.", shLink:"Een link naar het evenement", shLinkDesc:"Wie hem opent, vindt het evenement in de app en bewerkt een kopie." }
+        };
+        Object.keys(_hubI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _hubI18n[lg]); });
         Object.keys(_tipoI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _tipoI18n[lg]); });
         Object.keys(_servI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _servI18n[lg]); });
 
@@ -5404,10 +5430,11 @@ Annulla = ` + T('backupUnisci'));
                 const lista = bpSnapshotLista();
                 const list = bpGetEvents();
                 const idx = bpEditingId ? list.findIndex(e => e.id === bpEditingId) : -1;
+                const idSalvato = idx >= 0 ? list[idx].id : bpNuovoId();
                 if (idx >= 0) {
                     list[idx] = Object.assign({}, list[idx], { nome, data: Date.now(), config, menu, totale, lista, scorte, quantita, ricetteEvento, check: list[idx].check || {} });
                 } else {
-                    list.push({ id: bpNuovoId(), nome, data: Date.now(), config, menu, totale, lista, scorte, quantita, ricetteEvento, check:{} });
+                    list.push({ id: idSalvato, nome, data: Date.now(), config, menu, totale, lista, scorte, quantita, ricetteEvento, check:{} });
                 }
                 /* Il toast di successo esce SOLO se la scrittura e' andata a
                    buon fine. Prima bpSetEvents ingoiava l'errore e questo
@@ -5426,46 +5453,16 @@ Annulla = ` + T('backupUnisci'));
                 bpEditingId = null;
                 salvaStato();
                 mostraToast(_T('toastEventoSalvato'));
-                bpMostraConfermaSalvataggio();
+                /* Si va all'evento salvato: e' li' che si condivide, si stampa,
+                   si guarda il preventivo e si prepara il menu'. */
+                bpVaiA('salvati');
+                bpEventOpen(idSalvato);
                 return esito;
             } catch(e){
                 console.warn('Salvataggio evento fallito:', e);
                 mostraToast(_T('toastSalvataggioFallito'));
                 return { ok:false, motivo:'errore', errore:e };
             }
-        }
-
-        /* Aggancia una volta sola la delega dei click sulla lista eventi.
-           Era dentro bpEventsOpen, che ora non esiste piu': la sezione la
-           disegna il router. */
-        /* "Apri i miei eventi salvati" era un bottone fisso in fondo alla lista:
-           invitava ad aprire un elenco che poteva essere ancora vuoto, ed era
-           una delle otto azioni che affollavano quella schermata. Adesso e' una
-           conferma, e compare solo DOPO una scrittura verificata — cioe' solo
-           quando quell'elenco contiene davvero qualcosa. */
-        function bpMostraConfermaSalvataggio(){
-            const box = document.getElementById('bp-post-salvataggio');
-            if (!box) return;
-            const _T = _bpT();
-            box.textContent = '';
-            const testo = document.createElement('span');
-            testo.className = 'bp-post-tx';
-            testo.textContent = _T('toastEventoSalvato');
-            const vai = document.createElement('button');
-            vai.type = 'button';
-            vai.className = 'bp-post-vai';
-            vai.textContent = _T('uiVaiEventi');
-            vai.addEventListener('click', () => bpVaiA('salvati'));
-            box.appendChild(testo);
-            box.appendChild(vai);
-            box.hidden = false;
-        }
-
-        /* Modificare di nuovo l'evento invalida la conferma: quello che c'e'
-           salvato non e' piu' quello che hai davanti. */
-        function bpNascondiConfermaSalvataggio(){
-            const box = document.getElementById('bp-post-salvataggio');
-            if (box) { box.hidden = true; box.textContent = ''; }
         }
 
         function bpEventsMount(){
@@ -5533,7 +5530,6 @@ Annulla = ` + T('backupUnisci'));
                      '</div>'+
                      '<button type="button" class="bpc-evkebab" aria-label="•••">&#8942;</button>'+
                      '<div class="bpc-evmenu">'+
-                       '<button data-act="edit" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&#9998;</span>'+_T('evEdit')+'</button>'+
                        '<button data-act="dup" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&#10697;</span>'+_T('evDup')+'</button>'+
                        '<button data-act="del" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&times;</span>'+_T('evDelete')+'</button>'+
                      '</div>'+
@@ -5543,41 +5539,194 @@ Annulla = ` + T('backupUnisci'));
             mount.innerHTML = h;   // i click sono gestiti per delega in bpEventsOpen
         }
 
-        function bpEventOpen(id){
+        /* ── L'evento salvato ──
+           Era solo la lista da spuntare, con "Modifica" nascosto nel menu a tre
+           puntini e nessun modo di rivedere il preventivo. Ora e' il posto da
+           cui si fa tutto: in alto il totale, poi Modifica, Condividi, Stampa e
+           Menu', poi due schede, Da comprare e Preventivo.
+
+           Tutto quello che si vede qui viene dalla fotografia della lista presa
+           al salvataggio (ev.lista): e' cio' che si e' salvato, e non cambia se
+           nel frattempo cambiano i prezzi o la bozza in corso. */
+        function _bpEvento(id) { return bpGetEvents().find(e => e.id === id) || null; }
+        function bpEventOpen(id, scheda){
             const _T = _bpT();
-            const ev = bpGetEvents().find(e => e.id === id); if (!ev) return;
+            const ev = _bpEvento(id); if (!ev) return;
             const back = document.getElementById('bp-ev-backbtn'); if (back) back.style.display = '';
             const mount = document.getElementById('bp-ev-mount'); if (!mount) return;
+            const tab = (scheda === 'preventivo' || scheda === 'compra') ? scheda
+                      : ((mount._evId === id && mount._evTab) || 'compra');
             ev.check = ev.check || {};
-            let tot = 0, done = 0, body = '', costTot = 0, costDone = 0;
-            (ev.lista || []).forEach(g => {
-                body += '<div class="bpc-chkgroup"><div class="gt">'+_bpEsc(g.titolo)+'</div>';
-                g.items.forEach(it => {
-                    const key = g.key + '|' + it.nome;
-                    const isDone = !!ev.check[key];
-                    tot++; if (isDone) done++;
-                    const c = _bpParseCost(it.costo);
-                    costTot += c; if (isDone) costDone += c;
-                    const det = [it.qty, it.costo].filter(Boolean).join(' · ');
-                    body += '<div class="bpc-chkitem'+(isDone?' done':'')+'" data-key="'+_bpEsc(key)+'">'+
-                            '<span class="bpc-chkbox"></span><span class="nm">'+_bpEsc(it.nome)+'</span>'+
-                            (det ? '<span class="qt">'+_bpEsc(det)+'</span>' : '')+'</div>';
+            const c = ev.config || {};
+            const ospiti = parseInt(c.ospiti) || 0;
+            const totale = _bpParseCost(ev.totale);
+            const eid = _bpEsc(ev.id);
+
+            const sub = [_bpFmtDate(ev.data)];
+            if (ospiti) sub.push(ospiti + ' ' + _T('evGuestsWord'));
+            if (c.servizio === 'bar' || c.servizio === 'festa') sub.push(_T(c.servizio === 'festa' ? 'servFesta' : 'servBar'));
+            let h = '<div class="bpc-chkhead"><h2>' + _bpEsc(ev.nome) + '</h2><div class="sub">' + _bpEsc(sub.join(' · ')) + '</div></div>'
+                + '<div class="bpe-tot"><b>' + _bpMoney(totale) + '</b>'
+                + (ospiti && totale ? '<span>≈ ' + _bpMoney(totale / ospiti) + ' ' + _bpEsc(_T('perPersonaTxt')) + '</span>' : '') + '</div>'
+                + '<div class="bpe-azioni">'
+                +   '<button type="button" class="bpe-az" data-do="bpEventEdit" data-arg="' + eid + '">' + _bpEsc(_T('evEdit')) + '</button>'
+                +   '<button type="button" class="bpe-az" data-do="bpEventCondividi" data-arg="' + eid + '">' + _bpEsc(_T('btnCondividi')) + '</button>'
+                +   '<button type="button" class="bpe-az" data-do="bpEventStampa" data-arg="' + eid + '">' + _bpEsc(_T('evStampaBreve')) + '</button>'
+                +   '<button type="button" class="bpe-az" data-do="bpMenuOpenFromEvent" data-arg="' + eid + '">' + _bpEsc(_T('evMenuBreve')) + '</button>'
+                + '</div>'
+                + '<div class="bp-chips bpe-schede" role="tablist">'
+                +   '<button type="button" role="tab" class="bp-chip' + (tab === 'compra' ? ' on' : '') + '" aria-selected="' + (tab === 'compra') + '" data-do="bpEventSchedaCompra" data-arg="' + eid + '">' + _bpEsc(_T('evTabCompra')) + '</button>'
+                +   '<button type="button" role="tab" class="bp-chip' + (tab === 'preventivo' ? ' on' : '') + '" aria-selected="' + (tab === 'preventivo') + '" data-do="bpEventSchedaPrev" data-arg="' + eid + '">' + _bpEsc(_T('printPrevNome')) + '</button>'
+                + '</div>';
+
+            const lista = Array.isArray(ev.lista) ? ev.lista : [];
+            if (!lista.length) {
+                h += '<div class="bpc-evempty"><p>' + _T('evEmptySub') + '</p></div>';
+            } else if (tab === 'compra') {
+                let tot = 0, done = 0, body = '', costTot = 0, costDone = 0;
+                lista.forEach(g => {
+                    body += '<div class="bpc-chkgroup"><div class="gt">' + _bpEsc(g.titolo) + '</div>';
+                    (g.items || []).forEach(it => {
+                        const key = g.key + '|' + it.nome;
+                        const isDone = !!ev.check[key];
+                        tot++; if (isDone) done++;
+                        const cs = _bpParseCost(it.costo);
+                        costTot += cs; if (isDone) costDone += cs;
+                        const det = [it.qty, it.costo].filter(Boolean).join(' · ');
+                        body += '<div class="bpc-chkitem' + (isDone ? ' done' : '') + '" data-key="' + _bpEsc(key) + '">'
+                              + '<span class="bpc-chkbox"></span><span class="nm">' + _bpEsc(it.nome) + '</span>'
+                              + (det ? '<span class="qt">' + _bpEsc(det) + '</span>' : '') + '</div>';
+                    });
+                    body += '</div>';
                 });
-                body += '</div>';
+                const pct = tot ? Math.round(done / tot * 100) : 0;
+                h += '<div class="bpc-chkprog"><div class="bar"><div class="fill" id="bp-chk-fill" style="width:' + pct + '%"></div></div>'
+                   + '<span class="lbl" id="bp-chk-lbl">' + done + '/' + tot + ' ' + _T('chkBought') + '</span></div>'
+                   + '<div class="bpc-chkstats">'
+                   + '<div class="bpc-chkstat"><div class="k">' + _T('chkTotale') + '</div><div class="v">' + _bpMoney(costTot) + '</div></div>'
+                   + '<div class="bpc-chkstat spent"><div class="k">' + _T('chkSpeso') + '</div><div class="v" id="bp-chk-speso">' + _bpMoney(costDone) + '</div></div>'
+                   + '<div class="bpc-chkstat"><div class="k">' + _T('chkManca') + '</div><div class="v" id="bp-chk-manca">' + _bpMoney(costTot - costDone) + '</div></div>'
+                   + '</div>' + body;
+            } else {
+                /* Il preventivo: le stesse voci, con il costo in colonna e un
+                   subtotale per reparto. Le guarnizioni non hanno prezzo e
+                   restano un promemoria in fondo. */
+                let body = '';
+                lista.forEach(g => {
+                    let sub = 0;
+                    body += '<div class="bpe-prev-gr"><div class="gt">' + _bpEsc(g.titolo) + '</div>';
+                    (g.items || []).forEach(it => {
+                        const cs = _bpParseCost(it.costo);
+                        sub += cs;
+                        body += '<div class="bpe-prev-riga"><span class="nm">' + _bpEsc(it.nome) + '</span>'
+                              + '<span class="qt">' + _bpEsc(it.qty || '') + '</span>'
+                              + '<span class="cs">' + (cs ? _bpMoney(cs) : '') + '</span></div>';
+                    });
+                    if (sub) body += '<div class="bpe-prev-sub"><span>' + _bpEsc(_T('evSubtotale')) + '</span><span class="cs">' + _bpMoney(sub) + '</span></div>';
+                    body += '</div>';
+                });
+                h += body
+                   + '<div class="bpe-prev-totale"><span>' + _bpEsc(_T('chkTotale')) + '</span><b>' + _bpMoney(totale) + '</b></div>'
+                   + (ospiti && totale ? '<p class="bpe-prev-pp">≈ ' + _bpMoney(totale / ospiti) + ' ' + _bpEsc(_T('perPersonaTxt')) + '</p>' : '');
+            }
+            mount.innerHTML = h;
+            mount._evId = id; mount._evTab = tab;
+            mount._evTot = 0;   // i tap sulle voci sono gestiti per delega in bpEventsMount
+        }
+        function bpEventSchedaCompra(id) { bpEventOpen(id, 'compra'); }
+        function bpEventSchedaPrev(id) { bpEventOpen(id, 'preventivo'); }
+
+        /* L'evento aperto adesso, se si sta guardando un evento salvato. Serve
+           a Ctrl+P: stampa l'evento, non la pagina. */
+        function bpEventoAperto() {
+            const m = document.getElementById('bp-ev-mount');
+            return (bpSezioneCorrente === 'salvati' && m && m._evId) ? _bpEvento(m._evId) : null;
+        }
+
+        /* Il testo da mandare: dalla fotografia salvata, non dalla bozza. */
+        function bpTestoEvento(ev) {
+            const _T = _bpT();
+            const c = ev.config || {};
+            const ospiti = parseInt(c.ospiti) || 0;
+            const totale = _bpParseCost(ev.totale);
+            let t = _T('copyHeader') + '\n' + (ev.nome || '') + '\n';
+            t += [_bpFmtDate(ev.data), ospiti ? ospiti + ' ' + _T('evGuestsWord') : ''].filter(Boolean).join(' · ') + '\n\n';
+            (Array.isArray(ev.lista) ? ev.lista : []).forEach(g => {
+                t += g.titolo + '\n';
+                (g.items || []).forEach(it => { t += '  • ' + [it.nome, it.qty, it.costo].filter(Boolean).join(' ') + '\n'; });
+                t += '\n';
             });
-            if (!tot) body = '<div class="bpc-evempty"><p>'+_T('evEmptySub')+'</p></div>';
-            const pct = tot ? Math.round(done/tot*100) : 0;
-            const stats = '<div class="bpc-chkstats">'+
-                '<div class="bpc-chkstat"><div class="k">'+_T('chkTotale')+'</div><div class="v">'+_bpMoney(costTot)+'</div></div>'+
-                '<div class="bpc-chkstat spent"><div class="k">'+_T('chkSpeso')+'</div><div class="v" id="bp-chk-speso">'+_bpMoney(costDone)+'</div></div>'+
-                '<div class="bpc-chkstat"><div class="k">'+_T('chkManca')+'</div><div class="v" id="bp-chk-manca">'+_bpMoney(costTot - costDone)+'</div></div>'+
-                '</div>';
-            const head = '<div class="bpc-chkhead"><h2>'+_bpEsc(ev.nome)+'</h2><div class="sub">'+_T('chkTitle')+'</div></div>'+
-                '<button type="button" class="bpm-evbtn" data-do="bpMenuOpenFromEvent" data-arg="'+_bpEsc(ev.id)+'">'+_T('menuViewBtn')+'</button>'+
-                '<div class="bpc-chkprog"><div class="bar"><div class="fill" id="bp-chk-fill" style="width:'+pct+'%"></div></div>'+
-                '<span class="lbl" id="bp-chk-lbl">'+done+'/'+tot+' '+_T('chkBought')+'</span></div>';
-            mount.innerHTML = head + stats + body;
-            mount._evId = id; mount._evTot = tot;   // i tap sulle voci sono gestiti per delega in bpEventsOpen
+            t += '─────────────────────\n' + _T('budgetLabel') + ': ' + _bpMoney(totale) + '\n';
+            if (ospiti && totale) t += '≈ ' + _bpMoney(totale / ospiti) + ' ' + _T('perPersonaTxt') + '\n';
+            return t + '\n' + _T('shareFooter') + '\n';
+        }
+        function bpCopiaTesto(testo) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(testo)
+                    .then(() => mostraToast(T('toastCopiaOk')))
+                    .catch(() => prompt(T('toastCopiaOk'), testo));
+            } else {
+                prompt(T('toastCopiaOk'), testo);
+            }
+        }
+        function bpCondividiTesto(titolo, testo) {
+            if (navigator.share) {
+                navigator.share({ title: titolo, text: testo }).catch(err => {
+                    if (err && err.name === 'AbortError') return;   // ha annullato
+                    bpCopiaTesto(testo);
+                });
+            } else {
+                bpCopiaTesto(testo);
+            }
+        }
+        /* Lo stato del link costruito dall'evento salvato, con la stessa forma
+           di bpStatoPerLink (che legge la bozza). */
+        function bpStatoPerLinkEvento(ev) {
+            const c = ev.config || {}, m = ev.menu || {};
+            const dr = bpMigraMenu(m.drink), mo = bpMigraMenu(m.mocktail), sh = bpMigraMenu(m.shot);
+            const proprie = bpMigraRicette(ev.ricetteEvento || {}) || {};
+            const ricette = {};
+            [].concat(Object.keys(dr), Object.keys(mo), Object.keys(sh)).forEach(nome => {
+                if (ricette[nome]) return;
+                const r = proprie[nome] || (bpRecipes.mods && bpRecipes.mods[nome]);
+                if (r) ricette[nome] = r;
+            });
+            const st = {
+                o: c.ospiti, d: c.drink_testa, s: c.shot_testa, sc: c.scarto,
+                p: (c.pct_bevitori != null && c.pct_bevitori !== '') ? c.pct_bevitori : 80,
+                n: c.nazione, f: c.fascia, sv: bpServizioDi(c.servizio, m.drink, m.mocktail, m.shot),
+                ff: c.fascia_fermentati || '',
+                fe: { r: c.ferm_vino_rosso, b: c.ferm_vino_bianco, bo: c.ferm_bollicine, bi: c.ferm_birra },
+                dr, mo, sh
+            };
+            if (ev.nome) st.nm = ev.nome;
+            if (Object.keys(ricette).length) st.rc = ricette;
+            return st;
+        }
+        function bpEventCondividi(id) {
+            const ev = _bpEvento(id); if (!ev) return;
+            const vai = scelta => {
+                if (scelta === 'link') bpCondividiLink(bpStatoPerLinkEvento(ev));
+                else bpCondividiTesto(ev.nome || T('copyHeader'), bpTestoEvento(ev));
+            };
+            const dlg = document.getElementById('bp-share-dialog');
+            if (!dlg || typeof dlg.showModal !== 'function') { vai('testo'); return; }
+            if (!dlg._bpBound) {
+                dlg._bpBound = true;
+                dlg.addEventListener('close', () => {
+                    const f = dlg._bpScelta; dlg._bpScelta = null;
+                    if (f && (dlg.returnValue === 'testo' || dlg.returnValue === 'link')) f(dlg.returnValue);
+                });
+            }
+            dlg._bpScelta = vai;
+            dlg.returnValue = '';
+            dlg.showModal();
+        }
+        /* Stampa dell'evento: il formato parte dalla scheda che si sta guardando. */
+        function bpEventStampa(id) {
+            const ev = _bpEvento(id); if (!ev) return;
+            const m = document.getElementById('bp-ev-mount');
+            bpChiediStampa(ev, (m && m._evTab === 'preventivo') ? 'preventivo' : 'lista');
         }
 
         function bpChkToggle(id, el, key){
@@ -7058,132 +7207,190 @@ Annulla = ` + T('backupUnisci'));
                 m.meta.nazione + ' · ' + T('budgetFasciaWord') + ' ' + (T(_fasciaKey) || fascia).toLowerCase();
 
             document.getElementById('risultati').style.display = 'block';
+
+            const barTot = document.getElementById('bp-lista-tot');
+            if (barTot) barTot.textContent = '\u20ac ' + m.totale.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            const barPp = document.getElementById('bp-lista-pp');
+            if (barPp) barPp.textContent = m.perPersona != null ? '\u2248 ' + money(m.perPersona) + ' ' + T('perPersonaTxt') : '';
+            bpVoceAggiorna();
         }
 
-        /* ── "Ce l'ho gia'" e "il tuo prezzo" ──
-           Compaiono solo in modalita' modifica, e questo non e' un dettaglio:
-           con la modalita' spenta il DOM della lista e' identico a prima, ed e'
-           quella la proiezione che i 42 golden fotografano. Un campo in piu'
-           dentro ogni <li>, sempre presente, li avrebbe cambiati tutti pur non
-           cambiando un solo numero.
+        /* ── La voce si tocca per correggerla ──
+           Prima "Correggi" accendeva una modalita' che apriva tre campi sotto
+           OGNI riga: con quattordici voci erano quarantadue campi e una pagina
+           lunghissima. Ora la riga si tocca e sale una scheda solo per lei
+           (bpVoceApri). Qui la riga si marca e basta, e senza aggiungere testo:
+           il "corretta" e' un ::after, quindi textContent resta quello che i
+           golden fotografano e quello che finisce nell'evento salvato.
 
-           L'unita' e' quella della riga: litri per i liquidi, bottiglie per i
-           fermentati, kg o pezzi per l'attrezzatura. Chiedere millilitri a chi
-           guarda una bottiglia sarebbe una domanda scritta per il programma,
-           non per la persona. Le guarnizioni non hanno dose, quindi non hanno
-           scorte: la riga non mostra nulla. */
+           La marcatura della quantita' vale sempre: una quantita' corretta a
+           mano sopravvive ai ricalcoli, e deve dirlo. Le guarnizioni non hanno
+           dose, quindi non si correggono. */
         function bpAggiungiEditor(li, r) {
-            /* La marcatura vale SEMPRE, anche a modalita' spenta. Una quantita'
-               corretta a mano sopravvive ai ricalcoli: se si vedesse solo con i
-               campi aperti, resterebbe li' a cambiare la lista e il totale
-               senza che niente lo dica. */
             if (r && r.quantitaTua) {
                 const st = li.querySelector('strong');
                 if (st) { st.classList.add('qta-tua'); st.title = T('modQtaTua'); }
             }
-
-            if (!document.body.classList.contains('bp-modifica-lista')) return;
-            if (!r.baseUnit) return;   // guarnizioni: niente quantita', niente scorte
-
-            const wrap = document.createElement('span');
-            wrap.className = 'riga-mod';
-
-            const passo = r.baseUnit === 'ml' ? 0.5 : 1;
-            const inBase   = v => r.baseUnit === 'ml' ? v * 1000 : v;
-            const inMostra = v => r.baseUnit === 'ml' ? v / 1000 : v;
-            const scortaMostrata = inMostra(r.stockBaseQty);
-
-            /* ── Quantita' da comprare ──
-               Sta per prima perche' e' la correzione piu' diretta: sostituisce
-               il numero che si legge sopra. Il valore calcolato resta come
-               segnaposto, cosi' si vede sempre cosa direbbe l'app. */
-            const campoQta = document.createElement('span');
-            campoQta.className = 'mod-campo';
-
-            const lblQ = document.createElement('span');
-            lblQ.className = 'mod-lbl';
-            lblQ.textContent = T('modQuantita') + ' (' + (r.baseUnit === 'ml' ? 'L' : r.displayUnit) + ')';
-
-            const qta = document.createElement('input');
-            qta.type = 'number'; qta.min = '0'; qta.step = String(passo);
-            qta.className = 'mod-qta' + (r.quantitaTua ? ' mod-qta-tua' : '');
-            qta.value = r.quantitaTua ? String(inMostra(r.roundedPurchaseQty)) : '';
-            /* Il segnaposto e' cio' che l'app comprerebbe da sola. Con una
-               correzione attiva quel numero non e' piu' roundedPurchaseQty —
-               che ORA e' la correzione — ma va ricalcolato dal fabbisogno. */
-            const calcolata = r.quantitaTua
-                ? (r.baseUnit === 'ml' ? bpLitriArrotondati(r.remainingBaseQty)
-                                       : (r.baseUnit === 'pz' || r.baseUnit === 'bottiglie'
-                                            ? BP_INTERO(r.remainingBaseQty) : r.remainingBaseQty))
-                : r.roundedPurchaseQty;
-            qta.placeholder = String(Math.round(inMostra(calcolata) * 100) / 100);
-            qta.dataset.riga = r.id;
-            qta.dataset.unita = r.baseUnit;
-            qta.setAttribute('aria-label', T('modQuantita') + ' — ' + bpNomeRiga(r));
-
-            campoQta.appendChild(lblQ);
-            campoQta.appendChild(qta);
-
-            /* Il ritorno al valore calcolato esiste solo quando c'e' qualcosa da
-               annullare: un bottone sempre presente ma quasi sempre inerte e'
-               rumore, e su una lista lunga e' rumore moltiplicato per venti. */
-            if (r.quantitaTua) {
-                const reset = document.createElement('button');
-                reset.type = 'button';
-                reset.className = 'mod-qta-reset';
-                reset.textContent = '↺';
-                reset.setAttribute('aria-label', T('modQtaAzzera') + ' — ' + bpNomeRiga(r));
-                reset.title = T('modQtaAzzera');
-                reset.dataset.do = 'bpQuantitaAzzera';
-                reset.dataset.arg = r.id;
-                campoQta.appendChild(reset);
+            if (!r || !r.baseUnit) return;
+            li.dataset.voce = r.id;
+            li.tabIndex = 0;
+            li.setAttribute('aria-haspopup', 'dialog');
+            li.classList.add('voce-tocca');
+            if (bpVoceCorretta(r.id)) {
+                li.classList.add('voce-corretta');
+                const nome = li.querySelector('span');
+                if (nome) nome.dataset.badge = T('vocCorretta');
             }
-
-            const scorta = document.createElement('input');
-            scorta.type = 'number'; scorta.min = '0'; scorta.step = String(passo);
-            scorta.className = 'mod-scorta';
-            scorta.value = scortaMostrata ? String(scortaMostrata) : '';
-            scorta.placeholder = '0';
-            scorta.dataset.riga = r.id;
-            scorta.dataset.unita = r.baseUnit;
-            scorta.setAttribute('aria-label', T('modHoGia') + ' — ' + bpNomeRiga(r));
-
-            const lblS = document.createElement('span');
-            lblS.className = 'mod-lbl';
-            lblS.textContent = T('modHoGia') + ' (' + (r.baseUnit === 'ml' ? 'L' : r.displayUnit) + ')';
-
-            const prezzo = document.createElement('input');
-            prezzo.type = 'number'; prezzo.min = '0'; prezzo.step = '0.01';
-            prezzo.className = 'mod-prezzo' + (r.prezzoTuo ? ' mod-prezzo-tuo' : '');
-            prezzo.value = r.prezzoTuo ? String(r.unitPrice) : '';
-            prezzo.placeholder = (Math.round(r.unitPrice * 100) / 100).toString();
-            prezzo.dataset.riga = r.id;
-            prezzo.setAttribute('aria-label', T('modPrezzoTuo') + ' — ' + bpNomeRiga(r));
-
-            const lblP = document.createElement('span');
-            lblP.className = 'mod-lbl';
-            lblP.textContent = T('modPrezzoTuo');
-
-            /* Ogni etichetta sta col suo campo dentro un contenitore, invece di
-               essere quattro figli in fila che vanno a capo per conto loro:
-               a schermo stretto una coppia non si spezza piu' fra due righe. */
-            const campoScorta = document.createElement('span');
-            campoScorta.className = 'mod-campo' + (r.quantitaTua ? ' mod-campo-inerte' : '');
-            /* Con una quantita' decisa a mano la scorta non entra piu' nel
-               conto. Resta leggibile — e' un dato che l'utente ha scritto — ma
-               dichiara di non contare, invece di sembrare attiva e non esserlo. */
-            if (r.quantitaTua) campoScorta.title = T('modScortaIgnorata');
-            campoScorta.appendChild(lblS); campoScorta.appendChild(scorta);
-
-            const campoPrezzo = document.createElement('span');
-            campoPrezzo.className = 'mod-campo';
-            campoPrezzo.appendChild(lblP); campoPrezzo.appendChild(prezzo);
-
-            wrap.appendChild(campoQta);
-            wrap.appendChild(campoScorta);
-            wrap.appendChild(campoPrezzo);
-            li.appendChild(wrap);
         }
+        function bpVoceCorretta(id) {
+            return bpQuantita[id] != null || !!bpScorte[id] || bpPrezziUtente[id] != null;
+        }
+
+        /* ── La scheda di una voce ──
+           I campi hanno le classi di sempre (mod-qta, mod-scorta, mod-prezzo)
+           con data-riga e data-unita: li legge bpModificatoreCambiato, come
+           prima. La scheda sta fuori dalla lista, quindi il ricalcolo non la
+           ridisegna e il cursore non salta. */
+        let bpVoceId = null;
+        function bpVoceRiga() {
+            if (!bpVoceId) return null;
+            const m = bpCalcolaModello(bpParametriDalForm());
+            return m.ok ? (m.righe.find(r => r.id === bpVoceId) || null) : null;
+        }
+        /* Quello che l'app comprerebbe da sola. Con una correzione attiva
+           roundedPurchaseQty E' la correzione: va ricalcolato dal fabbisogno. */
+        function _bpVoceCalcolata(r) {
+            if (!r.quantitaTua) return r.roundedPurchaseQty;
+            if (r.baseUnit === 'ml') return bpLitriArrotondati(r.remainingBaseQty);
+            if (r.baseUnit === 'pz' || r.baseUnit === 'bottiglie') return BP_INTERO(r.remainingBaseQty);
+            return r.remainingBaseQty;
+        }
+        function bpVoceApri(id) {
+            const dlg = document.getElementById('bp-voce');
+            if (!dlg || typeof dlg.showModal !== 'function') return;
+            bpVoceId = id;
+            const r = bpVoceRiga();
+            if (!r || !r.baseUnit) { bpVoceId = null; return; }
+            if (!dlg._bpBound) {
+                dlg._bpBound = true;
+                dlg.addEventListener('close', () => { bpVoceId = null; });
+                // Un tocco fuori dalla scheda la chiude, come ci si aspetta da un foglio.
+                dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+            }
+            const unita = r.baseUnit === 'ml' ? 'L' : r.displayUnit;
+            const passo = r.baseUnit === 'ml' ? 0.5 : 1;
+            const inMostra = v => r.baseUnit === 'ml' ? v / 1000 : v;
+            document.getElementById('bp-voce-tit').textContent = bpNomeRiga(r);
+
+            const campi = document.getElementById('bp-voce-campi');
+            campi.textContent = '';
+            const el = (tag, cls, testo) => { const e = document.createElement(tag); if (cls) e.className = cls; if (testo != null) e.textContent = testo; return e; };
+            const riga = (cls, etichetta, valore, segnaposto, step, conPassi) => {
+                const box = el('div', 'bp-riga');
+                const lbl = el('label', 'bp-riga-lbl', etichetta);
+                lbl.htmlFor = 'bp-voce-' + cls;
+                const inp = el('input', cls);
+                inp.type = 'number'; inp.min = '0'; inp.step = String(step);
+                inp.inputMode = 'decimal'; inp.id = 'bp-voce-' + cls;
+                inp.value = valore;
+                inp.dataset.calc = segnaposto;   // il numero, per − / +
+                inp.placeholder = _bpNumLoc(segnaposto);
+                inp.dataset.riga = r.id; inp.dataset.unita = r.baseUnit;
+                box.appendChild(lbl);
+                const st = el('div', 'bp-stepper');
+                if (conPassi) {
+                    const meno = el('button', 'bp-step-btn', '−');
+                    meno.type = 'button'; meno.dataset.do = 'bpVocePasso'; meno.dataset.arg = cls + '|-1';
+                    meno.setAttribute('aria-label', etichetta + ' −');
+                    const piu = el('button', 'bp-step-btn', '+');
+                    piu.type = 'button'; piu.dataset.do = 'bpVocePasso'; piu.dataset.arg = cls + '|1';
+                    piu.setAttribute('aria-label', etichetta + ' +');
+                    st.appendChild(meno); st.appendChild(inp); st.appendChild(piu);
+                } else {
+                    st.appendChild(inp);
+                }
+                box.appendChild(st);
+                campi.appendChild(box);
+                return box;
+            };
+            riga('mod-qta', T('modQuantita') + ' (' + unita + ')',
+                 r.quantitaTua ? String(inMostra(r.roundedPurchaseQty)) : '',
+                 String(Math.round(inMostra(_bpVoceCalcolata(r)) * 100) / 100), passo, true);
+            riga('mod-scorta', T('modHoGia') + ' (' + unita + ')',
+                 r.stockBaseQty ? String(inMostra(r.stockBaseQty)) : '', '0', passo, true);
+            riga('mod-prezzo', T('modPrezzoTuo') + ' (€/' + unita + ')',
+                 r.prezzoTuo ? String(r.unitPrice) : '', String(Math.round(r.unitPrice * 100) / 100), 0.01, false);
+            campi.appendChild(el('p', 'bp-voce-nota', ''));
+            if (!dlg.open) dlg.showModal();
+            bpVoceAggiorna(r);
+        }
+        /* Le parti della scheda che cambiano col ricalcolo. I VALORI dei campi
+           non si toccano: sono quello che l'utente sta scrivendo. */
+        function bpVoceAggiorna(r) {
+            const dlg = document.getElementById('bp-voce');
+            if (!dlg || !dlg.open || !bpVoceId) return;
+            r = r || bpVoceRiga();
+            if (!r) return;
+            const money = n => '€ ' + n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const calc = document.getElementById('bp-voce-calc');
+            if (calc) calc.textContent = T('vocNellaLista') + ': ' + bpQuantitaMostrata(r) + (r.costo > 0 ? ' · ≈ ' + money(r.costo) : '');
+            const inMostra = v => r.baseUnit === 'ml' ? v / 1000 : v;
+            const q = dlg.querySelector('.mod-qta');
+            if (q) {
+                q.dataset.calc = String(Math.round(inMostra(_bpVoceCalcolata(r)) * 100) / 100);
+                q.placeholder = _bpNumLoc(q.dataset.calc);
+                q.classList.toggle('mod-qta-tua', !!r.quantitaTua);
+            }
+            // Con una quantita' decisa a mano la scorta non entra piu' nel conto: lo si dice.
+            const nota = dlg.querySelector('.bp-voce-nota');
+            if (nota) nota.textContent = r.quantitaTua ? T('modScortaIgnorata') : '';
+            const sc = dlg.querySelector('.mod-scorta');
+            if (sc) sc.closest('.bp-riga').classList.toggle('mod-campo-inerte', !!r.quantitaTua);
+            const rip = document.getElementById('bp-voce-ripristina');
+            if (rip) rip.disabled = !bpVoceCorretta(r.id);
+        }
+        /* Il segnaposto si legge, quindi con la virgola dove la si usa. */
+        function _bpNumLoc(v) {
+            const n = parseFloat(v);
+            return isFinite(n) ? n.toLocaleString(linguaCorrente || 'it', { maximumFractionDigits: 2 }) : String(v);
+        }
+        function bpVocePasso(arg) {
+            const [cls, verso] = String(arg).split('|');
+            const inp = document.querySelector('#bp-voce .' + cls);
+            if (!inp) return;
+            const step = parseFloat(inp.step) || 1;
+            // Da un campo vuoto si parte dal numero dell'app, non da zero.
+            const base = inp.value !== '' ? parseFloat(inp.value) : (parseFloat(inp.dataset.calc) || 0);
+            const nuovo = Math.max(0, Math.round((base + (parseFloat(verso) || 0) * step) * 100) / 100);
+            inp.value = String(nuovo);
+            inp.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        function bpVoceChiudi() {
+            const dlg = document.getElementById('bp-voce');
+            if (dlg && dlg.open) dlg.close();
+        }
+        /* Torna ai numeri dell'app per questa voce: quantita', scorta e prezzo. */
+        function bpVoceRipristina() {
+            const id = bpVoceId;
+            if (!id) return;
+            const prezzo = bpPrezziUtente[id] != null;
+            delete bpQuantita[id]; delete bpScorte[id]; delete bpPrezziUtente[id];
+            if (prezzo) bpSaveSettings();
+            programmaSalvataggio();
+            calcolaSpesa(true);
+            bpVoceApri(id);
+        }
+        document.addEventListener('click', function (e) {
+            const li = e.target.closest && e.target.closest('#risultati li[data-voce]');
+            if (li) bpVoceApri(li.dataset.voce);
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const li = e.target.closest && e.target.closest('#risultati li[data-voce]');
+            if (!li || li !== e.target) return;
+            e.preventDefault();
+            bpVoceApri(li.dataset.voce);
+        });
 
         /* Torna al numero calcolato dall'app. Non svuota il campo e basta:
            cancella la voce, cosi' la riga smette di essere "tua" davvero. */
@@ -7205,38 +7412,9 @@ Annulla = ` + T('backupUnisci'));
             }
         });
 
-        /* ⚠️ Difetto riportato: "il tasto Correggi non funziona, non succede
-           proprio niente". Era vero, ed era esattamente questo.
-
-           La versione precedente accendeva la modalita' e poi chiamava
-           `calcolaSpesa(true)`. Ma quando il modello non sa calcolare — menu'
-           vuoto, oppure ospiti e drink non impostati — `calcolaSpesa` esce
-           prima di ridisegnare, e con `silenzioso = true` **non dice niente**:
-           la classe sul body si accendeva, nessuno ridisegnava la lista, quindi
-           i campi non comparivano e a schermo non cambiava assolutamente nulla.
-           Niente errori in console, nessun messaggio. Ci finisce chiunque arrivi
-           alla schermata Lista prima di aver scelto un menu' — cioe' chi sta
-           esplorando l'app la prima volta.
-
-           Ora si guarda PRIMA se c'e' qualcosa da correggere: se non c'e', la
-           modalita' non si accende affatto e il motivo viene detto. Il motivo e'
-           gia' una chiave di traduzione, quindi vale in tutte e sette le lingue
-           senza aggiungerne nessuna. */
-        function bpAlternaModifica() {
-            const m = bpCalcolaModello(bpParametriDalForm());
-            if (!m.ok) {
-                mostraToast(T(m.motivo));
-                return;
-            }
-            const on = document.body.classList.toggle('bp-modifica-lista');
-            const b = document.getElementById('bp-modifica-btn');
-            if (b) b.setAttribute('aria-pressed', on ? 'true' : 'false');
-            calcolaSpesa(true);
-        }
-
-        /* Un campo cambia -> si aggiorna il modificatore e si ricalcola. Il
-           ricalcolo rifa' il DOM, quindi il focus va rimesso dov'era:
-           altrimenti scrivere "2" farebbe saltare via il cursore. */
+        /* Un campo della scheda cambia -> si aggiorna il modificatore e si
+           ricalcola. La scheda non fa parte della lista, quindi il ricalcolo
+           non la ridisegna: il cursore resta dov'e'. */
         function bpModificatoreCambiato(el) {
             const id = el.dataset.riga;
             if (!id) return;
@@ -7261,13 +7439,7 @@ Annulla = ` + T('backupUnisci'));
                 bpSaveSettings();   // i prezzi valgono per i prossimi eventi
             }
             programmaSalvataggio();
-
-            const classe = el.className.split(' ')[0];
-            const sel = '.' + classe + '[data-riga="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]';
-            const inizio = el.selectionStart;
-            calcolaSpesa(true);
-            const nuovo = document.querySelector(sel);
-            if (nuovo) { try { nuovo.focus(); nuovo.setSelectionRange(inizio, inizio); } catch(e) { nuovo.focus(); } }
+            calcolaSpesa(true);   // bpRenderModello aggiorna anche la scheda
         }
 
         /* Da fuori e' identica a prima: booleano, e l'avviso se manca il menu. */
@@ -7355,20 +7527,21 @@ Annulla = ` + T('backupUnisci'));
             if (menu && menu.classList.contains('show')) return 'menu';
             const ris = document.getElementById('risultati');
             if (bpSezioneCorrente === 'evento' && ris && ris.style.display !== 'none' && ris.offsetHeight) return 'lista';
+            if (bpEventoAperto()) return 'lista';
             return null;   // niente bersaglio: si stampa la pagina normale
         }
 
-        function bpBeginPrint(bersaglio) {
+        function bpBeginPrint(bersaglio, fonte) {
             bpAzzeraBersagliStampa();                       // prima azzera, sempre
             if (!bersaglio || !BP_BERSAGLI_STAMPA[bersaglio]) return;
-            if (bersaglio === 'lista') bpComponiFoglio();
+            if (bersaglio === 'lista') bpComponiFoglio(fonte);
             document.body.classList.add(BP_BERSAGLI_STAMPA[bersaglio]);
             bpBersaglioStampa = bersaglio;
         }
 
         window.addEventListener('beforeprint', () => {
             // Ctrl+P: nessuno ha ancora impostato niente.
-            if (!bpBersaglioStampa) bpBeginPrint(bpBersaglioProbabile());
+            if (!bpBersaglioStampa) bpBeginPrint(bpBersaglioProbabile(), bpEventoAperto());
         });
         window.addEventListener('afterprint', bpAzzeraBersagliStampa);
 
@@ -7389,9 +7562,10 @@ Annulla = ` + T('backupUnisci'));
            Composto dalle righe canoniche, non rileggendo il DOM: la lista a
            schermo, il testo condiviso, la checklist e questo foglio escono
            tutti dalla stessa proiezione. */
-        function bpComponiFoglio() {
+        function bpComponiFoglio(fonte) {
             const foglio = document.getElementById('print-sheet');
             if (!foglio) return;
+            if (fonte && typeof fonte === 'object') { bpComponiFoglioEvento(foglio, fonte); return; }
             const m = bpCalcolaModello(bpParametriDalForm());
             if (!m.ok) { foglio.textContent = ''; return; }
 
@@ -7460,6 +7634,59 @@ Annulla = ` + T('backupUnisci'));
             foglio.appendChild(piede);
         }
 
+        /* Lo stesso foglio, per un evento salvato: dalla fotografia della lista
+           (ev.lista), che porta quantita' e costo di riga ma non il prezzo
+           unitario. Nel preventivo quindi c'e' solo il totale di riga. */
+        function bpComponiFoglioEvento(foglio, ev) {
+            const formato = bpFormatoStampa();
+            const el = (tag, cls, testo) => {
+                const e = document.createElement(tag);
+                if (cls) e.className = cls;
+                if (testo != null) e.textContent = testo;
+                return e;
+            };
+            foglio.textContent = '';
+            foglio.dataset.formato = formato;
+            const c = ev.config || {};
+            const ospiti = parseInt(c.ospiti) || 0;
+            const totale = _bpParseCost(ev.totale);
+
+            const testa = el('header', 'ps-testa');
+            if (ev.nome) testa.appendChild(el('h1', 'ps-titolo', ev.nome));
+            const meta = [new Date(ev.data || Date.now()).toLocaleDateString(linguaCorrente || 'it', { day:'numeric', month:'long', year:'numeric' })];
+            if (ospiti > 0) meta.push(ospiti + ' ' + T('pdfGuests'));
+            testa.appendChild(el('p', 'ps-meta', meta.join(' · ')));
+            foglio.appendChild(testa);
+
+            (Array.isArray(ev.lista) ? ev.lista : []).forEach(g => {
+                if (!g.items || !g.items.length) return;
+                const sez = el('section', 'ps-gruppo');
+                sez.appendChild(el('h2', 'ps-gruppo-tit', g.titolo));
+                const ul = el('ul', 'ps-voci');
+                g.items.forEach(it => {
+                    const li = el('li', 'ps-voce');
+                    if (formato === 'lista') li.appendChild(el('span', 'ps-box', ''));
+                    if (it.qty) li.appendChild(el('span', 'ps-qta', it.qty));
+                    li.appendChild(el('span', 'ps-nome', it.nome));
+                    const cs = _bpParseCost(it.costo);
+                    if (formato === 'preventivo' && cs > 0) li.appendChild(el('span', 'ps-tot', _bpMoney(cs)));
+                    ul.appendChild(li);
+                });
+                sez.appendChild(ul);
+                foglio.appendChild(sez);
+            });
+
+            const piede = el('footer', 'ps-piede');
+            if (formato === 'preventivo') {
+                piede.appendChild(el('p', 'ps-totale', T('budgetLabel') + ' ' + _bpMoney(totale)));
+                piede.appendChild(el('p', 'ps-note', T('printNote')));
+            } else {
+                const perP = ospiti && totale ? ' · ' + _bpMoney(totale / ospiti) + ' ' + T('perPersonaTxt') : '';
+                piede.appendChild(el('p', 'ps-stima', _bpMoney(totale) + perP));
+            }
+            foglio.appendChild(piede);
+        }
+
         /* La quantita' che si legge sul foglio e' quella d'acquisto, non il
            fabbisogno grezzo: al supermercato si comprano bottiglie, non
            millilitri. */
@@ -7501,12 +7728,19 @@ Annulla = ` + T('backupUnisci'));
                 alert(T('alertNoListPrint') || 'Genera prima la lista della spesa, poi prova a stampare.');
                 return;
             }
-            const dlg = document.getElementById('bp-print-dialog');
-            if (!dlg || typeof dlg.showModal !== 'function') { bpStampaOra('lista'); return; }
+            bpChiediStampa(null, bpFormatoStampa());
+        }
 
-            const scelto = bpFormatoStampa();
-            const radio = dlg.querySelector('input[name="bp-print-formato"][value="' + scelto + '"]');
+        /* Chiede il formato e stampa. `fonte` e' l'evento salvato da stampare,
+           oppure null per la lista che si sta preparando. */
+        let bpFonteStampaScelta = null;
+        function bpChiediStampa(fonte, formatoIniziale) {
+            const dlg = document.getElementById('bp-print-dialog');
+            if (!dlg || typeof dlg.showModal !== 'function') { bpStampaOra(fonte); return; }
+
+            const radio = dlg.querySelector('input[name="bp-print-formato"][value="' + formatoIniziale + '"]');
             if (radio) radio.checked = true;
+            bpFonteStampaScelta = fonte;
 
             if (!dlg._bpBound) {
                 dlg._bpBound = true;
@@ -7515,14 +7749,14 @@ Annulla = ` + T('backupUnisci'));
                     const sel = dlg.querySelector('input[name="bp-print-formato"]:checked');
                     const formato = sel ? sel.value : 'lista';
                     bpRicordaFormatoStampa(formato);
-                    bpStampaOra(formato);
+                    bpStampaOra(bpFonteStampaScelta);
                 });
             }
             dlg.showModal();
         }
 
-        function bpStampaOra() {
-            bpBeginPrint('lista');
+        function bpStampaOra(fonte) {
+            bpBeginPrint('lista', (fonte && typeof fonte === 'object') ? fonte : null);
             try { window.print(); }
             catch (e) {
                 console.warn('[print] window.print() non disponibile:', e);
@@ -7539,7 +7773,7 @@ Annulla = ` + T('backupUnisci'));
            agli altri i propri prezzi d'acquisto. */
         function bpTestoRiga(li) {
             const c = li.cloneNode(true);
-            c.querySelectorAll('.riga-mod').forEach(e => e.remove());
+            c.querySelectorAll('.riga-mod, .voce-badge').forEach(e => e.remove());
             return c.innerText.replace(/\s*\n\s*/g, ' ').trim();
         }
 
