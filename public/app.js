@@ -2410,6 +2410,30 @@
         // Snapshot dei cocktail predefiniti — per "Ripristina originale" nella libreria.
         const DB_ORIGINAL = JSON.parse(JSON.stringify(databaseDrink));
 
+        /* ── Il tipo di un ingrediente che l'app conosce gia' ──
+           Nel database ogni ingrediente ha UN tipo solo (verificato: 105
+           ingredienti, zero conflitti). Prima l'editor dei cocktail lasciava
+           scegliere a mano e partiva da "alcolico": un Succo di Lime lasciato
+           cosi' finiva fra gli alcolici della lista. Ora per gli ingredienti
+           noti decide il database, nell'editor e nel calcolo (che sistema
+           anche le ricette gia' salvate male). Si sceglie a mano solo per un
+           ingrediente nuovo. */
+        let _bpTipiNoti = null;
+        function bpTipoNoto(nome) {
+            if (!_bpTipiNoti) {
+                _bpTipiNoti = Object.create(null);
+                Object.keys(DB_ORIGINAL).forEach(d => DB_ORIGINAL[d].forEach(i => {
+                    const k = normalizzaIngrediente(i.nome).toLowerCase();
+                    if (!_bpTipiNoti[k]) _bpTipiNoti[k] = i.tipo === 'alcolico' ? 'alcolico' : 'analcolico';
+                }));
+                // Gli amari degli shot non stanno in nessuna ricetta, ma sono bottiglie alcoliche.
+                BP_AMARI_DEFAULT.forEach(n => { const k = n.toLowerCase(); if (!_bpTipiNoti[k]) _bpTipiNoti[k] = 'alcolico'; });
+            }
+            const k = normalizzaIngrediente(String(nome == null ? '' : nome)).toLowerCase();
+            return k && _bpTipiNoti[k] ? _bpTipiNoti[k] : null;
+        }
+        function bpIngAlcolico(ing) { return (bpTipoNoto(ing && ing.nome) || (ing && ing.tipo)) === 'alcolico'; }
+
         /* ════ LIBRERIA RICETTE · "I miei cocktail" / "I miei amari" ════
            Store persistente, separato da barmanProState_v7 (sopravvive al reset evento).
            mods: ricette modificate/create (riapplicate su databaseDrink al load)
@@ -3922,7 +3946,7 @@ Annulla = ` + T('backupUnisci'));
             for (const d in databaseDrink) {
                 databaseDrink[d].forEach(ing => {
                     setTuttiIngredienti.add(ing.nome);
-                    if (ing.tipo === 'alcolico') setSoloAlcolici.add(ing.nome);
+                    if (bpIngAlcolico(ing)) setSoloAlcolici.add(ing.nome);
                 });
             }
             customShots.forEach(s => {
@@ -3974,7 +3998,7 @@ Annulla = ` + T('backupUnisci'));
         function bpTipoVoce(nome) {
             const ings = databaseDrink[nome];
             if (!ings) return 'shot';
-            return ings.some(i => i.tipo === 'alcolico') ? 'drink' : 'mocktail';
+            return ings.some(bpIngAlcolico) ? 'drink' : 'mocktail';
         }
         function bpMenuDi(tipo) {
             return tipo === 'drink' ? menuSerataDrink : (tipo === 'mocktail' ? menuSerataMocktail : menuSerataShot);
@@ -4875,6 +4899,16 @@ Annulla = ` + T('backupUnisci'));
             nl: { servQ:"Hoe je schenkt", servBar:"Bar / receptie", servFesta:"Feest / club",
                   servBarSub:"IBA-maten, 45 ml in highballs", servFestaSub:"Groot glas, 60 ml in highballs" }
         };
+        const _tipoI18n = {
+            it: { libTipoAuto:"Ingrediente già noto: il tipo lo imposta l'app" },
+            en: { libTipoAuto:"Known ingredient: the app sets the type" },
+            es: { libTipoAuto:"Ingrediente conocido: el tipo lo pone la app" },
+            fr: { libTipoAuto:"Ingrédient connu : l'app fixe le type" },
+            de: { libTipoAuto:"Bekannte Zutat: die App legt den Typ fest" },
+            pt: { libTipoAuto:"Ingrediente conhecido: o tipo é definido pela app" },
+            nl: { libTipoAuto:"Bekend ingrediënt: de app bepaalt het type" }
+        };
+        Object.keys(_tipoI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _tipoI18n[lg]); });
         Object.keys(_servI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _servI18n[lg]); });
 
         const _ariaI18n = {
@@ -5862,7 +5896,7 @@ Annulla = ` + T('backupUnisci'));
                     if (q && disp.toLowerCase().indexOf(q) < 0 && name.toLowerCase().indexOf(q) < 0) return;
                     count++;
                     const ings = databaseDrink[name] || [];
-                    const allAnalc = ings.length > 0 && ings.every(i => i.tipo !== 'alcolico');
+                    const allAnalc = ings.length > 0 && !ings.some(bpIngAlcolico);
                     const ingTxt = ings.map(i => _bpEsc(tradIngrediente(i.nome)) + ' ' + _bplMl(i.ml)).join(' · ');
                     const isCustom = bpRecipes.custom.indexOf(name) >= 0;
                     const isMod = !isCustom && Object.prototype.hasOwnProperty.call(bpRecipes.mods, name);
@@ -5937,6 +5971,18 @@ Annulla = ` + T('backupUnisci'));
             div.querySelector('.ing-nome').value = preset && preset.nome ? preset.nome : '';
             div.querySelector('.ing-ml').value = preset && preset.ml != null ? preset.ml : '';
             div.querySelector('.ing-tipo').value = preset && preset.tipo ? preset.tipo : 'alcolico';
+            /* Ingrediente noto: il tipo lo mette l'app e il menu si blocca.
+               Ingrediente nuovo: il menu torna libero. */
+            const nomeEl = div.querySelector('.ing-nome'), tipoEl = div.querySelector('.ing-tipo');
+            const allinea = () => {
+                const noto = bpTipoNoto(nomeEl.value);
+                if (noto) tipoEl.value = noto;
+                tipoEl.disabled = !!noto;
+                tipoEl.title = noto ? T('libTipoAuto') : '';
+            };
+            nomeEl.addEventListener('input', allinea);
+            nomeEl.addEventListener('change', allinea);
+            allinea();
             div.querySelector('.btn-rimuovi-ing').addEventListener('click', () => div.remove());
             c.appendChild(div);
         }
@@ -5949,7 +5995,7 @@ Annulla = ` + T('backupUnisci'));
             document.querySelectorAll('#bpl-ing .creator-row').forEach(row => {
                 const n = row.querySelector('.ing-nome').value.trim();
                 const ml = parseFloat(row.querySelector('.ing-ml').value);
-                const tipo = row.querySelector('.ing-tipo').value;
+                const tipo = bpTipoNoto(n) || row.querySelector('.ing-tipo').value;
                 if (n && !isNaN(ml) && ml > 0) ings.push({ nome: n, tipo: tipo, ml: ml });
             });
             if (!ings.length) return alert(T('libAlertIng'));
@@ -6002,7 +6048,7 @@ Annulla = ` + T('backupUnisci'));
 
         function bpLibAddToMenu(nome){
             const ings = databaseDrink[nome]; if (!ings) return;
-            const hasAlc = ings.some(i => i.tipo === 'alcolico');
+            const hasAlc = ings.some(bpIngAlcolico);
             if (hasAlc){ if (!(nome in menuSerataDrink)) menuSerataDrink[nome] = 1; }
             else { if (!(nome in menuSerataMocktail)) menuSerataMocktail[nome] = 1; }
             renderizzaMenu();
@@ -6753,7 +6799,7 @@ Annulla = ` + T('backupUnisci'));
                 const qty = Math.ceil(drinkTotali * (drink[nome] / pesoTotDrink));
                 _ricetta(nome).forEach(ing => {
                     const k = normalizzaIngrediente(ing.nome);
-                    if (ing.tipo === 'alcolico') spesaAlcolici[k] = (spesaAlcolici[k] || 0) + (ing.ml * qty);
+                    if (bpIngAlcolico(ing)) spesaAlcolici[k] = (spesaAlcolici[k] || 0) + (ing.ml * qty);
                     else spesaAnalcolici[k] = (spesaAnalcolici[k] || 0) + (ing.ml * qty);
                 });
             });
