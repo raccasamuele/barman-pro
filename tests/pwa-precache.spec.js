@@ -238,15 +238,19 @@ test.describe("PWA . pagina di presentazione", () => {
     expect(await page.evaluate(() => !!navigator.serviceWorker.controller),
       "il service worker non controlla la pagina: il test non proverebbe niente").toBe(true);
 
-    const stato = await page.evaluate(async () => (await fetch("/media/presentazione.mp4")).status);
-    expect(stato).toBe(200);
+    const stati = await page.evaluate(async () => [
+      (await fetch("/media/presentazione.mp4")).status,
+      (await fetch("/media/hls/presentazione.m3u8")).status,
+      (await fetch("/media/hls/presentazione-00.ts")).status,
+    ]);
+    expect(stati).toEqual([200, 200, 200]);
 
     const video = await page.evaluate(async () => {
       await new Promise((r) => setTimeout(r, 500));
       const trovati = [];
       for (const nome of await caches.keys()) {
         const c = await caches.open(nome);
-        for (const k of await c.keys()) if (k.url.endsWith(".mp4")) trovati.push(nome + " " + k.url);
+        for (const k of await c.keys()) if (/\.(mp4|m3u8|ts)$/.test(k.url)) trovati.push(nome + " " + k.url);
       }
       return trovati;
     });

@@ -128,7 +128,16 @@
     <section class="video wrap" id="video" aria-label="Video di presentazione">
         <div class="cornice">
             <div class="schermo">
-                <video id="filmato" src="media/presentazione.mp4" poster="media/presentazione-poster.jpg" width="1920" height="1080" controls playsinline muted preload="metadata" aria-describedby="scene-video"></video>
+                <!-- Prima HLS, poi MP4. Cloudflare serve i file statici senza
+                     richieste a pezzi (Range), e Safari su iPhone non riproduce
+                     un MP4 cosi'. HLS e' fatto di pezzi piccoli scaricati interi:
+                     lo usano Safari e Instagram su iPhone. Gli altri browser
+                     saltano HLS e prendono l'MP4, che riproducono anche senza Range
+                     (l'indice del file sta in testa). -->
+                <video id="filmato" poster="media/presentazione-poster.jpg" width="1920" height="1080" controls playsinline muted preload="metadata" aria-describedby="scene-video">
+                    <source src="media/hls/presentazione.m3u8" type="application/vnd.apple.mpegurl">
+                    <source src="media/presentazione.mp4" type="video/mp4">
+                </video>
             </div>
         </div>
         <div class="video-azioni">

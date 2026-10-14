@@ -63,12 +63,20 @@ test.describe('Presentazione', () => {
 
   test('video e copertina rispondono, e la pagina e\' nella sitemap', async ({ page, request }) => {
     await page.goto('/presentazione');
-    const src = await page.locator('#filmato').getAttribute('src');
+    const sorgenti = await page.locator('#filmato source').evaluateAll((s) => s.map((x) => x.getAttribute('src')));
+    // HLS prima dell'MP4: e' l'unico modo per Safari su iPhone, visto che
+    // Cloudflare non serve i file statici a pezzi (Range).
+    expect(sorgenti).toEqual(['media/hls/presentazione.m3u8', 'media/presentazione.mp4']);
     const poster = await page.locator('#filmato').getAttribute('poster');
-    for (const u of [src, poster, 'media/presentazione-og.jpg']) {
+    for (const u of [...sorgenti, poster, 'media/presentazione-og.jpg']) {
       const r = await request.get('/' + u);
       expect(r.status(), u).toBe(200);
     }
+    // Ogni pezzo citato dalla playlist esiste.
+    const playlist = fs.readFileSync(path.join(PUBLIC, 'media', 'hls', 'presentazione.m3u8'), 'utf8');
+    const pezzi = playlist.split('\n').filter((r) => r.trim() && !r.startsWith('#'));
+    expect(pezzi.length).toBeGreaterThan(5);
+    for (const p of pezzi) expect(fs.existsSync(path.join(PUBLIC, 'media', 'hls', p.trim())), p).toBe(true);
     const sitemap = fs.readFileSync(path.join(PUBLIC, 'sitemap.xml'), 'utf8');
     expect(sitemap).toContain('/presentazione</loc>');
   });

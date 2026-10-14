@@ -83,12 +83,12 @@ self.addEventListener('fetch', event => {
     // Ignora richieste cross-origin (CDN font Google) — lascia gestire al browser
     if (url.origin !== location.origin) return;
 
-    // Video (pagina di presentazione): fuori dal service worker.
-    // Il lettore lo chiede a pezzi (header Range, risposte 206) e Safari non
-    // riproduce un video servito dalla cache come risposta intera. In piu'
-    // sono ~7 MB: in cache-first resterebbero sul telefono di chiunque abbia
-    // aperto la pagina una volta. Lo gestisce il browser, come i file esterni.
-    if (url.pathname.endsWith('.mp4')) return;
+    // Video (pagina di presentazione, MP4 e pezzi HLS): fuori dal service
+    // worker. Sono ~7 MB: in cache-first resterebbero sul telefono di
+    // chiunque abbia aperto la pagina una volta, e un lettore video che
+    // chiede pezzi (Range) non va servito dalla cache come risposta intera.
+    // Li gestisce il browser, come i file esterni.
+    if (/\.(mp4|m3u8|ts)$/.test(url.pathname)) return;
 
     // PDF: network-first (file pesante, vogliamo sempre l'ultima versione se possibile)
     if (url.pathname.endsWith('.pdf')) {
