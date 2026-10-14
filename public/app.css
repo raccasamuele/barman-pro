@@ -2989,17 +2989,55 @@ body[data-sezione] #bp-settings .bpc-close { display: none; }
 .bpe-tot { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 14px 0 16px; font-family: var(--bp-font); }
 .bpe-tot b { font-size: var(--t-xl, 28px); font-weight: 800; color: var(--bp-ink); font-variant-numeric: tabular-nums; }
 .bpe-tot span { font-size: var(--t-sm); color: var(--bp-ink-faint); }
-.bpe-azioni { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
-@media (max-width: 480px) { .bpe-azioni { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Tre azioni uguali, icona sopra e scritta sotto. Nessuna e' blu pieno:
+   qui il blu pieno vuol dire "dove sei", ed e' solo il cursore
+   dell'interruttore qui sotto. */
+.bpe-azioni { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
 .bpe-az {
-    width: 100%; min-height: 46px; padding: 10px 8px; border-radius: var(--r-md);
+    width: 100%; min-height: 64px; padding: 10px 6px; border-radius: var(--r-md);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
     border: 1px solid var(--bp-line-control); background: var(--bp-panel); color: var(--bp-ink);
-    font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer;
+    font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer;
+    transition: border-color 150ms ease, background-color 150ms ease;
 }
-.bpe-az:first-child { background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-on-accent); }
-.bpe-az:hover { transform: none; border-color: var(--bp-accent); }
-.bpe-az:first-child:hover { background: var(--bp-accent-hover); }
-.bpe-schede { padding-bottom: 14px; }
+.bpe-az .bpe-ic { width: 20px; height: 20px; color: var(--bp-accent-ink); }
+.bpe-az span { line-height: 1.2; text-align: center; }
+.bpe-az:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-accent-soft); }
+.bpe-az:active { transform: scale(.97); }
+.bpe-az:focus-visible { outline: 2px solid var(--bp-accent); outline-offset: 2px; }
+
+/* L'interruttore Da comprare / Preventivo: una pillola con un cursore che
+   scivola sotto la scheda scelta. data-tab sul contenitore decide dove sta
+   il cursore; bpEventOpen lo fa partire dalla scheda di prima. */
+.bpe-switch {
+    position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    margin: 0 0 18px; padding: 4px; border-radius: 999px;
+    background: var(--bp-sunken); border: 1px solid var(--bp-line);
+}
+.bpe-sw-cursore {
+    position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
+    border-radius: 999px; background: var(--bp-accent);
+    box-shadow: 0 6px 16px -8px var(--bp-shadow-color);
+    transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
+}
+.bpe-switch[data-tab="preventivo"] .bpe-sw-cursore { transform: translateX(100%); }
+.bpe-sw-op {
+    position: relative; z-index: 1; width: 100%; min-height: 52px; margin: 0; padding: 6px 10px;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    background: none; border: none; border-radius: 999px; box-shadow: none;
+    color: var(--bp-ink-soft); font-family: var(--bp-font); text-transform: none; letter-spacing: 0; cursor: pointer;
+    transition: color 200ms ease;
+}
+.bpe-sw-op:hover { transform: none; background: none; color: var(--bp-ink); }
+.bpe-sw-op.on, .bpe-sw-op.on:hover { color: var(--bp-on-accent); }
+.bpe-sw-op:focus-visible { outline: 2px solid var(--bp-accent); outline-offset: 3px; }
+.bpe-sw-op .bpe-ic { flex: none; width: 20px; height: 20px; }
+.bpe-sw-tx { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; line-height: 1.15; }
+.bpe-sw-nm { font-size: var(--t-sm); font-weight: 800; }
+.bpe-sw-dato { font-size: var(--t-xs); font-weight: 600; opacity: .8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+    .bpe-sw-cursore, .bpe-sw-op { transition: none; }
+}
 
 .bpe-prev-gr { margin-bottom: 18px; }
 .bpe-prev-gr .gt { font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--bp-accent-ink); padding-bottom: 6px; border-bottom: 1px solid var(--bp-line); }
@@ -3397,3 +3435,100 @@ body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .s
 #bp-config .bpc-back { background: none; border-color: transparent; color: var(--bp-ink-soft); padding-inline: 10px; }
 #bp-config .bpc-next { background: var(--bp-accent); color: var(--bp-on-accent); }
 #bp-config .bpc-next:hover { background: var(--bp-accent-hover); }
+
+/* ── La lista, compatta come il preventivo (ottobre 2026) ──
+   Prima: titolo "Da preparare" a 30px su due righe, vetrina del prezzo a
+   meta' schermo, un riquadro con pallino per reparto e ogni voce su due
+   righe. Ora e' lo stesso impianto del preventivo dell'evento salvato:
+   totale in testa a sinistra, reparti come intestazioni in maiuscoletto,
+   una riga per voce (nome | quantita' | costo) e il subtotale.
+   Solo a schermo: la stampa usa il foglio #print-sheet. Le regole hanno
+   l'id davanti perche' devono vincere sulle vecchie, che ce l'hanno. */
+@media screen {
+    #risultati { margin-top: 28px; }
+    #risultati .print-title {
+        margin: 0 0 4px; padding: 0; border: none;
+        font-family: var(--bp-font); font-weight: 600; font-size: clamp(20px, 5.5vw, 26px); color: var(--bp-ink);
+    }
+
+    /* testa: totale grande, a persona accanto, il resto piccolo sotto */
+    #budget-box.budget-box {
+        display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px;
+        margin: 0; padding: 0; border: none; border-radius: 0; background: none; box-shadow: none;
+        text-align: left; overflow: visible;
+    }
+    #budget-box.budget-box::before, #budget-box.budget-box::after { display: none; }
+    #budget-box .budget-label {
+        flex: 1 0 100%; order: 0; margin: 10px 0 2px;
+        font-size: var(--t-xs); letter-spacing: .05em; color: var(--bp-ink-faint);
+    }
+    #budget-box .budget-amount {
+        order: 1; margin: 0; font-size: var(--t-xl, 28px); font-weight: 800; letter-spacing: 0;
+        color: var(--bp-ink); filter: none;
+    }
+    #budget-box .budget-perperson {
+        order: 2; display: inline; margin: 0; padding: 0; border: none; background: none;
+        font-size: var(--t-sm); font-weight: 400; color: var(--bp-ink-faint);
+    }
+    #budget-box .budget-sub {
+        flex: 1 0 100%; order: 3; margin-top: 4px; opacity: 1;
+        font-family: var(--bp-font); font-size: var(--t-xs); text-transform: none; letter-spacing: 0; color: var(--bp-ink-faint);
+    }
+    #risultati .risultati-header {
+        text-align: left; margin: 2px 0 6px; padding: 0 0 14px; border-top: none; border-bottom: 1px solid var(--bp-line);
+    }
+    #risultati .total-drinks, #risultati .total-drinks strong {
+        font-size: var(--t-xs); font-weight: 600; letter-spacing: 0; color: var(--bp-ink-faint);
+    }
+
+    /* reparti: niente riquadri, un'intestazione con la riga sotto */
+    #risultati > .grid { display: block; }
+    #risultati .result-section {
+        margin: 22px 0 0; padding: 0; border: none; border-radius: 0; background: none; box-shadow: none;
+    }
+    #risultati .result-section h3 {
+        display: block; margin: 0; padding: 0 0 6px; border-bottom: 1px solid var(--bp-line);
+        font-family: var(--bp-font); font-size: var(--t-xs); font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+        color: var(--bp-accent-ink);
+    }
+    #risultati .result-section h3::before { display: none; }
+    #risultati .result-section .descrizione { margin: 8px 0 0; font-size: var(--t-xs); color: var(--bp-ink-faint); text-align: left; }
+
+    /* una riga per voce, colonne allineate fra righe (subgrid sopra) */
+    #risultati ul { grid-template-columns: minmax(0, 1fr) auto auto; }
+    #risultati li,
+    #risultati li:hover {
+        grid-template-columns: minmax(0, 1fr) auto auto; column-gap: 14px; row-gap: 0;
+        padding: 9px 2px; border-radius: 0; border-bottom: 1px solid var(--bp-line);
+        font-size: var(--t-sm);
+    }
+    @supports (grid-template-columns: subgrid) {
+        #risultati li, #risultati li:hover { grid-template-columns: subgrid; }
+    }
+    #risultati li:last-child { border-bottom: 1px solid var(--bp-line); }
+    #risultati li.voce-tocca { border-radius: 0; }
+    #risultati .result-section li:hover { background: none; }
+    @media (hover: hover) { #risultati li.voce-tocca:hover { background: var(--bp-sunken); } }
+    #risultati li > span:first-child,
+    #risultati li span:first-child {
+        grid-column: auto; overflow-wrap: anywhere;
+        font-size: var(--t-sm); font-weight: 400; color: var(--bp-ink);
+    }
+    #risultati li strong {
+        font-size: var(--t-sm); font-weight: 400; letter-spacing: 0; color: var(--bp-ink-faint);
+        font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    #risultati li > strong.qta-tua { color: var(--bp-accent-ink); font-weight: 700; }
+    #risultati li .costo-voce {
+        font-size: var(--t-sm); font-weight: 400; color: var(--bp-ink); opacity: 1; font-variant-numeric: tabular-nums;
+    }
+    #risultati li.voce-zero { display: none; }
+
+    /* subtotale del reparto, come nel preventivo */
+    #risultati .ris-sub {
+        display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 9px 2px 0;
+        font-family: var(--bp-font); font-size: var(--t-sm); font-weight: 700; color: var(--bp-ink-soft);
+        font-variant-numeric: tabular-nums;
+    }
+    #risultati .bp-lista-tocca { margin-top: 18px; }
+}

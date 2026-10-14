@@ -5393,7 +5393,7 @@ Annulla = ` + T('backupUnisci'));
                 const sec = ul.closest('.result-section'); const h3 = sec ? sec.querySelector('h3') : null;
                 const titolo = h3 ? h3.textContent.trim() : '';
                 const items = [];
-                ul.querySelectorAll('li').forEach(li => {
+                ul.querySelectorAll('li:not(.voce-zero)').forEach(li => {
                     const sp = li.querySelector('span'); const strong = li.querySelector('strong'); const cs = li.querySelector('.costo-voce');
                     const nome = sp ? sp.textContent.trim() : li.textContent.trim();
                     if (!nome) return;
@@ -5493,6 +5493,18 @@ Annulla = ` + T('backupUnisci'));
                     if (item && mount._evId){ bpChkToggle(mount._evId, item, item.dataset.key); return; }
                     mount.querySelectorAll('.bpc-evmenu.show').forEach(m => m.classList.remove('show'));
                 });
+                /* L'interruttore e' un tablist: le frecce passano all'altra
+                   scheda, e il fuoco la segue dopo il ridisegno. */
+                mount.addEventListener('keydown', e => {
+                    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+                    if (!e.target.closest('.bpe-switch [role="tab"]') || !mount._evId) return;
+                    e.preventDefault();
+                    const verso = e.key === 'ArrowRight' ? 'preventivo' : 'compra';
+                    if (verso === mount._evTab) return;
+                    bpEventOpen(mount._evId, verso);
+                    const on = mount.querySelector('.bpe-switch [aria-selected="true"]');
+                    if (on) on.focus();
+                });
             }
                     }
 
@@ -5549,6 +5561,28 @@ Annulla = ` + T('backupUnisci'));
            al salvataggio (ev.lista): e' cio' che si e' salvato, e non cambia se
            nel frattempo cambiano i prezzi o la bozza in corso. */
         function _bpEvento(id) { return bpGetEvents().find(e => e.id === id) || null; }
+
+        /* Icone delle azioni e dell'interruttore: stesso tratto della barra in
+           basso (1.7, estremi arrotondati), nessuna libreria. */
+        const BP_ICONE = {
+            modifica: '<path d="M21.2 6.8a2.8 2.8 0 0 0-4-4L3.8 16.2a2 2 0 0 0-.5.8l-1.3 4.4a.5.5 0 0 0 .6.6l4.4-1.3a2 2 0 0 0 .8-.5z"/><path d="m15 5 4 4"/>',
+            condividi: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+            stampa: '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+            carrello: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 2h2l2.7 12.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L22 7H5.1"/>',
+            documento: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8M8 17h8M8 9h2"/>'
+        };
+        function _bpIcona(nome) {
+            return '<svg class="bpe-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + BP_ICONE[nome] + '</svg>';
+        }
+        /* Voci spuntate su voci totali: la scritta sotto "Da comprare". */
+        function _bpEvProgresso(ev) {
+            let tot = 0, done = 0;
+            (Array.isArray(ev.lista) ? ev.lista : []).forEach(g => (g.items || []).forEach(it => {
+                tot++; if (ev.check && ev.check[g.key + '|' + it.nome]) done++;
+            }));
+            return { tot, done };
+        }
+
         function bpEventOpen(id, scheda){
             const _T = _bpT();
             const ev = _bpEvento(id); if (!ev) return;
@@ -5556,27 +5590,43 @@ Annulla = ` + T('backupUnisci'));
             const mount = document.getElementById('bp-ev-mount'); if (!mount) return;
             const tab = (scheda === 'preventivo' || scheda === 'compra') ? scheda
                       : ((mount._evId === id && mount._evTab) || 'compra');
+            /* Da dove parte il cursore dell'interruttore: dalla scheda di prima,
+               se si sta solo cambiando scheda dello stesso evento. Cosi' scivola
+               invece di comparire gia' arrivato. */
+            const tabPrima = (mount._evId === id && mount._evTab) ? mount._evTab : tab;
             ev.check = ev.check || {};
             const c = ev.config || {};
             const ospiti = parseInt(c.ospiti) || 0;
             const totale = _bpParseCost(ev.totale);
             const eid = _bpEsc(ev.id);
+            const prog = _bpEvProgresso(ev);
 
             const sub = [_bpFmtDate(ev.data)];
             if (ospiti) sub.push(ospiti + ' ' + _T('evGuestsWord'));
             if (c.servizio === 'bar' || c.servizio === 'festa') sub.push(_T(c.servizio === 'festa' ? 'servFesta' : 'servBar'));
+            /* Le azioni sono tutte uguali, con il contorno: il blu pieno qui
+               vuol dire solo "dove sei", ed e' il cursore dell'interruttore.
+               Prima "Modifica" era blu pieno e sembrava gia' selezionato. */
+            const az = (fn, ic, testo) => '<button type="button" class="bpe-az" data-do="' + fn + '" data-arg="' + eid + '">'
+                + _bpIcona(ic) + '<span>' + _bpEsc(testo) + '</span></button>';
+            const op = (nome, fn, ic, testo, dato, idDato) => '<button type="button" role="tab" class="bpe-sw-op' + (tab === nome ? ' on' : '') + '"'
+                + ' aria-selected="' + (tab === nome) + '" tabindex="' + (tab === nome ? '0' : '-1') + '" data-do="' + fn + '" data-arg="' + eid + '">'
+                + _bpIcona(ic) + '<span class="bpe-sw-tx"><span class="bpe-sw-nm">' + _bpEsc(testo) + '</span>'
+                + '<span class="bpe-sw-dato"' + (idDato ? ' id="' + idDato + '"' : '') + '>' + _bpEsc(dato) + '</span></span></button>';
             let h = '<div class="bpc-chkhead"><h2>' + _bpEsc(ev.nome) + '</h2><div class="sub">' + _bpEsc(sub.join(' · ')) + '</div></div>'
                 + '<div class="bpe-tot"><b>' + _bpMoney(totale) + '</b>'
                 + (ospiti && totale ? '<span>≈ ' + _bpMoney(totale / ospiti) + ' ' + _bpEsc(_T('perPersonaTxt')) + '</span>' : '') + '</div>'
                 + '<div class="bpe-azioni">'
-                +   '<button type="button" class="bpe-az" data-do="bpEventEdit" data-arg="' + eid + '">' + _bpEsc(_T('evEdit')) + '</button>'
-                +   '<button type="button" class="bpe-az" data-do="bpEventCondividi" data-arg="' + eid + '">' + _bpEsc(_T('btnCondividi')) + '</button>'
-                +   '<button type="button" class="bpe-az" data-do="bpEventStampa" data-arg="' + eid + '">' + _bpEsc(_T('evStampaBreve')) + '</button>'
-                +   '<button type="button" class="bpe-az" data-do="bpMenuOpenFromEvent" data-arg="' + eid + '">' + _bpEsc(_T('evMenuBreve')) + '</button>'
+                +   az('bpEventEdit', 'modifica', _T('evEdit'))
+                +   az('bpEventCondividi', 'condividi', _T('btnCondividi'))
+                +   az('bpEventStampa', 'stampa', _T('evStampaBreve'))
+                /* "Menu'" tolto per ora su richiesta: bpMenuOpenFromEvent resta,
+                   per rimetterlo basta una riga az(...) qui. */
                 + '</div>'
-                + '<div class="bp-chips bpe-schede" role="tablist">'
-                +   '<button type="button" role="tab" class="bp-chip' + (tab === 'compra' ? ' on' : '') + '" aria-selected="' + (tab === 'compra') + '" data-do="bpEventSchedaCompra" data-arg="' + eid + '">' + _bpEsc(_T('evTabCompra')) + '</button>'
-                +   '<button type="button" role="tab" class="bp-chip' + (tab === 'preventivo' ? ' on' : '') + '" aria-selected="' + (tab === 'preventivo') + '" data-do="bpEventSchedaPrev" data-arg="' + eid + '">' + _bpEsc(_T('printPrevNome')) + '</button>'
+                + '<div class="bpe-schede bpe-switch" role="tablist" data-tab="' + tabPrima + '">'
+                +   '<span class="bpe-sw-cursore" aria-hidden="true"></span>'
+                +   op('compra', 'bpEventSchedaCompra', 'carrello', _T('evTabCompra'), prog.done + '/' + prog.tot + ' ' + _T('chkBought'), 'bp-sw-prog')
+                +   op('preventivo', 'bpEventSchedaPrev', 'documento', _T('printPrevNome'), _bpMoney(totale), '')
                 + '</div>';
 
             const lista = Array.isArray(ev.lista) ? ev.lista : [];
@@ -5600,8 +5650,9 @@ Annulla = ` + T('backupUnisci'));
                     body += '</div>';
                 });
                 const pct = tot ? Math.round(done / tot * 100) : 0;
-                h += '<div class="bpc-chkprog"><div class="bar"><div class="fill" id="bp-chk-fill" style="width:' + pct + '%"></div></div>'
-                   + '<span class="lbl" id="bp-chk-lbl">' + done + '/' + tot + ' ' + _T('chkBought') + '</span></div>'
+                /* Il conteggio scritto sta gia' nell'interruttore qui sopra: la barra
+                   resta da sola, senza ripeterlo. */
+                h += '<div class="bpc-chkprog"><div class="bar"><div class="fill" id="bp-chk-fill" style="width:' + pct + '%"></div></div></div>'
                    + '<div class="bpc-chkstats">'
                    + '<div class="bpc-chkstat"><div class="k">' + _T('chkTotale') + '</div><div class="v">' + _bpMoney(costTot) + '</div></div>'
                    + '<div class="bpc-chkstat spent"><div class="k">' + _T('chkSpeso') + '</div><div class="v" id="bp-chk-speso">' + _bpMoney(costDone) + '</div></div>'
@@ -5632,6 +5683,14 @@ Annulla = ` + T('backupUnisci'));
             mount.innerHTML = h;
             mount._evId = id; mount._evTab = tab;
             mount._evTot = 0;   // i tap sulle voci sono gestiti per delega in bpEventsMount
+            /* Il cursore e' nato sulla scheda di prima: una lettura del layout
+               fissa quella posizione, poi lo si sposta e la transizione parte.
+               Niente requestAnimationFrame: in una scheda in secondo piano non
+               scatta, e il cursore resterebbe sulla scheda sbagliata. */
+            if (tabPrima !== tab) {
+                const sw = mount.querySelector('.bpe-switch');
+                if (sw) { void sw.offsetWidth; sw.dataset.tab = tab; }
+            }
         }
         function bpEventSchedaCompra(id) { bpEventOpen(id, 'compra'); }
         function bpEventSchedaPrev(id) { bpEventOpen(id, 'preventivo'); }
@@ -5745,7 +5804,7 @@ Annulla = ` + T('backupUnisci'));
             }));
             const set = (eid, txt) => { const e = document.getElementById(eid); if (e) e.textContent = txt; };
             const fill = document.getElementById('bp-chk-fill'); if (fill) fill.style.width = (tot ? Math.round(done/tot*100) : 0) + '%';
-            set('bp-chk-lbl', done + '/' + tot + ' ' + _bpT()('chkBought'));
+            set('bp-sw-prog', done + '/' + tot + ' ' + _bpT()('chkBought'));
             set('bp-chk-speso', _bpMoney(cDone));
             set('bp-chk-manca', _bpMoney(cTot - cDone));
         }
@@ -7170,6 +7229,14 @@ Annulla = ` + T('backupUnisci'));
                 li.appendChild(sp); li.appendChild(st);
                 if (r.costo > 0) li.appendChild(costoSpan(r.costo));
                 bpAggiungiEditor(li, r);
+                /* "Bicchierini da shot 0 pz" senza shot nel menu' e' rumore.
+                   La riga resta nel DOM (il testo della lista e' quello che i
+                   golden fotografano) ma non si vede, non si condivide e non
+                   finisce nell'evento. Se l'ha corretta l'utente, resta. */
+                if (bpRigaSuperflua(r)) {
+                    li.classList.add('voce-zero');
+                    li.removeAttribute('tabindex');
+                }
                 ulExtra.appendChild(li);
             });
 
@@ -7190,7 +7257,22 @@ Annulla = ` + T('backupUnisci'));
                 }
             }
 
-            document.getElementById('budget-box').style.display = 'block';
+            /* Subtotale per reparto, come nel preventivo dell'evento salvato.
+               Sta fuori dalle <li>: non entra nel testo delle righe, ne' nella
+               fotografia dell'evento. */
+            [['lista_alcolici', 'alcolici'], ['lista_analcolici', 'analcolici'],
+             ['lista_fermentati', 'fermentati'], ['lista_extra', 'extra']].forEach(([idUl, g]) => {
+                const ul = document.getElementById(idUl); if (!ul) return;
+                const vecchio = ul.parentElement.querySelector('.ris-sub'); if (vecchio) vecchio.remove();
+                const sub = bpRighe(m, g).reduce((s, r) => s + (r.costo || 0), 0);
+                if (!(sub > 0)) return;
+                const p = document.createElement('p'); p.className = 'ris-sub';
+                const k = document.createElement('span'); k.textContent = T('evSubtotale');
+                const v = document.createElement('span'); v.textContent = money(sub);
+                p.appendChild(k); p.appendChild(v); ul.after(p);
+            });
+
+            document.getElementById('budget-box').style.display = '';   // '' e non 'block': la disposizione la decide il CSS
             document.getElementById('budget-amount').textContent = money(m.totale);
             const ppEl = document.getElementById('budget-perperson');
             if (ppEl) {
@@ -7241,6 +7323,11 @@ Annulla = ` + T('backupUnisci'));
                 const nome = li.querySelector('span');
                 if (nome) nome.dataset.badge = T('vocCorretta');
             }
+        }
+        /* Attrezzatura che non serve affatto (zero richiesta, zero da comprare,
+           non toccata dall'utente): la lista e il foglio la tacciono. */
+        function bpRigaSuperflua(r) {
+            return r.gruppo === 'extra' && !(r.requiredBaseQty > 0) && !r.roundedPurchaseQty && !bpVoceCorretta(r.id);
         }
         function bpVoceCorretta(id) {
             return bpQuantita[id] != null || !!bpScorte[id] || bpPrezziUtente[id] != null;
@@ -7598,7 +7685,7 @@ Annulla = ` + T('backupUnisci'));
             const money = n => '€ ' + n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
 
             gruppi.forEach(([g, chiaveTit]) => {
-                const righe = bpRighe(m, g);
+                const righe = bpRighe(m, g).filter(r => !bpRigaSuperflua(r));
                 if (!righe.length) return;
                 // Un reparto non si spezza fra due pagine se puo' evitarlo.
                 const sez = el('section', 'ps-gruppo');
@@ -7804,7 +7891,7 @@ Annulla = ` + T('backupUnisci'));
             }
 
             testo += "\n" + T('copyAttrezzatura') + "\n";
-            document.querySelectorAll('#lista_extra li').forEach(li => {
+            document.querySelectorAll('#lista_extra li:not(.voce-zero)').forEach(li => {
                 testo += "  • " + bpTestoRiga(li) + "\n";
             });
 

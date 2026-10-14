@@ -94,8 +94,64 @@ test.describe('Lista · disposizione delle righe', () => {
       'i prezzi partono da ascisse diverse: ' + bordi.map((r) => r.costo).join(', ')).toBe(1);
   });
 
+  /* Ottobre 2026: la lista ha preso l'impianto del preventivo. Totale in
+     testa, reparti senza riquadro, subtotale per reparto. */
+  test('il totale sta in testa, prima del conteggio dei drink', async ({ page }) => {
+    await listaPronta(page);
+    const y = await page.evaluate(() => ({
+      totale: document.getElementById('budget-amount').getBoundingClientRect().top,
+      conteggio: document.getElementById('drink-totali-text').getBoundingClientRect().top,
+    }));
+    expect(y.totale).toBeLessThan(y.conteggio);
+  });
+
+  test('ogni reparto ha il suo subtotale, e i subtotali fanno il totale', async ({ page }) => {
+    await listaPronta(page);
+    const r = await page.evaluate(() => {
+      const num = (t) => parseFloat(t.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+      const reparti = [...document.querySelectorAll('#risultati .result-section')]
+        .filter((s) => s.offsetParent && s.querySelector('.ris-sub'))
+        .map((s) => ({
+          voci: [...s.querySelectorAll('li .costo-voce')].reduce((a, c) => a + num(c.textContent), 0),
+          sub: num(s.querySelector('.ris-sub span:last-child').textContent),
+        }));
+      return { reparti, totale: num(document.getElementById('budget-amount').textContent) };
+    });
+    expect(r.reparti.length).toBeGreaterThan(1);
+    for (const p of r.reparti) expect(p.sub).toBeCloseTo(p.voci, 2);
+    expect(r.reparti.reduce((a, p) => a + p.sub, 0)).toBeCloseTo(r.totale, 2);
+  });
+
+  /* "Bicchierini da shot 0 pz" senza shot nel menu' era rumore. */
+  test('una voce che non serve affatto non si vede, non si condivide, non si salva', async ({ page }) => {
+    await listaPronta(page);
+    const r = await page.evaluate(() => {
+      const li = document.querySelector('#lista_extra li[data-voce="extra:bicchierini"]');
+      const nelleFoto = JSON.stringify(window.bpSnapshotLista());
+      return {
+        esiste: !!li,
+        visibile: !!(li && li.offsetParent),
+        nelTesto: window.costruisciTestoLista().includes(li.querySelector('span').textContent),
+        nellaFoto: nelleFoto.includes(li.querySelector('span').textContent),
+      };
+    });
+    // resta nel DOM (i golden fotografano il testo della lista) ma non compare
+    expect(r).toEqual({ esiste: true, visibile: false, nelTesto: false, nellaFoto: false });
+  });
+
   test.describe('su telefono', () => {
     test.use({ viewport: { width: 375, height: 812 } });
+
+    test('nome, quantita\' e prezzo stanno sulla stessa riga', async ({ page }) => {
+      await listaPronta(page);
+      const righe = await page.evaluate(() =>
+        [...document.querySelectorAll('#lista_alcolici li')].map((li) => {
+          const c = (e) => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
+          return Math.max(c(li.querySelector('span')), c(li.querySelector('strong')))
+               - Math.min(c(li.querySelector('span')), c(li.querySelector('strong')));
+        }));
+      for (const scarto of righe) expect(scarto).toBeLessThan(6);
+    });
 
     /* Una voce corretta prende il segno "corretta" accanto al nome: e' il
        caso in cui il nome ha meno spazio, quindi e' quello da misurare. */

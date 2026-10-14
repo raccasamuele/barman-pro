@@ -52,14 +52,64 @@ test.describe('Lista · un\'azione sola', () => {
 });
 
 test.describe('Evento salvato', () => {
-  test('salvare porta all\'evento: nome, ospiti, totale e quattro azioni', async ({ page }) => {
+  test('salvare porta all\'evento: nome, ospiti, totale e tre azioni', async ({ page }) => {
     const { totale } = await salvaUnEvento(page);
     await expect(page.locator('.bpc-chkhead h2')).toHaveText('Festa di Giulia');
     await expect(page.locator('.bpc-chkhead .sub')).toContainText('40');
     await expect(page.locator('.bpe-tot b')).toHaveText(totale);
-    await expect(page.locator('.bpe-azioni button')).toHaveCount(4);
+    // Modifica, Condividi, Stampa. "Menu'" e' stato tolto (ottobre 2026).
+    await expect(page.locator('.bpe-azioni button')).toHaveCount(3);
+    await expect(page.locator('.bpe-azioni [data-do="bpMenuOpenFromEvent"]')).toHaveCount(0);
     // si parte dalla lista da spuntare
     await expect(page.locator('.bpc-chkitem').first()).toBeVisible();
+  });
+
+  /* Richiesta dell'utente: "Modifica" era blu pieno e sembrava gia'
+     selezionato; e i tasti senza icona sembravano vuoti. */
+  test('le azioni hanno un\'icona e nessuna sembra gia\' scelta', async ({ page }) => {
+    await salvaUnEvento(page);
+    const az = await page.evaluate(() => [...document.querySelectorAll('.bpe-azioni button')].map((b) => ({
+      icona: !!b.querySelector('svg'),
+      sfondo: getComputedStyle(b).backgroundColor,
+    })));
+    expect(az.every((a) => a.icona), 'una delle azioni non ha icona').toBe(true);
+    // stesso aspetto per tutte: nessuna in evidenza come se fosse attiva
+    expect(new Set(az.map((a) => a.sfondo)).size).toBe(1);
+    const accento = await page.evaluate(() => getComputedStyle(document.querySelector('.bpe-sw-cursore')).backgroundColor);
+    expect(az[0].sfondo).not.toBe(accento);
+  });
+
+  test('l\'interruttore passa da Da comprare a Preventivo e il cursore lo segue', async ({ page }) => {
+    const { totale } = await salvaUnEvento(page);
+    const sw = page.locator('.bpe-switch');
+    await expect(sw).toHaveAttribute('data-tab', 'compra');
+    await expect(sw.locator('[role="tab"]')).toHaveCount(2);
+    // il dato sotto ogni scelta: quante voci prese e il totale
+    await expect(page.locator('#bp-sw-prog')).toHaveText(/^0\/\d+ acquistati$/);
+    await expect(sw.locator('[data-do="bpEventSchedaPrev"] .bpe-sw-dato')).toHaveText(totale);
+
+    await sw.locator('[data-do="bpEventSchedaPrev"]').click();
+    await expect(sw).toHaveAttribute('data-tab', 'preventivo');
+    await expect(sw.locator('[data-do="bpEventSchedaPrev"]')).toHaveAttribute('aria-selected', 'true');
+    const x = await page.evaluate(() => {
+      const s = document.querySelector('.bpe-switch'), c = s.querySelector('.bpe-sw-cursore');
+      c.style.transition = 'none';   // la posizione d'arrivo, non un fotogramma a meta'
+      const r = c.getBoundingClientRect(), rs = s.getBoundingClientRect();
+      return { cursore: r.left + r.width / 2, meta: rs.left + rs.width / 2 };
+    });
+    expect(x.cursore, 'il cursore non e\' sulla meta\' destra').toBeGreaterThan(x.meta);
+
+    // con le frecce si torna indietro, e il fuoco resta sull'interruttore
+    await sw.locator('[aria-selected="true"]').focus();
+    await page.keyboard.press('ArrowLeft');
+    await expect(page.locator('.bpe-switch')).toHaveAttribute('data-tab', 'compra');
+    await expect(page.locator('.bpe-switch [data-do="bpEventSchedaCompra"]')).toBeFocused();
+  });
+
+  test('spuntare una voce aggiorna il conteggio nell\'interruttore', async ({ page }) => {
+    await salvaUnEvento(page);
+    await page.locator('.bpc-chkitem').first().click();
+    await expect(page.locator('#bp-sw-prog')).toHaveText(/^1\/\d+ acquistati$/);
   });
 
   test('il preventivo si rivede: voci con il costo, subtotali e lo stesso totale', async ({ page }) => {

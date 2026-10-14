@@ -542,15 +542,17 @@
         <h2 class="print-title" data-i18n="printTitle">Lista della Spesa</h2>
         <div class="print-meta" id="print-meta"></div>
 
-        <div class="risultati-header">
-            <div class="total-drinks" id="drink-totali-text"></div>
-        </div>
-
+        <!-- Prima il totale, poi la riga piccola con quanti drink e dove:
+             la stessa testa dell'evento salvato. -->
         <div class="budget-box" id="budget-box" style="display:none;">
             <div class="budget-label" data-i18n="budgetLabel">Budget Stimato Materie Prime</div>
             <div class="budget-amount" id="budget-amount">€ 0,00</div>
             <div class="budget-perperson" id="budget-perperson"></div>
             <div class="budget-sub" id="budget-sub">Italia · fascia media</div>
+        </div>
+
+        <div class="risultati-header">
+            <div class="total-drinks" id="drink-totali-text"></div>
         </div>
 
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
