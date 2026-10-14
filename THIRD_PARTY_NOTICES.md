@@ -74,6 +74,29 @@ coperte dalla licenza MIT insieme al resto.
 
 ---
 
+## Audio del video di presentazione
+
+- **Percorso:** traccia audio di `public/media/presentazione.mp4` e dei pezzi
+  in `public/media/hls/`
+- **Brano:** «Music Background» di **atlasaudio**, scaricato da Pixabay
+  (ID 594872), usato dal minuto 1:02 alla fine, a volume ridotto, sotto gli
+  effetti sonori del video
+- **Effetti sonori** (tic, pop, soffi): dalla raccolta di effetti Pixabay
+  inclusa negli strumenti di montaggio HyperFrames (`click-soft`, `pop`,
+  `whoosh`, `whoosh-short`)
+- **Licenza:** Pixabay Content License (`https://pixabay.com/service/license-summary/`)
+
+Musica ed effetti sonori **non sono coperti dalla licenza MIT**. La licenza
+Pixabay ne consente l'uso gratuito, anche senza attribuzione, dentro un'opera
+come questo video; non consente di estrarli e ridistribuirli da soli. Chi
+forka il progetto può tenere il video così com'è, ma non deve trattare la
+traccia audio come materiale MIT.
+
+Immagini, testi e animazioni del video sono opera dell'autore e sono coperti
+dalla licenza MIT.
+
+---
+
 ## Cosa NON fa parte di questo repository
 
 Il ricettario PDF *«Cocktail IBA · Adattamento per Feste»* era un'opera
