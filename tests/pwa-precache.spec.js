@@ -221,6 +221,39 @@ test.describe("PWA . offline davvero", () => {
   });
 });
 
+test.describe("PWA . pagina di presentazione", () => {
+  test("registra il service worker dell'app ma il video non finisce in cache", async ({ page }) => {
+    // La pagina registra /sw.js da sola: chi installa da li' trova l'app
+    // gia' pronta offline. Il video invece deve restare fuori: ~7 MB sul
+    // telefono di chiunque l'abbia aperta una volta, e Safari non riproduce
+    // un video servito dalla cache come risposta intera (il lettore chiede
+    // pezzi con Range).
+    await page.goto("/presentazione", { waitUntil: "load" });
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+      for (let i = 0; i < 20 && !navigator.serviceWorker.controller; i++) {
+        await new Promise((r) => setTimeout(r, 250));
+      }
+    });
+    expect(await page.evaluate(() => !!navigator.serviceWorker.controller),
+      "il service worker non controlla la pagina: il test non proverebbe niente").toBe(true);
+
+    const stato = await page.evaluate(async () => (await fetch("/media/presentazione.mp4")).status);
+    expect(stato).toBe(200);
+
+    const video = await page.evaluate(async () => {
+      await new Promise((r) => setTimeout(r, 500));
+      const trovati = [];
+      for (const nome of await caches.keys()) {
+        const c = await caches.open(nome);
+        for (const k of await c.keys()) if (k.url.endsWith(".mp4")) trovati.push(nome + " " + k.url);
+      }
+      return trovati;
+    });
+    expect(video, "il video e' finito nella cache del service worker").toEqual([]);
+  });
+});
+
 test.describe("PWA . quando arriva una versione nuova", () => {
   test("con un controller gia' presente la pagina si ricarica una volta sola", async ({ page }) => {
     await page.goto("/index.html", { waitUntil: "load" });

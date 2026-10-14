@@ -9,8 +9,8 @@
  *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v3.28.0';
-const ASSET_CACHE = 'barman-pro-assets-v3.28.0';
+const CACHE_VERSION = 'barman-pro-v3.29.0';
+const ASSET_CACHE = 'barman-pro-assets-v3.29.0';
 
 // Asset da pre-cachare alla prima installazione.
 //
@@ -82,6 +82,13 @@ self.addEventListener('fetch', event => {
 
     // Ignora richieste cross-origin (CDN font Google) — lascia gestire al browser
     if (url.origin !== location.origin) return;
+
+    // Video (pagina di presentazione): fuori dal service worker.
+    // Il lettore lo chiede a pezzi (header Range, risposte 206) e Safari non
+    // riproduce un video servito dalla cache come risposta intera. In piu'
+    // sono ~7 MB: in cache-first resterebbero sul telefono di chiunque abbia
+    // aperto la pagina una volta. Lo gestisce il browser, come i file esterni.
+    if (url.pathname.endsWith('.mp4')) return;
 
     // PDF: network-first (file pesante, vogliamo sempre l'ultima versione se possibile)
     if (url.pathname.endsWith('.pdf')) {

@@ -1,0 +1,23 @@
+# Barman PRO
+
+> Calcolatore gratuito e open source (licenza MIT) per feste ed eventi: dal numero di ospiti e dal menu calcola quante bottiglie, analcolici, ghiaccio e bicchieri comprare e quanto costa ogni voce. Funziona nel browser, si installa come app (PWA), lavora offline, non richiede account. Disponibile in italiano, inglese, spagnolo, francese, tedesco, portoghese e olandese.
+
+Barman PRO e' pensato per chi organizza una festa privata (compleanno, laurea, matrimonio) e per chi lavora nel settore (barman, catering, organizzatori di eventi). I dati restano sul dispositivo dell'utente.
+
+Come funziona: un configuratore guidato chiede tipo di evento, numero di ospiti e quanto si beve, e propone un menu; il menu si puo' cambiare scegliendo tra 136 ricette (cocktail, analcolici, shot). Le dosi seguono le ricette IBA per gli eventi formali o dosi standard per feste e discoteche. Il risultato e' una lista della spesa con quantita' e costi, divisa per reparto, che si puo' correggere voce per voce, spuntare al supermercato, condividere come testo o link e stampare in PDF.
+
+Esempio: compleanno con 80 ospiti (64 bevono alcolici), 5 cocktail, un analcolico, 2 amari e birra: 221 cocktail, 56 analcolici, 74 shot, 28 kg di ghiaccio, 277 bicchieri da cocktail, totale stimato 452,50 euro (circa 5,66 euro a persona).
+
+## Pagine
+
+- [App](https://barman-pro.raccasamuele2004.workers.dev/): il calcolatore
+- [Presentazione con video](https://barman-pro.raccasamuele2004.workers.dev/presentazione): cosa fa, video di 90 secondi, installazione, domande frequenti
+- [Quanto alcol comprare per una festa](https://barman-pro.raccasamuele2004.workers.dev/quanto-alcol-per-una-festa): tabelle per 20-100 invitati
+- [Quanto ghiaccio serve per una festa](https://barman-pro.raccasamuele2004.workers.dev/quanto-ghiaccio-per-una-festa): la regola dei 100 grammi a cocktail
+- [Quanto vino per un matrimonio](https://barman-pro.raccasamuele2004.workers.dev/quanto-vino-per-un-matrimonio): bottiglie e calici
+- [Lista della spesa per un cocktail party da 80 persone](https://barman-pro.raccasamuele2004.workers.dev/lista-spesa-cocktail-party-80-persone)
+
+## Altro
+
+- [Codice sorgente](https://github.com/raccasamuele/barman-pro): licenza MIT
+- [Privacy](https://barman-pro.raccasamuele2004.workers.dev/privacy)
