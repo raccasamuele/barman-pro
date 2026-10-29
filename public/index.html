@@ -234,6 +234,10 @@
              Lo spazio fra i due span tiene "Barman PRO" leggibile come testo
              (lettori di schermo, titolo copiato) anche se in flex non si vede. -->
         <h1 class="bp-logo"><img class="bp-logo-ic" src="favicon.svg" alt="" width="30" height="30"><span class="bp-logo-nome">Barman</span> <span class="bp-logo-pro">PRO</span></h1>
+        <!-- Ritorno all'elenco dei progetti: lo stesso marchio di raccasamuele.it
+             (nome in inchiostro, ".it" in accento), nei colori di Barman PRO.
+             Il nome accessibile comincia con il testo visibile (WCAG 2.5.3). -->
+        <a class="bp-marchio" href="https://raccasamuele.it/#per-le-feste" aria-label="raccasamuele.it, tutti i progetti" data-i18n-aria="ariaProgetti"><span class="bp-marchio-nome">raccasamuele<span>.it</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
     </header>
 
     <div class="container">
@@ -742,6 +746,7 @@
 
     <footer class="bp-footer">
         <nav class="bp-footer-link" aria-label="Collegamenti" data-i18n-aria="ariaCollegamenti">
+            <a href="https://raccasamuele.it/" aria-label="raccasamuele.it, tutti i progetti" data-i18n-aria="ariaProgetti">raccasamuele.it</a>
             <a href="https://github.com/raccasamuele/barman-pro" rel="noopener">GitHub</a>
             <!-- Gli href restano veri: senza JavaScript (o per un crawler)
                  portano alla pagina giusta. Con lo script, data-do apre il

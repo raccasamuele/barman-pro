@@ -376,12 +376,39 @@
            e' diventata una barra di testata con il logotipo a sinistra, come
            nelle app. Il colore lo porta l'icona; la scritta torna inchiostro. */
         .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
             text-align: left;
             margin: 0;
             padding: 12px 20px;
             background: var(--bp-panel);
             border-bottom: 1px solid var(--bp-line);
         }
+
+        /* Ottobre 2026: il marchio comune dei progetti di raccasamuele.it, a
+           destra della testata. Stessa forma del portale (peso 600, spaziatura
+           stretta, ".it" in accento), ma con i token e il carattere di Barman:
+           richiama la famiglia senza cambiare i colori dell'app. */
+        .bp-marchio {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 44px;
+            flex: 0 0 auto;
+            color: var(--bp-ink-soft);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            text-decoration: none;
+            border-radius: var(--r-sm);
+            transition: color var(--bp-fast) var(--bp-ease);
+        }
+        .bp-marchio-nome span { color: var(--bp-accent); }
+        .bp-marchio svg { margin-left: 2px; }
+        .bp-marchio:hover { color: var(--bp-ink); text-decoration: underline; text-underline-offset: 4px; }
+        .bp-marchio:focus-visible { outline: 2px solid var(--bp-accent); outline-offset: 3px; }
 
         .header h1.bp-logo {
             display: flex;
