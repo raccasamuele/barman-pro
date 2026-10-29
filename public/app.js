@@ -4307,7 +4307,10 @@ Annulla = ` + T('backupUnisci'));
             if (BP_PASSI.indexOf(id) !== -1) { bpPassoCorrente = id; programmaSalvataggio(); }
             // Riporta in alto il pannello attivo, sotto lo stepper sticky
             const panel = document.querySelector('.step-panel[data-stepid="' + id + '"]');
-            if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (panel) panel.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: no-preference)').matches ? 'smooth' : 'instant',
+                block: 'start'
+            });
         }
 
         /* Uno shot nuovo: un posto solo, "I miei amari". Prima lo creava la
@@ -5487,10 +5490,6 @@ Annulla = ` + T('backupUnisci'));
                         else if (a === 'del') bpEventDelete(id);
                         return;
                     }
-                    const card = e.target.closest('.bpc-evcard-main');
-                    if (card){ bpEventOpen(card.dataset.id); return; }
-                    const item = e.target.closest('.bpc-chkitem');
-                    if (item && mount._evId){ bpChkToggle(mount._evId, item, item.dataset.key); return; }
                     mount.querySelectorAll('.bpc-evmenu.show').forEach(m => m.classList.remove('show'));
                 });
                 /* L'interruttore e' un tablist: le frecce passano all'altra
@@ -5532,7 +5531,7 @@ Annulla = ` + T('backupUnisci'));
             list.forEach(ev => {
                 const osp = ev.config && ev.config.ospiti ? ev.config.ospiti : '';
                 h += '<div class="bpc-evcard">'+
-                     '<div class="bpc-evcard-main" data-id="'+_bpEsc(ev.id)+'">'+
+                     '<div class="bpc-evcard-main" role="button" tabindex="0" data-do="bpEventOpen" data-arg="'+_bpEsc(ev.id)+'" data-id="'+_bpEsc(ev.id)+'">'+
                        '<h3>'+_bpEsc(ev.nome)+'</h3>'+
                        '<div class="bpc-evmeta">'+
                          '<span>'+_bpFmtDate(ev.data)+'</span>'+
@@ -5540,7 +5539,7 @@ Annulla = ` + T('backupUnisci'));
                          (ev.totale ? '<span class="tot">'+_bpEsc(ev.totale)+'</span>' : '')+
                        '</div>'+
                      '</div>'+
-                     '<button type="button" class="bpc-evkebab" aria-label="•••">&#8942;</button>'+
+                     '<button type="button" class="bpc-evkebab" aria-label="'+_bpEsc(_T('evDup')+' / '+_T('evDelete')+': '+ev.nome)+'">&#8942;</button>'+
                      '<div class="bpc-evmenu">'+
                        '<button data-act="dup" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&#10697;</span>'+_T('evDup')+'</button>'+
                        '<button data-act="del" data-id="'+_bpEsc(ev.id)+'"><span class="mi">&times;</span>'+_T('evDelete')+'</button>'+
@@ -5643,7 +5642,7 @@ Annulla = ` + T('backupUnisci'));
                         const cs = _bpParseCost(it.costo);
                         costTot += cs; if (isDone) costDone += cs;
                         const det = [it.qty, it.costo].filter(Boolean).join(' · ');
-                        body += '<div class="bpc-chkitem' + (isDone ? ' done' : '') + '" data-key="' + _bpEsc(key) + '">'
+                        body += '<div class="bpc-chkitem' + (isDone ? ' done' : '') + '" role="checkbox" tabindex="0" aria-checked="' + isDone + '" data-do="bpChkVoce" data-arg="' + _bpEsc(key) + '" data-key="' + _bpEsc(key) + '">'
                               + '<span class="bpc-chkbox"></span><span class="nm">' + _bpEsc(it.nome) + '</span>'
                               + (det ? '<span class="qt">' + _bpEsc(det) + '</span>' : '') + '</div>';
                     });
@@ -5788,6 +5787,13 @@ Annulla = ` + T('backupUnisci'));
             bpChiediStampa(ev, (m && m._evTab === 'preventivo') ? 'preventivo' : 'lista');
         }
 
+        /* Stessa azione da mouse, tocco, Invio e Spazio tramite il dispatcher. */
+        function bpChkVoce(key) {
+            const mount = document.getElementById('bp-ev-mount');
+            if (!mount || !mount._evId) return;
+            const el = Array.from(mount.querySelectorAll('.bpc-chkitem')).find(e => e.dataset.key === key);
+            if (el) bpChkToggle(mount._evId, el, key);
+        }
         function bpChkToggle(id, el, key){
             const list = bpGetEvents(); const ev = list.find(e => e.id === id); if (!ev) return;
             ev.check = ev.check || {};
@@ -5796,6 +5802,7 @@ Annulla = ` + T('backupUnisci'));
                segnare la casella e' una bugia che si scopre al ricaricamento. */
             if (!bpSetEvents(list).ok) { mostraToast(_bpT()('toastSalvataggioFallito')); return; }
             el.classList.toggle('done');
+            el.setAttribute('aria-checked', String(!!ev.check[key]));
             // ricalcola progresso + costi dallo stato dell'evento (singola fonte di verità)
             let tot = 0, done = 0, cTot = 0, cDone = 0;
             (ev.lista || []).forEach(g => g.items.forEach(it => {

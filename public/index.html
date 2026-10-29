@@ -75,6 +75,19 @@
 </head>
 <body>
 
+    <!-- Testata comune prima di ogni sezione. Fuori da .container per
+         occupare tutta la larghezza disponibile anche con la barra laterale. -->
+    <header class="header">
+        <!-- Logotipo: l'icona dell'app e il nome, "PRO" come etichetta.
+             Lo spazio fra i due span tiene "Barman PRO" leggibile come testo
+             (lettori di schermo, titolo copiato) anche se in flex non si vede. -->
+        <h1 class="bp-logo"><img class="bp-logo-ic" src="favicon.svg" alt="" width="30" height="30"><span class="bp-logo-nome">Barman</span> <span class="bp-logo-pro">PRO</span></h1>
+        <!-- Ritorno all'elenco dei progetti: lo stesso marchio di raccasamuele.it
+             (nome in inchiostro, ".it" in accento), nei colori di Barman PRO.
+             Il nome accessibile comincia con il testo visibile (WCAG 2.5.3). -->
+        <a class="bp-marchio" href="https://raccasamuele.it/#per-le-feste" aria-label="raccasamuele.it, tutti i progetti" data-i18n-aria="ariaProgetti"><span class="bp-marchio-nome">raccasamuele<span>.it</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
+    </header>
+
     <!-- ════ MENU A PANINO · navigazione rapida ════ -->
     <!-- Il bottone Home flottante e il menu modale che stavano qui sono
          stati sostituiti dalla barra di navigazione in fondo al documento.
@@ -207,38 +220,16 @@
 
                 <div class="bpset-row bpset-row-toggle">
                     <div class="bpset-toggle-tx">
-                        <label class="bpset-label" data-i18n="setAutosave">Salvataggio automatico</label>
+                        <label id="bp-autosave-label" class="bpset-label" data-i18n="setAutosave">Salvataggio automatico</label>
                         <span class="bpset-desc" data-i18n="setAutosaveDesc">Salva da solo l'evento in corso mentre lavori.</span>
                     </div>
-                    <button type="button" id="bp-autosave" class="bpset-switch" role="switch" aria-checked="true" data-do="bpToggleAutoSave">
+                    <button type="button" id="bp-autosave" class="bpset-switch" role="switch" aria-checked="true" aria-labelledby="bp-autosave-label" data-do="bpToggleAutoSave">
                         <span class="bpset-switch-knob"></span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Un titolo solo. "Barman PRO" era un <div class="subtitle"> sopra un
-         <h1>Calcolatore d'Eventi>: due righe per dire una cosa. Il nome
-         diventa l'h1 invece di sparire con esso — cancellare l'h1 e basta
-         avrebbe lasciato la pagina senza intestazione principale.
-
-         ⚠️ Sta FUORI da .container apposta. Dentro, la fascia si sarebbe
-         fermata ai 1200px di max-width del contenitore invece di arrivare ai
-         bordi. Qui e' figlia diretta del body, quindi eredita il
-         `padding-left: 240px` che a >=900px lascia spazio alla barra laterale,
-         e resta nascosta in stampa come tutti gli altri figli del body
-         (entrambe le modalita' usano `body > *:not(...)`). -->
-    <header class="header">
-        <!-- Logotipo: l'icona dell'app e il nome, "PRO" come etichetta.
-             Lo spazio fra i due span tiene "Barman PRO" leggibile come testo
-             (lettori di schermo, titolo copiato) anche se in flex non si vede. -->
-        <h1 class="bp-logo"><img class="bp-logo-ic" src="favicon.svg" alt="" width="30" height="30"><span class="bp-logo-nome">Barman</span> <span class="bp-logo-pro">PRO</span></h1>
-        <!-- Ritorno all'elenco dei progetti: lo stesso marchio di raccasamuele.it
-             (nome in inchiostro, ".it" in accento), nei colori di Barman PRO.
-             Il nome accessibile comincia con il testo visibile (WCAG 2.5.3). -->
-        <a class="bp-marchio" href="https://raccasamuele.it/#per-le-feste" aria-label="raccasamuele.it, tutti i progetti" data-i18n-aria="ariaProgetti"><span class="bp-marchio-nome">raccasamuele<span>.it</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
-    </header>
 
     <div class="container">
 

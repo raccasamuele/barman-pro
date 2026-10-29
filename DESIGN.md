@@ -5,7 +5,7 @@ sotto il 10% della superficie).
 
 ## Strategia
 
-Grigio e inchiostro, con un solo accento blu ardesia. La superficie è una lista della
+Grigio e inchiostro, con lo stesso accento blu della landing raccasamuele.it. La superficie è una lista della
 spesa, non una vetrina: il colore marca **azione, selezione e stato**, mai decorazione.
 
 Una tinta sola. I neutri sono **veri** (hue 250, croma quasi nullo): non tirano né al
@@ -19,8 +19,9 @@ tipografia e spazio. L'accento è raro, sotto il 10% della superficie.
 
 ## Colore
 
-Tutto in OKLCH. Nessun `#000`, nessun `#fff`: il bianco puro su schermo pieno in un
-supermercato abbaglia, e il nero puro su carta sbava.
+Neutri in OKLCH; accento in OKLCH o esadecimale. Nessuna superficie a bianco o nero
+puro: il bianco pieno in un supermercato abbaglia. Il testo sui pulsanti blu è
+bianco puro, come sulla landing, per garantire il contrasto.
 
 ### Tema chiaro (default)
 
@@ -33,13 +34,17 @@ supermercato abbaglia, e il nero puro su carta sbava.
 | `--ink-soft` | `oklch(43% 0.005 250)` | testo secondario |
 | `--ink-faint` | `oklch(52% 0.006 250)` | etichette, metadati (AA su `--bg`) |
 | `--line` | `oklch(82% 0.005 250)` | filo che delimita superfici e separa |
-| `--line-control` | `oklch(64% 0.007 250)` | bordo di cio' che si clicca o si scrive (3:1) |
+| `--line-control` | `oklch(62% 0.007 250)` | bordo dei controlli (≥3:1 anche su `--sunken`) |
 | `--line-strong` | `oklch(70% 0.006 250)` | bordi enfatizzati |
-| `--accent` | `oklch(45% 0.105 258)` | azione primaria, selezione, focus |
-| `--accent-hover` | `oklch(38% 0.108 258)` | hover dell'azione primaria |
-| `--accent-soft` | `oklch(95% 0.020 258)` | **fondo** di stati selezionati - mai un bordo |
-| `--accent-ink` | `oklch(34% 0.090 258)` | testo su `--accent-soft` |
-| `--on-accent` | `oklch(99% 0.005 258)` | testo su `--accent` |
+| `--accent` | `#2563eb` | azione primaria, selezione, focus |
+| `--accent-hover` | `#1d4ed8` | hover dell'azione primaria |
+| `--accent-soft` | `#eaf1ff` | **fondo** di stati selezionati - mai un bordo |
+| `--accent-ink` | `#1d4ed8` | testo d'accento, anche su `--sunken` e `--accent-soft` |
+| `--on-accent` | `#ffffff` | testo su `--accent` |
+
+Il pieno `#2563eb` su `--sunken` arriva a 4,40:1: per i testi si usa quindi
+`--accent-ink`, che sullo stesso fondo arriva a 5,71:1. Nel CSS il pieno è espresso
+in OKLCH con precisione sufficiente a riprodurre lo stesso sRGB.
 
 ### Tema scuro (derivato dagli stessi ruoli)
 
@@ -57,11 +62,15 @@ struttura.
 | `--line` | `oklch(36% 0.006 250)` |
 | `--line-control` | `oklch(52% 0.008 250)` |
 | `--line-strong` | `oklch(48% 0.007 250)` |
-| `--accent` | `oklch(72% 0.095 258)` |
-| `--accent-hover` | `oklch(78% 0.090 258)` |
-| `--accent-soft` | `oklch(28% 0.045 258)` |
-| `--accent-ink` | `oklch(85% 0.070 258)` |
-| `--on-accent` | `oklch(17% 0.030 258)` |
+| `--accent` | `#93b4ff` |
+| `--accent-hover` | `#b3cbff` |
+| `--accent-soft` | `#1c3057` |
+| `--accent-ink` | `#b7ceff` |
+| `--on-accent` | `#102143` |
+
+Gli stessi valori scuri valgono con scelta manuale e con Auto su sistema scuro.
+Sui riempimenti tenui le descrizioni usano `--ink-soft`: `--ink-faint` in scuro
+avrebbe solo 3,57:1. Il testo del pulsante pieno usa sempre `--on-accent`.
 
 Precedenza: **scelta manuale salvata > chiaro**. `prefers-color-scheme` decide solo se
 la scelta salvata e' "Auto", che resta uno dei tre stati ma non e' piu' il punto di
@@ -150,3 +159,4 @@ l'unico riscontro che qualcosa ha risposto.
 Non è un ripensamento, è il formato finale. Con il tema chiaro il foglio è già quasi
 identico allo schermo: il CSS di stampa nasconde la navigazione e i controlli, forza i
 colori a inchiostro su bianco, e lascia la lista con le sue quantità incolonnate.
+<!-- Revisione blu landing e accessibilità: 29 ottobre 2026. -->
