@@ -15,7 +15,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # ubuntu-24.04 fisso: da ottobre 2026 ubuntu-latest e' la 26.04, dove Playwright 1.56.1 non
+    # installa Chromium e la CI si ferma prima dei test. Da togliere quando si aggiorna Playwright.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
