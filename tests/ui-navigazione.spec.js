@@ -97,7 +97,7 @@ test.describe('Navigazione · l\'albero di "Altro"', () => {
 });
 
 test.describe('Navigazione · due layout, un markup', () => {
-  test('sotto i 900px sta in fondo', async ({ page }) => {
+  test('sotto i 900px e\' un\'isola in fondo, staccata dai bordi', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 780 });
     await openApp(page);
 
@@ -105,11 +105,19 @@ test.describe('Navigazione · due layout, un markup', () => {
       const b = document.getElementById('bp-tabbar');
       const cs = getComputedStyle(b);
       const r = b.getBoundingClientRect();
-      return { pos: cs.position, dir: cs.flexDirection, giuInFondo: Math.abs(r.bottom - window.innerHeight) < 2 };
+      return {
+        pos: cs.position, dir: cs.flexDirection,
+        stacco: window.innerHeight - r.bottom,
+        margine: r.left,
+        etichetta: b.querySelector('.bp-tab-tx').getBoundingClientRect().width,
+      };
     });
     expect(m.pos).toBe('fixed');
     expect(m.dir).toBe('row');
-    expect(m.giuInFondo, 'la barra non e\' agganciata al fondo').toBe(true);
+    expect(m.stacco, 'l\'isola non sta in fondo, staccata dal bordo').toBeGreaterThanOrEqual(8);
+    expect(m.stacco, 'l\'isola non sta in fondo, staccata dal bordo').toBeLessThanOrEqual(40);
+    expect(m.margine, 'l\'isola tocca i bordi laterali').toBeGreaterThanOrEqual(8);
+    expect(m.etichetta, 'sull\'isola le etichette non si vedono, restano per gli screen reader').toBeLessThanOrEqual(1);
   });
 
   test('sopra i 900px diventa una colonna a sinistra', async ({ page }) => {

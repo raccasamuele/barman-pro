@@ -609,7 +609,7 @@
         }
 
         /* ─── STEP WIZARD · una sezione visibile alla volta ─── */
-        .step-panel { display: none; scroll-margin-top: 96px; }
+        .step-panel { display: none; scroll-margin-top: 152px; }
         .step-panel.active {
     display: block; animation: stepFade 220ms ease-out;
         }
@@ -2248,6 +2248,12 @@
 }
 
 @media print { .bp-footer { display: none; } }
+/* Privacy, licenza, contatti, GitHub e progetti sono righe della lista di Altro:
+   qui i collegamenti non si vedono piu' (restano nel markup per i crawler, gli
+   href sono veri). Del piede resta solo il copyright, sulla pagina di Altro. */
+.bp-footer-link { display: none; }
+body:not([data-sezione="altro"]) .bp-footer,
+body[data-sotto] .bp-footer { display: none; }
 
 /* ─── Pagine di contenuto (le guide) ────────────────────────────
    Stessi token dell'app: chi arriva da una ricerca e poi apre il
@@ -2490,6 +2496,50 @@ body:has(.bpc-overlay.show, .bpm-overlay.show, .suggeritore-modal.show) .bp-tabb
 /* Blur is limited to the two persistent chrome surfaces. Opaque fallback above. */
 @supports ((backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))) {
     .header, .bp-tabbar { background: color-mix(in srgb, var(--bp-panel) 80%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+}
+/* ── L'isola: la barra sotto i 900px non tocca i bordi ──
+   Galleggia sul contenuto, che scorre sotto il vetro. Solo icone: l'etichetta
+   resta per gli screen reader (e per la colonna a sinistra sopra i 900px).
+   Il cursore e' uno pseudo-elemento mosso dalla voce con aria-current: niente
+   JavaScript, e i bottoni restano quattro e nello stesso ordine. */
+@media (max-width: 899px) {
+    :root {
+        --bp-isola-h: 64px;
+        --bp-isola-fondo: max(12px, env(safe-area-inset-bottom, 0px));
+        --bp-isola-ingombro: calc(var(--bp-isola-h) + var(--bp-isola-fondo));
+    }
+    .bp-tabbar {
+        inset: auto 16px var(--bp-isola-fondo) 16px;
+        height: var(--bp-isola-h);
+        padding: 5px;
+        border: 1px solid color-mix(in srgb, var(--bp-line) 70%, transparent);
+        border-radius: 32px;
+        box-shadow: 0 10px 30px rgb(23 43 75 / 16%);
+    }
+    .bp-tabbar::before {
+        content: ""; position: absolute; top: 5px; bottom: 5px; left: 5px;
+        width: calc((100% - 10px) / 4);
+        border-radius: 26px; background: var(--bp-accent-soft);
+        transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .bp-tabbar:has(.bp-tab:nth-child(2)[aria-current="page"])::before { transform: translateX(100%); }
+    .bp-tabbar:has(.bp-tab:nth-child(3)[aria-current="page"])::before { transform: translateX(200%); }
+    .bp-tabbar:has(.bp-tab:nth-child(4)[aria-current="page"])::before { transform: translateX(300%); }
+    .bp-tab { position: relative; height: 100%; border-radius: 26px; }
+    .bp-tab-ic { width: 26px; height: 26px; }
+    .bp-tab-tx {
+        position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+        clip-path: inset(50%); white-space: nowrap;
+    }
+    body { padding-bottom: calc(var(--bp-isola-ingombro) + 16px); }
+}
+@supports ((backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))) {
+    @media (max-width: 899px) {
+        .bp-tabbar {
+            background: color-mix(in srgb, var(--bp-panel) 85%, transparent);
+            backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4);
+        }
+    }
 }
 @media (min-width: 900px) {
     .header { padding-inline: 32px; }
@@ -3030,6 +3080,20 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; border: none;
 body[data-sezione="evento"] { padding-bottom: calc(138px + env(safe-area-inset-bottom, 0px)); }
 body[data-sezione="evento"] .container { padding-bottom: 32px; }
 body.bp-tastiera .bp-ev-azione { bottom: 0; }
+@media (max-width: 899px) {
+    /* La barra d'azione galleggia sopra l'isola, con la stessa forma. */
+    .bp-ev-azione {
+        left: 16px; right: 16px; bottom: calc(var(--bp-isola-ingombro) + 8px);
+        padding: 8px 8px 8px 16px; border: 1px solid color-mix(in srgb, var(--bp-line) 70%, transparent); border-radius: 24px;
+        background: var(--bp-panel); box-shadow: 0 10px 30px rgb(23 43 75 / 16%);
+    }
+    body.bp-tastiera .bp-ev-azione { bottom: 8px; }
+    body[data-sezione="evento"] { padding-bottom: calc(var(--bp-isola-ingombro) + 92px); }
+    .toast { bottom: calc(var(--bp-isola-ingombro) + 12px); }
+    body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .step-panel.active[data-stepid="step-menu"], .step-panel.active[data-stepid="risultati"]) .toast {
+        bottom: calc(var(--bp-isola-ingombro) + 92px);
+    }
+}
 @media (min-width: 900px) {
     body[data-sezione="evento"] { padding-bottom: 74px; }
     .bp-ev-azione { bottom: 0; }

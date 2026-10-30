@@ -121,13 +121,14 @@ test.describe('UI · azioni per delega', () => {
 
 /* Privacy, Licenza e Contatti si comportavano in tre modi diversi: pagina a
    parte, GitHub, mailto: che senza app email non faceva niente. Ora aprono
-   lo stesso pannello dentro l'app, dal footer come dal menu Altro. */
+   lo stesso pannello dentro l'app, dal menu Altro. */
 test.describe('UI · pannello Info', () => {
   for (const [voce, titolo] of [['privacy', 'Privacy'], ['licenza', 'Licenza'], ['contatti', 'Contatti']]) {
-    test(`il footer apre "${voce}" dentro l'app`, async ({ page }) => {
+    test(`Altro apre "${voce}" dentro l'app`, async ({ page }) => {
       await openApp(page);
+      await page.evaluate(() => bpVaiA('altro'));
       const url = page.url();
-      await page.locator(`.bp-footer [data-arg="${voce}"]`).click();
+      await page.locator(`#bp-altro [data-arg="${voce}"]`).click();
       await expect(page.locator('#bp-info')).toBeVisible();
       await expect(page.locator('#bp-info-title')).toHaveText(titolo);
       expect(page.url(), 'il link e\' stato seguito invece di aprire il pannello').toBe(url);

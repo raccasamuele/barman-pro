@@ -36,11 +36,11 @@ for (const width of [375, 1400]) {
       await page.evaluate(() => {bpMenuAggiungi('Negroni','drink');bpMenuAggiungi('Gin Tonic','drink');vaiAStep('risultati');});
       const last=page.locator('#risultati li.voce-tocca:visible').last();
       await last.scrollIntoViewIfNeeded();
-      await page.evaluate(() => window.scrollTo(0,document.body.scrollHeight));
+      await page.evaluate(() => window.scrollTo({top:document.body.scrollHeight,behavior:'instant'}));
       const r=await page.evaluate(() => {
         const all=[...document.querySelectorAll('#risultati li.voce-tocca')].filter(e=>e.getClientRects().length);
         const bar=document.querySelector('.bp-lista-azione');
-        return {last:all.at(-1).getBoundingClientRect().bottom,bar:bar.getBoundingClientRect().top,bottom:bar.getBoundingClientRect().bottom,expected:innerWidth<900?innerHeight-64:innerHeight,position:getComputedStyle(bar).position};
+        return {last:all.at(-1).getBoundingClientRect().bottom,bar:bar.getBoundingClientRect().top,bottom:bar.getBoundingClientRect().bottom,expected:innerWidth<900?innerHeight-84:innerHeight,position:getComputedStyle(bar).position};
       });
       expect(r.last).toBeLessThanOrEqual(r.bar);
       expect(r.position).toBe('fixed');
