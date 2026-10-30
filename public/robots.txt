@@ -4,4 +4,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://barman-pro.raccasamuele2004.workers.dev/sitemap.xml
+Sitemap: https://barmanpro.raccasamuele.it/sitemap.xml

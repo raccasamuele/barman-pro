@@ -23,9 +23,13 @@
     // ═══════════════════════════════════════════════════════════════════
     "name": "barman-pro",
     "compatibility_date": "2026-05-23",
-    "workers_dev": true,
+    "main": "src/index.js",
+  "routes": [{ "pattern": "barmanpro.raccasamuele.it", "custom_domain": true }],
+  "workers_dev": true,
     "preview_urls": true,
     "assets": {
+        "binding": "ASSETS",
+        "run_worker_first": true,
         "directory": "./public"
     },
     "observability": {

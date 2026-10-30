@@ -7,7 +7,7 @@
  *
  * Il token si prende dalla dashboard Cloudflare:
  *   Analytics & Logs → Web Analytics → Add a site
- *   hostname: barman-pro.raccasamuele2004.workers.dev
+ *   hostname: barmanpro.raccasamuele.it
  * Nello snippet che viene mostrato, il token e' il valore dentro
  * `data-cf-beacon='{"token": "..."}'`.
  *

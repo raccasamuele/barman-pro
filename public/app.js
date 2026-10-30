@@ -1713,13 +1713,13 @@
 
         /* ── i18n firma condivisione lista (crescita: ogni lista condivisa porta un link) ── */
         const _shareI18n = {
-            it: { shareFooter: "Lista creata con Barman PRO · fai la tua su https://barman-pro.raccasamuele2004.workers.dev/?ref=share" },
-            en: { shareFooter: "List made with Barman PRO · make yours at https://barman-pro.raccasamuele2004.workers.dev/?ref=share" },
-            es: { shareFooter: "Lista creada con Barman PRO · haz la tuya en https://barman-pro.raccasamuele2004.workers.dev/?ref=share" },
-            fr: { shareFooter: "Liste créée avec Barman PRO · faites la vôtre sur https://barman-pro.raccasamuele2004.workers.dev/?ref=share" },
-            de: { shareFooter: "Liste erstellt mit Barman PRO · erstelle deine auf https://barman-pro.raccasamuele2004.workers.dev/?ref=share" },
-            pt: { shareFooter: "Lista criada com Barman PRO · faça a sua em https://barman-pro.raccasamuele2004.workers.dev/?ref=share" },
-            nl: { shareFooter: "Lijst gemaakt met Barman PRO · maak de jouwe op https://barman-pro.raccasamuele2004.workers.dev/?ref=share" }
+            it: { shareFooter: "Lista creata con Barman PRO · fai la tua su https://barmanpro.raccasamuele.it/?ref=share" },
+            en: { shareFooter: "List made with Barman PRO · make yours at https://barmanpro.raccasamuele.it/?ref=share" },
+            es: { shareFooter: "Lista creada con Barman PRO · haz la tuya en https://barmanpro.raccasamuele.it/?ref=share" },
+            fr: { shareFooter: "Liste créée avec Barman PRO · faites la vôtre sur https://barmanpro.raccasamuele.it/?ref=share" },
+            de: { shareFooter: "Liste erstellt mit Barman PRO · erstelle deine auf https://barmanpro.raccasamuele.it/?ref=share" },
+            pt: { shareFooter: "Lista criada com Barman PRO · faça a sua em https://barmanpro.raccasamuele.it/?ref=share" },
+            nl: { shareFooter: "Lijst gemaakt met Barman PRO · maak de jouwe op https://barmanpro.raccasamuele.it/?ref=share" }
         };
         Object.keys(_shareI18n).forEach(lg => {
             if (translations[lg]) Object.assign(translations[lg], _shareI18n[lg]);

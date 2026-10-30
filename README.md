@@ -8,7 +8,7 @@ servire; ottieni la lista della spesa con quantità e costi — alcolici,
 analcolici, ghiaccio, bicchieri — pronta da stampare, condividere o spuntare
 al supermercato.
 
-**[Apri l'app →](https://barman-pro.raccasamuele2004.workers.dev/)**
+**[Apri l'app →](https://barmanpro.raccasamuele.it/)**
 
 Gratuito, senza account, senza pubblicità. Funziona offline.
 
