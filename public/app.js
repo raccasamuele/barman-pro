@@ -1861,7 +1861,7 @@
             if (typeof bpUpdateStorageStatus === 'function') bpUpdateStorageStatus();
             // Bottone installa
             const binst = document.getElementById('btn-installa-app');
-            if (binst) binst.textContent = '⬇ ' + tr.btnInstalla;
+            if (binst) binst.textContent = '↓ ' + tr.btnInstalla;
 
             /* ── Selettore lingua ── */
             const sel = document.getElementById('lang-selector');
@@ -8170,14 +8170,14 @@ Annulla = ` + T('backupUnisci'));
             installPromptEvent = null;
         });
 
-/* Decorative section marks share the landing's local clay assets. */
+/* Le icone di reparto sono le stesse della landing, solo decorative. */
 function bpClayGruppo(key) {
     const name = /extra/.test(key) ? 'ghiaccio' : /garnish/.test(key) ? 'lista' : 'bottiglie';
     return '<img class="bp-clay" src="icons/' + name + '.webp" srcset="icons/' + name + '.webp 1x, icons/' + name + '-2x.webp 2x" width="40" height="40" alt="">';
 }
 
-/* A pseudo-element supplies each sliding cursor without changing button indices.
-   Only geometry styles are written; selection and aria remain owned by the existing actions. */
+/* Il cursore dei segmentati e' uno pseudo-elemento: gli indici dei bottoni non cambiano, e cambiaLingua
+   traduce per indice. Qui si scrive solo la geometria; selezione e aria restano alle azioni di sempre. */
 (() => {
     let queued = false;
     const update = () => {

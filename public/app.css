@@ -560,9 +560,7 @@
            home): quando un effetto va disattivato caso per caso, il posto
            giusto per toglierlo e' l'origine. */
 
-        button:hover {
-    background: var(--bp-sunken); border-color: var(--bp-ink-faint);
-        }
+        @media (hover: hover) { button:hover { background: var(--bp-sunken); border-color: var(--bp-ink-faint); } }
 
         button:active {
             transform: scale(0.98);
@@ -1056,14 +1054,16 @@
         }
 
         .btn-installa {
-            background: var(--bp-sunken);
-            color: var(--bp-ink);
-            border: 1px solid var(--bp-line-control);
-            font-size: 11px;
+            background: var(--bp-accent-soft);
+            color: var(--bp-accent-ink);
+            border: none;
+            font-size: var(--t-sm);
+            font-weight: 500;
             padding: 8px 16px;
             width: auto;
-            border-radius: 8px;
+            border-radius: 999px;
             display: inline-flex;
+            align-items: center;
             gap: 8px;
         }
 
@@ -1553,8 +1553,8 @@
         .btn-eventi { background: var(--input-bg); color: var(--bp-accent-ink); border: 1px solid var(--bp-line-control); border-radius: 10px; padding: 8px 12px; font-family: var(--bp-font); font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 150ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease; }
         .btn-eventi:active { transform: scale(0.97); }
         @media (hover: hover) and (pointer: fine) { .btn-eventi:hover { border-color: var(--bp-accent); } }
-        .bpc-evback { flex: 0 0 auto; width: auto; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--bp-line-control); border-radius: 10px; padding: 8px 16px; font-size: 18px; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
-        .bpc-evback:active { transform: translateX(-2px); }
+        .bpc-evback { flex: 0 0 auto; width: auto; background: transparent; color: var(--bp-accent-ink); border: none; border-radius: 10px; padding: 0 12px 4px 0; font-size: 34px; font-weight: 400; line-height: 1; cursor: pointer; transition: opacity 150ms ease; }
+        .bpc-evback:active { opacity: .5; }
         .bpc-evhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 20px; }
         .bpc-evhead h2 {
     font-family: var(--bp-font); font-weight: 600; font-size: 32px; letter-spacing: -.04em; color: var(--text-main); margin: 0;
@@ -2338,7 +2338,7 @@
     text-decoration: none;
     transition: background var(--bp-fast) var(--bp-ease);
 }
-.pagina-testo .btn:hover { background: var(--bp-accent-hover); color: var(--bp-on-accent); }
+@media (hover: hover) { .pagina-testo .btn:hover { background: var(--bp-accent-hover); color: var(--bp-on-accent); } }
 
 .pagina-testo .related {
     margin-top: var(--s-7);
@@ -2547,6 +2547,11 @@ body[data-sezione] #bp-settings .bpc-shell {
     min-height: 0;
     padding-top: 8px;
 }
+/* Stesso margine di Altro: il pannello e' gia' dentro il .container. */
+@media (max-width: 899px) {
+    body[data-sezione] #bp-events .bpc-shell,
+    body[data-sezione] #bp-library .bpc-shell { padding-inline: 2px; }
+}
 /* Il tasto chiudi di una sezione non ha piu' senso: non c'e' niente da
    chiudere, si cambia voce nella barra. */
 body[data-sezione] #bp-events .bpc-close,
@@ -2602,9 +2607,9 @@ body[data-sezione="altro"]:not([data-sotto]) > .container { padding-block: 0; }
     font-family: var(--bp-font); font-size: var(--t-base); font-weight: 600;
     text-transform: none; letter-spacing: 0; text-decoration: none; cursor: pointer;
 }
-.bp-info-btn:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-panel); }
+@media (hover: hover) { .bp-info-btn:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-panel); } }
 .bp-info-btn.primario { min-height: 50px; background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-on-accent); }
-.bp-info-btn.primario:hover { background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); }
+@media (hover: hover) { .bp-info-btn.primario:hover { background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); } }
 
 /* ── Home · cruscotto ──
    Non piu' un menu di card: quelle erano una seconda strada per posti che
@@ -2634,7 +2639,7 @@ body[data-sezione="altro"]:not([data-sotto]) > .container { padding-block: 0; }
     text-align: left; text-transform: none; letter-spacing: 0; cursor: pointer;
 }
 .bph-salvato + .bph-salvato { border-top: none; }
-.bph-salvato:hover { transform: none; background: var(--bp-sunken); border-color: transparent; }
+@media (hover: hover) { .bph-salvato:hover { transform: none; background: var(--bp-sunken); border-color: transparent; } }
 .bph-salvato-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .bph-salvato-nome { font-family: var(--bp-font); font-size: var(--t-base); font-weight: 600; color: var(--bp-ink); }
 .bph-salvato-meta { font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); }
@@ -2770,7 +2775,7 @@ body[data-sezione="altro"]:not([data-sotto]) > .container { padding-block: 0; }
 .bp-voce-calc { margin: 0; font-family: var(--bp-font); font-size: var(--t-sm); color: var(--bp-ink-faint); font-variant-numeric: tabular-nums; }
 .bp-voce-campi { margin: 0;  background: var(--bp-sunken); box-shadow: none;}
 .bp-voce-campi .bp-riga-lbl { font-size: var(--t-sm); text-transform: none; letter-spacing: 0; }
-.bp-voce-campi .mod-prezzo { width: 7.5rem; min-height: 44px; padding: 8px 12px; border: none; border-radius: 10px; background: var(--bp-accent-soft); color: var(--bp-ink); font-family: var(--bp-font-num); text-align: right;}
+#bp-voce .bp-stepper .mod-prezzo { width: 7.5rem; min-height: 44px; padding: 8px 12px; border: none; border-radius: 10px; background: var(--bp-accent-soft); color: var(--bp-ink); font-family: var(--bp-font-num); text-align: right;}
 .bp-voce-nota:empty { display: none; }
 .bp-voce-nota { margin: 0; padding: 10px 14px; font-family: var(--bp-font); font-size: var(--t-xs); color: var(--bp-ink-faint); }
 .mod-campo-inerte .bp-stepper { opacity: .5; }
@@ -2780,7 +2785,7 @@ body[data-sezione="altro"]:not([data-sotto]) > .container { padding-block: 0; }
 
 /* Condividi: le due scelte sono bottoni grandi, non radio. */
 .bp-share-op { width: 100%; text-align: left; justify-content: flex-start; background: var(--bp-sunken); color: var(--bp-ink); text-transform: none; letter-spacing: 0; }
-.bp-share-op:hover { border-color: var(--bp-accent); background: var(--bp-accent-soft); transform: none; }
+@media (hover: hover) { .bp-share-op:hover { border-color: var(--bp-accent); background: var(--bp-accent-soft); transform: none; } }
 
 /* La Lista: un'azione sola, nella barra in fondo come nella pagina Evento. */
 .step-panel[data-stepid="risultati"] .bp-lista-azione { display: flex; }
@@ -2802,7 +2807,7 @@ body[data-sezione="altro"]:not([data-sotto]) > .container { padding-block: 0; }
 }
 .bpe-az .bpe-ic { width: 20px; height: 20px; color: var(--bp-accent-ink); }
 .bpe-az span { line-height: 1.2; text-align: center; }
-.bpe-az:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-accent-soft); }
+@media (hover: hover) { .bpe-az:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-accent-soft); } }
 .bpe-az:active { transform: scale(.97); }
 .bpe-az:focus-visible { outline: 2px solid var(--bp-accent); outline-offset: 2px; }
 
@@ -2950,7 +2955,7 @@ body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .s
     border: none; border-radius: 12px; background: none; color: var(--bp-accent-ink);
     font-size: 22px; font-weight: 400; line-height: 1; text-transform: none; letter-spacing: 0;
 }
-.bp-ev .bp-step-btn:hover, .bp-sheet .bp-step-btn:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-panel); }
+@media (hover: hover) { .bp-ev .bp-step-btn:hover, .bp-sheet .bp-step-btn:hover { transform: none; border-color: var(--bp-accent); background: var(--bp-panel); } }
 .bp-ev .bp-step-btn:active, .bp-sheet .bp-step-btn:active { transform: scale(0.94); }
 .bp-ev .bp-stepper input[type="number"], .bp-sheet .bp-stepper input[type="number"] {
     width: 52px; padding: 6px 2px; margin: 0; text-align: center; font-family: var(--bp-font-num);
@@ -3007,15 +3012,15 @@ body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .s
 }
 /* Senza menu non c'e' costo da mostrare: il bottone prende tutta la barra. */
 .bp-ev-azione .stima-live[style*="none"] + .bp-ev-genera { flex: 1 1 auto; }
-.bp-ev-azione .bp-ev-genera:hover { background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); transform: none; }
+@media (hover: hover) { .bp-ev-azione .bp-ev-genera:hover { background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); transform: none; } }
 @media print { .bp-ev-azione { display: none !important; } }
 /* Con la barra evento in vista il messaggio di conferma sale sopra di lei,
    invece di coprire il costo e il bottone. */
-body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .step-panel.active[data-stepid="step-menu"]) .toast {
+body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .step-panel.active[data-stepid="step-menu"], .step-panel.active[data-stepid="risultati"]) .toast {
     bottom: calc(56px + 12px + 76px + 12px + env(safe-area-inset-bottom, 0px));
 }
 @media (min-width: 900px) {
-    body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .step-panel.active[data-stepid="step-menu"]) .toast { bottom: 108px; }
+    body[data-sezione="evento"]:has(.step-panel.active[data-stepid="step-setup"], .step-panel.active[data-stepid="step-menu"], .step-panel.active[data-stepid="risultati"]) .toast { bottom: 108px; }
 }
 
 input[type="range"]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--bp-accent); }
@@ -3091,7 +3096,7 @@ body.bp-tastiera .bp-ev-azione { bottom: 0; }
     display: grid; place-items: center; color: var(--bp-ink-faint);
 }
 .bp-ev .bp-togli svg { width: 18px; height: 18px; }
-.bp-ev .bp-togli:hover { transform: none; background: var(--bp-sunken); color: var(--bp-danger); }
+@media (hover: hover) { .bp-ev .bp-togli:hover { transform: none; background: var(--bp-sunken); color: var(--bp-danger); } }
 
 .bp-ev .bp-aggiungi {
     display: flex; align-items: center; justify-content: flex-start; gap: 10px;
@@ -3100,7 +3105,7 @@ body.bp-tastiera .bp-ev-azione { bottom: 0; }
     color: var(--bp-accent-ink); font-size: var(--t-base); font-weight: 700; text-transform: none; letter-spacing: 0;
 }
 #bp-menu-righe:empty + .bp-menu-vuoto[hidden] + .bp-aggiungi { border-top: none; }
-.bp-ev .bp-aggiungi:hover { transform: none; background: var(--bp-sunken); }
+@media (hover: hover) { .bp-ev .bp-aggiungi:hover { transform: none; background: var(--bp-sunken); } }
 .bp-piu {
     width: 24px; height: 24px; border-radius: 7px; flex: 0 0 auto;
     display: grid; place-items: center; background: var(--bp-accent-soft); color: var(--bp-accent-ink);
@@ -3147,7 +3152,7 @@ body.bp-tastiera .bp-ev-azione { bottom: 0; }
     color: var(--bp-ink); font-size: var(--t-base); font-weight: 500; text-transform: none; letter-spacing: 0;
 }
 :is(.bp-picker, .bp-ev) .bp-pk-voce + .bp-pk-voce { border-top: none; }
-:is(.bp-picker, .bp-ev) .bp-pk-voce:hover { transform: none; background: var(--bp-sunken); }
+@media (hover: hover) { :is(.bp-picker, .bp-ev) .bp-pk-voce:hover { transform: none; background: var(--bp-sunken); } }
 .bp-pk-cb {
     width: 22px; height: 22px; flex: 0 0 auto; border-radius: 7px;
     border: 1.5px solid var(--bp-line-control); display: grid; place-items: center;
@@ -3166,7 +3171,7 @@ body.bp-tastiera .bp-ev-azione { bottom: 0; }
     background: var(--bp-accent); border: 1px solid var(--bp-accent); color: var(--bp-on-accent);
     border-radius: var(--r-md); font-size: var(--t-base); font-weight: 700; text-transform: none; letter-spacing: 0;
 }
-.bp-picker .bp-pk-usa:hover { transform: none; background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); }
+@media (hover: hover) { .bp-picker .bp-pk-usa:hover { transform: none; background: var(--bp-accent-hover); border-color: var(--bp-accent-hover); } }
 .bp-picker .bpc-close {
     width: 44px; height: 44px;
 }
@@ -3213,7 +3218,7 @@ body.bp-tastiera .bp-ev-azione { bottom: 0; }
     color: var(--bp-ink); text-transform: none; letter-spacing: 0; font-weight: 500;
 }
 .bp-ev .bp-opz + .bp-opz { border-top: none; }
-.bp-ev .bp-opz:hover { transform: none; background: var(--bp-sunken); }
+@media (hover: hover) { .bp-ev .bp-opz:hover { transform: none; background: var(--bp-sunken); } }
 .bp-ev .bp-opz.sel {
     background: var(--bp-panel);
 }
@@ -3319,7 +3324,7 @@ body.bp-tastiera .bp-ev-azione { bottom: 0; }
 #bp-config .bpc-back, #bp-config .bpc-next { flex: 0 0 auto; width: auto; min-height: 50px; padding: 12px 18px; text-transform: none; letter-spacing: 0; border-radius: var(--r-md); }
 #bp-config .bpc-back { background: none; border-color: transparent; color: var(--bp-ink-soft); padding-inline: 10px; }
 #bp-config .bpc-next { background: var(--bp-accent); color: var(--bp-on-accent); }
-#bp-config .bpc-next:hover { background: var(--bp-accent-hover); }
+@media (hover: hover) { #bp-config .bpc-next:hover { background: var(--bp-accent-hover); } }
 
 /* Manrope has measured tabular figures; Poppins does not. */
 input[type="number"], .bp-bevitori, .pct-bevitori-display, .bp-riga-nota b, .bpc-count, .bpc-costo, .bpc-conto,
@@ -3440,11 +3445,11 @@ input[type="number"], .bp-bevitori, .pct-bevitori-display, .bp-riga-nota b, .bpc
 button, input:not([type="hidden"]), select, .help-tip { min-height: 44px; }
 button { min-width: 44px; }
 button:disabled, button[disabled] { opacity: 1; filter: none; color: var(--bp-ink-faint); background: var(--bp-sunken); border-color: var(--bp-line); }
-button:disabled:hover { background: var(--bp-sunken); border-color: var(--bp-line); }
+@media (hover: hover) { button:disabled:hover { background: var(--bp-sunken); border-color: var(--bp-line); } }
 .bpc-back[disabled], .bp-sheet .bp-print-annulla:disabled { opacity: 1; color: var(--bp-ink-faint); }
 
 
-.bp-tab:hover { color: var(--bp-accent-ink); background: var(--bp-sunken); }
+@media (hover: hover) { .bp-tab:hover { color: var(--bp-accent-ink); background: var(--bp-sunken); } }
 .bp-tab:focus-visible,
 .theme-switcher button:focus-visible,
 .bp-altro-voce:focus-visible,
@@ -3452,7 +3457,7 @@ button:disabled:hover { background: var(--bp-sunken); border-color: var(--bp-lin
 .bp-pk-voce:focus-visible { outline-offset: -3px; }
 .theme-switcher { border-radius: var(--r-md); }
 .theme-switcher button { font-size: var(--t-sm); text-transform: none; letter-spacing: 0; }
-.theme-switcher button:hover:not(.active) { background: var(--bp-sunken); color: var(--bp-ink); transform: none; }
+@media (hover: hover) { .theme-switcher button:hover:not(.active) { background: var(--bp-sunken); color: var(--bp-ink); transform: none; } }
 .theme-switcher button.active:hover {
     background: transparent; color: var(--bp-ink); transform: none;
 }
@@ -3479,9 +3484,9 @@ body.bp-home .bph-hero-desc, .bp-opz.sel .bp-voce-sub { color: var(--bp-ink-soft
 .bp-voce-tx, .bp-pk-voce .bp-voce-nome { min-width: 0; }
 .bpc-evkebab { top: 8px; right: 8px; }
 .bpc-evcard-main { min-height: 44px; padding-right: 40px; border-radius: var(--r-sm); }
-.bpc-evcard-main:hover { background: var(--bp-sunken); }
+@media (hover: hover) { .bpc-evcard-main:hover { background: var(--bp-sunken); } }
 .bpc-chkitem { min-height: 44px; }
-.bpc-chkitem:hover { background: var(--bp-sunken); }
+@media (hover: hover) { .bpc-chkitem:hover { background: var(--bp-sunken); } }
 .bpc-evmenu { top: 54px; backdrop-filter: none; }
 .bpc-chkbox { color: var(--bp-on-accent); }
 .bp-footer-link a, .pagina-testo .topnav a, .pagina-testo .related a, .testo-torna a {
