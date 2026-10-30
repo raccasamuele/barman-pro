@@ -96,7 +96,7 @@ test.describe('CSS · il foglio di stile viene interpretato per intero', () => {
 
     expect(t.bg, 'token --bp-bg mancante').toMatch(/oklch/);
     expect(t.accento, 'token --bp-accent mancante').toMatch(/oklch/);
-    expect(t.font, 'la famiglia tipografica non e\' quella nuova').toMatch(/Manrope/);
+    expect(t.font, 'la famiglia tipografica non e\' quella nuova').toMatch(/Poppins/);
     expect(t.barra, "la barra di navigazione non e' posizionata: il foglio non e' applicato").toBe("fixed");
   });
 });

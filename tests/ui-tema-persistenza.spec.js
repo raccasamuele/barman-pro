@@ -103,10 +103,10 @@ test.describe('Tema · cio che sopravvive al ricaricamento', () => {
     await page.evaluate(() => window.cambiaTema('light'));
     expect(await colore(),
       'app chiara su sistema scuro: la barra del browser deve restare chiara')
-      .toBe('#f5f6f7');
+      .toBe('#eaf1fc');
 
     await page.evaluate(() => window.cambiaTema('dark'));
-    expect(await colore()).toBe('#111213');
+    expect(await colore()).toBe('#0b1426');
 
     await contesto.close();
   });

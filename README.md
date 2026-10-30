@@ -109,7 +109,8 @@ progetto dovrebbe mettere il proprio, o lasciare vuoto.
 
 Codice: **MIT** (vedi [LICENSE](LICENSE)).
 
-Il font Manrope è distribuito sotto SIL Open Font License, e il database
+I font Poppins (interfaccia) e Manrope (colonne numeriche e presentazione)
+sono self-hostati e distribuiti sotto SIL Open Font License; il database
 delle ricette è un adattamento delle ricette IBA: i dettagli sono in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 

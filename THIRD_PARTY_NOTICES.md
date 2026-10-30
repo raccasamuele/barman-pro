@@ -7,7 +7,19 @@ cosa può ridistribuire e a quali condizioni.
 
 ---
 
-## Manrope (font)
+## Poppins (font dell'interfaccia)
+
+- **Percorso:** public/fonts/poppins-latin-{400,500,600,700}-normal.woff2
+  e public/fonts/poppins-latin-ext-{400,500,600,700}-normal.woff2
+- **Autori e copyright:** 2020 The Poppins Project Authors
+  (https://github.com/itfoundry/Poppins)
+- **Licenza:** SIL Open Font License 1.1
+- **Testo della licenza:** public/fonts/OFL-Poppins.txt
+
+I pesi e i sottoinsiemi sono dichiarati separatamente con unicode-range.
+La licenza deve rimanere insieme ai file quando vengono ridistribuiti.
+
+## Manrope (font numerico e della presentazione)
 
 - **Percorso:** `public/fonts/manrope-latin-wght-normal.woff2`,
   `public/fonts/manrope-latin-ext-wght-normal.woff2`

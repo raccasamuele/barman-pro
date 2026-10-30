@@ -4363,7 +4363,7 @@ Annulla = ` + T('backupUnisci'));
 
         /* La barra del browser deve mostrare il colore che si vede davvero.
            In "auto" quello lo decide il sistema, negli altri due la scelta. */
-        const BP_THEME_COLOR = { light: '#f5f6f7', dark: '#111213' };
+        const BP_THEME_COLOR = { light: '#eaf1fc', dark: '#0b1426' };
         function bpAggiornaThemeColor(scelto) {
             const meta = document.querySelector('meta[name="theme-color"]');
             if (!meta) return;
@@ -5250,7 +5250,8 @@ Annulla = ` + T('backupUnisci'));
             const tot = BP_CFG_STEPS.length;
             const mount = document.getElementById('bp-cfg-mount');
             if (bpPk && bpPk.root === mount) bpPk = null;
-            document.getElementById('bp-cfg-progress').style.width = Math.round(((bpCfgIdx + 1) / tot) * 100) + '%';
+            document.getElementById('bp-cfg-progress').style.width = '100%';
+            document.getElementById('bp-cfg-progress').style.transform = 'scaleX(' + ((bpCfgIdx + 1) / tot) + ')';
             document.getElementById('bp-cfg-count').textContent = T('cfgPassoDi').replace('{n}', bpCfgIdx + 1).replace('{tot}', tot);
             document.getElementById('bp-cfg-back').textContent = T('cfgBack');
             document.getElementById('bp-cfg-next').textContent = (bpCfgIdx === tot - 1) ? T('evGenera') : T('cfgNext');
@@ -5517,7 +5518,7 @@ Annulla = ` + T('backupUnisci'));
             mount._evId = null; mount._evTot = 0;
             const list = bpGetEvents().sort((a,b) => b.data - a.data);
             if (!list.length){
-                mount.innerHTML = '<div class="bpc-evempty"><div class="mk">&#10070;</div><h3>'+_T('evEmpty')+'</h3><p>'+_T('evEmptySub')+'</p></div>';
+                mount.innerHTML = '<div class="bpc-evempty"><div class="mk"><img class="bp-clay" src="icons/lista.webp" srcset="icons/lista.webp 1x, icons/lista-2x.webp 2x" width="40" height="40" alt=""></div><h3>'+_T('evEmpty')+'</h3><p>'+_T('evEmptySub')+'</p></div>';
                 return;
             }
             /* L'id finisce dentro un attributo: va sfuggito come tutto il resto.
@@ -5634,7 +5635,7 @@ Annulla = ` + T('backupUnisci'));
             } else if (tab === 'compra') {
                 let tot = 0, done = 0, body = '', costTot = 0, costDone = 0;
                 lista.forEach(g => {
-                    body += '<div class="bpc-chkgroup"><div class="gt">' + _bpEsc(g.titolo) + '</div>';
+                    body += '<div class="bpc-chkgroup"><div class="gt">' + bpClayGruppo(g.key) + _bpEsc(g.titolo) + '</div>';
                     (g.items || []).forEach(it => {
                         const key = g.key + '|' + it.nome;
                         const isDone = !!ev.check[key];
@@ -5664,7 +5665,7 @@ Annulla = ` + T('backupUnisci'));
                 let body = '';
                 lista.forEach(g => {
                     let sub = 0;
-                    body += '<div class="bpe-prev-gr"><div class="gt">' + _bpEsc(g.titolo) + '</div>';
+                    body += '<div class="bpe-prev-gr"><div class="gt">' + bpClayGruppo(g.key) + _bpEsc(g.titolo) + '</div>';
                     (g.items || []).forEach(it => {
                         const cs = _bpParseCost(it.costo);
                         sub += cs;
@@ -6650,7 +6651,7 @@ Annulla = ` + T('backupUnisci'));
                +       '</span></div>';
 
                 h +=   '<button type="button" class="bph-hero" data-home="resume">'
-               +         '<span class="bph-hero-ic">&#8635;</span>'
+               +         "<span class=\"bph-hero-ic\"><img class=\"bp-clay\" src=\"icons/lista.webp\" srcset=\"icons/lista.webp 1x, icons/lista-2x.webp 2x\" width=\"40\" height=\"40\" alt=\"\"></span>"
                +         '<span class="bph-hero-tx"><span class="bph-hero-title">'
                +           esc(T('homeRiprendiDa').replace('{passo}', etichette[bpPassoCorrente] || etichette['step-setup']))
                +         '</span><span class="bph-hero-desc">' + esc(T('homeResumeDesc')) + '</span></span>'
@@ -6660,7 +6661,7 @@ Annulla = ` + T('backupUnisci'));
                 h += '</section>';
             } else {
                 h += '<button type="button" class="bph-hero" data-home="new">' +
-                        '<span class="bph-hero-ic">&#10010;</span>' +
+                        "<span class=\"bph-hero-ic\"><img class=\"bp-clay\" src=\"icons/cocktail.webp\" srcset=\"icons/cocktail.webp 1x, icons/cocktail-2x.webp 2x\" width=\"40\" height=\"40\" alt=\"\"></span>" +
                         '<span class="bph-hero-tx"><span class="bph-hero-title">' + esc(T('homeNewTitle')) + '</span>' +
                         '<span class="bph-hero-desc">' + esc(T('homeNewDesc')) + '</span></span>' +
                         '<span class="bph-hero-arrow">&rsaquo;</span></button>';
@@ -8168,3 +8169,33 @@ Annulla = ` + T('backupUnisci'));
             nascondiBottoneInstalla();
             installPromptEvent = null;
         });
+
+/* Decorative section marks share the landing's local clay assets. */
+function bpClayGruppo(key) {
+    const name = /extra/.test(key) ? 'ghiaccio' : /garnish/.test(key) ? 'lista' : 'bottiglie';
+    return '<img class="bp-clay" src="icons/' + name + '.webp" srcset="icons/' + name + '.webp 1x, icons/' + name + '-2x.webp 2x" width="40" height="40" alt="">';
+}
+
+/* A pseudo-element supplies each sliding cursor without changing button indices.
+   Only geometry styles are written; selection and aria remain owned by the existing actions. */
+(() => {
+    let queued = false;
+    const update = () => {
+        queued = false;
+        document.querySelectorAll('.bp-seg, .bp-chips, .theme-switcher').forEach(group => {
+            const active = group.querySelector('button.on, button.active');
+            if (!active || !group.getClientRects().length) return;
+            group.style.setProperty('--bp-cursor-x', active.offsetLeft + 'px');
+            group.style.setProperty('--bp-cursor-w', active.offsetWidth + 'px');
+        });
+    };
+    const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+    const start = () => {
+        new MutationObserver(schedule).observe(document.body, {subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'aria-checked', 'data-sezione']});
+        new ResizeObserver(schedule).observe(document.body);
+        document.fonts.ready.then(schedule);
+        window.addEventListener('resize', schedule, {passive: true});
+        schedule();
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();

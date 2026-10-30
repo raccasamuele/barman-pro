@@ -9,8 +9,8 @@
  *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v3.31.0';
-const ASSET_CACHE = 'barman-pro-assets-v3.31.0';
+const CACHE_VERSION = 'barman-pro-v3.32.0';
+const ASSET_CACHE = 'barman-pro-assets-v3.32.0';
 
 // Asset da pre-cachare alla prima installazione.
 //
@@ -43,7 +43,27 @@ const PRECACHE_ASSETS = [
     './privacy',
     './manifest.json',
     './fonts/manrope-latin-wght-normal.woff2',
-    './fonts/manrope-latin-ext-wght-normal.woff2'
+    './fonts/manrope-latin-ext-wght-normal.woff2',
+    './fonts/poppins-latin-400-normal.woff2',
+    './fonts/poppins-latin-ext-400-normal.woff2',
+    './fonts/poppins-latin-500-normal.woff2',
+    './fonts/poppins-latin-ext-500-normal.woff2',
+    './fonts/poppins-latin-600-normal.woff2',
+    './fonts/poppins-latin-ext-600-normal.woff2',
+    './fonts/poppins-latin-700-normal.woff2',
+    './fonts/poppins-latin-ext-700-normal.woff2',
+    './icons/cocktail.webp',
+    './icons/cocktail-2x.webp',
+    './icons/bottiglie.webp',
+    './icons/bottiglie-2x.webp',
+    './icons/lista.webp',
+    './icons/lista-2x.webp',
+    './icons/condividi.webp',
+    './icons/condividi-2x.webp',
+    './icons/ghiaccio.webp',
+    './icons/ghiaccio-2x.webp',
+    './icons/preventivo.webp',
+    './icons/preventivo-2x.webp'
 ];
 
 // ─── INSTALL ───

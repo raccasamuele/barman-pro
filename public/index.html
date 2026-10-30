@@ -32,7 +32,7 @@
          prefers-color-scheme, chi ha il sistema in scuro e l'app in chiaro
          si ritrovava la barra del browser nera sopra una pagina bianca.
          Il valore e' --bp-bg di app.css convertito in sRGB. -->
-    <meta name="theme-color" content="#f5f6f7">
+    <meta name="theme-color" content="#eaf1fc">
 
     <!-- ─── Favicon e icone ─── -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -68,7 +68,9 @@
     <!-- Font self-hostato: nessuna richiesta a terzi, nessun blocco di
          rendering se il CDN e' lento, e una cosa in meno da dichiarare
          nella privacy. Il preload evita il lampo di testo non stilato. -->
-    <link rel="preload" href="fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/poppins-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/poppins-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
     
     <link rel="stylesheet" href="app.css">
 
@@ -539,6 +541,9 @@
 
         <!-- Prima il totale, poi la riga piccola con quanti drink e dove:
              la stessa testa dell'evento salvato. -->
+        <div class="bp-lista-layout">
+        <aside class="bp-receipt">
+        <img class="bp-clay" src="icons/preventivo.webp" srcset="icons/preventivo.webp 1x, icons/preventivo-2x.webp 2x" width="40" height="40" alt="">
         <div class="budget-box" id="budget-box" style="display:none;">
             <div class="budget-label" data-i18n="budgetLabel">Budget Stimato Materie Prime</div>
             <div class="budget-amount" id="budget-amount">€ 0,00</div>
@@ -550,26 +555,28 @@
             <div class="total-drinks" id="drink-totali-text"></div>
         </div>
 
+        </aside>
+        <div class="bp-lista-corpo">
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
             <div class="result-section bg-alcol">
-                <h3 data-i18n="risultatiAlcolici">Alcolici (Litri)</h3>
+                <div class="bp-reparto-testa"><img class="bp-clay" src="icons/bottiglie.webp" srcset="icons/bottiglie.webp 1x, icons/bottiglie-2x.webp 2x" width="40" height="40" alt=""><h3 data-i18n="risultatiAlcolici">Alcolici (Litri)</h3></div>
                 <ul id="lista_alcolici"></ul>
             </div>
             <div class="result-section bg-analcol">
-                <h3 data-i18n="risultatiAnalcolici">Analcolici &amp; Filler (Litri)</h3>
+                <div class="bp-reparto-testa"><img class="bp-clay" src="icons/bottiglie.webp" srcset="icons/bottiglie.webp 1x, icons/bottiglie-2x.webp 2x" width="40" height="40" alt=""><h3 data-i18n="risultatiAnalcolici">Analcolici &amp; Filler (Litri)</h3></div>
                 <ul id="lista_analcolici"></ul>
             </div>
         </div>
         <div class="result-section bg-fermentati" id="block_fermentati" style="display:none;">
-            <h3 data-i18n="risultatiFermentati">Vini e Birre (Bottiglie)</h3>
+            <div class="bp-reparto-testa"><img class="bp-clay" src="icons/bottiglie.webp" srcset="icons/bottiglie.webp 1x, icons/bottiglie-2x.webp 2x" width="40" height="40" alt=""><h3 data-i18n="risultatiFermentati">Vini e Birre (Bottiglie)</h3></div>
             <ul id="lista_fermentati"></ul>
         </div>
         <div class="result-section bg-extra">
-            <h3 data-i18n="risultatiAttrezzatura">Attrezzatura</h3>
+            <div class="bp-reparto-testa"><img class="bp-clay" src="icons/ghiaccio.webp" srcset="icons/ghiaccio.webp 1x, icons/ghiaccio-2x.webp 2x" width="40" height="40" alt=""><h3 data-i18n="risultatiAttrezzatura">Attrezzatura</h3></div>
             <ul id="lista_extra"></ul>
         </div>
         <div class="result-section bg-extra" id="block_garnish" style="display:none;">
-            <h3 data-i18n="risultatiGarnish">Da comprare a parte</h3>
+            <div class="bp-reparto-testa"><img class="bp-clay" src="icons/lista.webp" srcset="icons/lista.webp 1x, icons/lista-2x.webp 2x" width="40" height="40" alt=""><h3 data-i18n="risultatiGarnish">Da comprare a parte</h3></div>
             <p class="descrizione" data-i18n="garnishSub">Guarnizioni e ingredienti di preparazione (senza dose): procurali a parte</p>
             <ul id="lista_garnish"></ul>
         </div>
@@ -577,6 +584,8 @@
         <!-- Correggere non e' piu' una modalita' da accendere: si tocca la
              voce e sale una scheda solo per quella (bpVoceApri). -->
         <p class="bp-lista-tocca" data-i18n="vocTocca">Tocca una voce per correggerla: quanto comprarne, cosa hai gi&agrave;, il prezzo.</p>
+        </div>
+        </div>
 
     </div>
 
