@@ -1,0 +1,56 @@
+name: Segnala un bug
+description: Qualcosa non funziona o un calcolo sembra sbagliato.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie per la segnalazione! Per problemi di sicurezza **non** usare questo modulo: segui [SECURITY.md](https://github.com/raccasamuele/barman-pro/blob/main/SECURITY.md).
+  - type: textarea
+    id: descrizione
+    attributes:
+      label: Cosa succede
+      description: Descrivi il problema in poche righe.
+    validations:
+      required: true
+  - type: textarea
+    id: passaggi
+    attributes:
+      label: Come riprodurlo
+      description: Ospiti, durata, ricette scelte, pagina aperta... tutto ciò che serve per vederlo di nuovo.
+      placeholder: |
+        1. Apri il configuratore guidato
+        2. Inserisci 80 ospiti, 4 ore
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: atteso
+    attributes:
+      label: Cosa ti aspettavi
+    validations:
+      required: true
+  - type: dropdown
+    id: lingua
+    attributes:
+      label: Lingua dell'app
+      options:
+        - Italiano
+        - English
+        - Español
+        - Français
+        - Deutsch
+        - Português
+        - Nederlands
+  - type: input
+    id: ambiente
+    attributes:
+      label: Browser e dispositivo
+      placeholder: "es. Safari 18 su iPhone 15, app installata"
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshot o altro
+      description: Facoltativo. Trascina qui immagini o incolla messaggi d'errore.

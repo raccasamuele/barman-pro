@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Segnala una vulnerabilità di sicurezza
+    url: https://github.com/raccasamuele/barman-pro/security/advisories/new
+    about: Non aprire issue pubbliche per problemi di sicurezza. Puoi anche scrivere a security@raccasamuele.it.
+  - name: Apri l'app
+    url: https://barmanpro.raccasamuele.it/
+    about: Barman PRO online, gratuito e senza account.
