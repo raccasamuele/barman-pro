@@ -65,32 +65,19 @@ npm test
 ## Contribuire
 
 Le segnalazioni e le proposte sono benvenute nelle
-[issue](https://github.com/raccasamuele/barman-pro/issues).
+[issue](https://github.com/raccasamuele/barman-pro/issues). Prima di aprire
+una pull request leggi la [guida per contribuire](CONTRIBUTING.md): spiega
+come far girare i test e l'unica regola davvero seria, cioè che **il motore
+di calcolo non si tocca senza far girare i test golden.**
 
-Una sola regola, ed è seria: **il motore di calcolo non si tocca senza far
-girare i test golden.** `calcolaSpesa` e `stimaBudget` sono due
-implementazioni dello stesso modello di costo e devono restare d'accordo; i
-test in `tests/golden-calc.spec.js` confrontano entrambe su venti scenari e
-congelano il database delle ricette. Se cambi una formula o un prezzo di
-riferimento, il golden va rigenerato di proposito:
+Chi partecipa al progetto è tenuto a rispettare il
+[codice di condotta](CODE_OF_CONDUCT.md).
 
-```bash
-UPDATE_GOLDEN=1 npx playwright test --project=golden
-```
+## Sicurezza
 
-Se cambia da solo, è una regressione.
-
-Prima di aprire una pull request:
-
-```bash
-npm test              # golden, UI, CSP, PWA
-npm run check         # traduzioni e residui
-```
-
-**Traduzioni:** le chiavi vivono in `app.js` e sono ripartite su quindici
-oggetti che vengono uniti a `translations`. Non aggiungerle a mano seguendo
-un elenco: `scripts/check-i18n.mjs` li enumera da solo e segnala le chiavi
-mancanti in ognuna delle sette lingue.
+Hai trovato una vulnerabilità? Non aprire una issue pubblica: scrivi a
+[security@raccasamuele.it](mailto:security@raccasamuele.it) o usa la
+segnalazione privata di GitHub. I dettagli sono in [SECURITY.md](SECURITY.md).
 
 ## Statistiche di visita
 
