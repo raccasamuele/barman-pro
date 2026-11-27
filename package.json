@@ -12,6 +12,7 @@
     "serve": "npx --yes http-server public -p 8099 -c-1 --ext html --silent",
     "test": "playwright test",
     "test:golden": "playwright test --project=golden",
+    "test:motore": "node --test tests/motore.test.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:forbidden": "node scripts/check-forbidden.mjs",
     "check": "npm run check:i18n && npm run check:forbidden",
