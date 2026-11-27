@@ -16,7 +16,7 @@ Gratuito, senza account, senza pubblicità. Funziona offline.
 
 ## Cosa fa
 
-- **Calcolo delle quantità** su 137 ricette, con le proporzioni ricalibrate
+- **Calcolo delle quantità** su 136 ricette, con le proporzioni ricalibrate
   per il servizio ad alto volume, non per il singolo drink al banco.
 - **Percentuale di bevitori:** chi non beve alcolici viene contato per i
   mocktail, non ignorato.

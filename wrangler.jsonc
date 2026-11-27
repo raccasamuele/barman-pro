@@ -8,7 +8,8 @@
     //   possono finire online per distrazione — per questo qui non serve
     //   nessun .assetsignore.
     //
-    //   main non definito → Workers Assets puro, nessun JS server-side.
+    //   main (src/index.js) fa solo il rimando dal vecchio indirizzo
+    //   workers.dev: tutto il resto sono i file di public/.
     //
     //   ⚠️ NON usare `wrangler deploy` per validare una modifica: questo
     //      Worker è quello servito agli utenti. Prima si carica una

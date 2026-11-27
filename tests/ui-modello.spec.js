@@ -181,6 +181,6 @@ test.describe("Modello . ogni quantita' nell'unita' base della riga", () => {
     const mostrato = await page.evaluate(() => window.bpQuantitaMostrata({
       baseUnit: "ml", roundedPurchaseQty: 500, displayUnit: "ml",
     }));
-    expect(mostrato, "sul foglio non si leggono piu' i litri").toBe("0.5 L");
+    expect(mostrato, "sul foglio non si leggono piu' i litri").toBe("0,5 L");
   });
 });

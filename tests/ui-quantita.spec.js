@@ -47,7 +47,8 @@ function leggiRiga(page) {
     const q = document.querySelector('#bp-voce[open] .mod-qta');
     const rip = document.getElementById('bp-voce-ripristina');
     return {
-      quantita: li.querySelector('strong').textContent.trim(),
+      // Il primo nodo e' la quantita'; dopo puo' esserci il suggerimento in bottiglie.
+      quantita: li.querySelector('strong').firstChild.textContent.trim(),
       marcata: li.querySelector('strong').classList.contains('qta-tua'),
       costo: (li.querySelector('.costo-voce') || {}).textContent || '',
       totale: document.getElementById('budget-amount').textContent.trim(),
@@ -106,7 +107,7 @@ test.describe('Quantita\' corretta a mano', () => {
     await expect(li.locator('input')).toHaveCount(0);
     await expect(li).toHaveClass(/voce-corretta/);
     await expect(li.locator('strong')).toHaveClass(/qta-tua/);
-    await expect(li.locator('strong')).toHaveText('4 L');
+    await expect(li.locator('strong')).toHaveText(/^4 L( · .*)?$/);
   });
 
   test('sopravvive al ricalcolo: cambiano gli ospiti, la correzione resta', async ({ page }) => {
