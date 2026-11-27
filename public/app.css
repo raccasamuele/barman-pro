@@ -3584,6 +3584,14 @@ body.bp-home .bph-hero-desc, .bp-opz.sel .bp-voce-sub { color: var(--bp-ink-soft
 #risultati li strong span.bp-bt-hint, .bp-bt-hint {
     font-size: inherit; font-weight: 400; color: var(--bp-ink-faint); white-space: nowrap; overflow-wrap: normal;
 }
+/* A schermo le bottiglie vanno sotto i litri, piu' piccole: sulla stessa
+   riga allargavano la colonna e toglievano spazio al nome. */
+@media screen {
+    #risultati li strong span.bp-bt-hint { display: block; font-size: var(--t-xs); line-height: 1.3; text-align: right; }
+    #risultati li strong span.bp-bt-sep { display: none; }
+    /* Con la quantita' su due righe, nome e prezzo restano centrati su di lei. */
+    #risultati li:has(.bp-bt-hint) { align-items: center; }
+}
 
 /* "Salta, imposto tutto io" al primo passo del guidato: un collegamento,
    non un secondo pulsante primario. */

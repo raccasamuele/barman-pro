@@ -7199,10 +7199,17 @@ Annulla = ` + T('backupUnisci'));
         }
 
         const bpRighe = (m, g) => m.righe.filter(r => r.gruppo === g);
+        /* Il " · " sta in uno span a se': a schermo le bottiglie vanno sotto i
+           litri e il separatore si nasconde, ma il testo della riga (che
+           finisce nell'evento salvato e nella condivisione) resta "3 L · 3 × 1 L". */
         function el_bt(testo) {
             const s = document.createElement('span');
             s.className = 'bp-bt-hint';
-            s.textContent = ' · ' + testo;
+            const sep = document.createElement('span');
+            sep.className = 'bp-bt-sep';
+            sep.textContent = ' · ';
+            s.appendChild(sep);
+            s.appendChild(document.createTextNode(testo));
             return s;
         }
 
