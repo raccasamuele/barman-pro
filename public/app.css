@@ -2498,8 +2498,8 @@ body:has(.bpc-overlay.show, .bpm-overlay.show, .suggeritore-modal.show) .bp-tabb
     .header, .bp-tabbar { background: color-mix(in srgb, var(--bp-panel) 80%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 }
 /* ── L'isola: la barra sotto i 900px non tocca i bordi ──
-   Galleggia sul contenuto, che scorre sotto il vetro. Solo icone: l'etichetta
-   resta per gli screen reader (e per la colonna a sinistra sopra i 900px).
+   Galleggia sul contenuto, che scorre sotto il vetro. Icone con l'etichetta
+   piccola sotto (prima solo icone: per chi usa l'app una volta non bastava).
    Il cursore e' uno pseudo-elemento mosso dalla voce con aria-current: niente
    JavaScript, e i bottoni restano quattro e nello stesso ordine. */
 @media (max-width: 899px) {
@@ -2525,12 +2525,11 @@ body:has(.bpc-overlay.show, .bpm-overlay.show, .suggeritore-modal.show) .bp-tabb
     .bp-tabbar:has(.bp-tab:nth-child(2)[aria-current="page"])::before { transform: translateX(100%); }
     .bp-tabbar:has(.bp-tab:nth-child(3)[aria-current="page"])::before { transform: translateX(200%); }
     .bp-tabbar:has(.bp-tab:nth-child(4)[aria-current="page"])::before { transform: translateX(300%); }
-    .bp-tab { position: relative; height: 100%; border-radius: 26px; }
-    .bp-tab-ic { width: 26px; height: 26px; }
-    .bp-tab-tx {
-        position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
-        clip-path: inset(50%); white-space: nowrap;
-    }
+    /* Icona ED etichetta: chi apre l'app una volta sola non deve indovinare
+       che il calice e' "Evento" e il calendario "Salvati". */
+    .bp-tab { position: relative; height: 100%; border-radius: 26px; gap: 2px; padding: 4px 2px; font-size: 11px; line-height: 1.1; }
+    .bp-tab-ic { width: 24px; height: 24px; }
+    .bp-tab-tx { position: relative; }
     body { padding-bottom: calc(var(--bp-isola-ingombro) + 16px); }
 }
 @supports ((backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))) {
@@ -3578,3 +3577,23 @@ body.bp-home .bph-hero-desc, .bp-opz.sel .bp-voce-sub { color: var(--bp-ink-soft
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
     button:hover, button:active, a:active { transform: none !important; }
 }
+
+/* ── Correzioni del 27 novembre 2026 ── */
+
+/* Bottiglie accanto ai litri: si legge, ma pesa meno del dato vero. */
+#risultati li strong span.bp-bt-hint, .bp-bt-hint {
+    font-size: inherit; font-weight: 400; color: var(--bp-ink-faint); white-space: nowrap; overflow-wrap: normal;
+}
+
+/* "Salta, imposto tutto io" al primo passo del guidato: un collegamento,
+   non un secondo pulsante primario. */
+.bpc-salta {
+    display: block; width: auto; margin: 16px auto 0; min-height: 44px; padding: 10px 16px;
+    background: none; border: none; color: var(--bp-accent-ink);
+    font: 600 0.875rem/1.3 var(--bp-font); text-decoration: underline; text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+/* Le parole non si spezzano a meta' ("consumazion i"): si va a capo fra
+   parole, e solo se una parola da sola non ci sta la si spezza. */
+#risultati li > span:first-child { overflow-wrap: break-word; word-break: normal; hyphens: auto; }

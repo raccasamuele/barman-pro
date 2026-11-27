@@ -117,7 +117,7 @@ test.describe('Navigazione · due layout, un markup', () => {
     expect(m.stacco, 'l\'isola non sta in fondo, staccata dal bordo').toBeGreaterThanOrEqual(8);
     expect(m.stacco, 'l\'isola non sta in fondo, staccata dal bordo').toBeLessThanOrEqual(40);
     expect(m.margine, 'l\'isola tocca i bordi laterali').toBeGreaterThanOrEqual(8);
-    expect(m.etichetta, 'sull\'isola le etichette non si vedono, restano per gli screen reader').toBeLessThanOrEqual(1);
+    expect(m.etichetta, 'sull\'isola l\'etichetta sotto l\'icona deve vedersi').toBeGreaterThan(10);
   });
 
   test('sopra i 900px diventa una colonna a sinistra', async ({ page }) => {

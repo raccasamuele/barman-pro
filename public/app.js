@@ -95,9 +95,9 @@
                 btnCreaShot: 'Crea e aggiungi',
                 // Risultati
                 btnGenera: 'Genera lista della spesa',
-                printTitle: 'Lista della Spesa',
-                risultatiAlcolici: 'Alcolici (Litri)',
-                risultatiAnalcolici: 'Analcolici & Filler (Litri)',
+                printTitle: 'Lista della spesa',
+                risultatiAlcolici: 'Alcolici (litri)',
+                risultatiAnalcolici: 'Analcolici e filler (litri)',
                 risultatiAttrezzatura: 'Attrezzatura',
                 btnCopia: 'Copia testo',
                 btnCondividi: 'Condividi',
@@ -962,7 +962,7 @@
                 labelFasciaFermentati: "Fascia Prezzo Fermentati",
                 fasciaBassa: "Bassa", fasciaMedia: "Media", fasciaAlta: "Alta",
                 helperFermentati: "Nota: l'app calcola automaticamente 1 bottiglia di vino ogni 5 calici e 1 bottiglia/lattina di birra per consumazione.",
-                risultatiFermentati: "Vini e Birre (Bottiglie)",
+                risultatiFermentati: "Vini e birre (bottiglie)",
                 copyFermentati: "VINI E BIRRE",
                 lblVinoRosso: "Vino Rosso", lblVinoBianco: "Vino Bianco",
                 lblBollicine: "Bollicine", lblBirra: "Birra",
@@ -1130,7 +1130,7 @@
                 optBassa: "Bassa · Prodotti Economici",
                 optMedia: "Media · Prodotti Standard",
                 optAlta: "Alta · Prodotti Premium",
-                budgetLabel: "Budget Stimato Materie Prime",
+                budgetLabel: "Budget stimato materie prime",
                 budgetFasciaWord: "fascia",
                 phNomeCocktail: "Nome del cocktail",
                 phIngrediente: "Ingrediente",
@@ -1814,6 +1814,8 @@
             linguaCorrente = lang;
             document.documentElement.lang = lang;
             const tr = translations[lang];
+
+            bpTraduciPaesi();
 
             /* ── Elementi generici con data-i18n → textContent ── */
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -3982,6 +3984,7 @@ Annulla = ` + T('backupUnisci'));
                     selNazione.appendChild(opt);
                 });
             }
+            bpTraduciPaesi();
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -4963,6 +4966,19 @@ Annulla = ` + T('backupUnisci'));
         };
         Object.keys(_extraI18nUi).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _extraI18nUi[lg]); });
 
+        /* ── Correzioni del 27 novembre 2026: "Salta" nel guidato, unita' e
+           riga paese/fascia della lista. ── */
+        const _correzioniI18n = {
+            it: { cfgSalta:"Salta, imposto tutto io", unitPz:"pz", budgetPaeseFascia:"{paese} · fascia {fascia}" },
+            en: { cfgSalta:"Skip, I'll set it up myself", unitPz:"pcs", budgetPaeseFascia:"{paese} · {fascia} prices" },
+            es: { cfgSalta:"Saltar, lo configuro yo", unitPz:"uds.", budgetPaeseFascia:"{paese} · gama {fascia}" },
+            fr: { cfgSalta:"Passer, je règle tout moi-même", unitPz:"pcs", budgetPaeseFascia:"{paese} · gamme {fascia}" },
+            de: { cfgSalta:"Überspringen, ich stelle alles selbst ein", unitPz:"Stk.", budgetPaeseFascia:"{paese} · Preisklasse {fascia}" },
+            pt: { cfgSalta:"Saltar, configuro tudo eu", unitPz:"un.", budgetPaeseFascia:"{paese} · gama {fascia}" },
+            nl: { cfgSalta:"Overslaan, ik stel alles zelf in", unitPz:"st.", budgetPaeseFascia:"{paese} · prijsklasse {fascia}" }
+        };
+        Object.keys(_correzioniI18n).forEach(lg => { if (translations[lg]) Object.assign(translations[lg], _correzioniI18n[lg]); });
+
         const BP_CFG_STEPS = ['evento', 'ospiti', 'bevitori', 'menu', 'riepilogo'];
         let bpCfgIdx = 0, bpCfgDir = 1, bpCfgNomeEvento = '';
         let bpCfgScelta = null, bpCfgSceltaChiave = '', bpCfgPesi = {};   // menu scelto nel guidato
@@ -5007,9 +5023,14 @@ Annulla = ` + T('backupUnisci'));
             bpChiudiModale('bp-config');
             bpStorageWrite('bp_onboarded', '1');
         }
+        /* "Salta, imposto tutto io": la vecchia Creazione manuale. */
+        function bpCfgSalta(){
+            bpChiudiModale('bp-config');
+            bpWelcomeManual();
+        }
         function bpCfgPrev(){
             if (bpCfgIdx > 0) { bpCfgIdx--; bpCfgDir = -1; bpCfgRender(); }
-            else { bpChiudiModale('bp-config'); bpShowWelcome(); }
+            else bpCfgClose();   // al primo passo "Indietro" chiude: il bivio guidato/manuale non c'e' piu'
         }
         function bpCfgNext(){
             if (bpCfgIdx < BP_CFG_STEPS.length - 1) { bpCfgIdx++; bpCfgDir = 1; bpCfgRender(); }
@@ -5124,8 +5145,8 @@ Annulla = ` + T('backupUnisci'));
                 }).totale;
             } catch (e) { return null; }   // la stima non deve mai bloccare il flusso
         }
-        const _bpEuro0 = n => '€ ' + n.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        const _bpEuro2 = n => '€ ' + n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const _bpEuro0 = n => '€ ' + n.toLocaleString(bpLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        const _bpEuro2 = n => '€ ' + n.toLocaleString(bpLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         function bpCfgAggiornaCosto() {
             const box = document.getElementById('bp-cfg-costo');
             if (!box) return;
@@ -5167,7 +5188,8 @@ Annulla = ` + T('backupUnisci'));
                             + '<span class="bp-voce-tx"><span class="bp-voce-nome">' + _bpEsc(T('cfgTipo' + c)) + '</span>'
                             + '<span class="bp-voce-sub">' + _bpEsc(T('cfgTipo' + c + 'Sub')) + '</span></span>'
                             + '<span class="bp-radio" aria-hidden="true"></span></button>';
-                    }).join('') + '</div>';
+                    }).join('') + '</div>'
+                    + '<button type="button" class="bpc-salta" data-do="bpCfgSalta">' + _bpEsc(T('cfgSalta')) + '</button>';
             }
             if (step === 'ospiti') {
                 return _bpCfgTesta('cfgEyGuests', T('cfgOspQ'), T('cfgOspDesc'))
@@ -5377,8 +5399,20 @@ Annulla = ` + T('backupUnisci'));
            mostrava "Evento salvato" su un salvataggio che non era avvenuto. */
         function bpSetEvents(list){ return bpStorageWrite(BP_EVENTS_KEY, list); }
         function _bpFmtDate(ts){ try { return new Date(ts).toLocaleDateString(linguaCorrente, {day:'2-digit', month:'short', year:'numeric'}); } catch(e){ return ''; } }
-        function _bpParseCost(str){ if(!str) return 0; const m = String(str).replace(/[^\d.,]/g, ''); if(!m) return 0; const v = parseFloat(m.replace(/\./g, '').replace(',', '.')); return isNaN(v) ? 0 : v; }
-        function _bpMoney(n){ return '€ ' + (Math.round(n * 100) / 100).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+        /* I costi salvati nell'evento sono testo ("≈ € 1.234,50"), e da quando
+           i prezzi seguono la lingua possono anche essere "≈ € 1,234.50".
+           Separatore decimale = l'ultimo punto o virgola seguito da una o due
+           cifre in fondo; tutti gli altri sono migliaia. */
+        function _bpParseCost(str){
+            if(!str) return 0;
+            const m = String(str).replace(/[^\d.,]/g, '');
+            if(!m) return 0;
+            const dec = m.match(/[.,](\d{1,2})$/);
+            const intera = (dec ? m.slice(0, m.length - dec[0].length) : m).replace(/[.,]/g, '');
+            const v = parseFloat(intera + (dec ? '.' + dec[1] : ''));
+            return isNaN(v) ? 0 : v;
+        }
+        function _bpMoney(n){ return '€ ' + (Math.round(n * 100) / 100).toLocaleString(bpLocale(), {minimumFractionDigits:2, maximumFractionDigits:2}); }
 
         /* Fotografa la lista della spesa renderizzata (gruppi + voci, snapshot nella lingua attuale) */
         function bpSnapshotLista(){
@@ -6730,7 +6764,11 @@ Annulla = ` + T('backupUnisci'));
         function bpHomeNewEvent(){
             if (bpHasInProgress() && !confirm(T('homeConfirmNew'))) return;
             _bpEventResetCore();
-            bpShowWelcome();   // mostra SEMPRE la scelta guidata/manuale
+            /* Si parte sempre dal guidato. Il foglio "Come vuoi preparare
+               l'evento?" era un passo in piu' per chi usa l'app una volta sola,
+               e non si chiudeva toccando fuori. Chi vuole fare a mano ha
+               "Salta" al primo passo. */
+            bpCfgStart();
         }
 
         function bpHomeResume(){
@@ -6780,9 +6818,9 @@ Annulla = ` + T('backupUnisci'));
                     ferm: { rosso: num('ferm_vino_rosso'), bianco: num('ferm_vino_bianco'), bollicine: num('ferm_bollicine'), birra: num('ferm_birra') },
                     ...bpModificatoriCorrenti()
                 });
-                document.getElementById('stima-live-tot').textContent = '€ ' + r.totale.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                document.getElementById('stima-live-tot').textContent = '€ ' + r.totale.toLocaleString(bpLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 const ppEl = document.getElementById('stima-live-pp');
-                if (ppEl) ppEl.textContent = '≈ € ' + (r.totale / ospiti).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + T('perPersonaTxt');
+                if (ppEl) ppEl.textContent = '≈ € ' + (r.totale / ospiti).toLocaleString(bpLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + T('perPersonaTxt');
                 box.style.display = '';
             });
         }
@@ -7161,18 +7199,24 @@ Annulla = ` + T('backupUnisci'));
         }
 
         const bpRighe = (m, g) => m.righe.filter(r => r.gruppo === g);
+        function el_bt(testo) {
+            const s = document.createElement('span');
+            s.className = 'bp-bt-hint';
+            s.textContent = ' · ' + testo;
+            return s;
+        }
 
         /* Disegna, e non calcola. Ogni stringa qui dentro e' quella di prima,
            carattere per carattere: i golden fotografano questo testo. */
         function bpRenderModello(m) {
-            const money = n => '€ ' + n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+            const money = n => '€ ' + n.toLocaleString(bpLocale(), {minimumFractionDigits:2, maximumFractionDigits:2});
             const costoSpan = costo => {
                 const cs = document.createElement('span');
                 cs.className = 'costo-voce';
                 cs.textContent = '≈ ' + money(costo);
                 return cs;
             };
-            const litriTesto = v => (v % 1 === 0 ? v.toString() : v.toFixed(1));
+            const litriTesto = v => bpNumero(v);
 
             const c = m.contatori;
             document.getElementById('drink-totali-text').innerHTML =
@@ -7196,6 +7240,8 @@ Annulla = ` + T('backupUnisci'));
                     s.textContent = tradIngrediente(r.ingrediente);
                     const strong = document.createElement('strong');
                     strong.textContent = litriTesto(r.roundedPurchaseQty / 1000) + ' L';
+                    const bt = bpSuggerimentoBottiglie(r);
+                    if (bt) strong.appendChild(el_bt(bt));
                     li.appendChild(s); li.appendChild(strong);
                     if (r.costo > 0) li.appendChild(costoSpan(r.costo));
                     bpAggiungiEditor(li, r);
@@ -7212,8 +7258,8 @@ Annulla = ` + T('backupUnisci'));
             if (rigaFerm.length > 0 && ulFerm && blockFerm) {
                 blockFerm.style.display = 'block';
                 rigaFerm.forEach(r => {
-                    const totLitri = (r.roundedPurchaseQty * r.packSize).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
-                    const taglia_L = r.packSize.toString().replace('.', ',');
+                    const totLitri = bpNumero(r.roundedPurchaseQty * r.packSize, 2);
+                    const taglia_L = bpNumero(r.packSize, 2);
                     const li = document.createElement('li');
                     const nameSpan = document.createElement('span');
                     nameSpan.textContent = T(r.labelKey) + ': ' + r.porzioni + ' ' + T(r.unitKey) + ' · ' + totLitri + ' L';
@@ -7233,7 +7279,7 @@ Annulla = ` + T('backupUnisci'));
             bpRighe(m, 'extra').forEach(r => {
                 const li = document.createElement('li');
                 const sp = document.createElement('span'); sp.textContent = T(r.labelKey);
-                const st = document.createElement('strong'); st.textContent = r.roundedPurchaseQty + ' ' + r.displayUnit;
+                const st = document.createElement('strong'); st.textContent = r.roundedPurchaseQty + ' ' + bpUnita(r.displayUnit);
                 li.appendChild(sp); li.appendChild(st);
                 if (r.costo > 0) li.appendChild(costoSpan(r.costo));
                 bpAggiungiEditor(li, r);
@@ -7294,12 +7340,13 @@ Annulla = ` + T('backupUnisci'));
             const fascia = m.meta.fascia;
             const _fasciaKey = 'fascia' + fascia.charAt(0).toUpperCase() + fascia.slice(1);
             document.getElementById('budget-sub').textContent =
-                m.meta.nazione + ' · ' + T('budgetFasciaWord') + ' ' + (T(_fasciaKey) || fascia).toLowerCase();
+                T('budgetPaeseFascia').replace('{paese}', bpNomePaese(m.meta.nazione))
+                    .replace('{fascia}', (T(_fasciaKey) || fascia).toLowerCase());
 
             document.getElementById('risultati').style.display = 'block';
 
             const barTot = document.getElementById('bp-lista-tot');
-            if (barTot) barTot.textContent = '\u20ac ' + m.totale.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            if (barTot) barTot.textContent = '\u20ac ' + m.totale.toLocaleString(bpLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
             const barPp = document.getElementById('bp-lista-pp');
             if (barPp) barPp.textContent = m.perPersona != null ? '\u2248 ' + money(m.perPersona) + ' ' + T('perPersonaTxt') : '';
             bpVoceAggiorna();
@@ -7372,7 +7419,7 @@ Annulla = ` + T('backupUnisci'));
                 // Un tocco fuori dalla scheda la chiude, come ci si aspetta da un foglio.
                 dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
             }
-            const unita = r.baseUnit === 'ml' ? 'L' : r.displayUnit;
+            const unita = r.baseUnit === 'ml' ? 'L' : bpUnita(r.displayUnit);
             const passo = r.baseUnit === 'ml' ? 0.5 : 1;
             const inMostra = v => r.baseUnit === 'ml' ? v / 1000 : v;
             document.getElementById('bp-voce-tit').textContent = bpNomeRiga(r);
@@ -7426,7 +7473,7 @@ Annulla = ` + T('backupUnisci'));
             if (!dlg || !dlg.open || !bpVoceId) return;
             r = r || bpVoceRiga();
             if (!r) return;
-            const money = n => '€ ' + n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const money = n => '€ ' + n.toLocaleString(bpLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const calc = document.getElementById('bp-voce-calc');
             if (calc) calc.textContent = T('vocNellaLista') + ': ' + bpQuantitaMostrata(r) + (r.costo > 0 ? ' · ≈ ' + money(r.costo) : '');
             const inMostra = v => r.baseUnit === 'ml' ? v / 1000 : v;
@@ -7690,7 +7737,7 @@ Annulla = ` + T('backupUnisci'));
                 ['extra',      'risultatiAttrezzatura'],
                 ['garnish',    'risultatiGarnish']
             ];
-            const money = n => '€ ' + n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+            const money = n => '€ ' + n.toLocaleString(bpLocale(), {minimumFractionDigits:2, maximumFractionDigits:2});
 
             gruppi.forEach(([g, chiaveTit]) => {
                 const righe = bpRighe(m, g).filter(r => !bpRigaSuperflua(r));
@@ -7782,6 +7829,81 @@ Annulla = ` + T('backupUnisci'));
             foglio.appendChild(piede);
         }
 
+        /* ── Numeri, unita' e paesi nella lingua dell'app ──
+           Prima i litri uscivano con toFixed ("2.5 L") accanto a prezzi e vini
+           con la virgola ("1,5 L"), e i prezzi erano formattati sempre in
+           italiano anche con l'app in inglese. */
+        const BP_LOCALE = { it:'it-IT', en:'en-GB', es:'es-ES', fr:'fr-FR', de:'de-DE', pt:'pt-PT', nl:'nl-NL' };
+        function bpLocale() { return BP_LOCALE[linguaCorrente] || 'it-IT'; }
+        function bpNumero(v, dec) {
+            return Number(v).toLocaleString(bpLocale(), { minimumFractionDigits: 0, maximumFractionDigits: dec == null ? 1 : dec });
+        }
+        function bpEuro(n, dec) {
+            const d = dec == null ? 2 : dec;
+            return '€ ' + Number(n).toLocaleString(bpLocale(), { minimumFractionDigits: d, maximumFractionDigits: d });
+        }
+        function bpUnita(u) { return u === 'pz' ? T('unitPz') : u; }
+
+        /* I paesi restano salvati con il nome italiano (e' la chiave di
+           indiciGeo, dentro eventi, link e backup): cambia solo il testo che
+           si legge, tradotto dal browser con Intl.DisplayNames. */
+        const BP_ISO_PAESE = {
+            "Albania":"AL","Andorra":"AD","Argentina":"AR","Australia":"AU","Austria":"AT","Belgio":"BE",
+            "Bielorussia":"BY","Bosnia ed Erzegovina":"BA","Brasile":"BR","Bulgaria":"BG","Canada":"CA",
+            "Cina":"CN","Cipro":"CY","Corea del Nord":"KP","Corea del Sud":"KR","Croazia":"HR","Danimarca":"DK",
+            "Estonia":"EE","Figi":"FJ","Finlandia":"FI","Francia":"FR","Germania":"DE","Giappone":"JP",
+            "Grecia":"GR","Hong Kong":"HK","Irlanda":"IE","Islanda":"IS","Italia":"IT","Lettonia":"LV",
+            "Liechtenstein":"LI","Lituania":"LT","Lussemburgo":"LU","Macao":"MO","Macedonia del Nord":"MK",
+            "Malta":"MT","Messico":"MX","Micronesia":"FM","Moldavia":"MD","Monaco":"MC","Mongolia":"MN",
+            "Montenegro":"ME","Norvegia":"NO","Nuova Zelanda":"NZ","Paesi Bassi":"NL","Papua Nuova Guinea":"PG",
+            "Polonia":"PL","Portogallo":"PT","Regno Unito":"GB","Repubblica Ceca":"CZ","Romania":"RO",
+            "Russia":"RU","Samoa":"WS","San Marino":"SM","Serbia":"RS","Singapore":"SG","Slovacchia":"SK",
+            "Slovenia":"SI","Spagna":"ES","Stati Uniti":"US","Svezia":"SE","Svizzera":"CH","Taiwan":"TW",
+            "Tonga":"TO","Ucraina":"UA","Ungheria":"HU","Vanuatu":"VU"
+        };
+        function bpNomePaese(n) {
+            const iso = BP_ISO_PAESE[n];
+            if (!iso || linguaCorrente === 'it' || typeof Intl === 'undefined' || !Intl.DisplayNames) return n;
+            try { return new Intl.DisplayNames([bpLocale()], { type: 'region' }).of(iso) || n; } catch (e) { return n; }
+        }
+        /* Riscrive il testo delle opzioni e le riordina nella lingua corrente;
+           il valore (italiano) non cambia, quindi nemmeno la scelta. */
+        function bpTraduciPaesi() {
+            const sel = document.getElementById('sel-nazione');
+            if (!sel || !sel.options.length) return;
+            const scelto = sel.value;
+            const opz = Array.from(sel.options);
+            opz.forEach(o => { o.textContent = bpNomePaese(o.value); });
+            opz.sort((a, b) => a.textContent.localeCompare(b.textContent, bpLocale()))
+               .forEach(o => sel.appendChild(o));
+            sel.value = scelto;
+        }
+
+        /* Litri E bottiglie: i litri restano il dato vero, accanto c'e' quante
+           bottiglie servono. I distillati si trovano da 0,7 e da 1 L: si
+           sceglie il formato che avanza meno (3 L -> 3 x 1 L, 3,5 L -> 5 x 0,7 L).
+           Al supermercato il formato puo' essere un altro, per questo i litri
+           non spariscono. */
+        const BP_FORMATO_BT = {
+            'Aperol': 1, 'Bitter Campari': 1, 'Vermouth Rosso': 1, 'Vermouth Secco': 1,
+            'Prosecco': 0.75, 'Champagne': 0.75, 'Vino Bianco': 0.75, 'Porto Rosso': 0.75, 'Lillet Blanc': 0.75,
+            'Birra Chiara': 0.33
+        };
+        function bpSuggerimentoBottiglie(r) {
+            if (!r || r.gruppo !== 'alcolici' || r.baseUnit !== 'ml' || !(r.roundedPurchaseQty > 0)) return '';
+            const litri = r.roundedPurchaseQty / 1000;
+            const formati = BP_FORMATO_BT[r.ingrediente] ? [BP_FORMATO_BT[r.ingrediente]] : [0.7, 1];
+            let meglio = null;
+            formati.forEach(f => {
+                const n = Math.ceil(litri / f - 1e-9);
+                const avanzo = Math.round((n * f - litri) * 1000);
+                if (!meglio || avanzo < meglio.avanzo || (avanzo === meglio.avanzo && n < meglio.n)) meglio = { n, f, avanzo };
+            });
+            // "1 L · 1 × 1 L" non dice niente di nuovo: una bottiglia esatta basta il litro.
+            if (meglio.n === 1 && meglio.avanzo === 0) return '';
+            return meglio.n + ' × ' + bpNumero(meglio.f, 2) + ' L';
+        }
+
         /* La quantita' che si legge sul foglio e' quella d'acquisto, non il
            fabbisogno grezzo: al supermercato si comprano bottiglie, non
            millilitri. */
@@ -7789,12 +7911,13 @@ Annulla = ` + T('backupUnisci'));
             if (r.roundedPurchaseQty == null) return '';
             if (r.baseUnit === 'ml') {
                 const v = r.roundedPurchaseQty / 1000;   // in riga sono ml, sul foglio si leggono litri
-                return (v % 1 === 0 ? v.toString() : v.toFixed(1)) + ' L';
+                const bt = bpSuggerimentoBottiglie(r);
+                return bpNumero(v) + ' L' + (bt ? ' · ' + bt : '');
             }
             if (r.baseUnit === 'bottiglie') {
                 return r.roundedPurchaseQty + ' ' + T(r.roundedPurchaseQty === 1 ? 'bottigliaSing' : 'bottiglie');
             }
-            return r.roundedPurchaseQty + ' ' + r.displayUnit;
+            return r.roundedPurchaseQty + ' ' + bpUnita(r.displayUnit);
         }
 
         function bpNomeRiga(r) {

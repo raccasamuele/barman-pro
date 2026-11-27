@@ -81,7 +81,7 @@ Comandi e navigazione mantengono icone a linea. Niente clay su ogni voce.
 La stessa barra inferiore diventa laterale da 900px. A 1400px Setup e Menù sono
 affiancati; la lista ha una colonna leggibile con scontrino laterale da 1100px.
 
-**L'isola.** Sotto i 900px la barra non tocca i bordi: galleggia sul contenuto a 16px dai lati, alta 64px, con un cursore che scorre fra le voci (uno pseudo-elemento mosso da aria-current, senza JavaScript). Solo icone: le etichette restano per gli screen reader e tornano visibili nella colonna da 900px. La barra d'azione ha la stessa forma e galleggia sopra l'isola.
+**L'isola.** Sotto i 900px la barra non tocca i bordi: galleggia sul contenuto a 16px dai lati, alta 64px, con un cursore che scorre fra le voci (uno pseudo-elemento mosso da aria-current, senza JavaScript). Icona con etichetta piccola sotto: chi usa l'app una volta sola non deve indovinare cosa vuol dire il calice. Da 900px l'etichetta torna accanto all'icona, nella colonna. La barra d'azione ha la stessa forma e galleggia sopra l'isola.
 
 **Il piede.** Privacy, licenza, contatti, GitHub e raccasamuele.it sono righe della lista di Altro; altrove non si ripetono. Del piede resta solo il copyright, sulla pagina di Altro.
 

@@ -81,7 +81,7 @@ perché l'hostname non corrisponde.
 ## Icone e immagini
 
 Le icone dell'applicazione (`favicon.svg`, `icon-*.png`,
-`apple-touch-icon.png`, `og-image.png`) sono opera dell'autore e sono
+`apple-touch-icon.png`, `og-image.jpg`) sono opera dell'autore e sono
 coperte dalla licenza MIT insieme al resto.
 
 ---

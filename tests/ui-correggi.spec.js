@@ -63,7 +63,7 @@ test.describe('Correggi · una scheda per voce', () => {
     const calcolata = parseFloat(await page.locator('#bp-voce .mod-qta').getAttribute('data-calc'));
     await page.locator('#bp-voce [data-arg="mod-qta|1"]').click();
     await expect(page.locator('#bp-voce .mod-qta')).toHaveValue(String(calcolata + 0.5));
-    await expect(page.locator('#lista_alcolici li').first().locator('strong')).toHaveText((calcolata + 0.5) + ' L');
+    await expect(page.locator('#lista_alcolici li').first().locator('strong')).toHaveText(new RegExp('^' + String(calcolata + 0.5).replace('.', ',') + ' L( · .*)?$'));
     await expect(page.locator('#bp-voce-ripristina')).toBeEnabled();
   });
 

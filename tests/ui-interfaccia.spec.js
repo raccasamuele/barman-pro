@@ -7,8 +7,9 @@ for (const width of [375, 1400]) {
 
     test('il guidato copre la testata e resta raggiungibile da tastiera', async ({page}) => {
       await openApp(page);
+      // Dalla Home si entra direttamente nel guidato: il foglio di scelta non c'e' piu'.
       await page.locator('.bph-hero').click();
-      await page.locator('#bp-welcome [data-do="bpCfgStart"]').click();
+      await expect(page.locator('#bp-welcome')).toBeHidden();
       await expect(page.locator('#bp-config')).toBeVisible();
       await expect.poll(() => page.evaluate(() => {
         const r=document.querySelector('#bp-config .bpc-close').getBoundingClientRect();
