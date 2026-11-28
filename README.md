@@ -81,16 +81,8 @@ segnalazione privata di GitHub. I dettagli sono in [SECURITY.md](SECURITY.md).
 
 ## Statistiche di visita
 
-Sono spente. `public/analytics.js` contiene una costante `TOKEN` vuota:
-finché resta vuota, **nessuna richiesta parte verso terzi**.
-
-Per accenderle serve un token di Cloudflare Web Analytics legato
-all'hostname su cui il sito gira davvero (Analytics & Logs → Web Analytics
-→ Add a site). Il token va incollato in quell'unica costante.
-
-Il token è legato all'hostname: usarne uno di un altro sito non produce
-errori visibili, semplicemente Cloudflare scarta i dati. Chi forka il
-progetto dovrebbe mettere il proprio, o lasciare vuoto.
+Sono spente: finché la costante `TOKEN` in `public/analytics.js` resta vuota,
+**nessuna richiesta parte verso terzi**. Come accenderle è spiegato nel file.
 
 ## Licenza
 
