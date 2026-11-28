@@ -2,9 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * L'app viene servita davvero, e i test girano contro quella — non contro
- * copie delle sue funzioni. `calcolaSpesa()` legge e muta il DOM: estrarla
- * in un modulo Node produrrebbe un duplicato libero di divergere dal codice
- * che gli utenti eseguono.
+ * copie delle sue funzioni. `calcolaSpesa()` legge e muta il DOM, quindi resta
+ * in app.js; il calcolo puro vive in public/motore.js, lo STESSO file che il
+ * browser carica, e tests/motore.test.mjs lo prova anche da Node senza
+ * duplicarlo.
  */
 export default defineConfig({
   testDir: './tests',

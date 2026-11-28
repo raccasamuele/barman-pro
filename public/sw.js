@@ -9,8 +9,8 @@
  *    Convenzione: barman-pro-v{MAJOR}.{MINOR}.{PATCH}
  */
 
-const CACHE_VERSION = 'barman-pro-v3.35.0';
-const ASSET_CACHE = 'barman-pro-assets-v3.35.0';
+const CACHE_VERSION = 'barman-pro-v3.36.0';
+const ASSET_CACHE = 'barman-pro-assets-v3.36.0';
 
 // Asset da pre-cachare alla prima installazione.
 //
@@ -31,6 +31,7 @@ const PRECACHE_ASSETS = [
     // NB: niente './index.html' — Cloudflare lo rimanda a './' con un 307,
     // e addAll() rifiuta i redirect. './' serve gia' lo stesso documento.
     './app.css',
+    './motore.js',
     './app.js',
     './mail.js',
     './tema-pagina.js',

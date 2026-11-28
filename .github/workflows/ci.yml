@@ -31,6 +31,9 @@ jobs:
       - name: Installa dipendenze
         run: npm ci
 
+      - name: Motore di calcolo · senza browser
+        run: npm run test:motore
+
       - name: Installa il browser
         run: npx playwright install --with-deps chromium
 
