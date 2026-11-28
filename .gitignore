@@ -23,3 +23,6 @@ Thumbs.db
 *~
 *.bak
 *.orig
+
+# Appunti di lavoro locali, fuori dal repository
+PLAN*.md
